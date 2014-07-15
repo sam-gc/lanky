@@ -4,7 +4,7 @@
 
 char *alloc_str(char *str)
 {
-    char *tmp = malloc(strlen(str) + 1);
+    char *tmp = MALLOC(strlen(str) + 1);
     strcpy(tmp, str);
     return tmp;
 }
