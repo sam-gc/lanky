@@ -1,8 +1,7 @@
 Lanky
 =====
 
-# A new interpreted language implemented in C.
-
+A new interpreted language implemented in C.
 
 ## Background
 The interpreter uses Flex and Bison to do tokenization and parsing. The grammar is hopefully relatively similar. I borrowed some of the Bison and Flex code from [this tutorial](http://gnuu.org/2009/09/18/writing-your-own-toy-compiler/4/); that project uses C++ with LLVM. My goal is to learn about interpreters and create a marginally useful language with which to play around.
