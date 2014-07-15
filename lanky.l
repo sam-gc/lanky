@@ -15,7 +15,7 @@ lalpha [a-z]
 alpha [a-zA-Z_]
 integer {digit}+
 exponent [eE][+-]?{integer}
-real {integer}("."{integer}){exponent}?
+real {integer}("."{digit}*){exponent}?
 nvar {alpha}({alpha}|{digit})*
 
 %%
