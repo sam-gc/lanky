@@ -14,6 +14,7 @@ typedef enum {
 	VINT,
 	VSTRING,
 	VOBJECT,
+	VVAR,
 	VNONE
 } ast_value_type;
 

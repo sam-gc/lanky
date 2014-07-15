@@ -50,6 +50,9 @@ ast_node *create_value_node(ast_value_type type, void *data)
         u.s = (char *)str;
         break;
     }
+    case VVAR:
+        u.s = data;
+        break;
     default:
         DEBUG("Shouldn't have reached here...");
         break;
