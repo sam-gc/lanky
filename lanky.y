@@ -1,5 +1,6 @@
 %{
     #include "ast.h"
+    #include "tools.h"
     #include <stdlib.h>
     #include <stdio.h>
     ast_node *programBlock; /* the top level root node of our final AST */
@@ -7,11 +8,6 @@
     extern int yylex();
     void yyerror(const char *s) { printf("ERROR: %s\n", s); }
 %}
-
-%code requires {
-    #include "ast.h"
-    #include "tools.h"
-}
 
 /* Represents the many different ways we can access our data */
 %union {
