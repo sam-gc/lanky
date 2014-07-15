@@ -113,7 +113,7 @@ void print_value(ast_value_wrapper wrap)
         printf("%lf\n", wrap.value.d);
         break;
     case VINT:
-        printf("%ld\n", wrap.value.i);
+        printf("%lld\n", wrap.value.i);
         break;
     case VSTRING:
         printf("%s\n", wrap.value.s);

@@ -10,7 +10,7 @@ void get_string_for_value(ast_value_wrapper val, char *buffer)
     if(val.type == VDOUBLE)
         sprintf(buffer, "%lf", val.value.d);
     else if(val.type == VINT)
-        sprintf(buffer, "%ld", val.value.i);
+        sprintf(buffer, "%lld", val.value.i);
 }
 
 ast_value_wrapper binary_add(ast_value_wrapper left, ast_value_wrapper right)

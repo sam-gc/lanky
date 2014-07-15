@@ -35,11 +35,11 @@ ast_node *create_value_node(ast_value_type type, void *data)
     {
     case VINT:
         u.i = atol((char *)data);
-        free(data);
+        FREE(data);
         break;
     case VDOUBLE:
         u.d = atof((char *)data);
-        free(data);
+        FREE(data);
         break;
     case VSTRING:
     {
