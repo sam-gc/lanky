@@ -12,6 +12,7 @@ typedef enum {
 typedef enum {
 	VDOUBLE,
 	VINT,
+	VSTRING,
 	VOBJECT,
 	VNONE
 } ast_value_type;
@@ -19,6 +20,7 @@ typedef enum {
 typedef union {
 	double d;
 	long long i;
+	char *s;
 	void *o;
 } ast_value_union;
 

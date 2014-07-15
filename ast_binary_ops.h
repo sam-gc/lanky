@@ -2,6 +2,7 @@
 #define AST_BINARY_OPS_H
 
 #define NUMERIC_UNWRAP(wrap) (wrap.type == VINT ? wrap.value.i : wrap.value.d)
+#define IS_NUMERIC(wrap) (wrap.type == VINT || wrap.type == VDOUBLE)
 
 #include "ast.h"
 

@@ -41,6 +41,15 @@ ast_node *create_value_node(ast_value_type type, void *data)
         u.d = atof((char *)data);
         free(data);
         break;
+    case VSTRING:
+    {
+        char *raw = (char *)data;
+        char *str = MALLOC(strlen(raw) - 1);
+        strcpy(str, "");
+        memcpy(str, raw + 1, strlen(raw) - 2);
+        u.s = (char *)str;
+        break;
+    }
     default:
         DEBUG("Shouldn't have reached here...");
         break;
@@ -76,7 +85,13 @@ void ast_free_binary_node(ast_node *node)
 
 void ast_free_value_node(ast_node *node)
 {
-
+    ast_value_node *vn = (ast_value_node *)node;
+    switch(vn->value_type)
+    {
+    case VSTRING:
+        FREE(vn->value.s);
+        break;
+    }
 }
 
 void ast_free(ast_node *node)

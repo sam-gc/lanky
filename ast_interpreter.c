@@ -1,6 +1,8 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "ast_interpreter.h"
 #include "ast_binary_ops.h"
+#include "tools.h"
 
 ast_value_wrapper eval_binary_expression(ast_node *n)
 {
@@ -75,7 +77,18 @@ ast_value_wrapper eval(ast_node *root)
     else
     {
         print_value(ret);
+        value_wrapper_free(ret);
         return eval(root->next);
+    }
+}
+
+void value_wrapper_free(ast_value_wrapper wrap)
+{
+    switch(wrap.type)
+    {
+    case VSTRING:
+        FREE(wrap.value.s);
+        break;
     }
 }
 
@@ -101,6 +114,9 @@ void print_value(ast_value_wrapper wrap)
         break;
     case VINT:
         printf("%ld\n", wrap.value.i);
+        break;
+    case VSTRING:
+        printf("%s\n", wrap.value.s);
         break;
     }
 }

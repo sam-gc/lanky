@@ -14,6 +14,7 @@ int main(int argc, char *argv[])
     ast_value_wrapper val = eval(programBlock);
     // printf("%d %lf\n", val.type, val.value.d);
     print_value(val);
+    value_wrapper_free(val);
     // ast_node *n = ((ast_block_node *)programBlock)->payload;
     // ast_print(programBlock);
 

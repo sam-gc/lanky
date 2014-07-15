@@ -20,7 +20,7 @@
    match our tokens.l lex file. We also define the node type
    they represent.
  */
-%token <string> TIDENTIFIER TINTEGER TFLOAT
+%token <string> TIDENTIFIER TINTEGER TFLOAT TSTRING
 %token <token> TCEQ TCNE TCLT TCLE TCGT TCGE TEQUAL TAND TOR
 %token <token> TLPAREN TRPAREN TLBRACE TRBRACE TCOMMA TDOT
 %token <token> TPLUS TMINUS TMUL TDIV TMOD TPOW
@@ -54,6 +54,7 @@ stmt : expression;
 expression : 
     TINTEGER { $$ = create_value_node(VINT, (void *)$1); }
     | TFLOAT { $$ = create_value_node(VDOUBLE, (void *)$1); }
+    | TSTRING { $$ = create_value_node(VSTRING, (void *)$1); }
     | expression TPLUS expression { $$ = create_binary_node($1, $3, '+'); }
     | expression TMINUS expression { $$ = create_binary_node($1, $3, '-'); }
     | expression TMUL expression { $$ = create_binary_node($1, $3, '*'); }

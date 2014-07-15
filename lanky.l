@@ -17,6 +17,7 @@ integer {digit}+
 exponent [eE][+-]?{integer}
 real {integer}("."{digit}*){exponent}?
 nvar {alpha}({alpha}|{digit})*
+strlit \"(\\.|[^"])*\"
 
 %%
 
@@ -24,6 +25,7 @@ nvar {alpha}({alpha}|{digit})*
 {nvar}      {SAVE_TOKEN; return TIDENTIFIER;}
 {real}      {SAVE_TOKEN; return TFLOAT;}
 {integer}   {SAVE_TOKEN; return TINTEGER;}
+{strlit}	{SAVE_TOKEN; return TSTRING;}
 "="                     return TOKEN(TEQUAL);
 "=="                    return TOKEN(TCEQ);
 "!="                    return TOKEN(TCNE);
