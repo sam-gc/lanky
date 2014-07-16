@@ -77,6 +77,22 @@ ast_value_wrapper resolve_variable(ast_value_wrapper wrap)
     return ret;
 }
 
+ast_value_wrapper handle_if_block(ast_node *n)
+{
+    ast_if_node *node = (ast_if_node *)n;
+
+    ast_value_wrapper cond = eval(node->condition);
+    if(NUMERIC_UNWRAP(cond) != 0)
+    {
+        ast_value_wrapper wrap = eval(node->payload);
+        return wrap;
+    }
+
+    ast_value_wrapper ret;
+    ret.type = VNONE;
+    return ret;
+}
+
 ast_value_wrapper eval(ast_node *root)
 {
     ast_value_wrapper ret;
@@ -98,13 +114,17 @@ ast_value_wrapper eval(ast_node *root)
         ret = wrap;
         break;
     }
+    case AIF:
+    {
+        ret = handle_if_block(root);
+    }
     }
 
     if(!root->next)
         return ret;
     else
     {
-        print_value(ret);
+        // print_value(ret);
         value_wrapper_free(ret);
         return eval(root->next);
     }

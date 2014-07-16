@@ -92,6 +92,28 @@ ast_node *create_assignment_node(char *left, ast_node *right)
     return (ast_node *)node;
 }
 
+ast_node *create_block_node(ast_node *payload)
+{
+    ast_block_node *node = MALLOC(sizeof(ast_block_node));
+    node->type = ABLOCK;
+    node->next = NULL;
+
+    node->payload = payload;
+    return (ast_node *)node;
+}
+
+ast_node *create_if_node(ast_node *condition, ast_node *payload)
+{
+    ast_if_node *node = MALLOC(sizeof(ast_if_node));
+    node->type = AIF;
+    node->next = NULL;
+
+    node->payload = payload;
+    node->condition = condition;
+
+    return (ast_node *)node;
+}
+
 void ast_free_binary_node(ast_node *node)
 {
     ast_binary_node *bn = (ast_binary_node *)node;
@@ -113,6 +135,13 @@ void ast_free_value_node(ast_node *node)
     }
 }
 
+void ast_free_if_node(ast_node *node)
+{
+    ast_if_node *in = (ast_if_node *)node;
+    ast_free(in->condition);
+    ast_free(in->payload);
+}
+
 void ast_free(ast_node *node)
 {
     switch(node->type)
@@ -122,6 +151,9 @@ void ast_free(ast_node *node)
         break;
     case AVALUE:
         ast_free_value_node(node);
+        break;
+    case AIF:
+        ast_free_if_node(node);
         break;
     default:
         break;

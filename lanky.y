@@ -24,13 +24,14 @@
 %token <token> TCEQ TCNE TCLT TCLE TCGT TCGE TEQUAL TAND TOR
 %token <token> TLPAREN TRPAREN TLBRACE TRBRACE TCOMMA TDOT
 %token <token> TPLUS TMINUS TMUL TDIV TMOD TPOW
+%token <token> TIF
 
 /* Define the type of node our nonterminal symbols represent.
    The types refer to the %union declaration above. Ex: when
    we call an ident (defined by union type ident) we are really
    calling an (NIdentifier*). It makes the compiler happy.
  */
-%type <node> program stmts stmt expression
+%type <node> program stmts stmt expression ifblock block
 
 /* Operator precedence for mathematical operators */
 %left TEQUAL
@@ -40,6 +41,7 @@
 %left TMINUS TPLUS
 %left TDIV TMUL TMOD
 %right TPOW
+%nonassoc TIF
 
 %start program
 
@@ -50,7 +52,11 @@ program : stmts { programBlock = $1; }
 stmts : stmt { $$ = create_root_node(); ast_add_node($$, $1); }
     | stmts stmt { ast_add_node($1, $2); }
     ;
-stmt : expression;
+block : TLBRACE stmts TRBRACE { $$ = $2; }
+    ;
+ifblock : TIF TLPAREN expression TRPAREN block { $$ = create_if_node($3, $5); }
+stmt : expression
+    ;
 
 expression : 
     TINTEGER { $$ = create_value_node(VINT, (void *)$1); }
@@ -73,6 +79,7 @@ expression :
     | expression TAND expression { $$ = create_binary_node($1, $3, '&'); }
     | TLPAREN expression TRPAREN { $$ = $2; }
     | TIDENTIFIER TEQUAL expression { $$ = create_assignment_node($1, $3); }
+    | ifblock
     ;
 
 %%
