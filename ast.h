@@ -63,6 +63,7 @@ ast_node *create_root_node();
 void ast_add_node(ast_node *curr, ast_node *next);
 ast_node *create_value_node(ast_value_type type, void *data);
 ast_node *create_binary_node(ast_node *left, ast_node *right, char opt);
+ast_node *create_assignment_node(char *left, ast_node *right);
 void ast_free(ast_node *node);
 
 #endif

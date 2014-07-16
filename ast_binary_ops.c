@@ -1,5 +1,6 @@
 #include "ast_binary_ops.h"
 #include "tools.h"
+#include "context.h"
 #include <math.h>
 #include <string.h>
 #include <stdlib.h>
@@ -230,4 +231,18 @@ ast_value_wrapper binary_or(ast_value_wrapper left, ast_value_wrapper right)
     ret.type = VINT;
 
     return ret;
+}
+
+ast_value_wrapper binary_set_equal(ast_value_wrapper left, ast_value_wrapper right)
+{
+    if(left.type != VVAR)
+    {
+        DEBUG("Something went horribly wrong.");
+        ast_value_wrapper wrap;
+        wrap.type = VNONE;
+        return wrap;
+    }
+
+    ctx_set_var(left.value.s, right);
+    return right;
 }

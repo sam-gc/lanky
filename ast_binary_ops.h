@@ -20,5 +20,6 @@ ast_value_wrapper binary_lesserequal(ast_value_wrapper left, ast_value_wrapper r
 ast_value_wrapper binary_notequal(ast_value_wrapper left, ast_value_wrapper right);
 ast_value_wrapper binary_and(ast_value_wrapper left, ast_value_wrapper right);
 ast_value_wrapper binary_or(ast_value_wrapper left, ast_value_wrapper right);
+ast_value_wrapper binary_set_equal(ast_value_wrapper left, ast_value_wrapper right);
 
 #endif

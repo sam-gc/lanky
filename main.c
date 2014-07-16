@@ -3,12 +3,14 @@
 #include "ast_interpreter.h"
 #include "parser.h"
 #include "tools.h"
+#include "context.h"
 
 extern ast_node *programBlock;
 extern int yyparse();
 
 int main(int argc, char *argv[])
 {
+    ctx_init();
     yyparse();
     // printf("%p ... %p ... %p\n", programBlock, programBlock->next, programBlock->next->next);
     ast_value_wrapper val = eval(programBlock);
@@ -22,5 +24,6 @@ int main(int argc, char *argv[])
     // printf("%c\n", b->opt);
     ast_free(programBlock);
     printf("Allocations: %d\tFrees: %d\n", get_malloc_count(), get_free_count());
+    ctx_clean_up();
     return 0;
 }

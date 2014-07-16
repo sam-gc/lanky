@@ -33,9 +33,10 @@
 %type <node> program stmts stmt expression
 
 /* Operator precedence for mathematical operators */
+%left TEQUAL
 %left TOR
 %left TAND
-%nonassoc TCEQ TCNE TCLT TCLE TCGT TCGE TEQUAL
+%nonassoc TCEQ TCNE TCLT TCLE TCGT TCGE
 %left TMINUS TPLUS
 %left TDIV TMUL TMOD
 %right TPOW
@@ -55,6 +56,7 @@ expression :
     TINTEGER { $$ = create_value_node(VINT, (void *)$1); }
     | TFLOAT { $$ = create_value_node(VDOUBLE, (void *)$1); }
     | TSTRING { $$ = create_value_node(VSTRING, (void *)$1); }
+    | TIDENTIFIER { $$ = create_value_node(VVAR, (void *)$1); }
     | expression TPLUS expression { $$ = create_binary_node($1, $3, '+'); }
     | expression TMINUS expression { $$ = create_binary_node($1, $3, '-'); }
     | expression TMUL expression { $$ = create_binary_node($1, $3, '*'); }
@@ -70,6 +72,7 @@ expression :
     | expression TOR expression { $$ = create_binary_node($1, $3, '|'); }
     | expression TAND expression { $$ = create_binary_node($1, $3, '&'); }
     | TLPAREN expression TRPAREN { $$ = $2; }
+    | TIDENTIFIER TEQUAL expression { $$ = create_assignment_node($1, $3); }
     ;
 
 %%

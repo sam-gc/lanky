@@ -77,6 +77,20 @@ ast_node *create_binary_node(ast_node *left, ast_node *right, char opt)
     return (ast_node *)node;
 }
 
+ast_node *create_assignment_node(char *left, ast_node *right)
+{
+    ast_binary_node *node = MALLOC(sizeof(ast_binary_node));
+    node->type = ABINARY_EXPRESSION;
+    node->next = NULL;
+
+    ast_node *var = create_value_node(VVAR, (void *)left);
+    node->left = var;
+    node->right = right;
+    node->opt = '=';
+
+    return (ast_node *)node;
+}
+
 void ast_free_binary_node(ast_node *node)
 {
     ast_binary_node *bn = (ast_binary_node *)node;
@@ -92,6 +106,7 @@ void ast_free_value_node(ast_node *node)
     switch(vn->value_type)
     {
     case VSTRING:
+    case VVAR:
         FREE(vn->value.s);
         break;
     }

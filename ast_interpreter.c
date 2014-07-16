@@ -3,10 +3,20 @@
 #include "ast_interpreter.h"
 #include "ast_binary_ops.h"
 #include "tools.h"
+#include "context.h"
 
 ast_value_wrapper eval_binary_expression(ast_node *n)
 {
     ast_binary_node *node = (ast_binary_node *)n;
+
+    // Special case for assignment:
+    if(node->opt == '=')
+    {
+        ast_value_wrapper l;
+        l.type = VVAR;
+        l.value = ((ast_value_node *)node->left)->value;
+        return binary_set_equal(l, eval(node->right));
+    }
 
     ast_value_wrapper left = eval(node->left);
     ast_value_wrapper right = eval(node->right);
@@ -41,12 +51,22 @@ ast_value_wrapper eval_binary_expression(ast_node *n)
         return binary_and(left, right);
     case '|':
         return binary_or(left, right);
+    case '=':
+        return binary_set_equal(left, right);
     }
 
     DEBUG("Should not have reached here.");
     ast_value_wrapper bad;
     bad.type = VNONE;
     return bad;
+}
+
+ast_value_wrapper resolve_variable(ast_value_wrapper wrap)
+{
+    if(wrap.type != VVAR)
+        return wrap;
+
+    return ctx_get_var(wrap.value.s);
 }
 
 ast_value_wrapper eval(ast_node *root)
@@ -60,7 +80,7 @@ ast_value_wrapper eval(ast_node *root)
         ast_value_node *n = (ast_value_node *)root;
         wrap.type = n->value_type;
         wrap.value = n->value;
-        ret = wrap;
+        ret = resolve_variable(wrap);
         break;
     }
     case ABINARY_EXPRESSION:
@@ -117,6 +137,9 @@ void print_value(ast_value_wrapper wrap)
         break;
     case VSTRING:
         printf("%s\n", wrap.value.s);
+        break;
+    case VNONE:
+        printf("None\n");
         break;
     }
 }
