@@ -156,9 +156,21 @@ ast_value_wrapper binary_power(ast_value_wrapper left, ast_value_wrapper right)
 ast_value_wrapper binary_equal(ast_value_wrapper left, ast_value_wrapper right)
 {
     ast_value_wrapper ret;
+    ret.type = VINT;
+
+    if(left.type == VSTRING || right.type == VSTRING)
+    {
+        if(left.type != VSTRING || right.type != VSTRING)
+        {
+            ret.value.i = 0;
+            return ret;
+        }
+
+        ret.value.i = !strcmp(left.value.s, right.value.s);
+        return ret;
+    }
 
     ret.value.i = NUMERIC_UNWRAP(left) == NUMERIC_UNWRAP(right);
-    ret.type = VINT;
 
     return ret;
 }
@@ -166,9 +178,21 @@ ast_value_wrapper binary_equal(ast_value_wrapper left, ast_value_wrapper right)
 ast_value_wrapper binary_greater(ast_value_wrapper left, ast_value_wrapper right)
 {
     ast_value_wrapper ret;
+    ret.type = VINT;
+
+    if(left.type == VSTRING || right.type == VSTRING)
+    {
+        if(left.type != VSTRING || right.type != VSTRING)
+        {
+            ret.value.i = 0;
+            return ret;
+        }
+
+        ret.value.i = strcmp(left.value.s, right.value.s) > 0;
+        return ret;
+    }
 
     ret.value.i = NUMERIC_UNWRAP(left) > NUMERIC_UNWRAP(right);
-    ret.type = VINT;
 
     return ret;
 }
@@ -176,9 +200,21 @@ ast_value_wrapper binary_greater(ast_value_wrapper left, ast_value_wrapper right
 ast_value_wrapper binary_lesser(ast_value_wrapper left, ast_value_wrapper right)
 {
     ast_value_wrapper ret;
+    ret.type = VINT;
+
+    if(left.type == VSTRING || right.type == VSTRING)
+    {
+        if(left.type != VSTRING || right.type != VSTRING)
+        {
+            ret.value.i = 0;
+            return ret;
+        }
+
+        ret.value.i = strcmp(left.value.s, right.value.s) < 0;
+        return ret;
+    }
 
     ret.value.i = NUMERIC_UNWRAP(left) < NUMERIC_UNWRAP(right);
-    ret.type = VINT;
 
     return ret;
 }
@@ -186,9 +222,21 @@ ast_value_wrapper binary_lesser(ast_value_wrapper left, ast_value_wrapper right)
 ast_value_wrapper binary_greaterequal(ast_value_wrapper left, ast_value_wrapper right)
 {
     ast_value_wrapper ret;
+    ret.type = VINT;
+
+    if(left.type == VSTRING || right.type == VSTRING)
+    {
+        if(left.type != VSTRING || right.type != VSTRING)
+        {
+            ret.value.i = 0;
+            return ret;
+        }
+
+        ret.value.i = strcmp(left.value.s, right.value.s) >= 0;
+        return ret;
+    }
 
     ret.value.i = NUMERIC_UNWRAP(left) >= NUMERIC_UNWRAP(right);
-    ret.type = VINT;
 
     return ret;
 }
@@ -196,9 +244,21 @@ ast_value_wrapper binary_greaterequal(ast_value_wrapper left, ast_value_wrapper 
 ast_value_wrapper binary_lesserequal(ast_value_wrapper left, ast_value_wrapper right)
 {
     ast_value_wrapper ret;
+    ret.type = VINT;
+
+    if(left.type == VSTRING || right.type == VSTRING)
+    {
+        if(left.type != VSTRING || right.type != VSTRING)
+        {
+            ret.value.i = 0;
+            return ret;
+        }
+
+        ret.value.i = strcmp(left.value.s, right.value.s) <= 0;
+        return ret;
+    }
 
     ret.value.i = NUMERIC_UNWRAP(left) <= NUMERIC_UNWRAP(right);
-    ret.type = VINT;
 
     return ret;
 }
@@ -206,9 +266,21 @@ ast_value_wrapper binary_lesserequal(ast_value_wrapper left, ast_value_wrapper r
 ast_value_wrapper binary_notequal(ast_value_wrapper left, ast_value_wrapper right)
 {
     ast_value_wrapper ret;
+    ret.type = VINT;
+
+    if(left.type == VSTRING || right.type == VSTRING)
+    {
+        if(left.type != VSTRING || right.type != VSTRING)
+        {
+            ret.value.i = 0;
+            return ret;
+        }
+
+        ret.value.i = !!strcmp(left.value.s, right.value.s);
+        return ret;
+    }
 
     ret.value.i = NUMERIC_UNWRAP(left) != NUMERIC_UNWRAP(right);
-    ret.type = VINT;
 
     return ret;
 }

@@ -48,6 +48,7 @@ ast_node *create_value_node(ast_value_type type, void *data)
         strcpy(str, "");
         memcpy(str, raw + 1, strlen(raw) - 2);
         u.s = (char *)str;
+        FREE(raw);
         break;
     }
     case VVAR:
