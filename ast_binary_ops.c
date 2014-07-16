@@ -243,6 +243,11 @@ ast_value_wrapper binary_set_equal(ast_value_wrapper left, ast_value_wrapper rig
         return wrap;
     }
 
-    ctx_set_var(left.value.s, right);
+    // Save strings...
+    ast_value_wrapper tmp = right;
+    if(right.type == VSTRING)
+        tmp.value.s = alloc_str(right.value.s);
+
+    ctx_set_var(left.value.s, tmp);
     return right;
 }

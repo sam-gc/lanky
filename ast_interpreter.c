@@ -66,7 +66,15 @@ ast_value_wrapper resolve_variable(ast_value_wrapper wrap)
     if(wrap.type != VVAR)
         return wrap;
 
-    return ctx_get_var(wrap.value.s);
+    ast_value_wrapper w = ctx_get_var(wrap.value.s);
+
+    if(w.type != VSTRING)
+        return w;
+
+    ast_value_wrapper ret;
+    ret.type = VSTRING;
+    ret.value.s = alloc_str(w.value.s);
+    return ret;
 }
 
 ast_value_wrapper eval(ast_node *root)

@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
     // ast_binary_node *b = (ast_binary_node *)n;
     // printf("%c\n", b->opt);
     ast_free(programBlock);
-    printf("Allocations: %d\tFrees: %d\n", get_malloc_count(), get_free_count());
     ctx_clean_up();
+    printf("Allocations: %d\tFrees: %d\n", get_malloc_count(), get_free_count());
     return 0;
 }
