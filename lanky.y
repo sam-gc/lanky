@@ -24,7 +24,7 @@
 %token <token> TCEQ TCNE TCLT TCLE TCGT TCGE TEQUAL TAND TOR
 %token <token> TLPAREN TRPAREN TLBRACE TRBRACE TCOMMA TDOT
 %token <token> TPLUS TMINUS TMUL TDIV TMOD TPOW
-%token <token> TIF
+%token <token> TIF TPRT
 
 /* Define the type of node our nonterminal symbols represent.
    The types refer to the %union declaration above. Ex: when
@@ -34,6 +34,7 @@
 %type <node> program stmts stmt expression ifblock block
 
 /* Operator precedence for mathematical operators */
+%nonassoc TPRT
 %left TEQUAL
 %left TOR
 %left TAND
@@ -80,6 +81,7 @@ expression :
     | TLPAREN expression TRPAREN { $$ = $2; }
     | TIDENTIFIER TEQUAL expression { $$ = create_assignment_node($1, $3); }
     | ifblock
+    | TPRT expression { $$ = create_unary_node($2, 'p'); }
     ;
 
 %%

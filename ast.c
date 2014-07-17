@@ -78,6 +78,18 @@ ast_node *create_binary_node(ast_node *left, ast_node *right, char opt)
     return (ast_node *)node;
 }
 
+ast_node *create_unary_node(ast_node *target, char opt)
+{
+    ast_unary_node *node = MALLOC(sizeof(ast_unary_node));
+    node->type = AUNARY_EXPRESSION;
+    node->next = NULL;
+
+    node->target = target;
+    node->opt = opt;
+
+    return (ast_node *)node;
+}
+
 ast_node *create_assignment_node(char *left, ast_node *right)
 {
     ast_binary_node *node = MALLOC(sizeof(ast_binary_node));
@@ -123,6 +135,13 @@ void ast_free_binary_node(ast_node *node)
         ast_free(bn->right);
 }
 
+void ast_free_unary_node(ast_node *node)
+{
+    ast_unary_node *un = (ast_unary_node *)node;
+    if(un->target)
+        ast_free(un->target);
+}
+
 void ast_free_value_node(ast_node *node)
 {
     ast_value_node *vn = (ast_value_node *)node;
@@ -154,6 +173,9 @@ void ast_free(ast_node *node)
         break;
     case AIF:
         ast_free_if_node(node);
+        break;
+    case AUNARY_EXPRESSION:
+        ast_free_unary_node(node);
         break;
     default:
         break;

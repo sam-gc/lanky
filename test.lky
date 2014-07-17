@@ -1,0 +1,11 @@
+name = "Bob"
+
+text = if(name == "Sam") {
+    "Oh, hey!"
+}
+
+if(name != "Sam") {
+    text = "Hey! You're not Sam!"
+}
+
+_prt "Your name is " + name + " ... " + text

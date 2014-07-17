@@ -4,6 +4,7 @@
 #include "ast_binary_ops.h"
 #include "tools.h"
 #include "context.h"
+#include "ast_unary_ops.h"
 
 ast_value_wrapper eval_binary_expression(ast_node *n)
 {
@@ -61,6 +62,25 @@ ast_value_wrapper eval_binary_expression(ast_node *n)
     return bad;
 }
 
+ast_value_wrapper eval_unary_expression(ast_node *n)
+{
+    ast_unary_node *node = (ast_unary_node *)n;
+
+    ast_value_wrapper targ = eval(node->target);
+    ast_value_wrapper er;
+    er.type = VNONE;
+
+    switch(node->opt)
+    {
+    case 'p':
+        unary_print(targ);
+        return er;
+    }
+
+    DEBUG("Should not have reached here.");
+    return er;
+}
+
 ast_value_wrapper resolve_variable(ast_value_wrapper wrap)
 {
     if(wrap.type != VVAR)
@@ -110,6 +130,13 @@ ast_value_wrapper eval(ast_node *root)
     case ABINARY_EXPRESSION:
     {
         ast_value_wrapper wrap = eval_binary_expression(root);
+
+        ret = wrap;
+        break;
+    }
+    case AUNARY_EXPRESSION:
+    {
+        ast_value_wrapper wrap = eval_unary_expression(root);
 
         ret = wrap;
         break;

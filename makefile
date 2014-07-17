@@ -1,4 +1,4 @@
-SOURCES=main.c parser.c tokens.c tools.c ast.c ast_binary_ops.c ast_interpreter.c hashmap.c context.c
+SOURCES=main.c parser.c tokens.c tools.c ast.c ast_binary_ops.c ast_unary_ops.c ast_interpreter.c hashmap.c context.c
 CFLAGS=-lm
 
 guts: lanky.l lanky.y

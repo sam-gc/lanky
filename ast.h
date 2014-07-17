@@ -5,6 +5,7 @@
 
 typedef enum {
 	ABINARY_EXPRESSION,
+	AUNARY_EXPRESSION,
 	AVALUE,
 	ABLOCK,
 	AIF
@@ -45,6 +46,14 @@ typedef struct ast_binary_node {
 	char opt;
 } ast_binary_node;
 
+typedef struct {
+	ast_type type;
+	struct ast_node *next;
+
+	struct ast_node *target;
+	char opt;
+} ast_unary_node;
+
 typedef struct ast_value_node {
 	ast_type type;
 	struct ast_node *next;
@@ -72,6 +81,7 @@ ast_node *create_root_node();
 void ast_add_node(ast_node *curr, ast_node *next);
 ast_node *create_value_node(ast_value_type type, void *data);
 ast_node *create_binary_node(ast_node *left, ast_node *right, char opt);
+ast_node *create_unary_node(ast_node *target, char opt);
 ast_node *create_assignment_node(char *left, ast_node *right);
 ast_node *create_block_node(ast_node *payload);
 ast_node *create_if_node(ast_node *condition, ast_node *payload);

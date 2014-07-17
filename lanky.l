@@ -23,6 +23,7 @@ strlit \"(\\.|[^"])*\"
 
 {white}     ;
 "if"					return TOKEN(TIF);
+"_prt"                  return TOKEN(TPRT);
 {nvar}      {SAVE_TOKEN; return TIDENTIFIER;}
 {real}      {SAVE_TOKEN; return TFLOAT;}
 {integer}   {SAVE_TOKEN; return TINTEGER;}
