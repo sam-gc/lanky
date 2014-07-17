@@ -1,12 +1,14 @@
-name = "Sam"
+name = "Blob"
 
 text = if(name == "Sam") {
-    200 + 5
     "Oh, hey!"
-}
-
-if(name != "Sam") {
-    text = "Hey! You're not Sam!"
+} elif(name == "Bob") {
+    "Yo!"
+} elif(name == "Rob") {
+    "Top of the morning to ya!"
+} else {
+    "Get ye out of here!"
+    # This was a bad time...
 }
 
 _prt "Your name is " + name + " ... " + text

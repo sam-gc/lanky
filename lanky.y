@@ -24,17 +24,17 @@
 %token <token> TCEQ TCNE TCLT TCLE TCGT TCGE TEQUAL TAND TOR
 %token <token> TLPAREN TRPAREN TLBRACE TRBRACE TCOMMA TDOT
 %token <token> TPLUS TMINUS TMUL TDIV TMOD TPOW
-%token <token> TIF TPRT
+%token <token> TIF TELIF TELSE TPRT TCOMMENT
 
 /* Define the type of node our nonterminal symbols represent.
    The types refer to the %union declaration above. Ex: when
    we call an ident (defined by union type ident) we are really
    calling an (NIdentifier*). It makes the compiler happy.
  */
-%type <node> program stmts stmt expression ifblock block
+%type <node> program stmts stmt expression ifblock block elifblock elifblocks elseblock
 
 /* Operator precedence for mathematical operators */
-%nonassoc TPRT
+%nonassoc TPRT TCOMMENT
 %left TEQUAL
 %left TOR
 %left TAND
@@ -42,7 +42,7 @@
 %left TMINUS TPLUS
 %left TDIV TMUL TMOD
 %right TPOW
-%nonassoc TIF
+%nonassoc TIF TELIF TELSE
 
 %start program
 
@@ -56,6 +56,17 @@ stmts : stmt { $$ = create_root_node(); ast_add_node($$, $1); }
 block : TLBRACE stmts TRBRACE { $$ = $2; }
     ;
 ifblock : TIF TLPAREN expression TRPAREN block { $$ = create_if_node($3, $5); }
+    | TIF TLPAREN expression TRPAREN block elseblock { $$ = create_if_node($3, $5); ast_add_if_node($$, $6); }
+    | TIF TLPAREN expression TRPAREN block elifblocks elseblock { $$ = create_if_node($3, $5); ast_add_if_node($$, $6); ast_add_if_node($$, $7); }
+    | TIF TLPAREN expression TRPAREN block elifblocks { $$ = create_if_node($3, $5); ast_add_if_node($$, $6); }
+    ;
+elifblock : TELIF TLPAREN expression TRPAREN block { $$ = create_if_node($3, $5); }
+    ;
+elifblocks : elifblock
+    | elifblocks elifblock { ast_add_if_node($1, $2); }
+    ;
+elseblock : TELSE block { $$ = create_if_node(NULL, $2); }
+    ;
 stmt : expression
     ;
 

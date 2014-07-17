@@ -27,7 +27,17 @@ ast_value_wrapper binary_add(ast_value_wrapper left, ast_value_wrapper right)
         char il = 0;
         char ir = 0;
 
-        if(IS_NUMERIC(left))
+        if(left.type == VNONE)
+        {
+            l = "None";
+            r = right.value.s;
+        }
+        else if(right.type == VNONE)
+        {
+            r = "None";
+            l = left.value.s;
+        }
+        else if(IS_NUMERIC(left))
         {
             l = MALLOC(500);
             get_string_for_value(left, l);

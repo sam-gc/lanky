@@ -18,11 +18,15 @@ exponent [eE][+-]?{integer}
 real {integer}("."{digit}*){exponent}?
 nvar {alpha}({alpha}|{digit})*
 strlit \"(\\.|[^"])*\"
+comment \#.*\n
 
 %%
 
 {white}     ;
 "if"					return TOKEN(TIF);
+{comment}     ;
+"elif"                  return TOKEN(TELIF);
+"else"                  return TOKEN(TELSE);
 "_prt"                  return TOKEN(TPRT);
 {nvar}      {SAVE_TOKEN; return TIDENTIFIER;}
 {real}      {SAVE_TOKEN; return TFLOAT;}

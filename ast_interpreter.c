@@ -101,11 +101,20 @@ ast_value_wrapper handle_if_block(ast_node *n)
 {
     ast_if_node *node = (ast_if_node *)n;
 
+    // If there is no condition, we assume
+    // it is an 'else' node.
+    if(!node->condition)
+        return eval(node->payload);
+    
     ast_value_wrapper cond = eval(node->condition);
     if(NUMERIC_UNWRAP(cond) != 0)
     {
         ast_value_wrapper wrap = eval(node->payload);
         return wrap;
+    }
+    else if(node->next_if)
+    {
+        return handle_if_block(node->next_if);
     }
 
     ast_value_wrapper ret;

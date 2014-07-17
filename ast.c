@@ -120,10 +120,21 @@ ast_node *create_if_node(ast_node *condition, ast_node *payload)
     node->type = AIF;
     node->next = NULL;
 
+    node->next_if = NULL;
     node->payload = payload;
     node->condition = condition;
 
     return (ast_node *)node;
+}
+
+void ast_add_if_node(ast_node *curr, ast_node *next)
+{
+    ast_if_node *node = (ast_if_node *)curr;
+
+    while(node->next_if)
+        node = (ast_if_node *)node->next_if;
+
+    node->next_if = next;
 }
 
 void ast_free_binary_node(ast_node *node)
@@ -157,8 +168,13 @@ void ast_free_value_node(ast_node *node)
 void ast_free_if_node(ast_node *node)
 {
     ast_if_node *in = (ast_if_node *)node;
-    ast_free(in->condition);
+
+    if(in->condition)
+        ast_free(in->condition);
     ast_free(in->payload);
+
+    if(in->next_if)
+        ast_free(in->next_if);
 }
 
 void ast_free(ast_node *node)
