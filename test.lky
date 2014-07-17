@@ -1,6 +1,7 @@
-name = "Bob"
+name = "Sam"
 
 text = if(name == "Sam") {
+    200 + 5
     "Oh, hey!"
 }
 
@@ -9,3 +10,8 @@ if(name != "Sam") {
 }
 
 _prt "Your name is " + name + " ... " + text
+
+number = 500 * 2
+mod = 13
+
+_prt number + " % " + mod + " = " + number % mod
