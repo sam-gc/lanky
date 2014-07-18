@@ -148,7 +148,7 @@ ast_value_wrapper handle_loop_block(ast_node *n)
     {
         eval(node->init);
         ast_value_wrapper cond = eval(node->condition);
-        while(cond.type != NUMERIC_UNWRAP(cond) != 0)
+        while(cond.type != VNONE && NUMERIC_UNWRAP(cond) != 0)
         {
             ret = eval(node->payload);
             eval(node->onloop);
