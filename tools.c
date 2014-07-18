@@ -1,10 +1,12 @@
 #include "tools.h"
+#include "ast.h"
 #include <stdlib.h>
 #include <string.h>
 
 char *alloc_str(char *str)
 {
     char *tmp = MALLOC(strlen(str) + 1);
+    pool_add(&ast_memory_pool, tmp);
     strcpy(tmp, str);
     return tmp;
 }

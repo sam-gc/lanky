@@ -5,6 +5,7 @@
 #include "tools.h"
 #include "context.h"
 #include "ast_unary_ops.h"
+#include "mempool.h"
 
 ast_value_wrapper eval_binary_expression(ast_node *n)
 {
@@ -122,6 +123,40 @@ ast_value_wrapper handle_if_block(ast_node *n)
     return ret;
 }
 
+ast_value_wrapper handle_loop_block(ast_node *n)
+{
+    ast_loop_node *node = (ast_loop_node *)n;
+    ast_value_wrapper ret;
+
+    switch(node->loop_type)
+    {
+    case LWHILE:
+    {
+        ast_value_wrapper cond = eval(node->condition);
+        while(NUMERIC_UNWRAP(cond) != 0)
+        {
+            ret = eval(node->payload);
+            cond = eval(node->condition);
+        }
+        break;
+    }
+    case LFOR:
+    {
+        eval(node->init);
+        ast_value_wrapper cond = eval(node->condition);
+        while(NUMERIC_UNWRAP(cond) != 0)
+        {
+            ret = eval(node->payload);
+            eval(node->onloop);
+            cond = eval(node->condition);
+        }
+        break;
+    }
+    }
+
+    return ret;
+}
+
 ast_value_wrapper eval(ast_node *root)
 {
     ast_value_wrapper ret;
@@ -153,6 +188,12 @@ ast_value_wrapper eval(ast_node *root)
     case AIF:
     {
         ret = handle_if_block(root);
+        break;
+    }
+    case ALOOP:
+    {
+        ret = handle_loop_block(root);
+        break;
     }
     }
 
@@ -161,19 +202,19 @@ ast_value_wrapper eval(ast_node *root)
     else
     {
         // print_value(ret);
-        value_wrapper_free(ret);
+        // value_wrapper_free(ret);
         return eval(root->next);
     }
 }
 
 void value_wrapper_free(ast_value_wrapper wrap)
 {
-    switch(wrap.type)
-    {
-    case VSTRING:
-        FREE(wrap.value.s);
-        break;
-    }
+    // switch(wrap.type)
+    // {
+    // case VSTRING:
+    //     FREE(wrap.value.s);
+    //     break;
+    // }
 }
 
 void ast_print(ast_node *root)

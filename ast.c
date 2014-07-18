@@ -4,10 +4,12 @@
 #include <string.h>
 #include <stdio.h>
 
+lky_mempool ast_memory_pool = {NULL};
 
 ast_node *create_root_node()
 {
     ast_node *node = MALLOC(sizeof(ast_block_node));
+    pool_add(&ast_memory_pool, node);
     node->type = ABLOCK;
     node->next = NULL;
 
@@ -27,6 +29,7 @@ void ast_add_node(ast_node *curr, ast_node *next)
 ast_node *create_value_node(ast_value_type type, void *data)
 {
     ast_value_node *node = MALLOC(sizeof(ast_value_node));
+    pool_add(&ast_memory_pool, node);
     node->type = AVALUE;
     node->next = NULL;
 
@@ -35,20 +38,21 @@ ast_node *create_value_node(ast_value_type type, void *data)
     {
     case VINT:
         u.i = atol((char *)data);
-        FREE(data);
+        // FREE(data);
         break;
     case VDOUBLE:
         u.d = atof((char *)data);
-        FREE(data);
+        // FREE(data);
         break;
     case VSTRING:
     {
         char *raw = (char *)data;
         char *str = MALLOC(strlen(raw) - 1);
+        pool_add(&ast_memory_pool, str);
         strcpy(str, "");
         memcpy(str, raw + 1, strlen(raw) - 2);
         u.s = (char *)str;
-        FREE(raw);
+        // FREE(raw);
         break;
     }
     case VVAR:
@@ -68,6 +72,7 @@ ast_node *create_value_node(ast_value_type type, void *data)
 ast_node *create_binary_node(ast_node *left, ast_node *right, char opt)
 {
     ast_binary_node *node = MALLOC(sizeof(ast_binary_node));
+    pool_add(&ast_memory_pool, node);
     node->type = ABINARY_EXPRESSION;
     node->next = NULL;
 
@@ -81,6 +86,7 @@ ast_node *create_binary_node(ast_node *left, ast_node *right, char opt)
 ast_node *create_unary_node(ast_node *target, char opt)
 {
     ast_unary_node *node = MALLOC(sizeof(ast_unary_node));
+    pool_add(&ast_memory_pool, node);
     node->type = AUNARY_EXPRESSION;
     node->next = NULL;
 
@@ -93,6 +99,7 @@ ast_node *create_unary_node(ast_node *target, char opt)
 ast_node *create_assignment_node(char *left, ast_node *right)
 {
     ast_binary_node *node = MALLOC(sizeof(ast_binary_node));
+    pool_add(&ast_memory_pool, node);
     node->type = ABINARY_EXPRESSION;
     node->next = NULL;
 
@@ -107,6 +114,7 @@ ast_node *create_assignment_node(char *left, ast_node *right)
 ast_node *create_block_node(ast_node *payload)
 {
     ast_block_node *node = MALLOC(sizeof(ast_block_node));
+    pool_add(&ast_memory_pool, node);
     node->type = ABLOCK;
     node->next = NULL;
 
@@ -117,12 +125,30 @@ ast_node *create_block_node(ast_node *payload)
 ast_node *create_if_node(ast_node *condition, ast_node *payload)
 {
     ast_if_node *node = MALLOC(sizeof(ast_if_node));
+    pool_add(&ast_memory_pool, node);
     node->type = AIF;
     node->next = NULL;
 
     node->next_if = NULL;
     node->payload = payload;
     node->condition = condition;
+
+    return (ast_node *)node;
+}
+
+ast_node *create_loop_node(ast_node *init, ast_node *condition, ast_node *onloop, ast_node *payload)
+{
+    ast_loop_node *node = MALLOC(sizeof(ast_loop_node));
+    pool_add(&ast_memory_pool, node);
+    node->type = ALOOP;
+    node->next = NULL;
+
+    node->init = init;
+    node->condition = condition;
+    node->onloop = onloop;
+    node->payload = payload;
+
+    node->loop_type = init ? LFOR : LWHILE;
 
     return (ast_node *)node;
 }
@@ -179,27 +205,28 @@ void ast_free_if_node(ast_node *node)
 
 void ast_free(ast_node *node)
 {
-    switch(node->type)
-    {
-    case ABINARY_EXPRESSION:
-        ast_free_binary_node(node);
-        break;
-    case AVALUE:
-        ast_free_value_node(node);
-        break;
-    case AIF:
-        ast_free_if_node(node);
-        break;
-    case AUNARY_EXPRESSION:
-        ast_free_unary_node(node);
-        break;
-    default:
-        break;
-    }
+    pool_drain(&ast_memory_pool);
+    // switch(node->type)
+    // {
+    // case ABINARY_EXPRESSION:
+    //     ast_free_binary_node(node);
+    //     break;
+    // case AVALUE:
+    //     ast_free_value_node(node);
+    //     break;
+    // case AIF:
+    //     ast_free_if_node(node);
+    //     break;
+    // case AUNARY_EXPRESSION:
+    //     ast_free_unary_node(node);
+    //     break;
+    // default:
+    //     break;
+    // }
 
-    ast_node *next = node->next;
-    FREE(node);
+    // ast_node *next = node->next;
+    // FREE(node);
 
-    if(next)
-        ast_free(next);
+    // if(next)
+    //     ast_free(next);
 }

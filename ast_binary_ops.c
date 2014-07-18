@@ -1,6 +1,7 @@
 #include "ast_binary_ops.h"
 #include "tools.h"
 #include "context.h"
+#include "mempool.h"
 #include <math.h>
 #include <string.h>
 #include <stdlib.h>
@@ -40,6 +41,7 @@ ast_value_wrapper binary_add(ast_value_wrapper left, ast_value_wrapper right)
         else if(IS_NUMERIC(left))
         {
             l = MALLOC(500);
+            pool_add(&ast_memory_pool, l);
             get_string_for_value(left, l);
             il = 1;
             r = right.value.s;
@@ -47,6 +49,7 @@ ast_value_wrapper binary_add(ast_value_wrapper left, ast_value_wrapper right)
         else if(IS_NUMERIC(right))
         {
             r = MALLOC(500);
+            pool_add(&ast_memory_pool, r);
             get_string_for_value(right, r);
             ir = 1;
             l = left.value.s;
@@ -58,12 +61,13 @@ ast_value_wrapper binary_add(ast_value_wrapper left, ast_value_wrapper right)
         }
 
         result = MALLOC(strlen(r) + strlen(l) + 1);
+        pool_add(&ast_memory_pool, result);
         sprintf(result, "%s%s", l, r);
 
-        if(il)
-            FREE(l);
-        if(ir)
-            FREE(r);
+        // if(il)
+        //     FREE(l);
+        // if(ir)
+        //     FREE(r);
 
         ret.value.s = result;
         ret.type = VSTRING; 

@@ -6,7 +6,6 @@
     ast_node *programBlock; /* the top level root node of our final AST */
 
     extern int yylex();
-    void yyerror(const char *s) { printf("ERROR: %s\n", s); }
 %}
 
 /* Represents the many different ways we can access our data */
@@ -24,17 +23,17 @@
 %token <token> TCEQ TCNE TCLT TCLE TCGT TCGE TEQUAL TAND TOR
 %token <token> TLPAREN TRPAREN TLBRACE TRBRACE TCOMMA TDOT
 %token <token> TPLUS TMINUS TMUL TDIV TMOD TPOW
-%token <token> TIF TELIF TELSE TPRT TCOMMENT
+%token <token> TIF TELIF TELSE TPRT TCOMMENT TLOOP TCOLON
 
 /* Define the type of node our nonterminal symbols represent.
    The types refer to the %union declaration above. Ex: when
    we call an ident (defined by union type ident) we are really
    calling an (NIdentifier*). It makes the compiler happy.
  */
-%type <node> program stmts stmt expression ifblock block elifblock elifblocks elseblock
+%type <node> program stmts stmt expression ifblock block elifblock elifblocks elseblock loopblock
 
 /* Operator precedence for mathematical operators */
-%nonassoc TPRT TCOMMENT
+%nonassoc TPRT
 %left TEQUAL
 %left TOR
 %left TAND
@@ -42,7 +41,7 @@
 %left TMINUS TPLUS
 %left TDIV TMUL TMOD
 %right TPOW
-%nonassoc TIF TELIF TELSE
+%nonassoc TIF TELIF TELSE TLOOP
 
 %start program
 
@@ -66,6 +65,9 @@ elifblocks : elifblock
     | elifblocks elifblock { ast_add_if_node($1, $2); }
     ;
 elseblock : TELSE block { $$ = create_if_node(NULL, $2); }
+    ;
+loopblock : TLOOP TLPAREN expression TRPAREN block { $$ = create_loop_node(NULL, $3, NULL, $5); }
+    | TLOOP TLPAREN expression TCOLON expression TCOLON expression TRPAREN block { $$ = create_loop_node($3, $5, $7, $9); }
     ;
 stmt : expression
     ;
@@ -92,6 +94,7 @@ expression :
     | TLPAREN expression TRPAREN { $$ = $2; }
     | TIDENTIFIER TEQUAL expression { $$ = create_assignment_node($1, $3); }
     | ifblock
+    | loopblock
     | TPRT expression { $$ = create_unary_node($2, 'p'); }
     ;
 

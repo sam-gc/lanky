@@ -1,5 +1,8 @@
+#!/home/sam-arch/Programming/C/lanky/lanky
+
 name = "Blob"
 
+-- If block return value example
 text = if(name == "Sam") {
     "Oh, hey!"
 } elif(name == "Bob") {
@@ -11,9 +14,52 @@ text = if(name == "Sam") {
     # This was a bad time...
 }
 
+-- String concatenation
 _prt "Your name is " + name + " ... " + text
 
+-- Basic math ops
 number = 500 * 2
 mod = 13
 
 _prt number + " % " + mod + " = " + number % mod
+
+_prt ""
+_prt ""
+
+-- Simple while loop
+mod = 50
+loop(mod > 0) {
+    _prt (mod = mod - 1)
+}
+
+_prt "-------------"
+
+-- Fibonacci numbers
+l1 = 0
+l2 = 1
+
+loop(l1 < 200) {
+    o2 = l2
+    l2 = l2 + l1
+    l1 = o2
+    _prt l1
+}
+
+_prt "-------------"
+
+-- More complicated while loop
+num = 0
+loop(num <= 1000) {
+    num = num + 1
+    if(num % 100 == 0) {
+        _prt num
+    }
+}
+
+_prt "-------------"
+
+-- Basic for loop
+-- (Prints even numbers up to 100)
+loop(i = 0 : i <= 100 : i = i + 2) {
+    _prt i
+}
