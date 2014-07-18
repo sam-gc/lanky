@@ -187,12 +187,16 @@ ast_value_wrapper eval(ast_node *root)
     }
     case AIF:
     {
+        ctx_push_stack();
         ret = handle_if_block(root);
+        ctx_pop_stack();
         break;
     }
     case ALOOP:
     {
+        ctx_push_stack();
         ret = handle_loop_block(root);
+        ctx_pop_stack();
         break;
     }
     }

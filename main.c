@@ -24,10 +24,8 @@ int main(int argc, char *argv[])
     ctx_init();
     yyparse();
     // printf("%p ... %p ... %p\n", programBlock, programBlock->next, programBlock->next->next);
-    ast_value_wrapper val = eval(programBlock);
-    // printf("%d %lf\n", val.type, val.value.d);
-    // print_value(val);
-    value_wrapper_free(val);
+    printf("Program output:\n==============================\n\n");
+    eval(programBlock);
     // ast_node *n = ((ast_block_node *)programBlock)->payload;
     // ast_print(programBlock);
 
@@ -35,6 +33,7 @@ int main(int argc, char *argv[])
     // printf("%c\n", b->opt);
     ast_free(programBlock);
     ctx_clean_up();
+    printf("\n\n=============DEBUG============\n");
     printf("Allocations: %d\tFrees: %d\n", get_malloc_count(), get_free_count());
     return 0;
 }
