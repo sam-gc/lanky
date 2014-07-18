@@ -76,6 +76,10 @@ ast_value_wrapper eval_unary_expression(ast_node *n)
     case 'p':
         unary_print(targ);
         return er;
+    case '!':
+        return unary_not(targ);
+    case '-':
+        return unary_negative(targ);
     }
 
     DEBUG("Should not have reached here.");
@@ -108,7 +112,7 @@ ast_value_wrapper handle_if_block(ast_node *n)
         return eval(node->payload);
     
     ast_value_wrapper cond = eval(node->condition);
-    if(NUMERIC_UNWRAP(cond) != 0)
+    if(cond.type != VNONE && NUMERIC_UNWRAP(cond) != 0)
     {
         ast_value_wrapper wrap = eval(node->payload);
         return wrap;
@@ -133,7 +137,7 @@ ast_value_wrapper handle_loop_block(ast_node *n)
     case LWHILE:
     {
         ast_value_wrapper cond = eval(node->condition);
-        while(NUMERIC_UNWRAP(cond) != 0)
+        while(cond.type != VNONE && NUMERIC_UNWRAP(cond) != 0)
         {
             ret = eval(node->payload);
             cond = eval(node->condition);
@@ -144,7 +148,7 @@ ast_value_wrapper handle_loop_block(ast_node *n)
     {
         eval(node->init);
         ast_value_wrapper cond = eval(node->condition);
-        while(NUMERIC_UNWRAP(cond) != 0)
+        while(cond.type != NUMERIC_UNWRAP(cond) != 0)
         {
             ret = eval(node->payload);
             eval(node->onloop);

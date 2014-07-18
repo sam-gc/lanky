@@ -2,7 +2,7 @@
 -- A simple example about scope
 a = 6
 
-if(0) {
+if(1) {
     a = 5
 }
 
