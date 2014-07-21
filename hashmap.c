@@ -196,10 +196,10 @@ void hm_free(Hashmap *set)
             node *next = n->next;
             if(set->copies_str)
                 free(n->value);
-            if(n->dv.type == VSTRING && n->dv.value.s)
-            {
-                FREE(n->dv.value.s);
-            }
+            // if(n->dv.type == VSTRING && n->dv.value.s)
+            // {
+            //     FREE(n->dv.value.s);
+            // }
             free(n);
             n = next; 
         }

@@ -4,6 +4,7 @@
 #include "parser.h"
 #include "tools.h"
 #include "context.h"
+#include "ast_compiler.h"
 
 extern ast_node *programBlock;
 extern int yyparse();
@@ -23,6 +24,9 @@ int main(int argc, char *argv[])
 
     ctx_init();
     yyparse();
+    lky_object_code *code = compile_ast(programBlock->next);
+    write_to_file("test", code);
+
     // printf("%p ... %p ... %p\n", programBlock, programBlock->next, programBlock->next->next);
     printf("\nProgram output:\n==============================\n\n");
     eval(programBlock);

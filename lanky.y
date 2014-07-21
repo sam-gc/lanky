@@ -42,7 +42,7 @@
 %left TDIV TMUL TMOD
 %left NEG
 %right TPOW
-%left TNOT
+%nonassoc TNOT
 %nonassoc TIF TELIF TELSE TLOOP
 
 %start program
@@ -95,7 +95,7 @@ expression :
     | expression TAND expression { $$ = create_binary_node($1, $3, '&'); }
     | TLPAREN expression TRPAREN { $$ = $2; }
     | TIDENTIFIER TEQUAL expression { $$ = create_assignment_node($1, $3); }
-    | TMINUS expression %prec NEG { $$ = create_unary_node($2, '-'); }
+    
     | ifblock
     | loopblock
     | TPRT expression { $$ = create_unary_node($2, 'p'); }

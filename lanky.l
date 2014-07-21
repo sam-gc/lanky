@@ -22,7 +22,7 @@ exponent [eE][+-]?{integer}
 real {integer}("."{digit}*){exponent}?
 nvar {alpha}({alpha}|{digit})*
 strlit \"(\\.|[^"])*\"
-comment (\#|(\-\-)).*\n
+comment (\#|(\-\-)).*(\n)
 
 %%
 
