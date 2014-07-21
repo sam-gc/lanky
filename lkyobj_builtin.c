@@ -1,5 +1,6 @@
 #include "lkyobj_builtin.h"
 #include <stdlib.h>
+#include <string.h>
 
 #define OBJ_NUM_UNWRAP(obj) (obj->type == LBI_FLOAT ? obj->value.d : obj->value.i)
 #define OBJ_NUM_PROMO(a, b) (a->type == LBI_FLOAT || b->type == LBI_FLOAT ? LBI_FLOAT : LBI_INTEGER) 
@@ -30,10 +31,61 @@ lky_object *lobjb_build_float(double value)
     return lobjb_alloc(LBI_FLOAT, v);
 }
 
+void str_print(lky_builtin_type t, lky_builtin_value v, char *buf)
+{
+    switch(t)
+    {
+        case LBI_FLOAT:
+            sprintf(buf, "%lf", v.d);
+        break;
+        case LBI_INTEGER:
+            sprintf(buf, "%ld", v.i);
+        break;
+    }
+}
+
 lky_object *lobjb_binary_add(lky_object *a, lky_object *b)
 {
     BI_CAST(a, ab);
     BI_CAST(b, bb);
+
+    if(ab->type == LBI_STRING || bb->type == LBI_STRING)
+    {
+        char *r, *l;
+        char nr, nl;
+        nr = nl = 0;
+        if(ab->type != LBI_STRING)
+        {
+            l = malloc(100);
+            str_print(ab->type, ab->value, l);
+            r = bb->value.s;
+            nl = 1;
+        }
+        else if(bb->type != LBI_STRING)
+        {
+            r = malloc(100);
+            str_print(bb->type, bb->value, r);
+            l = ab->value.s;
+            nr = 1;
+        }
+        else
+        {
+            l = ab->value.s;
+            r = bb->value.s;
+        }
+
+        char *n = malloc(strlen(r) + strlen(l) + 1);
+        sprintf(n, "%s%s", l, r);
+        lky_builtin_value v;
+        v.s = n;
+
+        if(nr)
+            free(r);
+        if(nl)
+            free(l);
+
+        return lobjb_alloc(LBI_STRING, v);
+    }
 
     lky_builtin_value v;
     lky_builtin_type t = OBJ_NUM_PROMO(ab, bb);
@@ -118,10 +170,13 @@ void lobjb_print(lky_object *a)
     {
         case LBI_FLOAT:
             printf("%lf\n", b->value.d);
-            break;
+        break;
         case LBI_INTEGER:
             printf("%ld\n", b->value.i);
-            break;
+        break;
+        case LBI_STRING:
+            printf("%s\n", b->value.s);
+        break;
     }
 }
 
@@ -146,6 +201,14 @@ void lobjb_serialize(lky_object *o, FILE *f)
             fwrite(&(obj->value.d), sizeof(long), 1, f);
         }
         break;
+        case LBI_STRING:
+        {
+            char *str = obj->value.s;
+            unsigned long sz = strlen(str) + 1;
+            fwrite(&sz, sizeof(unsigned long), 1, f);
+            fwrite(str, sizeof(char), sz, f);
+        }
+        break;
     }
 }
 
@@ -166,6 +229,13 @@ lky_object *lobjb_deserialize(FILE *f)
         break;
         case LBI_INTEGER:
             fread(&value.i, sz, 1, f);
+        break;
+        case LBI_STRING:
+        {
+            char *str = malloc(sz);
+            fread(str, sz, 1, f);
+            value.s = str;
+        }
         break;
     }
 
@@ -198,4 +268,16 @@ lky_object_code *lobjb_load_file(char *name)
     obj->op_len = len;
 
     return obj;
+}
+
+void lobjb_clean(lky_object *a)
+{
+    lky_object_builtin *obj = (lky_object_builtin *)a;
+
+    switch(obj->type)
+    {
+        case LBI_STRING:
+            free(obj->value.s);
+        break;
+    }
 }

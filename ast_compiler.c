@@ -26,6 +26,9 @@ lky_object *wrapper_to_obj(ast_value_wrapper wrap)
         t = LBI_INTEGER;
         v.i = wrap.value.i;
         break;
+    case VSTRING:
+        t = LBI_STRING;
+        v.s = wrap.value.s;
     }
 
     return (lky_object *)lobjb_alloc(t, v);

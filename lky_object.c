@@ -1,4 +1,5 @@
 #include "lky_object.h"
+#include "lkyobj_builtin.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -19,6 +20,10 @@ void rc_decr(lky_object *obj)
     obj->mem_count--;
     if(!obj->mem_count)
     {
+        // printf("Freeing : ");
+        // lobjb_print(obj);
+        if(obj->type != LBI_CUSTOM)
+            lobjb_clean(obj);
         arr_free(&(obj->members));
         free(obj);
     }

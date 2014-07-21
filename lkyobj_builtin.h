@@ -7,7 +7,7 @@
 typedef union {
     double d;
     long i;
-    char *str;
+    char *s;
 } lky_builtin_value;
 
 typedef struct {
@@ -35,12 +35,14 @@ lky_object *lobjb_binary_add(lky_object *a, lky_object *b);
 lky_object *lobjb_binary_subtract(lky_object *a, lky_object *b);
 lky_object *lobjb_binary_multiply(lky_object *a, lky_object *b);
 lky_object *lobjb_binary_divide(lky_object *a, lky_object *b);
+void lobjb_print(lky_object *a);
 
 lky_object_code *lobjb_load_file(char *name);
 
 void lobjb_serialize(lky_object *obj, FILE *f);
 lky_object *lobjb_deserialize(FILE *f);
 
-void lobjb_print(lky_object *a);
+void lobjb_clean(lky_object *a);
+
 
 #endif
