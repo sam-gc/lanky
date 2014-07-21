@@ -107,14 +107,32 @@ void compile_unary(ast_node *root)
     append_op((char)istr);
 }
 
+long find_prev_const(lky_object *obj)
+{
+    long i;
+    for(i = 0; i < rcon.count; i++)
+    {
+        lky_object *o = arr_get(&rcon, i);
+        if(lobjb_quick_compare(obj, o))
+            return i;
+    }
+
+    return -1;
+}
+
 void compile_value(ast_node *root)
 {
     ast_value_node *node = (ast_value_node *)root;
 
-    long idx = rcon.count;
-
     lky_object *obj = wrapper_to_obj(node_to_wrapper(node));
-    arr_append(&rcon, obj);
+
+    long idx = find_prev_const(obj);
+
+    if(idx < 0)
+    {
+        idx = rcon.count;
+        arr_append(&rcon, obj);
+    }
 
     append_op(LI_LOAD_CONST);
     append_op((char)idx);

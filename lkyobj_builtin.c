@@ -162,6 +162,22 @@ lky_object *lobjb_binary_divide(lky_object *a, lky_object *b)
     return lobjb_alloc(t, v);
 }
 
+char lobjb_quick_compare(lky_object *a, lky_object *b)
+{
+    BI_CAST(a, ab);
+    BI_CAST(b, bb);
+
+    if(ab->type == LBI_STRING || bb->type == LBI_STRING)
+    {
+        if(ab->type != LBI_STRING || bb->type != LBI_STRING)
+            return 0;
+
+        return !strcmp(ab->value.s, bb->value.s);
+    }
+
+    return OBJ_NUM_UNWRAP(ab) == OBJ_NUM_UNWRAP(bb);
+}
+
 void lobjb_print(lky_object *a)
 {
     lky_object_builtin *b = (lky_object_builtin *)a;
