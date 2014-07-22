@@ -1,6 +1,8 @@
 #ifndef LKYOBJ_BUILTIN_H
 #define LKYOBJ_BUILTIN_H
 
+#define OBJ_NUM_UNWRAP(obj) (((lky_object_builtin *)obj)->type == LBI_FLOAT ? ((lky_object_builtin *)obj)->value.d : ((lky_object_builtin *)obj)->value.i)
+
 #include "lky_object.h"
 #include <stdio.h>
 

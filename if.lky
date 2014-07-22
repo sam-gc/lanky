@@ -1,0 +1,27 @@
+_prt " .. Beginning Test .. "
+
+if(1) {
+    _prt 5
+    _prt 100 * 2
+    100 /2 
+
+    if(1) {
+        _prt "Inception that if!"
+    }
+
+    if(0) {
+        "A print"
+    }
+
+    if(1) {
+        if(1) {
+            if(1) {
+                if(1) {
+                    "Holy nested..."
+                }
+            }
+        }
+    }
+}
+
+_prt " .. Finished Test .. "

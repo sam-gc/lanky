@@ -8,6 +8,7 @@ typedef enum {
     LBI_FLOAT,
     LBI_INTEGER,
     LBI_STRING,
+    LBI_NIL,
     LBI_CUSTOM
 } lky_builtin_type;
 
@@ -20,5 +21,7 @@ typedef struct {
 lky_object *lobj_alloc();
 void rc_decr(lky_object *obj);
 void rc_incr(lky_object *obj);
+
+extern lky_object lky_nil;
 
 #endif

@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
     // ctx_init();
     yyparse();
     lky_object_code *code = compile_ast(programBlock->next);
-    // write_to_file("test", code);
+    write_to_file("test", code);
     ast_free(programBlock);
 
     // printf("%p ... %p ... %p\n", programBlock, programBlock->next, programBlock->next->next);

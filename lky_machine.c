@@ -54,13 +54,17 @@ void mach_execute(lky_object_code *code)
 {
     main_stack = arr_create(100);
 
+    arr_append(&main_stack, NULL);
+
     constants = code->constants;
     tape_len = code->op_len;
     ops = code->ops;
 
+    // printf("%d\n", tape_len);
+
     mach_eval();
 
-    arr_free(&main_stack);
+    // arr_free(&main_stack);
     arr_free(&constants);
     free(ops);
 }
@@ -138,6 +142,22 @@ void mach_do_op(lky_instruction op)
         case LI_POP:
         {
             POP_RC();
+        }
+        break;
+        case LI_JUMP_FALSE:
+        {
+            lky_object *obj = POP();
+            // printf("=> %d\n", obj == &lky_nil || obj->type != LBI_STRING && !OBJ_NUM_UNWRAP(obj));
+            if(obj == &lky_nil || obj->type != LBI_STRING && !OBJ_NUM_UNWRAP(obj))
+            {
+                char idx = ops[++pc];
+                pc = idx;
+            }
+            else
+            {
+                PUSH(&lky_nil);
+            }
+            rc_decr(obj);
         }
         break;
     }

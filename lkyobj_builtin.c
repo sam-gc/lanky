@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define OBJ_NUM_UNWRAP(obj) (obj->type == LBI_FLOAT ? obj->value.d : obj->value.i)
 #define OBJ_NUM_PROMO(a, b) (a->type == LBI_FLOAT || b->type == LBI_FLOAT ? LBI_FLOAT : LBI_INTEGER) 
 #define BI_CAST(o, n) lky_object_builtin * n = (lky_object_builtin *) o
 
@@ -48,6 +47,9 @@ lky_object *lobjb_binary_add(lky_object *a, lky_object *b)
 {
     BI_CAST(a, ab);
     BI_CAST(b, bb);
+
+    if(a == &lky_nil || b == &lky_nil)
+        return &lky_nil;
 
     if(ab->type == LBI_STRING || bb->type == LBI_STRING)
     {
@@ -107,6 +109,9 @@ lky_object *lobjb_binary_subtract(lky_object *a, lky_object *b)
     BI_CAST(a, ab);
     BI_CAST(b, bb);
 
+    if(a == &lky_nil || b == &lky_nil)
+        return &lky_nil;
+
     lky_builtin_value v;
     lky_builtin_type t = OBJ_NUM_PROMO(ab, bb);
     switch(t)
@@ -130,24 +135,19 @@ lky_object *lobjb_binary_multiply(lky_object *a, lky_object *b)
     lky_builtin_value v;
     lky_builtin_type t;
 
+    if(a == &lky_nil || b == &lky_nil)
+        return &lky_nil;
+
     if(ab->type == LBI_STRING || bb->type == LBI_STRING)
     {
         if(ab->type == LBI_STRING && bb->type == LBI_STRING)
-        {
-            t = LBI_INTEGER;
-            v.i = 0;
-            return lobjb_alloc(t, v);
-        }
+            return &lky_nil;
 
         lky_object_builtin *strobj = ab->type == LBI_STRING ? ab : bb;
         lky_object_builtin *oobj = strobj == ab ? bb : ab;
 
         if(oobj->type != LBI_INTEGER)
-        {
-            t = LBI_INTEGER;
-            v.i = 0;
-            return lobjb_alloc(t, v);
-        }
+            return &lky_nil;
 
         char *str = strobj->value.s;
         long ct = oobj->value.i;
@@ -184,6 +184,9 @@ lky_object *lobjb_binary_divide(lky_object *a, lky_object *b)
     BI_CAST(a, ab);
     BI_CAST(b, bb);
 
+    if(a == &lky_nil || b == &lky_nil)
+        return &lky_nil;
+
     lky_builtin_value v;
     lky_builtin_type t = OBJ_NUM_PROMO(ab, bb);
     switch(t)
@@ -212,6 +215,11 @@ char lobjb_quick_compare(lky_object *a, lky_object *b)
         return !strcmp(ab->value.s, bb->value.s);
     }
 
+    if(a == &lky_nil || b == &lky_nil)
+    {
+        return a == b;
+    }
+
     return OBJ_NUM_UNWRAP(ab) == OBJ_NUM_UNWRAP(bb);
 }
 
@@ -229,6 +237,9 @@ void lobjb_print(lky_object *a)
         break;
         case LBI_STRING:
             printf("%s\n", b->value.s);
+        break;
+        case LBI_NIL:
+            printf("(nil)\n");
         break;
     }
 }

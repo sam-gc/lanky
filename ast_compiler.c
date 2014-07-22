@@ -12,6 +12,9 @@ static arraylist rcon;
 static char save_val;
 
 void compile(ast_node *root);
+int lookahead(ast_node *node, ast_node *tg);
+void lookahead_single(ast_node *node, int *ct);
+void compile_compound(ast_node *root);
 
 lky_object *wrapper_to_obj(ast_value_wrapper wrap)
 {
@@ -91,6 +94,31 @@ void compile_binary(ast_node *root)
     append_op((char)istr);
 }
 
+void compile_if(ast_node *root)
+{
+    ast_if_node *node = (ast_if_node *)root;
+
+    compile(node->condition);
+
+    printf("%p\n", node->payload->next);
+
+    append_op(LI_JUMP_FALSE);
+    append_op(1);
+
+    char loc = rops.count - 1;
+    // char *loc = 
+
+    // int idx = lookahead(node->payload, node->next);
+    // append_op(rops.count + idx + 2);
+
+    compile_compound(node->payload->next);
+
+    if(arr_get(&rops, rops.count - 1) == LI_POP)
+        arr_remove(&rops, NULL, rops.count - 1);
+
+    rops.items[loc] = rops.count - 1;
+}
+
 void compile_unary(ast_node *root)
 {
     ast_unary_node *node = (ast_unary_node *)root;
@@ -127,6 +155,7 @@ void compile_value(ast_node *root)
     ast_value_node *node = (ast_value_node *)root;
 
     lky_object *obj = wrapper_to_obj(node_to_wrapper(node));
+    rc_incr(obj);
 
     long idx = find_prev_const(obj);
 
@@ -153,14 +182,14 @@ void compile(ast_node *root)
     case AVALUE:
         compile_value(root);
     break;
+    case AIF:
+        compile_if(root);
+    break;
     }
 }
 
-lky_object_code *compile_ast(ast_node *root)
+void compile_compound(ast_node *root)
 {
-    rops = arr_create(50);
-    rcon = arr_create(10);
-
     while(root)
     {
         save_val = 0;
@@ -170,6 +199,14 @@ lky_object_code *compile_ast(ast_node *root)
 
         root = root->next;
     }
+}
+
+lky_object_code *compile_ast(ast_node *root)
+{
+    rops = arr_create(50);
+    rcon = arr_create(10);
+
+    compile_compound(root);
 
     lky_object_code *code = malloc(sizeof(lky_object_code));
     code->constants = rcon;
@@ -197,4 +234,76 @@ void write_to_file(char *name, lky_object_code *code)
     fwrite(code->ops, sizeof(char), code->op_len, f);
 
     fclose(f);
+}
+
+int lookahead_save_val;
+
+void lookahead_value(ast_node *n, int *ct)
+{
+    ast_value_node *node = (ast_value_node *)n;
+
+    switch(node->value_type)
+    {
+        case VSTRING:
+        case VDOUBLE:
+        case VINT:
+            *ct += 2;
+        break;
+    }
+}
+
+void lookahead_binary(ast_node *n, int *ct)
+{
+    ast_binary_node *node = (ast_binary_node *)n;
+
+    lookahead_single(node->left, ct);
+    lookahead_single(node->right, ct);
+
+    *ct++;
+}
+
+void lookahead_unary(ast_node *n, int *ct)
+{
+    ast_unary_node *node = (ast_unary_node *)n;
+
+    lookahead_single(node->target, ct);
+
+    *ct++;
+    lookahead_save_val = 1;
+}
+
+void lookahead_single(ast_node *node, int *ct)
+{
+    switch(node->type)
+    {
+        case AVALUE:
+            lookahead_value(node, ct);
+        break;
+        case ABINARY_EXPRESSION:
+            lookahead_binary(node, ct);
+        break;
+        case AUNARY_EXPRESSION:
+            lookahead_unary(node, ct);
+        break;
+    }
+}
+
+int lookahead(ast_node *node, ast_node *tg)
+{
+    printf("%p ... \n", node);
+    int ct = 0;
+
+    while(node != tg && node)
+    {
+        lookahead_save_val = 0;
+
+        lookahead_single(node, &ct);
+
+        if(!lookahead_save_val)
+            ct++;
+
+        node = node->next;
+    }
+
+    return ct;
 }

@@ -8,7 +8,9 @@ typedef enum {
     LI_BINARY_DIVIDE,
     LI_LOAD_CONST,
     LI_PRINT,
-    LI_POP
+    LI_POP,
+    LI_JUMP_FALSE,
+    LI_JUMP_TRUE
 } lky_instruction;
 
 typedef enum {
