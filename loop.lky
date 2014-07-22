@@ -1,0 +1,13 @@
+loop(_prt "init" : 0 : _prt "onloop") {
+    _prt "In teh loop"
+
+    if(1) {
+        _prt "If in loop"
+    }
+
+    loop(_prt "Inner loop" : 0 : 0) {
+        3 + 4
+    }
+}
+
+_prt "Out of loop"

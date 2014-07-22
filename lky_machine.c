@@ -144,6 +144,12 @@ void mach_do_op(lky_instruction op)
             POP_RC();
         }
         break;
+        case LI_JUMP:
+        {
+            char idx = ops[++pc];
+            pc = idx < pc ? idx - 1 : idx;
+        }
+        break;
         case LI_JUMP_FALSE:
         {
             lky_object *obj = POP();

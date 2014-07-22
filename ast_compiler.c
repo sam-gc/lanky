@@ -2,6 +2,7 @@
 #include "arraylist.h"
 #include "instruction_set.h"
 #include "lkyobj_builtin.h"
+#include "hashmap.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -15,6 +16,55 @@ void compile(ast_node *root);
 int lookahead(ast_node *node, ast_node *tg);
 void lookahead_single(ast_node *node, int *ct);
 void compile_compound(ast_node *root);
+void compile_single_if(ast_if_node *node, int tagOut, int tagNext);
+
+typedef struct tag_node {
+    struct tag_node *next;
+    long tag;
+    char line;
+} tag_node;
+
+char get_line(tag_node *node, tag)
+{
+    for(; node; node = node->next)
+    {
+        if(tag == node->tag)
+            return node->line;
+    }
+
+    return -1;
+}
+
+tag_node *make_node()
+{
+    tag_node *node = malloc(sizeof(tag_node));
+    node->next = NULL;
+    node->tag = 0;
+    node->line = -1;
+
+    return node;
+}
+
+void *append_tag(tag_node *node, long tag, char line)
+{
+    for(; node->next; node = node->next);
+
+    tag_node *n = make_node();
+    n->tag = tag;
+    n->line = line;
+
+    node->next = n;
+}
+
+void free_tag_nodes(tag_node *node)
+{
+    while(node)
+    {
+        tag_node *next = node->next;
+        free(node);
+        node = next;
+    }
+}
 
 lky_object *wrapper_to_obj(ast_value_wrapper wrap)
 {
@@ -94,29 +144,85 @@ void compile_binary(ast_node *root)
     append_op((char)istr);
 }
 
-void compile_if(ast_node *root)
+int ifTag = 1000;
+int next_if_tag()
 {
-    ast_if_node *node = (ast_if_node *)root;
+    return ifTag++;
+}
+
+void compile_loop(ast_node *root)
+{
+    int tagOut = next_if_tag();
+
+    ast_loop_node *node = (ast_loop_node *)root;
+
+    if(node->init)
+        compile(node->init);
+
+    int start = rops.count;
 
     compile(node->condition);
-
-    printf("%p\n", node->payload->next);
-
     append_op(LI_JUMP_FALSE);
-    append_op(1);
+    arr_append(&rops, tagOut);
 
-    char loc = rops.count - 1;
-    // char *loc = 
+    compile_compound(node->payload->next);
 
-    // int idx = lookahead(node->payload, node->next);
-    // append_op(rops.count + idx + 2);
+    if(node->onloop)
+        compile(node->onloop);
+
+    arr_append(&rops, LI_JUMP);
+    arr_append(&rops, (char)start);
+    arr_append(&rops, tagOut);
+}
+
+void compile_if(ast_node *root)
+{
+    int tagNext = next_if_tag();
+    int tagOut = next_if_tag();
+
+    ast_if_node *node = (ast_if_node *)root;
+
+    if(!node->next_if)
+    {
+        compile_single_if(node, tagNext, tagNext);
+        arr_append(&rops, tagNext);
+        return;
+    }
+
+    compile_single_if(node, tagOut, tagNext);
+
+    node = node->next_if;
+    while(node)
+    {
+        arr_append(&rops, tagNext);
+        tagNext = next_if_tag();
+        compile_single_if(node, tagOut, tagNext);
+        node = node->next_if;
+    }
+
+    arr_append(&rops, tagOut);
+}
+
+void compile_single_if(ast_if_node *node, int tagOut, int tagNext)
+{
+    if(node->condition)
+    {
+        compile(node->condition);
+
+        append_op(LI_JUMP_FALSE);
+        arr_append(&rops, tagNext);
+    }
 
     compile_compound(node->payload->next);
 
     if(arr_get(&rops, rops.count - 1) == LI_POP)
         arr_remove(&rops, NULL, rops.count - 1);
 
-    rops.items[loc] = rops.count - 1;
+    if(tagOut != tagNext && node->condition)
+    {
+        append_op(LI_JUMP);
+        arr_append(&rops, tagOut);
+    }
 }
 
 void compile_unary(ast_node *root)
@@ -185,6 +291,9 @@ void compile(ast_node *root)
     case AIF:
         compile_if(root);
     break;
+    case ALOOP:
+        compile_loop(root);
+    break;
     }
 }
 
@@ -201,12 +310,38 @@ void compile_compound(ast_node *root)
     }
 }
 
+void replace_tags()
+{
+    tag_node *tags = make_node();
+
+    long i;
+    for(i = rops.count - 1; i >= 0; i--)
+    {
+        long op = arr_get(&rops, i);
+        if(op > 999)
+        {
+            char line = get_line(tags, op);
+            if(line < 0)
+            {
+                append_tag(tags, op, i);
+                rops.items[i] = LI_IGNORE;
+                continue;
+            }
+
+            rops.items[i] = line;
+        }
+    }
+
+    free_tag_nodes(tags);
+}
+
 lky_object_code *compile_ast(ast_node *root)
 {
     rops = arr_create(50);
     rcon = arr_create(10);
 
     compile_compound(root);
+    replace_tags();
 
     lky_object_code *code = malloc(sizeof(lky_object_code));
     code->constants = rcon;
