@@ -1,4 +1,4 @@
-loop(_prt "init" : 0 : _prt "onloop") {
+loop(_prt "init" : 1 : _prt "onloop") {
     _prt "In teh loop"
 
     if(1) {

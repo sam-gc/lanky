@@ -24,7 +24,7 @@ typedef struct tag_node {
     char line;
 } tag_node;
 
-char get_line(tag_node *node, tag)
+char get_line(tag_node *node, long tag)
 {
     for(; node; node = node->next)
     {
