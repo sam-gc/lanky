@@ -5,6 +5,7 @@
 #include "tools.h"
 #include "context.h"
 #include "ast_compiler.h"
+#include "lky_machine.h"
 
 extern ast_node *programBlock;
 extern int yyparse();
@@ -22,21 +23,25 @@ int main(int argc, char *argv[])
         }
     }
 
-    ctx_init();
+    // ctx_init();
     yyparse();
     lky_object_code *code = compile_ast(programBlock->next);
-    write_to_file("test", code);
+    // write_to_file("test", code);
+    ast_free(programBlock);
 
     // printf("%p ... %p ... %p\n", programBlock, programBlock->next, programBlock->next->next);
     printf("\nProgram output:\n==============================\n\n");
-    eval(programBlock);
+
+    mach_execute(code);
+
+    // eval(programBlock);
     // ast_node *n = ((ast_block_node *)programBlock)->payload;
     // ast_print(programBlock);
 
     // ast_binary_node *b = (ast_binary_node *)n;
     // printf("%c\n", b->opt);
-    ast_free(programBlock);
-    ctx_clean_up();
+    // ast_free(programBlock);
+    // ctx_clean_up();
     printf("\n=============DEBUG============\n");
     printf("Allocations: %d\tFrees: %d\n", get_malloc_count(), get_free_count());
     return 0;

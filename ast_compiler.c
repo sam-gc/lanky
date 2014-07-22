@@ -4,6 +4,7 @@
 #include "lkyobj_builtin.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 static arraylist rops;
 static arraylist rcon;
@@ -28,7 +29,8 @@ lky_object *wrapper_to_obj(ast_value_wrapper wrap)
         break;
     case VSTRING:
         t = LBI_STRING;
-        v.s = wrap.value.s;
+        v.s = malloc(strlen(wrap.value.s) + 1);
+        strcpy(v.s, wrap.value.s);
     }
 
     return (lky_object *)lobjb_alloc(t, v);

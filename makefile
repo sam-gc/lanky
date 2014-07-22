@@ -1,4 +1,4 @@
-SOURCES=main.c parser.c tokens.c tools.c ast.c ast_binary_ops.c ast_unary_ops.c mempool.c ast_interpreter.c hashmap.c context.c ast_compiler.c lky_object.c arraylist.c lkyobj_builtin.c
+SOURCES=main.c parser.c tokens.c tools.c ast.c ast_binary_ops.c ast_unary_ops.c mempool.c ast_interpreter.c hashmap.c context.c ast_compiler.c lky_object.c arraylist.c lky_machine.c lkyobj_builtin.c
 CFLAGS=-lm
 
 guts: lanky.l lanky.y

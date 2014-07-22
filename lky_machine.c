@@ -8,18 +8,14 @@
 #define POP() (pop_node())
 
 #define PUSH_RC(data) push_node(data); rc_incr(data)
+#define POP_RC() rc_decr(POP())
 
 #define POP_TWO() lky_object *a = POP(); lky_object *b = POP()
 #define RC_TWO() rc_decr(a); rc_decr(b)
 
-void eval();
+void mach_eval();
 
-typedef struct stack_node {
-    struct stack_node *next;
-    void *data;
-} stack_node;
-
-static stack_node *main_stack;
+static arraylist main_stack;
 static arraylist constants;
 // char ops[6] = {LI_LOAD_CONST, 0, LI_LOAD_CONST, 1, LI_BINARY_DIVIDE, LI_PRINT};
 // char ops[9] = {LI_LOAD_CONST, 0, LI_LOAD_CONST, 1, LI_LOAD_CONST, 2, LI_BINARY_ADD, LI_BINARY_MULTIPLY, LI_PRINT};
@@ -29,96 +25,58 @@ static long tape_len;
 
 static void push_node(void *data)
 {
-    stack_node *node = malloc(sizeof(stack_node));
-    node->next = main_stack;
-    node->data = data;
-    main_stack = node;
+    // stack_node *node = malloc(sizeof(stack_node));
+    // node->next = main_stack;
+    // node->data = data;
+    // main_stack = node;
+
+    arr_append(&main_stack, data);
 }
 
 static void *pop_node()
 {
-    stack_node *node = main_stack;
-    main_stack = node->next;
-    void *data = node->data;
-    free(node);
+    void *data = arr_get(&main_stack, main_stack.count - 1);
+    arr_remove(&main_stack, NULL, main_stack.count - 1);
 
     return data;
 }
 
 static void print_stack()
 {
-    stack_node *node = main_stack;
-
-    while(node->next)
+    long i;
+    for(i = main_stack.count - 1; i > -1; i--)
     {
-        lobjb_print(node->data);
-        node = node->next;
+        lobjb_print(arr_get(&main_stack, i));
     }
 }
 
-int main()
+void mach_execute(lky_object_code *code)
 {
-    // constants = arr_create(10);
+    main_stack = arr_create(100);
 
-    // lky_object *a = lobjb_build_int(98);
-    // lky_object *b = lobjb_build_int(12);
-    // lky_object *c = lobjb_build_int(45);
-    // arr_append(&constants, a);
-    // arr_append(&constants, b);
-    // arr_append(&constants, c);
-
-    // rc_incr(a);
-    // rc_incr(b);
-
-    main_stack = malloc(sizeof(stack_node));
-    main_stack->next = NULL;
-    main_stack->data = NULL;
-
-    // ops = 
-
-    // FILE *f = fopen("test", "r");
-
-    // long len;
-    // char type;
-    // fread(&len, sizeof(long), 1, f);
-    // printf("Size of constants: %ld\n", len);
-
-    // fread(&len, sizeof(long), 1, f);
-    // printf("%ld\n", len);
-    // fread(&type, sizeof(char), 1, f);
-    // long tmp1, tmp2;
-    // fread(&tmp1, len, 1, f);
-
-    // fread(&len, sizeof(long), 1, f);
-    // fread(&type, sizeof(char), 1, f);
-    // fread(&tmp2, len, 1, f);
-
-    // printf("Constants: %ld %ld\n", tmp1, tmp2);
-
-    // char instructions[3] = {}
-
-    lky_object_code *code = lobjb_load_file("test");
     constants = code->constants;
     tape_len = code->op_len;
     ops = code->ops;
 
-    eval();
+    mach_eval();
 
-    return 0;
+    arr_free(&main_stack);
+    arr_free(&constants);
+    free(ops);
 }
 
-void do_op(lky_instruction op);
+void mach_do_op(lky_instruction op);
 
-void eval()
+void mach_eval()
 {
     pc = -1;
     while(pc < tape_len)
     {
-        do_op(ops[++pc]);
+        mach_do_op(ops[++pc]);
     }
 }
 
-void do_op(lky_instruction op)
+void mach_do_op(lky_instruction op)
 {
     // print_stack();
 
@@ -179,8 +137,7 @@ void do_op(lky_instruction op)
         break;
         case LI_POP:
         {
-            lky_object *a = POP();
-            rc_decr(a);
+            POP_RC();
         }
         break;
     }

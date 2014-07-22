@@ -128,7 +128,44 @@ lky_object *lobjb_binary_multiply(lky_object *a, lky_object *b)
     BI_CAST(b, bb);
 
     lky_builtin_value v;
-    lky_builtin_type t = OBJ_NUM_PROMO(ab, bb);
+    lky_builtin_type t;
+
+    if(ab->type == LBI_STRING || bb->type == LBI_STRING)
+    {
+        if(ab->type == LBI_STRING && bb->type == LBI_STRING)
+        {
+            t = LBI_INTEGER;
+            v.i = 0;
+            return lobjb_alloc(t, v);
+        }
+
+        lky_object_builtin *strobj = ab->type == LBI_STRING ? ab : bb;
+        lky_object_builtin *oobj = strobj == ab ? bb : ab;
+
+        if(oobj->type != LBI_INTEGER)
+        {
+            t = LBI_INTEGER;
+            v.i = 0;
+            return lobjb_alloc(t, v);
+        }
+
+        char *str = strobj->value.s;
+        long ct = oobj->value.i;
+
+        char *nstr = malloc(strlen(str) * ct + 1);
+        strcpy(nstr, "");
+
+        long i;
+        for(i = 0; i < ct; i++)
+            strcat(nstr, str);
+
+        v.s = nstr;
+        t = LBI_STRING;
+
+        return lobjb_alloc(t, v);
+    }
+
+    t = OBJ_NUM_PROMO(ab, bb);
     switch(t)
     {
         case LBI_FLOAT:
