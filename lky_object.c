@@ -5,6 +5,7 @@
 
 lky_object lky_nil = {LBI_NIL, 0, {NULL}};
 
+int alloced = 0;
 lky_object *lobj_alloc()
 {
     lky_object *obj = malloc(sizeof(lky_object));
@@ -13,7 +14,7 @@ lky_object *lobj_alloc()
     obj->members = arr_create(10);
 
     // obj->value = value;
-
+    alloced++;
     return obj;
 }
 
@@ -32,6 +33,7 @@ void rc_decr(lky_object *obj)
             lobjb_clean(obj);
         arr_free(&(obj->members));
         free(obj);
+        alloced--;
     }
 }
 
@@ -39,4 +41,9 @@ void rc_incr(lky_object *obj)
 {
     (obj->mem_count)++;
     // printf("%d (+)\n", obj->mem_count);
+}
+
+void print_alloced()
+{
+    printf(">>>> %d\n", alloced);
 }

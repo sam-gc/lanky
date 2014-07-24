@@ -10,11 +10,11 @@
 static arraylist rops;
 static arraylist rcon;
 
+static Hashmap saved_locals;
+
 static char save_val;
 
 void compile(ast_node *root);
-int lookahead(ast_node *node, ast_node *tg);
-void lookahead_single(ast_node *node, int *ct);
 void compile_compound(ast_node *root);
 void compile_single_if(ast_if_node *node, int tagOut, int tagNext);
 
@@ -64,6 +64,12 @@ void free_tag_nodes(tag_node *node)
         free(node);
         node = next;
     }
+}
+
+int local_idx = 0;
+int get_next_local()
+{
+    return local_idx++;
 }
 
 lky_object *wrapper_to_obj(ast_value_wrapper wrap)
@@ -121,7 +127,9 @@ void compile_binary(ast_node *root)
 {
     ast_binary_node *node = (ast_binary_node *)root;
 
-    compile(node->left);
+    if(node->opt != '=')
+        compile(node->left);
+
     compile(node->right);
 
     lky_instruction istr;
@@ -138,6 +146,25 @@ void compile_binary(ast_node *root)
         break;
     case '/':
         istr = LI_BINARY_DIVIDE;
+        break;
+    case 'l':
+        istr = LI_BINARY_LT;
+        break;
+    case '=':
+        {
+            append_op((char)LI_SAVE_LOCAL);
+            char *sid = ((ast_value_node *)(node->left))->value.s;
+            hm_error_t err;
+            int idx = hm_get(&saved_locals, sid, &err);
+            if(err == HM_KEY_NOT_FOUND)
+            {
+                idx = get_next_local();
+                hm_put(&saved_locals, sid, idx);
+            }
+            append_op((char)idx);
+            save_val = 1;
+            return;
+        }
         break;
     }
 
@@ -186,6 +213,7 @@ void compile_if(ast_node *root)
     {
         compile_single_if(node, tagNext, tagNext);
         arr_append(&rops, tagNext);
+        save_val = 1;
         return;
     }
 
@@ -201,6 +229,8 @@ void compile_if(ast_node *root)
     }
 
     arr_append(&rops, tagOut);
+
+    save_val = 1;
 }
 
 void compile_single_if(ast_if_node *node, int tagOut, int tagNext)
@@ -215,8 +245,11 @@ void compile_single_if(ast_if_node *node, int tagOut, int tagNext)
 
     compile_compound(node->payload->next);
 
-    if(arr_get(&rops, rops.count - 1) == LI_POP)
-        arr_remove(&rops, NULL, rops.count - 1);
+    // This is used if we want to return the last
+    // line of if statements. It is broken and
+    // should not be used.
+    // if(arr_get(&rops, rops.count - 1) == LI_POP)
+    //     arr_remove(&rops, NULL, rops.count - 1);
 
     if(tagOut != tagNext && node->condition)
     {
@@ -256,9 +289,23 @@ long find_prev_const(lky_object *obj)
     return -1;
 }
 
+void compile_var(ast_value_node *node)
+{
+    int idx = hm_get(&saved_locals, node->value.s, NULL);
+
+    append_op(LI_LOAD_LOCAL);
+    append_op((char)idx);
+}
+
 void compile_value(ast_node *root)
 {
     ast_value_node *node = (ast_value_node *)root;
+
+    if(node->value_type == VVAR)
+    {
+        compile_var(node);
+        return;
+    }
 
     lky_object *obj = wrapper_to_obj(node_to_wrapper(node));
     rc_incr(obj);
@@ -279,21 +326,21 @@ void compile(ast_node *root)
 {
     switch(root->type)
     {
-    case ABINARY_EXPRESSION:
-        compile_binary(root);
-    break;
-    case AUNARY_EXPRESSION:
-        compile_unary(root);
-    break;
-    case AVALUE:
-        compile_value(root);
-    break;
-    case AIF:
-        compile_if(root);
-    break;
-    case ALOOP:
-        compile_loop(root);
-    break;
+        case ABINARY_EXPRESSION:
+            compile_binary(root);
+        break;
+        case AUNARY_EXPRESSION:
+            compile_unary(root);
+        break;
+        case AVALUE:
+            compile_value(root);
+        break;
+        case AIF:
+            compile_if(root);
+        break;
+        case ALOOP:
+            compile_loop(root);
+        break;
     }
 }
 
@@ -339,6 +386,7 @@ lky_object_code *compile_ast(ast_node *root)
 {
     rops = arr_create(50);
     rcon = arr_create(10);
+    saved_locals = hm_create(100, 1);
 
     compile_compound(root);
     replace_tags();
@@ -347,6 +395,7 @@ lky_object_code *compile_ast(ast_node *root)
     code->constants = rcon;
     code->ops = finalize_ops();
     code->op_len = rops.count;
+    code->locals = arr_create(local_idx);
 
     return code;
 }
@@ -369,76 +418,4 @@ void write_to_file(char *name, lky_object_code *code)
     fwrite(code->ops, sizeof(char), code->op_len, f);
 
     fclose(f);
-}
-
-int lookahead_save_val;
-
-void lookahead_value(ast_node *n, int *ct)
-{
-    ast_value_node *node = (ast_value_node *)n;
-
-    switch(node->value_type)
-    {
-        case VSTRING:
-        case VDOUBLE:
-        case VINT:
-            *ct += 2;
-        break;
-    }
-}
-
-void lookahead_binary(ast_node *n, int *ct)
-{
-    ast_binary_node *node = (ast_binary_node *)n;
-
-    lookahead_single(node->left, ct);
-    lookahead_single(node->right, ct);
-
-    *ct++;
-}
-
-void lookahead_unary(ast_node *n, int *ct)
-{
-    ast_unary_node *node = (ast_unary_node *)n;
-
-    lookahead_single(node->target, ct);
-
-    *ct++;
-    lookahead_save_val = 1;
-}
-
-void lookahead_single(ast_node *node, int *ct)
-{
-    switch(node->type)
-    {
-        case AVALUE:
-            lookahead_value(node, ct);
-        break;
-        case ABINARY_EXPRESSION:
-            lookahead_binary(node, ct);
-        break;
-        case AUNARY_EXPRESSION:
-            lookahead_unary(node, ct);
-        break;
-    }
-}
-
-int lookahead(ast_node *node, ast_node *tg)
-{
-    printf("%p ... \n", node);
-    int ct = 0;
-
-    while(node != tg && node)
-    {
-        lookahead_save_val = 0;
-
-        lookahead_single(node, &ct);
-
-        if(!lookahead_save_val)
-            ct++;
-
-        node = node->next;
-    }
-
-    return ct;
 }

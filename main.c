@@ -6,6 +6,7 @@
 #include "context.h"
 #include "ast_compiler.h"
 #include "lky_machine.h"
+#include "lky_object.h"
 
 extern ast_node *programBlock;
 extern int yyparse();
@@ -43,6 +44,7 @@ int main(int argc, char *argv[])
     // ast_free(programBlock);
     // ctx_clean_up();
     printf("\n=============DEBUG============\n");
-    printf("Allocations: %d\tFrees: %d\n", get_malloc_count(), get_free_count());
+    // printf("Allocations: %d\tFrees: %d\n", get_malloc_count(), get_free_count());
+    print_alloced();
     return 0;
 }

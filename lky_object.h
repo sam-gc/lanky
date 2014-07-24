@@ -21,6 +21,7 @@ typedef struct {
 lky_object *lobj_alloc();
 void rc_decr(lky_object *obj);
 void rc_incr(lky_object *obj);
+void print_alloced();
 
 extern lky_object lky_nil;
 

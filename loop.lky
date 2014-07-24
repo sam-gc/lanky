@@ -5,7 +5,7 @@ loop(_prt "init" : 1 : _prt "onloop") {
         _prt "If in loop"
     }
 
-    loop(_prt "Inner loop" : 0 : 0) {
+    loop(_prt "Inner loop" : 1 : 0) {
         3 + 4
     }
 }

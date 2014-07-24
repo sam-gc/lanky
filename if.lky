@@ -1,6 +1,8 @@
 _prt " .. Beginning Test .. "
 
-_prt if(1) {
+i = 1
+
+if(1) {
     _prt 5
     _prt 100 * 2
     100 /2 
@@ -9,18 +11,18 @@ _prt if(1) {
         _prt "Inception"
     }
 
-    if(0) {
-        "A print"
+    if(i < 0) {
+        _prt "A print"
     }
 
-    if(1) {
-        if(1) {
-            if(1) {
+    if(i) {
+        if(i) {
+            if(i) {
                 if(0) {
-                    "If nested"
+                    _prt "If nested"
                 }
                 else {
-                    "Else nested"
+                    _prt "Else nested"
                 }
             }
         }

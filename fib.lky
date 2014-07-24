@@ -1,0 +1,10 @@
+first = 0
+second = 1
+
+loop(first < 1000000) {
+    _prt first
+
+    nxt = first + second
+    first = second
+    second = nxt
+}

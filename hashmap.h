@@ -1,8 +1,6 @@
 #ifndef HASHMAP_H
 #define HASHMAP_H
 
-#include "ast.h"
-
 struct _node;
 
 typedef struct {
@@ -17,8 +15,8 @@ typedef enum {
 } hm_error_t;
 
 Hashmap hm_create(int hash_size, char copies_str);
-void hm_put(Hashmap *set, char *str, ast_value_wrapper val);
-ast_value_wrapper hm_get(Hashmap *set, char *key, hm_error_t *error);
+void hm_put(Hashmap *set, char *str, void *val);
+void *hm_get(Hashmap *set, char *key, hm_error_t *error);
 int hm_contains(Hashmap *set, char *str);
 int hm_count(Hashmap *set);
 void hm_remove(Hashmap *set, char *str);

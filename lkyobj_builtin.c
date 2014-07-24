@@ -202,6 +202,24 @@ lky_object *lobjb_binary_divide(lky_object *a, lky_object *b)
     return lobjb_alloc(t, v);
 }
 
+lky_object *lobjb_binary_lessthan(lky_object *a, lky_object *b)
+{
+    BI_CAST(a, ab);
+    BI_CAST(b, bb);
+
+    if(a == &lky_nil || b == &lky_nil)
+        return &lky_nil;
+
+    lky_builtin_value v;
+    lky_builtin_type t = LBI_INTEGER;
+
+    v.i = (OBJ_NUM_UNWRAP(ab) < OBJ_NUM_UNWRAP(bb));
+
+    // printf("==> %d\n", v.i);
+
+    return lobjb_alloc(t, v);
+}
+
 char lobjb_quick_compare(lky_object *a, lky_object *b)
 {
     BI_CAST(a, ab);

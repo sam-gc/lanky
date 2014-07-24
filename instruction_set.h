@@ -6,13 +6,17 @@ typedef enum {
     LI_BINARY_SUBTRACT,
     LI_BINARY_MULTIPLY,
     LI_BINARY_DIVIDE,
+    LI_BINARY_LT,
     LI_LOAD_CONST,
     LI_PRINT,
     LI_POP,
     LI_JUMP_FALSE,
     LI_JUMP_TRUE,
     LI_JUMP,
-    LI_IGNORE
+    LI_IGNORE,
+    LI_SAVE_LOCAL,
+    LI_LOAD_LOCAL,
+    LI_PUSH_NIL,
 } lky_instruction;
 
 typedef enum {

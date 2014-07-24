@@ -26,6 +26,7 @@ typedef struct {
     arraylist members;
 
     arraylist constants;
+    arraylist locals;
     char *ops;
     long op_len;
 } lky_object_code;
@@ -37,6 +38,7 @@ lky_object *lobjb_binary_add(lky_object *a, lky_object *b);
 lky_object *lobjb_binary_subtract(lky_object *a, lky_object *b);
 lky_object *lobjb_binary_multiply(lky_object *a, lky_object *b);
 lky_object *lobjb_binary_divide(lky_object *a, lky_object *b);
+lky_object *lobjb_binary_lessthan(lky_object *a, lky_object *b);
 void lobjb_print(lky_object *a);
 char lobjb_quick_compare(lky_object *a, lky_object *b);
 

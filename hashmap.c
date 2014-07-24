@@ -6,16 +6,9 @@
 
 typedef struct _node {
     char *value;
-    ast_value_wrapper dv;
+    void *dv;
     struct _node *next;
 } node;
-
-ast_value_wrapper make_nil_wrapper()
-{
-    ast_value_wrapper wrap;
-    wrap.type = VNONE;
-    return wrap;
-}
 
 unsigned long djb2(char *str)
 {
@@ -42,7 +35,7 @@ Hashmap hm_create(int hash_size, char copies_str)
     return set;
 }
 
-void hm_put(Hashmap *set, char *str, ast_value_wrapper val)
+void hm_put(Hashmap *set, char *str, void *val)
 {
     unsigned long hash = djb2(str);
     hash %= set->hash_size;
@@ -119,7 +112,7 @@ int hm_count(Hashmap *set)
     return count;
 }
 
-ast_value_wrapper hm_get(Hashmap *set, char *key, hm_error_t *error)
+void *hm_get(Hashmap *set, char *key, hm_error_t *error)
 {
     hm_error_t throwaway;
 
@@ -133,7 +126,7 @@ ast_value_wrapper hm_get(Hashmap *set, char *key, hm_error_t *error)
     if(!set->buckets[hash])
     {
         *error = HM_KEY_NOT_FOUND;
-        return make_nil_wrapper();
+        return NULL;
     }
 
     node *n = set->buckets[hash];
@@ -147,7 +140,7 @@ ast_value_wrapper hm_get(Hashmap *set, char *key, hm_error_t *error)
     }
 
     *error = HM_KEY_NOT_FOUND;
-    return make_nil_wrapper();
+    return NULL;
 }
 
 void hm_remove(Hashmap *set, char *str)
