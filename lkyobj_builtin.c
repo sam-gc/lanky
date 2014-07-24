@@ -152,12 +152,20 @@ lky_object *lobjb_binary_multiply(lky_object *a, lky_object *b)
         char *str = strobj->value.s;
         long ct = oobj->value.i;
 
-        char *nstr = malloc(strlen(str) * ct + 1);
-        strcpy(nstr, "");
+        int len = strlen(str);
+        int targ = len * ct;
 
-        long i;
-        for(i = 0; i < ct; i++)
-            strcat(nstr, str);
+        char *nstr = malloc(len * ct + 1);
+        nstr[targ] = 0;
+        strcpy(nstr, str);
+
+        long done = len;
+        while(done < targ)
+        {
+            long n = (done <= targ - done ? done : targ - done);
+            memcpy(nstr + done, nstr, n);
+            done += n;
+        }
 
         v.s = nstr;
         t = LBI_STRING;
