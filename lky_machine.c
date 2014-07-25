@@ -14,12 +14,10 @@
 #define POP_TWO() lky_object *a = POP(); lky_object *b = POP()
 #define RC_TWO() rc_decr(a); rc_decr(b)
 
-void print_ops();
-
 typedef struct stackframe {
     arraylist data_stack;
-    arraylist constants;
-    arraylist locals;
+    void **constants;
+    void **locals;
     long pc;
     char *ops;
     long tape_len;
@@ -56,18 +54,6 @@ static void *pop_node()
     pushes--;
 
     return data;
-}
-
-static void print_stack()
-{
-    printf("===================\n");
-    long i;
-    for(i = frame.data_stack.count - 1; i > -1; i--)
-    {
-        lobjb_print(arr_get(&frame.data_stack.count, i));
-    }
-
-    printf("===================\n");
 }
 
 void mach_execute(lky_object_code *code)
@@ -115,7 +101,7 @@ void mach_do_op(lky_instruction op)
         case LI_LOAD_CONST:
         {
             char idx = frame.ops[++frame.pc];
-            lky_object *obj = arr_get(&frame.constants, idx);
+            lky_object *obj = frame.constants[idx];
 
             PUSH_RC(obj);
         }
@@ -187,7 +173,7 @@ void mach_do_op(lky_instruction op)
         {
             lky_object *obj = POP();
             // printf("=> %d\n", obj == &lky_nil || obj->type != LBI_STRING && !OBJ_NUM_UNWRAP(obj));
-            if(obj == &lky_nil || obj->type != LBI_STRING && !OBJ_NUM_UNWRAP(obj))
+            if(obj == &lky_nil || (obj->type != LBI_STRING && !OBJ_NUM_UNWRAP(obj)))
             {
                 char idx = frame.ops[++frame.pc];
                 frame.pc = idx;
@@ -203,11 +189,13 @@ void mach_do_op(lky_instruction op)
         {
             lky_object *obj = POP();
             char idx = frame.ops[++frame.pc];
-            lky_object *old = arr_get(&frame.locals, idx);
+            lky_object *old = frame.locals[idx];
             if(old)
                 rc_decr(old);
 
-            arr_set(&frame.locals, obj, idx);
+            frame.locals[idx] = obj;
+            // printf("=> %d\n", idx);
+            // lobjb_print(obj);
 
             // rc_decr(obj);
         }
@@ -215,7 +203,7 @@ void mach_do_op(lky_instruction op)
         case LI_LOAD_LOCAL:
         {
             char idx = frame.ops[++frame.pc];
-            lky_object *obj = arr_get(&frame.locals, idx);
+            lky_object *obj = frame.locals[idx];
             PUSH_RC(obj);
         }
         break;
@@ -223,6 +211,8 @@ void mach_do_op(lky_instruction op)
         {
             PUSH(&lky_nil);
         }
+        break;
+        default:
         break;
     }
 
@@ -232,7 +222,7 @@ void mach_do_op(lky_instruction op)
     // printf("\t");
     // print_op(frame.ops[frame.pc]);
 
-    // printf("\n");
+    // printf("----> %d\n", frame.pc);
 }
 
 void print_op(lky_instruction i)
@@ -286,13 +276,13 @@ void print_op(lky_instruction i)
     printf("%s\n",name );
 }
 
-void print_ops()
+void print_ops(char *ops, int tape_len)
 {
     int i;
-    for(i = 0; i < frame.tape_len; i++)
+    for(i = 0; i < tape_len; i++)
     {
         char *name;
-        switch(frame.ops[i])
+        switch(ops[i])
         {
         case LI_BINARY_ADD:
             name = "LI_BINARY_ADD";
@@ -305,6 +295,9 @@ void print_ops()
             break;
         case LI_BINARY_DIVIDE:
             name = "LI_BINARY_DIVIDE";
+            break;
+        case LI_BINARY_LT:
+            name = "LI_BINARY_LT";
             break;
         case LI_LOAD_CONST:
             name = "LI_LOAD_CONST";
@@ -337,7 +330,7 @@ void print_ops()
             name = "LI_PUSH_NIL";
             break;
         default:
-            printf("%d\n", frame.ops[i]);
+            printf("\t--> %d\n", ops[i]);
             continue;
         }
 

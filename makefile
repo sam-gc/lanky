@@ -19,5 +19,5 @@ arraytests: arrtests.c arraylist.c
 bnm: binary_file_maker.c
 	gcc -o bnm binary_file_maker.c lky_object.c lkyobj_builtin.c arraylist.c
 
-machine: lky_machine.c lky_object.c lkyobj_builtin.c arraylist.c
-	gcc -o machine lky_machine.c arraylist.c lky_object.c lkyobj_builtin.c -g
+machine: lky_machine.c lky_object.c lkyobj_builtin.c arraylist.c bin_main.c
+	gcc -o machine lky_machine.c arraylist.c lky_object.c lkyobj_builtin.c bin_main.c -g

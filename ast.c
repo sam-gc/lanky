@@ -188,6 +188,8 @@ void ast_free_value_node(ast_node *node)
     case VVAR:
         FREE(vn->value.s);
         break;
+    default:
+        break;
     }
 }
 

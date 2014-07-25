@@ -45,7 +45,7 @@ tag_node *make_node()
     return node;
 }
 
-void *append_tag(tag_node *node, long tag, char line)
+void append_tag(tag_node *node, long tag, char line)
 {
     for(; node->next; node = node->next);
 
@@ -90,6 +90,10 @@ lky_object *wrapper_to_obj(ast_value_wrapper wrap)
         t = LBI_STRING;
         v.s = malloc(strlen(wrap.value.s) + 1);
         strcpy(v.s, wrap.value.s);
+        break;
+    default:
+        printf("--> %d\n", wrap.type);
+        return NULL;
     }
 
     return (lky_object *)lobjb_alloc(t, v);
@@ -112,15 +116,18 @@ char *finalize_ops()
     long i;
     for(i = 0; i < rops.count; i++)
     {
-        ops[i] = (char)arr_get(&rops, i);
+        lky_object_builtin *obj = arr_get(&rops, i);
+        ops[i] = (char)obj->value.i;
     }
 
     return ops;
 }
 
-void append_op(char ins)
+void append_op(long ins)
 {
-    arr_append(&rops, (void *)ins);
+    lky_object *obj = lobjb_build_int(ins);
+    pool_add(&ast_memory_pool, obj);
+    arr_append(&rops, obj);
 }
 
 void compile_binary(ast_node *root)
@@ -155,13 +162,19 @@ void compile_binary(ast_node *root)
             append_op((char)LI_SAVE_LOCAL);
             char *sid = ((ast_value_node *)(node->left))->value.s;
             hm_error_t err;
-            int idx = hm_get(&saved_locals, sid, &err);
+            int idx;
+            lky_object_builtin *o = hm_get(&saved_locals, sid, &err);
             if(err == HM_KEY_NOT_FOUND)
             {
                 idx = get_next_local();
-                hm_put(&saved_locals, sid, idx);
+                lky_object *obj = lobjb_build_int(idx);
+                pool_add(&ast_memory_pool, obj);
+                hm_put(&saved_locals, sid, obj);
             }
-            append_op((char)idx);
+            else
+                idx = o->value.i;
+
+            append_op(idx);
             save_val = 1;
             return;
         }
@@ -190,16 +203,18 @@ void compile_loop(ast_node *root)
 
     compile(node->condition);
     append_op(LI_JUMP_FALSE);
-    arr_append(&rops, tagOut);
+    append_op(tagOut);
 
     compile_compound(node->payload->next);
 
     if(node->onloop)
         compile(node->onloop);
 
-    arr_append(&rops, LI_JUMP);
-    arr_append(&rops, (char)start);
-    arr_append(&rops, tagOut);
+    append_op(LI_JUMP);
+    append_op(start);
+    append_op(tagOut);
+
+    save_val = 1;
 }
 
 void compile_if(ast_node *root)
@@ -212,23 +227,23 @@ void compile_if(ast_node *root)
     if(!node->next_if)
     {
         compile_single_if(node, tagNext, tagNext);
-        arr_append(&rops, tagNext);
+        append_op(tagNext);
         save_val = 1;
         return;
     }
 
     compile_single_if(node, tagOut, tagNext);
 
-    node = node->next_if;
+    node = (ast_if_node *)node->next_if;
     while(node)
     {
-        arr_append(&rops, tagNext);
+        append_op(tagNext);
         tagNext = next_if_tag();
         compile_single_if(node, tagOut, tagNext);
-        node = node->next_if;
+        node = (ast_if_node *)node->next_if;
     }
 
-    arr_append(&rops, tagOut);
+    append_op(tagOut);
 
     save_val = 1;
 }
@@ -240,7 +255,7 @@ void compile_single_if(ast_if_node *node, int tagOut, int tagNext)
         compile(node->condition);
 
         append_op(LI_JUMP_FALSE);
-        arr_append(&rops, tagNext);
+        append_op(tagNext);
     }
 
     compile_compound(node->payload->next);
@@ -254,7 +269,7 @@ void compile_single_if(ast_if_node *node, int tagOut, int tagNext)
     if(tagOut != tagNext && node->condition)
     {
         append_op(LI_JUMP);
-        arr_append(&rops, tagOut);
+        append_op(tagOut);
     }
 }
 
@@ -291,7 +306,9 @@ long find_prev_const(lky_object *obj)
 
 void compile_var(ast_value_node *node)
 {
-    int idx = hm_get(&saved_locals, node->value.s, NULL);
+    lky_object_builtin *obj = hm_get(&saved_locals, node->value.s, NULL);
+
+    int idx = obj->value.i;
 
     append_op(LI_LOAD_LOCAL);
     append_op((char)idx);
@@ -341,6 +358,8 @@ void compile(ast_node *root)
         case ALOOP:
             compile_loop(root);
         break;
+        default:
+        break;
     }
 }
 
@@ -364,22 +383,39 @@ void replace_tags()
     long i;
     for(i = rops.count - 1; i >= 0; i--)
     {
-        long op = arr_get(&rops, i);
+        long op = ((lky_object_builtin *)arr_get(&rops, i))->value.i;
         if(op > 999)
         {
             char line = get_line(tags, op);
             if(line < 0)
             {
                 append_tag(tags, op, i);
-                rops.items[i] = LI_IGNORE;
+
+                lky_object *obj = lobjb_build_int(LI_IGNORE);
+                pool_add(&ast_memory_pool, obj);
+                rops.items[i] = obj;
                 continue;
             }
-
-            rops.items[i] = line;
+            lky_object *obj = lobjb_build_int(line);
+            pool_add(&ast_memory_pool, obj);
+            rops.items[i] = obj;
         }
     }
 
     free_tag_nodes(tags);
+}
+
+void **make_cons_array()
+{
+    void **data = malloc(sizeof(void *) * rcon.count);
+
+    long i;
+    for(i = 0; i < rcon.count; i++)
+    {
+        data[i] = arr_get(&rcon, i);
+    }
+
+    return data;
 }
 
 lky_object_code *compile_ast(ast_node *root)
@@ -392,10 +428,16 @@ lky_object_code *compile_ast(ast_node *root)
     replace_tags();
 
     lky_object_code *code = malloc(sizeof(lky_object_code));
-    code->constants = rcon;
+    code->constants = make_cons_array();
+    code->num_constants = rcon.count;
+    code->num_locals = local_idx;
     code->ops = finalize_ops();
     code->op_len = rops.count;
-    code->locals = arr_create(local_idx);
+    code->locals = malloc(sizeof(void *) * local_idx);
+
+    int i;
+    for(i = 0; i < local_idx; i++)
+        code->locals[i] = NULL;
 
     return code;
 }
@@ -404,12 +446,13 @@ void write_to_file(char *name, lky_object_code *code)
 {
     FILE *f = fopen(name, "w");
 
-    arraylist cons = code->constants;
-    fwrite(&(cons.count), sizeof(long), 1, f);
+    void **cons = code->constants;
+    fwrite(&(code->num_constants), sizeof(long), 1, f);
+    fwrite(&(code->num_locals), sizeof(long), 1, f);
     int i;
-    for(i = 0; i < cons.count; i++)
+    for(i = 0; i < code->num_constants; i++)
     {
-        lky_object *obj = arr_get(&cons, i);
+        lky_object *obj = cons[i];
         lobjb_serialize(obj, f);
     }
 

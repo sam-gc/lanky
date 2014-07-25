@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include "ast.h"
 #include "ast_interpreter.h"
 #include "parser.h"
@@ -29,6 +30,16 @@ int main(int argc, char *argv[])
     lky_object_code *code = compile_ast(programBlock->next);
     write_to_file("test", code);
     ast_free(programBlock);
+
+    int i;
+    for(i = 0; i < argc; i++)
+    {
+        if(!strcmp(argv[i], "-s"))
+        {
+            print_ops(code->ops, code->op_len);
+            return 0;
+        }
+    }
 
     // printf("%p ... %p ... %p\n", programBlock, programBlock->next, programBlock->next->next);
     printf("\nProgram output:\n==============================\n\n");

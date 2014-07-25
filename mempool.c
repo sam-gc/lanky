@@ -30,6 +30,8 @@ lky_mempool pool_create()
 {
     lky_mempool pool;
     pool.head = NULL;
+
+    return pool;
 }
 
 void pool_add(lky_mempool *pool, void *obj)

@@ -1,4 +1,4 @@
-if(0) {
+if(1) {
     _prt 5
 
     if(1) {
@@ -11,8 +11,7 @@ if(0) {
         _prt "YO"
     }
 }
-elif(1)
-{
+elif(1) {
     _prt "Else if"
 }
 else {

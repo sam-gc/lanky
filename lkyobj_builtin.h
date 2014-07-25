@@ -25,8 +25,11 @@ typedef struct {
     int mem_count;
     arraylist members;
 
-    arraylist constants;
-    arraylist locals;
+    long num_constants;
+    long num_locals;
+
+    void **constants;
+    void **locals;
     char *ops;
     long op_len;
 } lky_object_code;

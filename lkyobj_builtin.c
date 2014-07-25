@@ -40,6 +40,8 @@ void str_print(lky_builtin_type t, lky_builtin_value v, char *buf)
         case LBI_INTEGER:
             sprintf(buf, "%ld", v.i);
         break;
+        default:
+        break;
     }
 }
 
@@ -99,6 +101,8 @@ lky_object *lobjb_binary_add(lky_object *a, lky_object *b)
         case LBI_INTEGER:
             v.i = OBJ_NUM_UNWRAP(ab) + OBJ_NUM_UNWRAP(bb);
             break;
+        default:
+            break;
     }
 
     return lobjb_alloc(t, v);
@@ -121,6 +125,8 @@ lky_object *lobjb_binary_subtract(lky_object *a, lky_object *b)
             break;
         case LBI_INTEGER:
             v.i = OBJ_NUM_UNWRAP(ab) - OBJ_NUM_UNWRAP(bb);
+            break;
+        default:
             break;
     }
 
@@ -182,6 +188,8 @@ lky_object *lobjb_binary_multiply(lky_object *a, lky_object *b)
         case LBI_INTEGER:
             v.i = OBJ_NUM_UNWRAP(ab) * OBJ_NUM_UNWRAP(bb);
             break;
+        default:
+            break;
     }
 
     return lobjb_alloc(t, v);
@@ -204,6 +212,8 @@ lky_object *lobjb_binary_divide(lky_object *a, lky_object *b)
             break;
         case LBI_INTEGER:
             v.i = OBJ_NUM_UNWRAP(ab) / OBJ_NUM_UNWRAP(bb);
+            break;
+        default:
             break;
     }
 
@@ -267,6 +277,9 @@ void lobjb_print(lky_object *a)
         case LBI_NIL:
             printf("(nil)\n");
         break;
+        default:
+            break;
+
     }
 }
 
@@ -299,6 +312,8 @@ void lobjb_serialize(lky_object *o, FILE *f)
             fwrite(str, sizeof(char), sz, f);
         }
         break;
+        default:
+        break;
     }
 }
 
@@ -327,6 +342,8 @@ lky_object *lobjb_deserialize(FILE *f)
             value.s = str;
         }
         break;
+        default:
+        break;
     }
 
     return lobjb_alloc(type, value);
@@ -338,14 +355,17 @@ lky_object_code *lobjb_load_file(char *name)
     long len;
     fread(&len, sizeof(long), 1, f);
 
-    arraylist con = arr_create(len + 1);
+    long locals;
+    fread(&locals, sizeof(long), 1, f);
+
+    void **con = malloc(sizeof(void *) * len);
 
     long i;
     for(i = 0; i < len; i++)
     {
         lky_object *obj = lobjb_deserialize(f);
         rc_incr(obj);
-        arr_append(&con, obj);
+        con[i] = obj;
     }
 
     fread(&len, sizeof(long), 1, f);
@@ -354,8 +374,14 @@ lky_object_code *lobjb_load_file(char *name)
 
     lky_object_code *obj = malloc(sizeof(lky_object_code));
     obj->constants = con;
+    obj->num_constants = len;
+    obj->num_locals = locals;
+    obj->locals = malloc(sizeof(void *) * locals);
     obj->ops = ops;
     obj->op_len = len;
+
+    for(i = 0; i < locals; i++)
+        obj->locals[i] = NULL;
 
     return obj;
 }
@@ -368,6 +394,8 @@ void lobjb_clean(lky_object *a)
     {
         case LBI_STRING:
             free(obj->value.s);
+        break;
+        default:
         break;
     }
 }

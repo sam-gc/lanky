@@ -1,13 +1,13 @@
-loop(_prt "init" : 1 : _prt "onloop") {
-    _prt "In teh loop"
+loop(i = 0 : i < 23 : i = i + 1) {
+    _prt i
+}
 
-    if(1) {
-        _prt "If in loop"
-    }
-
-    loop(_prt "Inner loop" : 1 : 0) {
-        3 + 4
+count = 0
+loop(x = 0 : x < 1000 : x = x + 1) {
+    loop(y = 0 : y < 1000 : y = y + 1) {
+        _prt "(" + x + ", " + y + ")"
+        count = count + 1
     }
 }
 
-_prt "Out of loop"
+_prt "Counted " + count + " pairs."
