@@ -167,7 +167,7 @@ ast_node *create_func_decl_node(ast_node *params, ast_node *payload)
     return (ast_node *)node;
 }
 
-ast_node *create_func_call_node(ast_node *arguments, char *name)
+ast_node *create_func_call_node(ast_node *ident, ast_node *arguments)
 {
     ast_func_call_node *node = MALLOC(sizeof(ast_func_call_node));
     pool_add(&ast_memory_pool, node);
@@ -175,8 +175,8 @@ ast_node *create_func_call_node(ast_node *arguments, char *name)
     node->type = AFUNC_CALL;
     node->next = NULL;
 
+    node->ident = ident;
     node->arguments = arguments;
-    node->name = name;
 
     return (ast_node *)node;
 }

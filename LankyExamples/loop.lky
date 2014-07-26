@@ -1,13 +1,13 @@
-loop(i = 0 : i < 23 : i = i + 1) {
-    _prt i
+loop(i = 0; i < 23; i = i + 1) {
+    _prt i;
 }
 
-count = 0
-loop(x = 0 : x < 1000 : x = x + 1) {
-    loop(y = 0 : y < 1000 : y = y + 1) {
-        _prt "(" + x + ", " + y + ")"
-        count = count + 1
+count = 0;
+loop(x = 0; x < 1000; x = x + 1) {
+    loop(y = 0; y < 1000; y = y + 1) {
+        _prt "(" + x + ", " + y + ")";
+        count = count + 1;
     }
 }
 
-_prt "Counted " + count + " pairs."
+_prt "Counted " + count + " pairs.";

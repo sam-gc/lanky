@@ -2,7 +2,7 @@ SOURCES=main.c parser.c tokens.c tools.c ast.c mempool.c hashmap.c ast_compiler.
 CFLAGS=-lm
 
 guts: lanky.l lanky.y
-	bison -d -o parser.c lanky.y
+	bison -d -o parser.c lanky.y -v
 	lex -o tokens.c lanky.l
 
 glory: $(SOURCES)

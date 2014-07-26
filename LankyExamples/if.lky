@@ -1,32 +1,32 @@
-_prt " .. Beginning Test .. "
+_prt " .. Beginning Test .. ";
 
-i = 1
+i = 1;
 
 if(1) {
-    _prt 5
-    _prt 100 * 2
-    100 /2 
+    _prt 5;
+    _prt 100 * 2;
+    100 /2;
 
     if(1) {
-        _prt "Inception"
+        _prt "Inception";
     }
 
     if(i < 0) {
-        _prt "A print"
+        _prt "A print";
     }
 
     if(i) {
         if(i) {
             if(i) {
                 if(0) {
-                    _prt "If nested"
+                    _prt "If nested";
                 }
                 else {
-                    _prt "Else nested"
+                    _prt "Else nested";
                 }
             }
         }
     }
 }
 
-_prt " .. Finished Test .. "
+_prt " .. Finished Test .. ";

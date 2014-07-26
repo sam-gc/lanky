@@ -1,0 +1,9 @@
+func(a) {
+    _prt a;
+}("Hello" + " World");
+
+a = 5;
+
+(test = func(b) {
+    _prt " ---> " + b;
+})("YO");

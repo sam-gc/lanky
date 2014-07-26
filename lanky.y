@@ -23,7 +23,7 @@
 %token <token> TCEQ TCNE TCLT TCLE TCGT TCGE TEQUAL TAND TOR TNOT
 %token <token> TLPAREN TRPAREN TLBRACE TRBRACE TCOMMA TDOT
 %token <token> TPLUS TMINUS TMUL TDIV TMOD TPOW
-%token <token> TIF TELIF TELSE TPRT TCOMMENT TLOOP TCOLON TFUNC
+%token <token> TIF TELIF TELSE TPRT TCOMMENT TLOOP TCOLON TFUNC TSEMI
 
 /* Define the type of node our nonterminal symbols represent.
    The types refer to the %union declaration above. Ex: when
@@ -44,6 +44,7 @@
 %right TPOW
 %nonassoc TNOT
 %nonassoc TIF TELIF TELSE TLOOP TFUNC
+%nonassoc TLPAREN
 
 %start program
 
@@ -69,7 +70,7 @@ elifblocks : elifblock
 elseblock : TELSE block { $$ = create_if_node(NULL, $2); }
     ;
 loopblock : TLOOP TLPAREN expression TRPAREN block { $$ = create_loop_node(NULL, $3, NULL, $5); }
-    | TLOOP TLPAREN expression TCOLON expression TCOLON expression TRPAREN block { $$ = create_loop_node($3, $5, $7, $9); }
+    | TLOOP TLPAREN stmt stmt expression TRPAREN block { $$ = create_loop_node($3, $4, $5, $7); }
     ;
 arg : TIDENTIFIER { $$ = create_value_node(VVAR, (void *)$1); }
     ;
@@ -82,7 +83,9 @@ calllist : call
     | calllist TCOMMA call { ast_add_node($$, $3); }
     ;
 funcdecl : TFUNC TLPAREN arglist TRPAREN block { $$ = create_func_decl_node($3, $5); }
-stmt : expression
+stmt : expression TSEMI
+    | loopblock
+    | ifblock
     ;
 
 expression : 
@@ -106,9 +109,7 @@ expression :
     | expression TAND expression { $$ = create_binary_node($1, $3, '&'); }
     | TLPAREN expression TRPAREN { $$ = $2; }
     | TIDENTIFIER TEQUAL expression { $$ = create_assignment_node($1, $3); }
-    | TIDENTIFIER TLPAREN calllist TRPAREN { $$ = create_func_call_node($3, $1); }
-    | ifblock
-    | loopblock
+    | expression TLPAREN calllist TRPAREN { $$ = create_func_call_node($1, $3); }
     | funcdecl
     | TPRT expression { $$ = create_unary_node($2, 'p'); }
     | TNOT expression { $$ = create_unary_node($2, '!'); }

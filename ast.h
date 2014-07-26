@@ -113,8 +113,8 @@ typedef struct {
     ast_type type;
     struct ast_node *next;
 
+    struct ast_node *ident;
     struct ast_node *arguments;
-    char *name;
 } ast_func_call_node;
 
 void ast_init();
@@ -128,7 +128,7 @@ ast_node *create_block_node(ast_node *payload);
 ast_node *create_if_node(ast_node *condition, ast_node *payload);
 ast_node *create_loop_node(ast_node *init, ast_node *condition, ast_node *onloop, ast_node *payload);
 ast_node *create_func_decl_node(ast_node *params, ast_node *payload);
-ast_node *create_func_call_node(ast_node *arguments, char *name);
+ast_node *create_func_call_node(ast_node *ident, ast_node *arguments);
 void ast_add_if_node(ast_node *curr, ast_node *next);
 
 void ast_free(ast_node *node);

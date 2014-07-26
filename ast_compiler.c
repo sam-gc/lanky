@@ -412,12 +412,7 @@ void compile_function_call(compiler_wrapper *cw, ast_node *root)
     for(; arg; arg = arg->next)
         compile(cw, arg);
 
-    lky_object_builtin *o = hm_get(&cw->saved_locals, node->name, NULL);
-
-    long idx = o->value.i;
-    // printf("%s %d\n", node->name, idx);
-    append_op(cw, LI_LOAD_LOCAL);
-    append_op(cw, idx);
+    compile(cw, node->ident);
     append_op(cw, LI_CALL_FUNC);
 
     cw->save_val = 1;

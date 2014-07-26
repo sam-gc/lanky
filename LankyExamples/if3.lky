@@ -1,11 +1,11 @@
-a = 11
-b = 20
+a = 11;
+b = 20;
 
 if(b < a) {
-    _prt 5
+    _prt 5;
 }
 else {
-    _prt 6
+    _prt 6;
 }
 
-_prt "End"
+_prt "End";

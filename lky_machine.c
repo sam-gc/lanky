@@ -307,55 +307,81 @@ void mach_do_op(stackframe *frame, lky_instruction op)
     // printf("----> %d\n", frame.pc);
 }
 
-void print_op(lky_instruction i)
+void print_op(lky_instruction op)
 {
-    char *name;
-    switch(i)
-        {
-        case LI_BINARY_ADD:
-            name = "LI_BINARY_ADD";
-            break;
-        case LI_BINARY_SUBTRACT:
-            name = "LI_BINARY_SUBTRACT";
-            break;
-        case LI_BINARY_MULTIPLY:
-            name = "LI_BINARY_MULTIPLY";
-            break;
-        case LI_BINARY_DIVIDE:
-            name = "LI_BINARY_DIVIDE";
-            break;
-        case LI_LOAD_CONST:
-            name = "LI_LOAD_CONST";
-            break;
-        case LI_PRINT:
-            name = "LI_PRINT";
-            break;
-        case LI_POP:
-            name = "LI_POP";
-            break;
-        case LI_JUMP_FALSE:
-            name = "LI_JUMP_FALSE";
-            break;
-        case LI_JUMP_TRUE:
-            name = "LI_JUMP_TRUE";
-            break;
-        case LI_JUMP:
-            name = "LI_JUMP";
-            break;
-        case LI_IGNORE:
-            name = "LI_IGNORE";
-            break;
-        case LI_SAVE_LOCAL:
-            name = "LI_SAVE_LOCAL";
-            break;
-        case LI_LOAD_LOCAL:
-            name = "LI_LOAD_LOCAL";
-            break;
-        default:
-            printf("%d", i);
-            return;
-        }
-    printf("%s\n",name );
+    char *name = NULL;
+    switch(op)
+    {
+    case LI_BINARY_ADD:
+        name = "BINARY_ADD";
+        break;
+    case LI_BINARY_SUBTRACT:
+        name = "BINARY_SUBTRACT";
+        break;
+    case LI_BINARY_MULTIPLY:
+        name = "BINARY_MULTIPLY";
+        break;
+    case LI_BINARY_DIVIDE:
+        name = "BINARY_DIVIDE";
+        break;
+    case LI_BINARY_LT:
+        name = "BINARY_LT";
+        break;
+    case LI_BINARY_GT:
+        name = "BINARY_GT";
+        break;
+    case LI_BINARY_EQUAL:
+        name = "BINARY_EQUAL";
+        break;
+    case LI_BINARY_LTE:
+        name = "BINARY_LTE";
+        break;
+    case LI_BINARY_GTE:
+        name = "BINARY_GTE";
+        break;
+    case LI_BINARY_NE:
+        name = "BINARY_NE";
+        break;
+    case LI_LOAD_CONST:
+        name = "LOAD_CONST";
+        break;
+    case LI_PRINT:
+        name = "PRINT";
+        break;
+    case LI_POP:
+        name = "POP";
+        break;
+    case LI_JUMP_FALSE:
+        name = "JUMP_FALSE";
+        break;
+    case LI_JUMP_TRUE:
+        name = "JUMP_TRUE";
+        break;
+    case LI_JUMP:
+        name = "JUMP";
+        break;
+    case LI_IGNORE:
+        name = "IGNORE";
+        break;
+    case LI_SAVE_LOCAL:
+        name = "SAVE_LOCAL";
+        break;
+    case LI_LOAD_LOCAL:
+        name = "LOAD_LOCAL";
+        break;
+    case LI_PUSH_NIL:
+        name = "PUSH_NIL";
+        break;
+    case LI_CALL_FUNC:
+        name = "CALL_FUNC";
+        break;
+    default:
+        printf("   --> %d\n", op);
+        return;
+    }
+
+    printf("%s\n", name);
+
 }
 
 void print_ops(char *ops, int tape_len)
@@ -363,60 +389,7 @@ void print_ops(char *ops, int tape_len)
     int i;
     for(i = 0; i < tape_len; i++)
     {
-        char *name;
-        switch(ops[i])
-        {
-        case LI_BINARY_ADD:
-            name = "LI_BINARY_ADD";
-            break;
-        case LI_BINARY_SUBTRACT:
-            name = "LI_BINARY_SUBTRACT";
-            break;
-        case LI_BINARY_MULTIPLY:
-            name = "LI_BINARY_MULTIPLY";
-            break;
-        case LI_BINARY_DIVIDE:
-            name = "LI_BINARY_DIVIDE";
-            break;
-        case LI_BINARY_LT:
-            name = "LI_BINARY_LT";
-            break;
-        case LI_LOAD_CONST:
-            name = "LI_LOAD_CONST";
-            break;
-        case LI_PRINT:
-            name = "LI_PRINT";
-            break;
-        case LI_POP:
-            name = "LI_POP";
-            break;
-        case LI_JUMP_FALSE:
-            name = "LI_JUMP_FALSE";
-            break;
-        case LI_JUMP_TRUE:
-            name = "LI_JUMP_TRUE";
-            break;
-        case LI_JUMP:
-            name = "LI_JUMP";
-            break;
-        case LI_IGNORE:
-            name = "LI_IGNORE";
-            break;
-        case LI_SAVE_LOCAL:
-            name = "LI_SAVE_LOCAL";
-            break;
-        case LI_LOAD_LOCAL:
-            name = "LI_LOAD_LOCAL";
-            break;
-        case LI_PUSH_NIL:
-            name = "LI_PUSH_NIL";
-            break;
-        default:
-            printf("\t--> %d\n", ops[i]);
-            continue;
-        }
-
-        printf("%d :: %s\n", i, name);
+        print_op(ops[i]);
     }
 }
 

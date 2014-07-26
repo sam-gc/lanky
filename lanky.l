@@ -62,5 +62,6 @@ comment (\#|(\-\-)).*(\n)
 "|"                     return TOKEN(TOR);
 ":"                     return TOKEN(TCOLON);
 "!"                     return TOKEN(TNOT);
+";"                     return TOKEN(TSEMI);
 .                       printf("Unknown token! %s\n", yytext); yyterminate();
 %%
