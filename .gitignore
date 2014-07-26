@@ -6,3 +6,4 @@ machine
 parser.c
 parser.h
 tokens.c
+test
