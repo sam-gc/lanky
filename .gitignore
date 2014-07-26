@@ -7,3 +7,4 @@ parser.c
 parser.h
 tokens.c
 test
+parser.output
