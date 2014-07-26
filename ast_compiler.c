@@ -191,6 +191,8 @@ void compile_binary(compiler_wrapper *cw, ast_node *root)
             else
                 idx = o->value.i;
 
+            // printf("==> %s %d\n", sid, idx);
+
             append_op(cw, idx);
             // save_val = 1;
             return;
@@ -213,7 +215,14 @@ void compile_loop(compiler_wrapper *cw, ast_node *root)
     ast_loop_node *node = (ast_loop_node *)root;
 
     if(node->init)
+    {
+        char save = cw->save_val;
+        cw->save_val = 0;
         compile(cw, node->init);
+        if(!cw->save_val)
+            append_op(cw, LI_POP);
+        cw->save_val = save;
+    }
 
     int start = cw->rops.count;
 
@@ -224,7 +233,14 @@ void compile_loop(compiler_wrapper *cw, ast_node *root)
     compile_compound(cw, node->payload->next);
 
     if(node->onloop)
+    {
+        char save = cw->save_val;
+        cw->save_val = 0;
         compile(cw, node->onloop);
+        if(!cw->save_val)
+            append_op(cw, LI_POP);
+        cw->save_val = save;
+    }
 
     append_op(cw, LI_JUMP);
     append_op(cw, start);
@@ -363,6 +379,7 @@ void compile_function(compiler_wrapper *cw, ast_node *root)
     nw.local_idx = 0;
     nw.saved_locals = hm_create(100, 1);
     
+    int argc = 0;
     ast_value_node *v = (ast_value_node *)node->params;
     for(; v; v = (ast_value_node *)v->next)
     {
@@ -370,15 +387,40 @@ void compile_function(compiler_wrapper *cw, ast_node *root)
         lky_object *obj = lobjb_build_int(idx);
         pool_add(&ast_memory_pool, obj);
         hm_put(&nw.saved_locals, v->value.s, obj);
+        argc++;
     }
     
-    lky_object_code *code = compile_ast_ext(node->payload, &nw);
+    nw.save_val = 0;
+    lky_object_code *code = compile_ast_ext(node->payload->next, &nw);
+
+    lky_object *obj = lobjb_build_func(code, argc);
+    rc_incr(obj);
     
     long idx = cw->rcon.count;
-    arr_append(&cw->rcon, lobjb_build_func(code));
+    arr_append(&cw->rcon, obj);
     
     append_op(cw, LI_LOAD_CONST);
     append_op(cw, idx);
+}
+
+void compile_function_call(compiler_wrapper *cw, ast_node *root)
+{
+    ast_func_call_node *node = (ast_func_call_node *)root;
+
+    ast_node *arg = node->arguments;
+
+    for(; arg; arg = arg->next)
+        compile(cw, arg);
+
+    lky_object_builtin *o = hm_get(&cw->saved_locals, node->name, NULL);
+
+    long idx = o->value.i;
+    // printf("%s %d\n", node->name, idx);
+    append_op(cw, LI_LOAD_LOCAL);
+    append_op(cw, idx);
+    append_op(cw, LI_CALL_FUNC);
+
+    cw->save_val = 1;
 }
 
 void compile(compiler_wrapper *cw, ast_node *root)
@@ -402,6 +444,9 @@ void compile(compiler_wrapper *cw, ast_node *root)
         break;
         case AFUNC_DECL:
             compile_function(cw, root);
+        break;
+        case AFUNC_CALL:
+            compile_function_call(cw, root);
         break;
         default:
         break;
@@ -468,7 +513,7 @@ lky_object_code *compile_ast_ext(ast_node *root, compiler_wrapper *incw)
     compiler_wrapper cw;
     cw.rops = arr_create(50);
     cw.rcon = arr_create(10);
-    cw.ifTag = 0;
+    cw.ifTag = 1000;
     cw.save_val = 0;
     
     if(incw)

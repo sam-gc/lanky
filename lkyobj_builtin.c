@@ -1,4 +1,5 @@
 #include "lkyobj_builtin.h"
+#include "lky_machine.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -12,6 +13,7 @@ lky_object *lobjb_alloc(lky_builtin_type t, lky_builtin_value v)
     obj->mem_count = 0;
     obj->members = arr_create(10);
     obj->value = v;
+    // obj->callable = NULL;
 
     return (lky_object *)obj;
 }
@@ -30,7 +32,7 @@ lky_object *lobjb_build_float(double value)
     return lobjb_alloc(LBI_FLOAT, v);
 }
 
-lky_object *lobjb_build_func(lky_object_code *code)
+lky_object *lobjb_build_func(lky_object_code *code, int argc)
 {
     lky_object_function *func = malloc(sizeof(lky_object_function));
     func->type = LBI_FUNCTION;
@@ -38,6 +40,11 @@ lky_object *lobjb_build_func(lky_object_code *code)
     func->members = arr_create(1);
     
     func->code = code;
+
+    lky_callable c;
+    c.function = &lobjb_default_callable;
+    c.argc = argc;
+    func->callable = c;
     
     return (lky_object *)func;
 }
@@ -378,6 +385,22 @@ lky_object *lobjb_binary_notequal(lky_object *a, lky_object *b)
     return lobjb_alloc(t, v);
 }
 
+lky_object *lobjb_default_callable(lky_object_seq *args, lky_object *self)
+{
+    lky_object_function *func = (lky_object_function *)self;
+    lky_object_code *code = func->code;
+
+    long i;
+    for(i = 0; args; i++, args = args->next)
+    {
+        code->locals[i] = args->value;
+    }
+
+    mach_execute(code);
+
+    return NULL;
+}
+
 char lobjb_quick_compare(lky_object *a, lky_object *b)
 {
     BI_CAST(a, ab);
@@ -395,6 +418,9 @@ char lobjb_quick_compare(lky_object *a, lky_object *b)
     {
         return a == b;
     }
+
+    if(ab->type == LBI_FUNCTION || bb->type == LBI_FUNCTION)
+        return ab == bb;
 
     return OBJ_NUM_UNWRAP(ab) == OBJ_NUM_UNWRAP(bb);
 }
@@ -432,6 +458,16 @@ lky_object_seq *lobjb_make_seq_node(lky_object *value)
 
     seq->value = value;
     return seq;
+}
+
+void lobjb_free_seq(lky_object_seq *seq)
+{
+    while(seq)
+    {
+        lky_object_seq *next = seq->next;
+        free(seq);
+        seq = next;
+    }
 }
 
 void lobjb_serialize_function(lky_object *o, FILE *f)

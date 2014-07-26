@@ -3,6 +3,7 @@
 #include "arraylist.h"
 #include "instruction_set.h"
 #include "lkyobj_builtin.h"
+#include "lky_object.h"
 #include "hashmap.h"
 
 #define PUSH(data) (push_node(frame, data))
@@ -96,6 +97,7 @@ void mach_do_op(stackframe *frame, lky_instruction op)
     // print_stack();
 
     // printf("==> %d\n", op);
+    // print_op(op);
 
     switch(op)
     {
@@ -240,6 +242,7 @@ void mach_do_op(stackframe *frame, lky_instruction op)
                 rc_decr(old);
 
             frame->locals[idx] = obj;
+            rc_incr(obj);
             // printf("=> %d\n", idx);
             // lobjb_print(obj);
 
@@ -256,6 +259,39 @@ void mach_do_op(stackframe *frame, lky_instruction op)
         case LI_PUSH_NIL:
         {
             PUSH(&lky_nil);
+        }
+        break;
+        case LI_CALL_FUNC:
+        {
+            lky_object *obj = POP();
+            if(obj->type != LBI_FUNCTION)
+            {
+                // TODO: Error
+            }
+
+            lky_object_function *func = (lky_object_function *)obj;
+            lky_callable c = func->callable;
+            lky_object_seq *seq = NULL;
+            int i;
+            for(i = 0; i < c.argc; i++)
+            {
+                lky_object *arg = POP();
+                lky_object_seq *ns = lobjb_make_seq_node(arg);
+
+                if(!seq)
+                    seq = ns;
+                else
+                {
+                    ns->next = seq;
+                    seq = ns;
+                }
+            }
+
+            lky_function_ptr ptr = c.function;
+            (*ptr)(seq, (lky_object *)func);
+
+            rc_decr(obj);
+            lobjb_free_seq(seq);
         }
         break;
         default:

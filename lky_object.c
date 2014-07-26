@@ -12,6 +12,7 @@ lky_object *lobj_alloc()
     obj->type = LBI_CUSTOM;
     obj->mem_count = 0;
     obj->members = arr_create(10);
+    // obj->callable = NULL;
 
     // obj->value = value;
     // alloced++;

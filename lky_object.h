@@ -4,6 +4,9 @@
 #include "arraylist.h"
 
 // #define INCREF(obj) (rc_decr(obj))
+struct lky_object_seq;
+struct lky_object;
+
 typedef enum {
     LBI_FLOAT,
     LBI_INTEGER,
@@ -14,10 +17,30 @@ typedef enum {
     LBI_CUSTOM
 } lky_builtin_type;
 
+typedef struct lky_object *(*lky_function_ptr)(struct lky_object_seq *args, struct lky_object *self);
+
+typedef struct {
+    int argc;
+    lky_function_ptr *function;
+} lky_callable;
+
+typedef struct lky_object_seq {
+    lky_builtin_type type;
+    int mem_count;
+    arraylist members;
+
+    lky_callable callable;
+
+    struct lky_object *value;
+    struct lky_object_seq *next;
+} lky_object_seq;
+
 typedef struct {
     lky_builtin_type type;
     int mem_count;
     arraylist members;
+
+    lky_callable callable;
 } lky_object;
 
 lky_object *lobj_alloc();

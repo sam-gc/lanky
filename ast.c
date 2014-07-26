@@ -167,6 +167,20 @@ ast_node *create_func_decl_node(ast_node *params, ast_node *payload)
     return (ast_node *)node;
 }
 
+ast_node *create_func_call_node(ast_node *arguments, char *name)
+{
+    ast_func_call_node *node = MALLOC(sizeof(ast_func_call_node));
+    pool_add(&ast_memory_pool, node);
+
+    node->type = AFUNC_CALL;
+    node->next = NULL;
+
+    node->arguments = arguments;
+    node->name = name;
+
+    return (ast_node *)node;
+}
+
 void ast_add_if_node(ast_node *curr, ast_node *next)
 {
     ast_if_node *node = (ast_if_node *)curr;

@@ -1,0 +1,19 @@
+hello = func(name) {
+    _prt "Hello, " + name
+}
+
+hello("Sam")
+hello("Bob")
+
+test = hello
+test("Joe")
+
+adder = func(a, b, c) {
+    _prt a + b + c
+}
+
+adder("5 + 6", " = ", 5 + 6)
+
+_prt "---------->>>oOo<<<----------"
+hello("Lanky")
+test("World!")

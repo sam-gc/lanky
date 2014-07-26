@@ -30,7 +30,7 @@
    we call an ident (defined by union type ident) we are really
    calling an (NIdentifier*). It makes the compiler happy.
  */
-%type <node> program stmts stmt expression ifblock block elifblock elifblocks elseblock loopblock funcdecl arg arglist
+%type <node> program stmts stmt expression ifblock block elifblock elifblocks elseblock loopblock funcdecl arg arglist call calllist
 
 /* Operator precedence for mathematical operators */
 %nonassoc TPRT
@@ -74,7 +74,12 @@ loopblock : TLOOP TLPAREN expression TRPAREN block { $$ = create_loop_node(NULL,
 arg : TIDENTIFIER { $$ = create_value_node(VVAR, (void *)$1); }
     ;
 arglist : arg
-    | arglist TCOMMA arg { ast_add_node($$, $1); }
+    | arglist TCOMMA arg { ast_add_node($$, $3); }
+    ;
+call : expression 
+    ;
+calllist : call
+    | calllist TCOMMA call { ast_add_node($$, $3); }
     ;
 funcdecl : TFUNC TLPAREN arglist TRPAREN block { $$ = create_func_decl_node($3, $5); }
 stmt : expression
@@ -101,7 +106,7 @@ expression :
     | expression TAND expression { $$ = create_binary_node($1, $3, '&'); }
     | TLPAREN expression TRPAREN { $$ = $2; }
     | TIDENTIFIER TEQUAL expression { $$ = create_assignment_node($1, $3); }
-    
+    | TIDENTIFIER TLPAREN calllist TRPAREN { $$ = create_func_call_node($3, $1); }
     | ifblock
     | loopblock
     | funcdecl
