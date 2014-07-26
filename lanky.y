@@ -83,6 +83,7 @@ calllist : call
     | calllist TCOMMA call { ast_add_node($$, $3); }
     ;
 funcdecl : TFUNC TLPAREN arglist TRPAREN block { $$ = create_func_decl_node($3, $5); }
+    | TFUNC TLPAREN TRPAREN block { $$ = create_func_decl_node(NULL, $4); }
 stmt : expression TSEMI
     | loopblock
     | ifblock
@@ -110,6 +111,7 @@ expression :
     | TLPAREN expression TRPAREN { $$ = $2; }
     | TIDENTIFIER TEQUAL expression { $$ = create_assignment_node($1, $3); }
     | expression TLPAREN calllist TRPAREN { $$ = create_func_call_node($1, $3); }
+    | expression TLPAREN TRPAREN { $$ = create_func_call_node($1, NULL); }
     | funcdecl
     | TPRT expression { $$ = create_unary_node($2, 'p'); }
     | TNOT expression { $$ = create_unary_node($2, '!'); }

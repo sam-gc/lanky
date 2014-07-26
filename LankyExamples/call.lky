@@ -7,3 +7,13 @@ a = 5;
 (test = func(b) {
     _prt " ---> " + b;
 })("YO");
+
+_prt "";
+_prt "/////////";
+_prt "";
+
+empty = func() {
+    _prt "A function with no arguments...";
+};
+
+empty();
