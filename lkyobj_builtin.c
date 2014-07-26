@@ -476,6 +476,7 @@ void lobjb_serialize_function(lky_object *o, FILE *f)
     lky_object_code *code = func->code;
     
     void **cons = code->constants;
+    fwrite(&(func->callable.argc), sizeof(int), 1, f);
     fwrite(&(code->num_constants), sizeof(long), 1, f);
     fwrite(&(code->num_locals), sizeof(long), 1, f);
     int i;
@@ -534,6 +535,9 @@ void lobjb_serialize(lky_object *o, FILE *f)
 
 lky_object *lobjb_deserialize_function(FILE *f)
 {
+    int argc;
+    fread(&argc, sizeof(int), 1, f);
+
     long len;
     fread(&len, sizeof(long), 1, f);
     
@@ -565,7 +569,7 @@ lky_object *lobjb_deserialize_function(FILE *f)
     for(i = 0; i < locals; i++)
         obj->locals[i] = NULL;
     
-    return (lky_object *)obj;
+    return (lky_object *)lobjb_build_func(obj, argc);
 }
 
 lky_object *lobjb_deserialize(FILE *f)
