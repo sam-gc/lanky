@@ -13,6 +13,7 @@ typedef enum {
     AVALUE,
     ABLOCK,
     AIF,
+    AFUNC_DECL,
     ALOOP
 } ast_type;
 
@@ -89,6 +90,14 @@ typedef struct {
 } ast_if_node;
 
 typedef struct {
+    ast_type type;
+    struct ast_node *next;
+    
+    struct ast_node *params;
+    struct ast_node *payload;
+} ast_func_decl_node;
+
+typedef struct {
 	ast_type type;
 	struct ast_node *next;
 
@@ -109,6 +118,7 @@ ast_node *create_assignment_node(char *left, ast_node *right);
 ast_node *create_block_node(ast_node *payload);
 ast_node *create_if_node(ast_node *condition, ast_node *payload);
 ast_node *create_loop_node(ast_node *init, ast_node *condition, ast_node *onloop, ast_node *payload);
+ast_node *create_func_decl_node(ast_node *params, ast_node *payload);
 void ast_add_if_node(ast_node *curr, ast_node *next);
 
 void ast_free(ast_node *node);

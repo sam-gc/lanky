@@ -8,7 +8,9 @@ typedef enum {
     LBI_FLOAT,
     LBI_INTEGER,
     LBI_STRING,
+    LBI_SEQUENCE,
     LBI_NIL,
+    LBI_FUNCTION,
     LBI_CUSTOM
 } lky_builtin_type;
 

@@ -14,7 +14,7 @@ lky_object *lobj_alloc()
     obj->members = arr_create(10);
 
     // obj->value = value;
-    alloced++;
+    // alloced++;
     return obj;
 }
 

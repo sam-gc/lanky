@@ -153,6 +153,20 @@ ast_node *create_loop_node(ast_node *init, ast_node *condition, ast_node *onloop
     return (ast_node *)node;
 }
 
+ast_node *create_func_decl_node(ast_node *params, ast_node *payload)
+{
+    ast_func_decl_node *node = MALLOC(sizeof(ast_func_decl_node));
+    pool_add(&ast_memory_pool, node);
+    
+    node->type = AFUNC_DECL;
+    node->next = NULL;
+    
+    node->params = params;
+    node->payload = payload;
+    
+    return (ast_node *)node;
+}
+
 void ast_add_if_node(ast_node *curr, ast_node *next)
 {
     ast_if_node *node = (ast_if_node *)curr;

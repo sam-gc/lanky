@@ -30,6 +30,18 @@ lky_object *lobjb_build_float(double value)
     return lobjb_alloc(LBI_FLOAT, v);
 }
 
+lky_object *lobjb_build_func(lky_object_code *code)
+{
+    lky_object_function *func = malloc(sizeof(lky_object_function));
+    func->type = LBI_FUNCTION;
+    func->mem_count = 0;
+    func->members = arr_create(1);
+    
+    func->code = code;
+    
+    return (lky_object *)func;
+}
+
 void str_print(lky_builtin_type t, lky_builtin_value v, char *buf)
 {
     switch(t)
@@ -231,9 +243,137 @@ lky_object *lobjb_binary_lessthan(lky_object *a, lky_object *b)
     lky_builtin_value v;
     lky_builtin_type t = LBI_INTEGER;
 
-    v.i = (OBJ_NUM_UNWRAP(ab) < OBJ_NUM_UNWRAP(bb));
+    if(ab->type == LBI_STRING || bb->type == LBI_STRING)
+    {
+        if(ab->type != LBI_STRING || bb->type != LBI_STRING)
+            v.i = 0;
+        else
+            v.i = strcmp(ab->value.s, bb->value.s) < 0;
+    }
+    else
+        v.i = (OBJ_NUM_UNWRAP(ab) < OBJ_NUM_UNWRAP(bb));
 
     // printf("==> %d\n", v.i);
+
+    return lobjb_alloc(t, v);
+}
+
+lky_object *lobjb_binary_greaterthan(lky_object *a, lky_object *b)
+{
+    BI_CAST(a, ab);
+    BI_CAST(b, bb);
+
+    if(a == &lky_nil || b == &lky_nil)
+        return &lky_nil;
+
+    lky_builtin_value v;
+    lky_builtin_type t = LBI_INTEGER;
+
+    if(ab->type == LBI_STRING || bb->type == LBI_STRING)
+    {
+        if(ab->type != LBI_STRING || bb->type != LBI_STRING)
+            v.i = 0;
+        else
+            v.i = strcmp(ab->value.s, bb->value.s) > 0;
+    }
+    else
+        v.i = (OBJ_NUM_UNWRAP(ab) > OBJ_NUM_UNWRAP(bb));
+
+    return lobjb_alloc(t, v);
+}
+
+lky_object *lobjb_binary_equals(lky_object *a, lky_object *b)
+{
+    BI_CAST(a, ab);
+    BI_CAST(b, bb);
+
+    if(a == &lky_nil || b == &lky_nil)
+        return &lky_nil;
+
+    lky_builtin_value v;
+    lky_builtin_type t = LBI_INTEGER;
+
+    if(ab->type == LBI_STRING || bb->type == LBI_STRING)
+    {
+        if(ab->type != LBI_STRING || bb->type != LBI_STRING)
+            v.i = 0;
+        else
+            v.i = strcmp(ab->value.s, bb->value.s) == 0;
+    }
+    else
+        v.i = (OBJ_NUM_UNWRAP(ab) == OBJ_NUM_UNWRAP(bb));
+
+    return lobjb_alloc(t, v);
+}
+
+lky_object *lobjb_binary_lessequal(lky_object *a, lky_object *b)
+{
+    BI_CAST(a, ab);
+    BI_CAST(b, bb);
+
+    if(a == &lky_nil || b == &lky_nil)
+        return &lky_nil;
+
+    lky_builtin_value v;
+    lky_builtin_type t = LBI_INTEGER;
+
+    if(ab->type == LBI_STRING || bb->type == LBI_STRING)
+    {
+        if(ab->type != LBI_STRING || bb->type != LBI_STRING)
+            v.i = 0;
+        else
+            v.i = strcmp(ab->value.s, bb->value.s) <= 0;
+    }
+    else
+        v.i = (OBJ_NUM_UNWRAP(ab) <= OBJ_NUM_UNWRAP(bb));
+
+    return lobjb_alloc(t, v);
+}
+
+lky_object *lobjb_binary_greatequal(lky_object *a, lky_object *b)
+{
+    BI_CAST(a, ab);
+    BI_CAST(b, bb);
+
+    if(a == &lky_nil || b == &lky_nil)
+        return &lky_nil;
+
+    lky_builtin_value v;
+    lky_builtin_type t = LBI_INTEGER;
+
+    if(ab->type == LBI_STRING || bb->type == LBI_STRING)
+    {
+        if(ab->type != LBI_STRING || bb->type != LBI_STRING)
+            v.i = 0;
+        else
+            v.i = strcmp(ab->value.s, bb->value.s) >= 0;
+    }
+    else
+        v.i = (OBJ_NUM_UNWRAP(ab) >= OBJ_NUM_UNWRAP(bb));
+
+    return lobjb_alloc(t, v);
+}
+
+lky_object *lobjb_binary_notequal(lky_object *a, lky_object *b)
+{
+    BI_CAST(a, ab);
+    BI_CAST(b, bb);
+
+    if(a == &lky_nil || b == &lky_nil)
+        return &lky_nil;
+
+    lky_builtin_value v;
+    lky_builtin_type t = LBI_INTEGER;
+
+    if(ab->type == LBI_STRING || bb->type == LBI_STRING)
+    {
+        if(ab->type != LBI_STRING || bb->type != LBI_STRING)
+            v.i = 0;
+        else
+            v.i = strcmp(ab->value.s, bb->value.s) != 0;
+    }
+    else
+        v.i = (OBJ_NUM_UNWRAP(ab) != OBJ_NUM_UNWRAP(bb));
 
     return lobjb_alloc(t, v);
 }
@@ -283,6 +423,37 @@ void lobjb_print(lky_object *a)
     }
 }
 
+lky_object_seq *lobjb_make_seq_node(lky_object *value)
+{
+    lky_object_seq *seq = malloc(sizeof(lky_object_seq));
+    seq->type = LBI_SEQUENCE;
+    seq->mem_count = 0;
+    seq->members = arr_create(1);
+
+    seq->value = value;
+    return seq;
+}
+
+void lobjb_serialize_function(lky_object *o, FILE *f)
+{
+    lky_object_function *func = (lky_object_function *)o;
+    lky_object_code *code = func->code;
+    
+    void **cons = code->constants;
+    fwrite(&(code->num_constants), sizeof(long), 1, f);
+    fwrite(&(code->num_locals), sizeof(long), 1, f);
+    int i;
+    for(i = 0; i < code->num_constants; i++)
+    {
+        lky_object *obj = cons[i];
+        lobjb_serialize(obj, f);
+    }
+    
+    fwrite(&(code->op_len), sizeof(long), 1, f);
+    
+    fwrite(code->ops, sizeof(char), code->op_len, f);
+}
+
 void lobjb_serialize(lky_object *o, FILE *f)
 {
     BI_CAST(o, obj);
@@ -312,9 +483,53 @@ void lobjb_serialize(lky_object *o, FILE *f)
             fwrite(str, sizeof(char), sz, f);
         }
         break;
+        case LBI_FUNCTION:
+        {
+            unsigned long sz = 0;
+            fwrite(&sz, sizeof(unsigned long), 1, f);
+            lobjb_serialize_function(o, f);
+            printf("Serializing function...\n");
+        }
+        break;
         default:
         break;
     }
+}
+
+lky_object *lobjb_deserialize_function(FILE *f)
+{
+    long len;
+    fread(&len, sizeof(long), 1, f);
+    
+    long locals;
+    fread(&locals, sizeof(long), 1, f);
+    
+    void **con = malloc(sizeof(void *) * len);
+    
+    long i;
+    for(i = 0; i < len; i++)
+    {
+        lky_object *obj = lobjb_deserialize(f);
+        rc_incr(obj);
+        con[i] = obj;
+    }
+    
+    fread(&len, sizeof(long), 1, f);
+    char *ops = malloc(len);
+    fread(ops, sizeof(char), len, f);
+    
+    lky_object_code *obj = malloc(sizeof(lky_object_code));
+    obj->constants = con;
+    obj->num_constants = len;
+    obj->num_locals = locals;
+    obj->locals = malloc(sizeof(void *) * locals);
+    obj->ops = ops;
+    obj->op_len = len;
+    
+    for(i = 0; i < locals; i++)
+        obj->locals[i] = NULL;
+    
+    return (lky_object *)obj;
 }
 
 lky_object *lobjb_deserialize(FILE *f)
@@ -340,6 +555,11 @@ lky_object *lobjb_deserialize(FILE *f)
             char *str = malloc(sz);
             fread(str, sz, 1, f);
             value.s = str;
+        }
+        break;
+        case LBI_FUNCTION:
+        {
+            return lobjb_deserialize_function(f);
         }
         break;
         default:

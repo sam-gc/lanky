@@ -34,6 +34,7 @@ comment (\#|(\-\-)).*(\n)
 "else"                  return TOKEN(TELSE);
 "_prt"                  return TOKEN(TPRT);
 "loop"                  return TOKEN(TLOOP);
+"func"                  return TOKEN(TFUNC);
 {nvar}      {SAVE_TOKEN; return TIDENTIFIER;}
 {real}      {SAVE_TOKEN; return TFLOAT;}
 {integer}   {SAVE_TOKEN; return TINTEGER;}
