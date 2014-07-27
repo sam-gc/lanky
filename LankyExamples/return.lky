@@ -1,0 +1,29 @@
+adder = func(a, b) {
+    ret a + b;
+};
+
+_prt adder(10, 11);
+
+make_nested = func() {
+    ret func(x) {
+        ret x * x;
+    };
+};
+
+sq = make_nested();
+_prt sq(5);
+
+_prt (classify = func(x) {
+    if(x < 100) {
+        ret "x is less than 100";
+    }
+    elif(x < 1000) {
+        ret "x is less than 1000";
+    }
+
+    ret "x is big.";
+})(250);
+
+_prt classify(8);
+
+_prt classify(1005);

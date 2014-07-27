@@ -396,9 +396,7 @@ lky_object *lobjb_default_callable(lky_object_seq *args, lky_object *self)
         code->locals[i] = args->value;
     }
 
-    mach_execute(code);
-
-    return NULL;
+    return mach_execute(code);
 }
 
 char lobjb_quick_compare(lky_object *a, lky_object *b)

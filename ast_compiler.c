@@ -270,12 +270,13 @@ void compile_if(compiler_wrapper *cw, ast_node *root)
     while(node)
     {
         append_op(cw, tagNext);
-        tagNext = next_if_tag(cw);
+        tagNext = node->next_if ? next_if_tag(cw) : tagOut;
         compile_single_if(cw, node, tagOut, tagNext);
         node = (ast_if_node *)node->next_if;
     }
 
     append_op(cw, tagOut);
+    // printf("-%d\n", tagOut);
 
     cw->save_val = 1;
 }
@@ -288,6 +289,7 @@ void compile_single_if(compiler_wrapper *cw, ast_if_node *node, int tagOut, int 
 
         append_op(cw, LI_JUMP_FALSE);
         append_op(cw, tagNext);
+        // printf("%d\n", tagNext);
     }
 
     compile_compound(cw, node->payload->next);
@@ -316,6 +318,10 @@ void compile_unary(compiler_wrapper *cw, ast_node *root)
     {
     case 'p':
         istr = LI_PRINT;
+        cw->save_val = 1;
+        break;
+    case 'r':
+        istr = LI_RETURN;
         cw->save_val = 1;
         break;
     }
@@ -415,7 +421,7 @@ void compile_function_call(compiler_wrapper *cw, ast_node *root)
     compile(cw, node->ident);
     append_op(cw, LI_CALL_FUNC);
 
-    cw->save_val = 1;
+    // cw->save_val = 1;
 }
 
 void compile(compiler_wrapper *cw, ast_node *root)
@@ -524,6 +530,9 @@ lky_object_code *compile_ast_ext(ast_node *root, compiler_wrapper *incw)
 
     compile_compound(&cw, root);
     replace_tags(&cw);
+
+    append_op(&cw, LI_PUSH_NIL);
+    append_op(&cw, LI_RETURN);
 
     lky_object_code *code = malloc(sizeof(lky_object_code));
     code->constants = make_cons_array(&cw);

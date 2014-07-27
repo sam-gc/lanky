@@ -1,3 +1,4 @@
+_prt "Starting";
 hello = func(name) {
     _prt "Hello, " + name;
 };
@@ -23,3 +24,5 @@ million = func(blah) {
         _prt i;
     }
 };
+
+

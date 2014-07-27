@@ -23,6 +23,8 @@ typedef struct stackframe {
     long pc;
     char *ops;
     long tape_len;
+
+    lky_object *ret;
 } stackframe;
 
 void mach_eval(stackframe *frame);
@@ -58,7 +60,7 @@ static void *pop_node(stackframe *frame)
     return data;
 }
 
-void mach_execute(lky_object_code *code)
+lky_object *mach_execute(lky_object_code *code)
 {
     stackframe frame;
     frame.data_stack = arr_create(100);
@@ -67,12 +69,15 @@ void mach_execute(lky_object_code *code)
     frame.pc = -1;
     frame.ops = code->ops;
     frame.tape_len = code->op_len;
+    frame.ret = NULL;
 
     arr_append(&frame.data_stack, NULL);
 
     // printf("%d\n", tape_len);
     
     mach_eval(&frame);
+
+    return frame.ret;
     // print_ops();
 
     // arr_free(&main_stack);
@@ -84,7 +89,7 @@ void mach_do_op(stackframe *frame, lky_instruction op);
 
 void mach_eval(stackframe *frame)
 {
-    while(frame->pc < frame->tape_len)
+    while(frame->pc < frame->tape_len && !frame->ret)
     {
         mach_do_op(frame, frame->ops[++frame->pc]);
     }
@@ -288,10 +293,18 @@ void mach_do_op(stackframe *frame, lky_instruction op)
             }
 
             lky_function_ptr ptr = c.function;
-            (*ptr)(seq, (lky_object *)func);
+            lky_object *ret = (*ptr)(seq, (lky_object *)func);
 
             rc_decr(obj);
             lobjb_free_seq(seq);
+
+            PUSH(ret);
+        }
+        break;
+        case LI_RETURN:
+        {
+            lky_object *obj = POP();
+            frame->ret = obj;
         }
         break;
         default:
@@ -375,13 +388,15 @@ void print_op(lky_instruction op)
     case LI_CALL_FUNC:
         name = "CALL_FUNC";
         break;
+    case LI_RETURN:
+        name = "RETURN";
+        break;
     default:
         printf("   --> %d\n", op);
         return;
     }
 
     printf("%s\n", name);
-
 }
 
 void print_ops(char *ops, int tape_len)
@@ -389,6 +404,7 @@ void print_ops(char *ops, int tape_len)
     int i;
     for(i = 0; i < tape_len; i++)
     {
+        printf("%d :: ", i);
         print_op(ops[i]);
     }
 }

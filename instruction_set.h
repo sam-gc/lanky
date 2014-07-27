@@ -22,7 +22,8 @@ typedef enum {
     LI_SAVE_LOCAL,
     LI_LOAD_LOCAL,
     LI_PUSH_NIL,
-    LI_CALL_FUNC
+    LI_CALL_FUNC,
+    LI_RETURN
 } lky_instruction;
 
 typedef enum {

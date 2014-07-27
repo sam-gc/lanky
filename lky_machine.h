@@ -3,7 +3,7 @@
 
 #include "lkyobj_builtin.h"
 
-void mach_execute(lky_object_code *code);
+lky_object *mach_execute(lky_object_code *code);
 void print_ops(char *ops, int tape_len);
 
 #endif
