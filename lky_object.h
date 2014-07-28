@@ -21,7 +21,7 @@ typedef struct lky_object *(*lky_function_ptr)(struct lky_object_seq *args, stru
 
 typedef struct {
     int argc;
-    lky_function_ptr *function;
+    lky_function_ptr function;
 } lky_callable;
 
 typedef struct lky_object_seq {

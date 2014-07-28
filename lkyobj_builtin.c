@@ -454,7 +454,8 @@ lky_object_seq *lobjb_make_seq_node(lky_object *value)
     seq->mem_count = 0;
     seq->members = arr_create(1);
 
-    seq->value = value;
+    seq->value = (struct lky_object *)value;
+    seq->next = NULL;
     return seq;
 }
 
