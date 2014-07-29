@@ -77,6 +77,8 @@ lky_object *mach_execute(lky_object_code *code)
     
     mach_eval(&frame);
 
+    arr_free(&frame.data_stack);
+
     return frame.ret;
     // print_ops();
 

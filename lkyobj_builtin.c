@@ -463,8 +463,10 @@ void lobjb_free_seq(lky_object_seq *seq)
 {
     while(seq)
     {
+        lky_object *obj = seq->value;
+        rc_decr(obj);
         lky_object_seq *next = seq->next;
-        free(seq);
+        lobj_dealloc(seq);
         seq = next;
     }
 }

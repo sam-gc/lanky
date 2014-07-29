@@ -28,14 +28,19 @@ void rc_decr(lky_object *obj)
     // printf("%d (-)\n", obj->mem_count);
     if(!obj->mem_count)
     {
-        // printf("Freeing : ");
-        // lobjb_print(obj);
-        if(obj->type != LBI_CUSTOM)
-            lobjb_clean(obj);
-        arr_free(&(obj->members));
-        free(obj);
-        alloced--;
+        lobj_dealloc(obj);
     }
+}
+
+void lobj_dealloc(lky_object *obj)
+{
+    // printf("Freeing : ");
+    // lobjb_print(obj);
+    if(obj->type != LBI_CUSTOM)
+        lobjb_clean(obj);
+    arr_free(&(obj->members));
+    free(obj);
+    alloced--;
 }
 
 void rc_incr(lky_object *obj)
