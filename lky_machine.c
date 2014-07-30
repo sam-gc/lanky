@@ -20,6 +20,7 @@ typedef struct stackframe {
     arraylist data_stack;
     void **constants;
     void **locals;
+    char **names;
     long pc;
     char *ops;
     long tape_len;
@@ -69,6 +70,7 @@ lky_object *mach_execute(lky_object_code *code)
     frame.pc = -1;
     frame.ops = code->ops;
     frame.tape_len = code->op_len;
+    frame.names = code->names;
     frame.ret = NULL;
 
     arr_append(&frame.data_stack, NULL);
@@ -309,6 +311,29 @@ void mach_do_op(stackframe *frame, lky_instruction op)
             frame->ret = obj;
         }
         break;
+        case LI_LOAD_MEMBER:
+        {
+            lky_object *obj = POP();
+
+            int idx = frame->ops[++frame->pc];
+            char *name = frame->names[idx];
+
+            PUSH_RC(lobj_get_member(obj, name));
+        }
+        break;
+        case LI_SAVE_MEMBER:
+        {
+            lky_object *obj = POP();
+            lky_object *val = POP();
+
+            int idx = frame->ops[++frame->pc];
+            char *name = frame->names[idx];
+
+            lobj_set_member(obj, name, val);
+
+            rc_decr(obj);
+        }
+        break;
         default:
         break;
     }
@@ -338,6 +363,9 @@ void print_op(lky_instruction op)
         break;
     case LI_BINARY_DIVIDE:
         name = "BINARY_DIVIDE";
+        break;
+    case LI_BINARY_MODULO:
+        name = "BINARY_MODULO";
         break;
     case LI_BINARY_LT:
         name = "BINARY_LT";
@@ -392,6 +420,12 @@ void print_op(lky_instruction op)
         break;
     case LI_RETURN:
         name = "RETURN";
+        break;
+    case LI_LOAD_MEMBER:
+        name = "LOAD_MEMBER";
+        break;
+    case LI_SAVE_MEMBER:
+        name = "SAVE_MEMBER";
         break;
     default:
         printf("   --> %d\n", op);

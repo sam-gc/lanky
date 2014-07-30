@@ -1,0 +1,22 @@
+dog = class(self) {
+    self.build_ = func(name) {
+        self.name = name;
+        self.weight = 40;
+    };
+
+    self.equals_ = func(other) {
+        ret self.name == other.name & self.weight == other.weight;
+    };
+
+    self.bark = func() {
+        _prt self.name + " : Bark!";
+    };
+};
+
+moki = dog("Moki");
+
+moki.bark();
+
+_prt "----------------";
+
+_prt moki == dog("Moki");

@@ -12,9 +12,20 @@ lky_object *lobjb_alloc(lky_builtin_type t, lky_builtin_value v)
     lky_object_builtin *obj = malloc(sizeof(lky_object_builtin));
     obj->type = t;
     obj->mem_count = 0;
-    obj->members = arr_create(10);
+    obj->members = hm_create(40, 1);
     obj->value = v;
     // obj->callable = NULL;
+
+    lky_builtin_value o;
+    o.s = "Fred";
+    lky_object_builtin *name = malloc(sizeof(lky_object_builtin));
+    name->type = LBI_STRING;
+    name->mem_count = 0;
+    name->members = hm_create(40, 1);
+    name->value = o;
+    rc_incr(name);
+
+    lobj_set_member(obj, "name", (lky_object *)name);
 
     return (lky_object *)obj;
 }
@@ -38,7 +49,7 @@ lky_object *lobjb_build_func(lky_object_code *code, int argc)
     lky_object_function *func = malloc(sizeof(lky_object_function));
     func->type = LBI_FUNCTION;
     func->mem_count = 0;
-    func->members = arr_create(1);
+    func->members = hm_create(40, 1);
     
     func->code = code;
 
@@ -256,7 +267,7 @@ lky_object *lobjb_binary_modulo(lky_object *a, lky_object *b)
             v.d = remainder(OBJ_NUM_UNWRAP(ab), OBJ_NUM_UNWRAP(bb));
             break;
         case LBI_INTEGER:
-            v.i = OBJ_NUM_UNWRAP(ab) % OBJ_NUM_UNWRAP(bb);
+            v.i = ab->value.i % bb->value.i;
             break;
         default:
             break;
@@ -478,7 +489,7 @@ lky_object_seq *lobjb_make_seq_node(lky_object *value)
     lky_object_seq *seq = malloc(sizeof(lky_object_seq));
     seq->type = LBI_SEQUENCE;
     seq->mem_count = 0;
-    seq->members = arr_create(1);
+    seq->members = hm_create(1, 1);;
 
     seq->value = (struct lky_object *)value;
     seq->next = NULL;

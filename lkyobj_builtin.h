@@ -16,7 +16,7 @@ typedef union {
 typedef struct {
     lky_builtin_type type;
     int mem_count;
-    arraylist members;
+    Hashmap members;
 
     lky_callable callable;
 
@@ -26,7 +26,7 @@ typedef struct {
 typedef struct {
     lky_builtin_type type;
     int mem_count;
-    arraylist members;
+    Hashmap members;
 
     lky_callable callable;
 
@@ -35,6 +35,7 @@ typedef struct {
 
     void **constants;
     void **locals;
+    char **names;
     char *ops;
     long op_len;
 } lky_object_code;
@@ -44,7 +45,7 @@ typedef struct {
 typedef struct {
     lky_builtin_type type;
     int mem_count;
-    arraylist members;
+    Hashmap members;
 
     lky_callable callable;
 

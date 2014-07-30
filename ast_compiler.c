@@ -10,10 +10,12 @@
 typedef struct {
     arraylist rops;
     arraylist rcon;
+    arraylist rnames;
     Hashmap saved_locals;
     char save_val;
     int local_idx;
     int ifTag;
+    int name_idx;
 } compiler_wrapper;
 
 void compile(compiler_wrapper *cw, ast_node *root);
@@ -334,6 +336,38 @@ void compile_ternary(compiler_wrapper *cw, ast_node *n)
     append_op(cw, tagOut);
 }
 
+int find_prev_name(compiler_wrapper *cw, char *name)
+{
+    long i;
+    for(i = 0; i < cw->rnames.count; i++)
+    {
+        char *n = arr_get(&cw->rnames, i);
+        if(strcmp(name, n) == 0)
+            return i;
+    }
+
+    return -1;
+}
+
+void compile_member_access(compiler_wrapper *cw, ast_node *n)
+{
+    ast_member_access_node *node = (ast_member_access_node *)n;
+
+    char *name = node->ident;
+
+    int idx = find_prev_name(cw, name);
+
+    if(idx < 0)
+    {
+        idx = cw->rnames.count;
+        arr_append(&cw->rnames, name);
+    }
+
+    compile(cw, node->object);
+    append_op(cw, LI_LOAD_MEMBER);
+    append_op(cw, idx);
+}
+
 void compile_unary(compiler_wrapper *cw, ast_node *root)
 {
     ast_unary_node *node = (ast_unary_node *)root;
@@ -479,6 +513,9 @@ void compile(compiler_wrapper *cw, ast_node *root)
         case ATERNARY:
             compile_ternary(cw, root);
         break;
+        case AMEMBER_ACCESS:
+            compile_member_access(cw, root);
+        break;
         default:
         break;
     }
@@ -539,13 +576,31 @@ void **make_cons_array(compiler_wrapper *cw)
     return data;
 }
 
+char **make_names_array(compiler_wrapper *cw)
+{
+    char **names = malloc(sizeof(char *) * cw->rnames.count);
+
+    long i;
+    for(i = 0; i < cw->rnames.count; i++)
+    {
+        char *txt = arr_get(&cw->rnames, i);
+        char *nw = malloc(strlen(txt) + 1);
+        strcpy(nw, txt);
+        names[i] = nw;
+    }
+
+    return names;
+}
+
 lky_object_code *compile_ast_ext(ast_node *root, compiler_wrapper *incw)
 {
     compiler_wrapper cw;
     cw.rops = arr_create(50);
     cw.rcon = arr_create(10);
+    cw.rnames = arr_create(50);
     cw.ifTag = 1000;
     cw.save_val = 0;
+    cw.name_idx = 0;
     
     if(incw)
     {
@@ -571,6 +626,7 @@ lky_object_code *compile_ast_ext(ast_node *root, compiler_wrapper *incw)
     code->ops = finalize_ops(&cw);
     code->op_len = cw.rops.count;
     code->locals = malloc(sizeof(void *) * cw.local_idx);
+    code->names = make_names_array(&cw);
 
     int i;
     for(i = 0; i < cw.local_idx; i++)

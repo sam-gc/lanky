@@ -30,7 +30,7 @@
    we call an ident (defined by union type ident) we are really
    calling an (NIdentifier*). It makes the compiler happy.
  */
-%type <node> program stmts stmt expression ifblock block elifblock elifblocks elseblock loopblock funcdecl arg arglist call calllist
+%type <node> program stmts stmt expression ifblock block elifblock elifblocks elseblock loopblock funcdecl arg arglist call calllist memaccess
 
 /* Operator precedence for mathematical operators */
 %nonassoc TPRT TRET
@@ -46,6 +46,7 @@
 %nonassoc TNOT
 %nonassoc TIF TELIF TELSE TLOOP TFUNC
 %nonassoc TLPAREN
+%left TDOT
 
 %start program
 
@@ -89,6 +90,8 @@ stmt : expression TSEMI
     | loopblock
     | ifblock
     ;
+memaccess : expression TDOT TIDENTIFIER { $$ = create_member_access_node($1, $3); }
+    ;
 
 expression : 
     TINTEGER { $$ = create_value_node(VINT, (void *)$1); }
@@ -112,9 +115,11 @@ expression :
     | TLPAREN expression TRPAREN { $$ = $2; }
     | expression TQUESTION expression TCOLON expression { $$ = create_ternary_node($1, $3, $5); }
     | TIDENTIFIER TEQUAL expression { $$ = create_assignment_node($1, $3); }
+    | memaccess TEQUAL expression { $$ = create_binary_node($1, $3, '='); }
     | expression TLPAREN calllist TRPAREN { $$ = create_func_call_node($1, $3); }
     | expression TLPAREN TRPAREN { $$ = create_func_call_node($1, NULL); }
     | funcdecl
+    | memaccess
     | TPRT expression { $$ = create_unary_node($2, 'p'); }
     | TNOT expression { $$ = create_unary_node($2, '!'); }
     | TRET expression { $$ = create_unary_node($2, 'r'); }

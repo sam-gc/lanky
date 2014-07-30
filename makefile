@@ -1,12 +1,14 @@
 SOURCES=main.c parser.c tokens.c tools.c ast.c mempool.c hashmap.c ast_compiler.c lky_object.c arraylist.c lky_machine.c lkyobj_builtin.c
-CFLAGS=-lm
+CFLAGS=-lm -fdiagnostics-color=always -g
+
+CC=clang
 
 guts: lanky.l lanky.y
 	bison -d -o parser.c lanky.y -v
 	lex -o tokens.c lanky.l
 
 glory: $(SOURCES)
-	gcc -o lanky $(SOURCES) $(CFLAGS) -g
+	$(CC) -o lanky $(SOURCES) $(CFLAGS)
 
 all: guts glory
 
@@ -20,4 +22,4 @@ bnm: binary_file_maker.c
 	gcc -o bnm binary_file_maker.c lky_object.c lkyobj_builtin.c arraylist.c
 
 machine: lky_machine.c lky_object.c lkyobj_builtin.c arraylist.c bin_main.c
-	gcc -o machine lky_machine.c arraylist.c lky_object.c lkyobj_builtin.c bin_main.c -g
+	$(CC) -o machine lky_machine.c hashmap.c arraylist.c lky_object.c lkyobj_builtin.c bin_main.c $(CFLAGS)

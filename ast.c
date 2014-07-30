@@ -196,6 +196,20 @@ ast_node *create_ternary_node(ast_node *condition, ast_node *first, ast_node *se
     return (ast_node *)node;
 }
 
+ast_node *create_member_access_node(ast_node *object, char *ident)
+{
+    ast_member_access_node *node = MALLOC(sizeof(ast_member_access_node));
+    pool_add(&ast_memory_pool, node);
+
+    node->type = AMEMBER_ACCESS;
+    node->next = NULL;
+
+    node->object = object;
+    node->ident = ident;
+
+    return (ast_node *)node;
+}
+
 void ast_add_if_node(ast_node *curr, ast_node *next)
 {
     ast_if_node *node = (ast_if_node *)curr;
