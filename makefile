@@ -1,4 +1,4 @@
-SOURCES=main.c parser.c tokens.c tools.c ast.c mempool.c hashmap.c ast_compiler.c lky_object.c arraylist.c lky_machine.c lkyobj_builtin.c
+SOURCES=main.c parser.c tokens.c tools.c ast.c mempool.c trie.c hashmap.c ast_compiler.c lky_object.c arraylist.c lky_machine.c lkyobj_builtin.c
 CFLAGS=-lm -fdiagnostics-color=always -g
 
 CC=clang
@@ -22,4 +22,4 @@ bnm: binary_file_maker.c
 	gcc -o bnm binary_file_maker.c lky_object.c lkyobj_builtin.c arraylist.c
 
 machine: lky_machine.c lky_object.c lkyobj_builtin.c arraylist.c bin_main.c
-	$(CC) -o machine lky_machine.c hashmap.c arraylist.c lky_object.c lkyobj_builtin.c bin_main.c $(CFLAGS)
+	$(CC) -o machine lky_machine.c hashmap.c arraylist.c trie.c lky_object.c lkyobj_builtin.c bin_main.c $(CFLAGS)

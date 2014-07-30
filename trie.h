@@ -11,7 +11,7 @@ typedef struct list_node {
 typedef struct TrieNode {
     list_node_t *children;
     char value;
-    char final;
+    void *object;
 } TrieNode_t;
 
 typedef struct {
@@ -20,8 +20,7 @@ typedef struct {
 
 Trie_t trie_new();
 void trie_free(Trie_t t);
-void trie_add(Trie_t t, char *str);
-char trie_contains_word(Trie_t t, char *str);
-char trie_contains_path(Trie_t t, char *str);
+void trie_add(Trie_t t, char *str, void *value);
+void *trie_get(Trie_t t, char *str);
 
 #endif

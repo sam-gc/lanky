@@ -1,7 +1,7 @@
 #ifndef LKY_OBJECT_H
 #define LKY_OBJECT_H
 
-#include "hashmap.h"
+#include "trie.h"
 
 // #define INCREF(obj) (rc_decr(obj))
 struct lky_object_seq;
@@ -27,7 +27,7 @@ typedef struct {
 typedef struct lky_object_seq {
     lky_builtin_type type;
     int mem_count;
-    Hashmap members;
+    Trie_t members;
 
     lky_callable callable;
 
@@ -38,7 +38,7 @@ typedef struct lky_object_seq {
 typedef struct {
     lky_builtin_type type;
     int mem_count;
-    Hashmap members;
+    Trie_t members;
 
     lky_callable callable;
 } lky_object;

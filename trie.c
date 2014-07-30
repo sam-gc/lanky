@@ -6,7 +6,7 @@ TrieNode_t *new_node(char v)
 {
     TrieNode_t *node = malloc(sizeof(TrieNode_t));
     node->value = v;
-    node->final = 0;
+    node->object = NULL;
     node->children = NULL;
 
     return node;
@@ -73,7 +73,7 @@ void trie_free(Trie_t t)
     node_free(t.head);
 }
 
-void node_add(TrieNode_t *node, char *str)
+void node_add(TrieNode_t *node, char *str, void *val)
 {
     char first = str[0];
 
@@ -86,52 +86,32 @@ void node_add(TrieNode_t *node, char *str)
     }
 
     if(strlen(str) > 1)
-        node_add(next, str + 1);
+        node_add(next, str + 1, val);
     else
-        next->final = 1;
+        next->object = val;
 }
 
-char node_contains_word(TrieNode_t *node, char *str)
+void *node_get(TrieNode_t *node, char *str)
 {
     char first = str[0];
 
     TrieNode_t *next = child_with(node, first);
 
-    if(strlen(str) == 1 && next)
-        return next->final;
-
     if(!next)
-        return 0;
+        return NULL;
 
-    return node_contains_word(next, str + 1);
+    if(strlen(str) > 1)
+        return node_get(next, str + 1);
+    else
+        return next->object;
 }
 
-char node_contains_path(TrieNode_t *node, char *str)
+void trie_add(Trie_t t, char *str, void *value)
 {
-    char first = str[0];
-
-    TrieNode_t *next = child_with(node, first);
-
-    if(strlen(str) == 1 && next)
-        return 1;
-
-    if(!next)
-        return 0;
-
-    return node_contains_path(next, str + 1);
+    node_add(t.head, str, value);
 }
 
-void trie_add(Trie_t t, char *str)
+void *trie_get(Trie_t t, char *str)
 {
-    node_add(t.head, str);
-}
-
-char trie_contains_word(Trie_t t, char *str)
-{
-    return node_contains_word(t.head, str);
-}
-
-char trie_contains_path(Trie_t t, char *str)
-{
-    return node_contains_path(t.head, str);
+    return node_get(t.head, str);
 }

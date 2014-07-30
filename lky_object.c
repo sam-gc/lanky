@@ -11,7 +11,7 @@ lky_object *lobj_alloc()
     lky_object *obj = malloc(sizeof(lky_object));
     obj->type = LBI_CUSTOM;
     obj->mem_count = 0;
-    obj->members = hm_create(40, 1);
+    obj->members = trie_new();
     // obj->callable = NULL;
 
     // obj->value = value;
@@ -21,16 +21,16 @@ lky_object *lobj_alloc()
 
 void lobj_set_member(lky_object *obj, char *member, lky_object *val)
 {
-    lky_object *old = hm_get(&obj->members, member, NULL);
+    lky_object *old = trie_get(obj->members, member);
     if(old)
         rc_decr(old);
 
-    hm_put(&obj->members, member, val);
+    trie_add(obj->members, member, val);
 }
 
 lky_object *lobj_get_member(lky_object *obj, char *member)
 {
-    lky_object *val = hm_get(&obj->members, member, NULL);
+    lky_object *val = trie_get(obj->members, member);
 
     return val ? val : &lky_nil;
 }
@@ -54,7 +54,7 @@ void lobj_dealloc(lky_object *obj)
     // lobjb_print(obj);
     if(obj->type != LBI_CUSTOM)
         lobjb_clean(obj);
-    hm_free(&(obj->members));
+    trie_free(obj->members);
     free(obj);
     alloced--;
 }
