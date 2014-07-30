@@ -324,7 +324,7 @@ void mach_do_op(stackframe *frame, lky_instruction op)
         case LI_SAVE_MEMBER:
         {
             lky_object *obj = POP();
-            lky_object *val = POP();
+            lky_object *val = TOP();
 
             int idx = frame->ops[++frame->pc];
             char *name = frame->names[idx];

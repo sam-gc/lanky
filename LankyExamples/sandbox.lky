@@ -2,3 +2,13 @@ a = 3;
 _prt a.name;
 
 _prt "3".name;
+
+_prt a.test;
+a.test = "W00t";
+_prt a.test;
+
+a.method = func(x) {
+    ret x * x;
+};
+
+_prt a.method(10);

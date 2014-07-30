@@ -22,6 +22,7 @@ void compile(compiler_wrapper *cw, ast_node *root);
 void compile_compound(compiler_wrapper *cw, ast_node *root);
 void compile_single_if(compiler_wrapper *cw, ast_if_node *node, int tagOut, int tagNext);
 lky_object_code *compile_ast_ext(ast_node *root, compiler_wrapper *incw);
+void compile_set_member(compiler_wrapper *cw, ast_node *root);
 
 typedef struct tag_node {
     struct tag_node *next;
@@ -137,6 +138,12 @@ void append_op(compiler_wrapper *cw, long ins)
 void compile_binary(compiler_wrapper *cw, ast_node *root)
 {
     ast_binary_node *node = (ast_binary_node *)root;
+
+    if(node->opt == '=' && node->left->type == AMEMBER_ACCESS)
+    {
+        compile_set_member(cw, root);
+        return;
+    }
 
     if(node->opt != '=')
         compile(cw, node->left);
@@ -365,6 +372,28 @@ void compile_member_access(compiler_wrapper *cw, ast_node *n)
 
     compile(cw, node->object);
     append_op(cw, LI_LOAD_MEMBER);
+    append_op(cw, idx);
+}
+
+void compile_set_member(compiler_wrapper *cw, ast_node *root)
+{
+    ast_binary_node *bin = (ast_binary_node *)root;
+    ast_member_access_node *left = (ast_member_access_node *)bin->left;
+    ast_node *right = bin->right;
+
+    compile(cw, right);
+
+    compile(cw, left->object);
+
+    int idx = find_prev_name(cw, left->ident);
+
+    if(idx < 0)
+    {
+        idx = cw->rnames.count;
+        arr_append(&cw->rnames, left->ident);
+    }
+
+    append_op(cw, LI_SAVE_MEMBER);
     append_op(cw, idx);
 }
 
