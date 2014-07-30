@@ -15,7 +15,8 @@ typedef enum {
     AIF,
     AFUNC_DECL,
     AFUNC_CALL,
-    ALOOP
+    ALOOP,
+    ATERNARY
 } ast_type;
 
 typedef enum {
@@ -117,6 +118,15 @@ typedef struct {
     struct ast_node *arguments;
 } ast_func_call_node;
 
+typedef struct {
+    ast_type type;
+    struct ast_node *next;
+
+    struct ast_node *condition;
+    struct ast_node *first;
+    struct ast_node *second;
+} ast_ternary_node;
+
 void ast_init();
 ast_node *create_root_node();
 void ast_add_node(ast_node *curr, ast_node *next);
@@ -129,6 +139,7 @@ ast_node *create_if_node(ast_node *condition, ast_node *payload);
 ast_node *create_loop_node(ast_node *init, ast_node *condition, ast_node *onloop, ast_node *payload);
 ast_node *create_func_decl_node(ast_node *params, ast_node *payload);
 ast_node *create_func_call_node(ast_node *ident, ast_node *arguments);
+ast_node *create_ternary_node(ast_node *condition, ast_node *first, ast_node *second);
 void ast_add_if_node(ast_node *curr, ast_node *next);
 
 void ast_free(ast_node *node);

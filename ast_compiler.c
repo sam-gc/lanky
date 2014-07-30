@@ -307,6 +307,33 @@ void compile_single_if(compiler_wrapper *cw, ast_if_node *node, int tagOut, int 
     }
 }
 
+void compile_ternary(compiler_wrapper *cw, ast_node *n)
+{
+    ast_ternary_node *node = (ast_ternary_node *)n;
+
+    int tagNext = next_if_tag(cw);
+    int tagOut = next_if_tag(cw);
+
+    // Example: a ? b : c
+
+    // Compile 'a'
+    compile(cw, node->condition);
+    append_op(cw, LI_JUMP_FALSE);
+    append_op(cw, tagNext);
+
+    // Compile 'b'
+    compile(cw, node->first);
+    append_op(cw, LI_JUMP);
+    append_op(cw, tagOut);
+
+    // Compile 'c'
+    append_op(cw, tagNext);
+    compile(cw, node->second);
+
+    // Jump out
+    append_op(cw, tagOut);
+}
+
 void compile_unary(compiler_wrapper *cw, ast_node *root)
 {
     ast_unary_node *node = (ast_unary_node *)root;
@@ -448,6 +475,9 @@ void compile(compiler_wrapper *cw, ast_node *root)
         break;
         case AFUNC_CALL:
             compile_function_call(cw, root);
+        break;
+        case ATERNARY:
+            compile_ternary(cw, root);
         break;
         default:
         break;

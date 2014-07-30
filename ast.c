@@ -181,6 +181,21 @@ ast_node *create_func_call_node(ast_node *ident, ast_node *arguments)
     return (ast_node *)node;
 }
 
+ast_node *create_ternary_node(ast_node *condition, ast_node *first, ast_node *second)
+{
+    ast_ternary_node *node = MALLOC(sizeof(ast_ternary_node));
+    pool_add(&ast_memory_pool, node);
+
+    node->type = ATERNARY;
+    node->next = NULL;
+
+    node->condition = condition;
+    node->first = first;
+    node->second = second;
+
+    return (ast_node *)node;
+}
+
 void ast_add_if_node(ast_node *curr, ast_node *next)
 {
     ast_if_node *node = (ast_if_node *)curr;

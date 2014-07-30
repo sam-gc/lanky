@@ -1,21 +1,7 @@
-func(a) {
-    _prt a;
-}("Hello" + " World");
 
-a = 5;
 
-(test = func(b) {
-    _prt " ---> " + b;
-})("YO");
-
-test("W00t");
-
-_prt "";
-_prt "/////////";
-_prt "";
-
-empty = func() {
-    _prt "A function with no arguments...";
-};
-
-empty();
+loop(i = 0; i < 10000000; i = i + 1) {
+    func(z) {
+        _prt z;
+    }(i);
+}

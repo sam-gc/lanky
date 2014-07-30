@@ -23,7 +23,7 @@
 %token <token> TCEQ TCNE TCLT TCLE TCGT TCGE TEQUAL TAND TOR TNOT
 %token <token> TLPAREN TRPAREN TLBRACE TRBRACE TCOMMA TDOT
 %token <token> TPLUS TMINUS TMUL TDIV TMOD TPOW
-%token <token> TIF TELIF TELSE TPRT TCOMMENT TLOOP TCOLON TFUNC TSEMI TRET
+%token <token> TIF TELIF TELSE TPRT TCOMMENT TLOOP TCOLON TFUNC TSEMI TRET TQUESTION
 
 /* Define the type of node our nonterminal symbols represent.
    The types refer to the %union declaration above. Ex: when
@@ -35,6 +35,7 @@
 /* Operator precedence for mathematical operators */
 %nonassoc TPRT TRET
 %left TEQUAL
+%left TQUESTION TCOLON
 %left TOR
 %left TAND
 %nonassoc TCEQ TCNE TCLT TCLE TCGT TCGE
@@ -109,6 +110,7 @@ expression :
     | expression TOR expression { $$ = create_binary_node($1, $3, '|'); }
     | expression TAND expression { $$ = create_binary_node($1, $3, '&'); }
     | TLPAREN expression TRPAREN { $$ = $2; }
+    | expression TQUESTION expression TCOLON expression { $$ = create_ternary_node($1, $3, $5); }
     | TIDENTIFIER TEQUAL expression { $$ = create_assignment_node($1, $3); }
     | expression TLPAREN calllist TRPAREN { $$ = create_func_call_node($1, $3); }
     | expression TLPAREN TRPAREN { $$ = create_func_call_node($1, NULL); }

@@ -2,6 +2,7 @@
 #include "lky_machine.h"
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #define OBJ_NUM_PROMO(a, b) (a->type == LBI_FLOAT || b->type == LBI_FLOAT ? LBI_FLOAT : LBI_INTEGER) 
 #define BI_CAST(o, n) lky_object_builtin * n = (lky_object_builtin *) o
@@ -231,6 +232,31 @@ lky_object *lobjb_binary_divide(lky_object *a, lky_object *b)
             break;
         case LBI_INTEGER:
             v.i = OBJ_NUM_UNWRAP(ab) / OBJ_NUM_UNWRAP(bb);
+            break;
+        default:
+            break;
+    }
+
+    return lobjb_alloc(t, v);
+}
+
+lky_object *lobjb_binary_modulo(lky_object *a, lky_object *b)
+{
+    BI_CAST(a, ab);
+    BI_CAST(b, bb);
+
+    if(a == &lky_nil || b == &lky_nil)
+        return &lky_nil;
+
+    lky_builtin_value v;
+    lky_builtin_type t = OBJ_NUM_PROMO(ab, bb);
+    switch(t)
+    {
+        case LBI_FLOAT:
+            v.d = remainder(OBJ_NUM_UNWRAP(ab), OBJ_NUM_UNWRAP(bb));
+            break;
+        case LBI_INTEGER:
+            v.i = OBJ_NUM_UNWRAP(ab) % OBJ_NUM_UNWRAP(bb);
             break;
         default:
             break;
