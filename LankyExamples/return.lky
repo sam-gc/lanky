@@ -11,7 +11,8 @@ make_nested = func() {
 };
 
 sq = make_nested();
-_prt sq(5);
+_prt "Nested => " + sq(5);
+_prt "Implicit => " + make_nested()(10);
 
 _prt (classify = func(x) {
     if(x < 100) {

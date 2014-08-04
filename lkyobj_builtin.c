@@ -505,7 +505,17 @@ void lobjb_serialize_function(lky_object *o, FILE *f)
     fwrite(&(func->callable.argc), sizeof(int), 1, f);
     fwrite(&(code->num_constants), sizeof(long), 1, f);
     fwrite(&(code->num_locals), sizeof(long), 1, f);
+    fwrite(&(code->num_names), sizeof(long), 1, f);
+
     int i;
+    for(i = 0; i < code->num_names; i++)
+    {
+        char *str = code->names[i];
+        long len = strlen(str) + 1;
+        fwrite(&len, sizeof(long), 1, f);
+        fwrite(str, len, 1, f);
+    }
+
     for(i = 0; i < code->num_constants; i++)
     {
         lky_object *obj = cons[i];
@@ -569,10 +579,21 @@ lky_object *lobjb_deserialize_function(FILE *f)
     
     long locals;
     fread(&locals, sizeof(long), 1, f);
+
+    long num_names;
+    fread(&num_names, sizeof(long), 1, f);
+    char **names = malloc(sizeof(void *) * num_names);
+
+    int i;
+    for(i = 0; i < num_names; i++)
+    {
+        long sz;
+        fread(&sz, sizeof(long), 1, f);
+        fread(names[i], sizeof(char), sz, f);
+    }
     
     void **con = malloc(sizeof(void *) * len);
     
-    long i;
     for(i = 0; i < len; i++)
     {
         lky_object *obj = lobjb_deserialize(f);
@@ -588,9 +609,11 @@ lky_object *lobjb_deserialize_function(FILE *f)
     obj->constants = con;
     obj->num_constants = len;
     obj->num_locals = locals;
+    obj->num_names = num_names;
     obj->locals = malloc(sizeof(void *) * locals);
     obj->ops = ops;
     obj->op_len = len;
+    obj->names = names;
     
     for(i = 0; i < locals; i++)
         obj->locals[i] = NULL;
@@ -644,9 +667,21 @@ lky_object_code *lobjb_load_file(char *name)
     long locals;
     fread(&locals, sizeof(long), 1, f);
 
-    void **con = malloc(sizeof(void *) * len);
+    long num_names;
+    fread(&num_names, sizeof(long), 1, f);
 
-    long i;
+    char **names = malloc(sizeof(char *) * num_names);
+    int i;
+    for(i = 0; i < num_names; i++)
+    {
+        long sz;
+        fread(&sz, sizeof(long), 1, f);
+        char *str = malloc(sizeof(char) * sz);
+        fread(str, sizeof(char), sz, f);
+        names[i] = str;
+    }
+
+    void **con = malloc(sizeof(void *) * len);
     for(i = 0; i < len; i++)
     {
         lky_object *obj = lobjb_deserialize(f);
@@ -662,9 +697,11 @@ lky_object_code *lobjb_load_file(char *name)
     obj->constants = con;
     obj->num_constants = len;
     obj->num_locals = locals;
+    obj->num_names = num_names;
     obj->locals = malloc(sizeof(void *) * locals);
     obj->ops = ops;
     obj->op_len = len;
+    obj->names = names;
 
     for(i = 0; i < locals; i++)
         obj->locals[i] = NULL;

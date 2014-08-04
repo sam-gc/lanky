@@ -652,6 +652,7 @@ lky_object_code *compile_ast_ext(ast_node *root, compiler_wrapper *incw)
     code->constants = make_cons_array(&cw);
     code->num_constants = cw.rcon.count;
     code->num_locals = cw.local_idx;
+    code->num_names = cw.rnames.count;
     code->ops = finalize_ops(&cw);
     code->op_len = cw.rops.count;
     code->locals = malloc(sizeof(void *) * cw.local_idx);
@@ -676,7 +677,17 @@ void write_to_file(char *name, lky_object_code *code)
     void **cons = code->constants;
     fwrite(&(code->num_constants), sizeof(long), 1, f);
     fwrite(&(code->num_locals), sizeof(long), 1, f);
+    fwrite(&(code->num_names), sizeof(long), 1, f);
+
     int i;
+    for(i = 0; i < code->num_names; i++)
+    {
+        char *str = code->names[i];
+        long len = strlen(str) + 1;
+        fwrite(&len, sizeof(long), 1, f);
+        fwrite(str, sizeof(char), len, f);
+    }
+
     for(i = 0; i < code->num_constants; i++)
     {
         lky_object *obj = cons[i];

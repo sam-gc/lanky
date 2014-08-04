@@ -332,6 +332,7 @@ void mach_do_op(stackframe *frame, lky_instruction op)
             lobj_set_member(obj, name, val);
 
             rc_decr(obj);
+            rc_decr(val);
         }
         break;
         default:

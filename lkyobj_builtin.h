@@ -32,6 +32,7 @@ typedef struct {
 
     long num_constants;
     long num_locals;
+    long num_names;
 
     void **constants;
     void **locals;
