@@ -8,3 +8,6 @@ parser.h
 tokens.c
 test
 parser.output
+*.swp
+*.swo
+*~
