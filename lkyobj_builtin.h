@@ -5,6 +5,7 @@
 #define BIN_ARGS lky_object *a, lky_object *b
 
 #include "lky_object.h"
+#include "arraylist.h"
 #include <stdio.h>
 
 typedef union {
@@ -41,7 +42,20 @@ typedef struct {
     long op_len;
 } lky_object_code;
 
+typedef struct {
+    lky_object *member;
+    char *name;
+} lky_class_member_wrapper;
 
+typedef struct {
+    lky_builtin_type type;
+    int mem_count;
+    Trie_t members;
+    
+    lky_callable callable;
+
+    arraylist methods;
+} lky_object_class;
 
 typedef struct {
     lky_builtin_type type;
@@ -70,6 +84,7 @@ lky_object *lobjb_binary_lessequal(lky_object *a, lky_object *b);
 lky_object *lobjb_binary_greatequal(lky_object *a, lky_object *b);
 lky_object *lobjb_binary_notequal(lky_object *a, lky_object *b);
 lky_object *lobjb_default_callable(lky_object_seq *args, lky_object *self);
+lky_object *lobjb_default_class_callable(lky_object_seq *args, lky_object *self);
 
 lky_object_seq *lobjb_make_seq_node(lky_object *value);
 void lobjb_free_seq(lky_object_seq *seq);

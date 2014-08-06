@@ -489,14 +489,15 @@ void compile_function(compiler_wrapper *cw, ast_node *root)
     nw.save_val = 0;
     lky_object_code *code = compile_ast_ext(node->payload->next, &nw);
 
-    lky_object *obj = lobjb_build_func(code, argc);
-    rc_incr(obj);
+    rc_incr(code);
     
     long idx = cw->rcon.count;
-    arr_append(&cw->rcon, obj);
+    arr_append(&cw->rcon, code);
     
     append_op(cw, LI_LOAD_CONST);
     append_op(cw, idx);
+    append_op(cw, LI_MAKE_FUNCTION);
+    append_op(cw, argc);
 }
 
 void compile_function_call(compiler_wrapper *cw, ast_node *root)
@@ -652,6 +653,7 @@ lky_object_code *compile_ast_ext(ast_node *root, compiler_wrapper *incw)
     code->constants = make_cons_array(&cw);
     code->num_constants = cw.rcon.count;
     code->num_locals = cw.local_idx;
+    code->type = LBI_CODE;
     code->num_names = cw.rnames.count;
     code->ops = finalize_ops(&cw);
     code->op_len = cw.rops.count;

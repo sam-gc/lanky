@@ -335,6 +335,17 @@ void mach_do_op(stackframe *frame, lky_instruction op)
             rc_decr(val);
         }
         break;
+        case LI_MAKE_FUNCTION:
+        {
+            lky_object_code *code = POP();
+
+            char argc = frame->ops[++frame->pc];
+            lky_object *func = lobjb_build_func(code, argc);
+
+            rc_decr(code);
+            PUSH_RC(func);
+        }
+        break;
         default:
         break;
     }
@@ -427,6 +438,9 @@ void print_op(lky_instruction op)
         break;
     case LI_SAVE_MEMBER:
         name = "SAVE_MEMBER";
+        break;
+    case LI_MAKE_FUNCTION:
+        name = "MAKE_FUNCTION";
         break;
     default:
         printf("   --> %d\n", op);

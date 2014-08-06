@@ -26,7 +26,8 @@ typedef enum {
     LI_CALL_FUNC,
     LI_RETURN,
     LI_LOAD_MEMBER,
-    LI_SAVE_MEMBER
+    LI_SAVE_MEMBER,
+    LI_MAKE_FUNCTION
 } lky_instruction;
 
 typedef enum {

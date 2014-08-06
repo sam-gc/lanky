@@ -14,6 +14,7 @@ typedef enum {
     LBI_SEQUENCE,
     LBI_NIL,
     LBI_FUNCTION,
+    LBI_CODE,
     LBI_CUSTOM
 } lky_builtin_type;
 

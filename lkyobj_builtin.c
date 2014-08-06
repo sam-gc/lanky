@@ -424,6 +424,26 @@ lky_object *lobjb_default_callable(lky_object_seq *args, lky_object *self)
     return mach_execute(code);
 }
 
+
+//lky_object *lobjb_default_class_callable(lky_object_seq *args, lky_object *self)
+//{
+//    lky_object_class *cls = (lky_object_class *)self;
+//
+//    arraylist list = cls->members;
+//
+//    lky_object *obj = lobj_alloc();
+//
+//    int i;
+//    for(i = 0; i < list.count; i++)
+//    {
+//        lky_class_member_wrapper *wrap = arr_get(&list, i);
+//        lobj_set_member(obj, wrap->name, wrap->member);
+//    }
+//
+//    return obj;
+//}
+//    
+
 char lobjb_quick_compare(lky_object *a, lky_object *b)
 {
     BI_CAST(a, ab);
@@ -496,13 +516,11 @@ void lobjb_free_seq(lky_object_seq *seq)
     }
 }
 
-void lobjb_serialize_function(lky_object *o, FILE *f)
+void lobjb_serialize_code(lky_object *o, FILE *f)
 {
-    lky_object_function *func = (lky_object_function *)o;
-    lky_object_code *code = func->code;
+    lky_object_code *code = (lky_object_code *)o;
     
     void **cons = code->constants;
-    fwrite(&(func->callable.argc), sizeof(int), 1, f);
     fwrite(&(code->num_constants), sizeof(long), 1, f);
     fwrite(&(code->num_locals), sizeof(long), 1, f);
     fwrite(&(code->num_names), sizeof(long), 1, f);
@@ -556,11 +574,11 @@ void lobjb_serialize(lky_object *o, FILE *f)
             fwrite(str, sizeof(char), sz, f);
         }
         break;
-        case LBI_FUNCTION:
+        case LBI_CODE:
         {
             unsigned long sz = 0;
             fwrite(&sz, sizeof(unsigned long), 1, f);
-            lobjb_serialize_function(o, f);
+            lobjb_serialize_code(o, f);
             printf("Serializing function...\n");
         }
         break;
@@ -569,11 +587,8 @@ void lobjb_serialize(lky_object *o, FILE *f)
     }
 }
 
-lky_object *lobjb_deserialize_function(FILE *f)
+lky_object *lobjb_deserialize_code(FILE *f)
 {
-    int argc;
-    fread(&argc, sizeof(int), 1, f);
-
     long len;
     fread(&len, sizeof(long), 1, f);
     
@@ -607,6 +622,7 @@ lky_object *lobjb_deserialize_function(FILE *f)
     
     lky_object_code *obj = malloc(sizeof(lky_object_code));
     obj->constants = con;
+    obj->type = LBI_CODE;
     obj->num_constants = len;
     obj->num_locals = locals;
     obj->num_names = num_names;
@@ -618,7 +634,7 @@ lky_object *lobjb_deserialize_function(FILE *f)
     for(i = 0; i < locals; i++)
         obj->locals[i] = NULL;
     
-    return (lky_object *)lobjb_build_func(obj, argc);
+    return obj;
 }
 
 lky_object *lobjb_deserialize(FILE *f)
@@ -646,9 +662,9 @@ lky_object *lobjb_deserialize(FILE *f)
             value.s = str;
         }
         break;
-        case LBI_FUNCTION:
+        case LBI_CODE:
         {
-            return lobjb_deserialize_function(f);
+            return lobjb_deserialize_code(f);
         }
         break;
         default:
