@@ -106,6 +106,17 @@ void *node_get(TrieNode_t *node, char *str)
         return next->object;
 }
 
+void node_count(TrieNode_t *node, int *count)
+{
+    list_node_t *child = node->children;
+
+    for(; child; child = child->next)
+    {
+        node_count(child->payload, count);
+        *count++;
+    }
+}
+
 void trie_add(Trie_t t, char *str, void *value)
 {
     node_add(t.head, str, value);

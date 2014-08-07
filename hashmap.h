@@ -21,5 +21,6 @@ int hm_contains(Hashmap *set, char *str);
 int hm_count(Hashmap *set);
 void hm_remove(Hashmap *set, char *str);
 void hm_free(Hashmap *set);
+char **hm_list_keys(Hashmap *set);
 
 #endif

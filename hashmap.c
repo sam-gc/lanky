@@ -175,6 +175,27 @@ void hm_remove(Hashmap *set, char *str)
     }
 }
 
+char **hm_list_keys(Hashmap *set)
+{
+    int count = hm_count(set);
+
+    char **keys = malloc(sizeof(char *) * count);
+    int appendIdx = 0;
+
+    int i;
+    for(i = 0; i < set->hash_size; i++)
+    {
+        node *n = set->buckets[i];
+        if(!n)
+            continue;
+
+        for(; n; n = n->next)
+            keys[appendIdx++] = n->value;
+    }
+
+    return keys;
+}
+
 void hm_free(Hashmap *set)
 {
     int i;
