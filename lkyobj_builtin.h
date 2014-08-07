@@ -64,13 +64,16 @@ typedef struct {
 
     lky_callable callable;
 
+    arraylist parent_stack;
+    lky_object *bucket;
+
     int argc;
     lky_object_code *code;
 } lky_object_function;
 
 lky_object *lobjb_build_int(long value);
 lky_object *lobjb_build_float(double value);
-lky_object *lobjb_build_func(lky_object_code *code, int argc);
+lky_object *lobjb_build_func(lky_object_code *code, int argc, arraylist inherited);
 lky_object *lobjb_alloc(lky_builtin_type t, lky_builtin_value v);
 lky_object *lobjb_binary_add(lky_object *a, lky_object *b);
 lky_object *lobjb_binary_subtract(lky_object *a, lky_object *b);

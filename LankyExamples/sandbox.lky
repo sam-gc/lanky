@@ -9,6 +9,7 @@ _prt a.test;
 
 a.method = func(x) {
     ret x * x;
+    _prt "In function";
 };
 
 _prt a.method(10);
