@@ -332,7 +332,6 @@ void mach_do_op(stackframe *frame, lky_instruction op)
             lobj_set_member(obj, name, val);
 
             rc_decr(obj);
-            rc_decr(val);
         }
         break;
         case LI_MAKE_FUNCTION:
@@ -342,7 +341,7 @@ void mach_do_op(stackframe *frame, lky_instruction op)
             char argc = frame->ops[++frame->pc];
             lky_object *func = lobjb_build_func(code, argc);
 
-            rc_decr(code);
+            //rc_decr(code);
             PUSH_RC(func);
         }
         break;
