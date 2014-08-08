@@ -159,6 +159,15 @@ void mach_do_op(stackframe *frame, lky_instruction op)
             PUSH_RC(obj);
         }
         break;
+        case LI_BINARY_MODULO:
+        {
+            POP_TWO();
+            lky_object *obj = lobjb_binary_modulo(b, a);
+            RC_TWO();
+
+            PUSH_RC(obj);
+        }
+        break;
         case LI_BINARY_LT:
         {
             POP_TWO();
@@ -386,8 +395,6 @@ void mach_do_op(stackframe *frame, lky_instruction op)
                 bk = frame->bucket;
 
             lky_object *old = lobj_get_member(bk, name);
-            if(old)
-                rc_decr(old);
 
             lobj_set_member(bk, name, obj);
         }

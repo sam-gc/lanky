@@ -1,0 +1,32 @@
+make_adder = func() {
+    count = 0;
+    obj = 0 + 1;
+    obj.add = func() {
+        count = count + 1;
+    };
+    
+    obj.get_count = func() {
+        ret count;
+    };
+
+    ret obj;
+};
+
+adder = make_adder();
+ad2 = make_adder();
+adder.add();
+_prt adder.get_count();
+
+loop(i = 0; i < 1000; i = i + 1) {
+    if(i % 2) {
+        adder.add();
+    }
+
+    if(i % 4 == 0) {
+        ad2.add();
+    }
+}
+
+_prt adder.get_count();
+_prt ad2.get_count();
+
