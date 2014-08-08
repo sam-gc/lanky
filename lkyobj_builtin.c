@@ -32,7 +32,7 @@ lky_object *lobjb_build_float(double value)
     return lobjb_alloc(LBI_FLOAT, v);
 }
 
-lky_object *lobjb_build_func(lky_object_code *code, int argc)
+lky_object *lobjb_build_func(lky_object_code *code, int argc, arraylist inherited)
 {
     lky_object_function *func = malloc(sizeof(lky_object_function));
     func->type = LBI_FUNCTION;
@@ -40,6 +40,9 @@ lky_object *lobjb_build_func(lky_object_code *code, int argc)
     func->members = trie_new();
     
     func->code = code;
+    // func->bucket = lobj_alloc();
+
+    func->parent_stack = inherited;
 
     lky_callable c;
     c.function = &lobjb_default_callable;
@@ -421,7 +424,7 @@ lky_object *lobjb_default_callable(lky_object_seq *args, lky_object *self)
         code->locals[i] = args->value;
     }
 
-    return mach_execute(code);
+    return mach_execute(func);
 }
 
 

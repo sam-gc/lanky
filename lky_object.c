@@ -33,7 +33,7 @@ lky_object *lobj_get_member(lky_object *obj, char *member)
 {
     lky_object *val = trie_get(obj->members, member);
 
-    return val ? val : &lky_nil;
+    return val;
 }
 
 void rc_decr(lky_object *obj)

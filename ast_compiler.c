@@ -23,6 +23,7 @@ void compile_compound(compiler_wrapper *cw, ast_node *root);
 void compile_single_if(compiler_wrapper *cw, ast_if_node *node, int tagOut, int tagNext);
 lky_object_code *compile_ast_ext(ast_node *root, compiler_wrapper *incw);
 void compile_set_member(compiler_wrapper *cw, ast_node *root);
+int find_prev_name(compiler_wrapper *cw, char *name);
 
 typedef struct tag_node {
     struct tag_node *next;
@@ -185,28 +186,45 @@ void compile_binary(compiler_wrapper *cw, ast_node *root)
         break;
     case '=':
         {
-            append_op(cw, (char)LI_SAVE_LOCAL);
+            append_op(cw, LI_SAVE_CLOSE);
             char *sid = ((ast_value_node *)(node->left))->value.s;
-            hm_error_t err;
-            int idx;
-            lky_object_builtin *o = hm_get(&cw->saved_locals, sid, &err);
-            if(err == HM_KEY_NOT_FOUND)
-            {
-                idx = get_next_local(cw);
-                lky_object *obj = lobjb_build_int(idx);
-                pool_add(&ast_memory_pool, obj);
-                hm_put(&cw->saved_locals, sid, obj);
-            }
-            else
-                idx = o->value.i;
+            char *nsid = malloc(strlen(sid) + 1);
+            strcpy(nsid, sid);
 
-            // printf("==> %s %d\n", sid, idx);
+            int idx = find_prev_name(cw, nsid);
+            if(idx < 0)
+            {
+                idx = cw->rnames.count;
+                arr_append(&cw->rnames, nsid);
+            }
 
             append_op(cw, idx);
-            // save_val = 1;
             return;
         }
         break;
+//        {
+//             append_op(cw, (char)LI_SAVE_LOCAL);
+//             char *sid = ((ast_value_node *)(node->left))->value.s;
+//             hm_error_t err;
+//             int idx;
+//             lky_object_builtin *o = hm_get(&cw->saved_locals, sid, &err);
+//             if(err == HM_KEY_NOT_FOUND)
+//             {
+//                 idx = get_next_local(cw);
+//                 lky_object *obj = lobjb_build_int(idx);
+//                 pool_add(&ast_memory_pool, obj);
+//                 hm_put(&cw->saved_locals, sid, obj);
+//             }
+//             else
+//                 idx = o->value.i;
+// 
+//             // printf("==> %s %d\n", sid, idx);
+// 
+//             append_op(cw, idx);
+//             // save_val = 1;
+//             return;
+//         }
+//         break;
     }
 
     append_op(cw, (char)istr);
@@ -434,12 +452,24 @@ long find_prev_const(compiler_wrapper *cw, lky_object *obj)
 
 void compile_var(compiler_wrapper *cw, ast_value_node *node)
 {
-    lky_object_builtin *obj = hm_get(&cw->saved_locals, node->value.s, NULL);
+    int idx = find_prev_name(cw, node->value.s);
 
-    int idx = obj->value.i;
+    if(idx < 0)
+    {
+        idx = cw->rnames.count;
+        char *ns = malloc(strlen(node->value.s) + 1);
+        strcpy(ns, node->value.s);
+        arr_append(&cw->rnames, ns);
+    }
 
-    append_op(cw, LI_LOAD_LOCAL);
-    append_op(cw, (char)idx);
+    append_op(cw, LI_LOAD_CLOSE);
+    append_op(cw, idx);
+//    lky_object_builtin *obj = hm_get(&cw->saved_locals, node->value.s, NULL);
+//
+//    int idx = obj->value.i;
+//
+//    append_op(cw, LI_LOAD_LOCAL);
+//    append_op(cw, (char)idx);
 }
 
 void compile_value(compiler_wrapper *cw, ast_node *root)

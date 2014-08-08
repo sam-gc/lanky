@@ -10,7 +10,7 @@
 #define POP() (pop_node(frame))
 #define TOP() (top_node(frame))
 
-#define PUSH_RC(data) push_node(frame, data); rc_incr(data)
+#define PUSH_RC(data) do{ push_node(frame, data); rc_incr(data); }while(0)
 #define POP_RC() rc_decr(POP())
 
 #define POP_TWO() lky_object *a = POP(); lky_object *b = POP()
@@ -18,6 +18,8 @@
 
 typedef struct stackframe {
     arraylist data_stack;
+    arraylist parent_stack;
+    lky_object *bucket;
     void **constants;
     void **locals;
     char **names;
@@ -61,10 +63,13 @@ static void *pop_node(stackframe *frame)
     return data;
 }
 
-lky_object *mach_execute(lky_object_code *code)
+lky_object *mach_execute(lky_object_function *func)
 {
+    lky_object_code *code = func->code;
     stackframe frame;
     frame.data_stack = arr_create(100);
+    frame.parent_stack = func->parent_stack;
+    frame.bucket = lobj_alloc();
     frame.constants = code->constants;
     frame.locals = code->locals;
     frame.pc = -1;
@@ -317,8 +322,10 @@ void mach_do_op(stackframe *frame, lky_instruction op)
 
             int idx = frame->ops[++frame->pc];
             char *name = frame->names[idx];
+            lky_object *val = lobj_get_member(obj, name);
+            val = val ? val : &lky_nil;
 
-            PUSH_RC(lobj_get_member(obj, name));
+            PUSH_RC(val);
         }
         break;
         case LI_SAVE_MEMBER:
@@ -338,11 +345,80 @@ void mach_do_op(stackframe *frame, lky_instruction op)
         {
             lky_object_code *code = POP();
 
+            arraylist pstack = frame->parent_stack;
+            arraylist nplist = arr_create(pstack.count + 1);
+            int i;
+            for(i = 0; i < pstack.count; i++)
+            {
+                arr_append(&nplist, arr_get(&pstack, i));
+            }
+
+            arr_append(&nplist, frame->bucket);
+
             char argc = frame->ops[++frame->pc];
-            lky_object *func = lobjb_build_func(code, argc);
+            lky_object *func = lobjb_build_func(code, argc, nplist);
 
             //rc_decr(code);
             PUSH_RC(func);
+        }
+        break;
+        case LI_SAVE_CLOSE:
+        {
+            lky_object *obj = TOP();
+            int idx = frame->ops[++frame->pc];
+
+            char *name = frame->names[idx];
+
+            lky_object *bk = NULL;
+            arraylist ps = frame->parent_stack;
+
+            int i;
+            for(i = ps.count - 1; i >= 0 && !bk; i--)
+            {
+                lky_object *n = arr_get(&ps, i);
+                if(lobj_get_member(n, name))
+                {
+                    bk = n;
+                }
+            }
+
+            if(!bk)
+                bk = frame->bucket;
+
+            lky_object *old = lobj_get_member(bk, name);
+            if(old)
+                rc_decr(old);
+
+            lobj_set_member(bk, name, obj);
+        }
+        break;
+        case LI_LOAD_CLOSE:
+        {
+            int idx = frame->ops[++frame->pc];
+            char *name = frame->names[idx];
+
+            lky_object *bk = NULL;
+            arraylist ps = frame->parent_stack;
+
+            int i;
+            for(i = ps.count - 1; i >= 0 && !bk; i--)
+            {
+                lky_object *n = arr_get(&ps, i);
+                if(lobj_get_member(n, name))
+                {
+                    bk = n;
+                }
+            }
+
+            if(!bk)
+                bk = frame->bucket;
+
+            lky_object *obj = lobj_get_member(bk, name);
+
+            if(obj)
+                PUSH_RC(obj);
+            else
+                PUSH(&lky_nil);
         }
         break;
         default:
@@ -440,6 +516,12 @@ void print_op(lky_instruction op)
         break;
     case LI_MAKE_FUNCTION:
         name = "MAKE_FUNCTION";
+        break;
+    case LI_LOAD_CLOSE:
+        name = "LOAD_CLOSE";
+        break;
+    case LI_SAVE_CLOSE:
+        name = "SAVE_CLOSE";
         break;
     default:
         printf("   --> %d\n", op);

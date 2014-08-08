@@ -25,4 +25,5 @@ million = func(blah) {
     }
 };
 
+func(x) { _prt "Whaaaat? " + x; }(5);
 
