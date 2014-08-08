@@ -53,12 +53,10 @@ void *top_node(stackframe *frame)
     return arr_get(&frame->data_stack, frame->data_stack.count - 1);
 }
 
-static void *pop_node(stackframe *frame)
+void *pop_node(stackframe *frame)
 {
     void *data = arr_get(&frame->data_stack, frame->data_stack.count - 1);
     arr_remove(&frame->data_stack, NULL, frame->data_stack.count - 1);
-
-    pushes--;
 
     return data;
 }
@@ -69,7 +67,7 @@ lky_object *mach_execute(lky_object_function *func)
     stackframe frame;
     frame.data_stack = arr_create(100);
     frame.parent_stack = func->parent_stack;
-    frame.bucket = lobj_alloc();
+    frame.bucket = func->bucket ? func->bucket : lobj_alloc();
     frame.constants = code->constants;
     frame.locals = code->locals;
     frame.pc = -1;
@@ -77,6 +75,8 @@ lky_object *mach_execute(lky_object_function *func)
     frame.tape_len = code->op_len;
     frame.names = code->names;
     frame.ret = NULL;
+
+    func->bucket = NULL;
 
     arr_append(&frame.data_stack, NULL);
 
@@ -94,24 +94,29 @@ lky_object *mach_execute(lky_object_function *func)
     // free(ops);
 }
 
-void mach_do_op(stackframe *frame, lky_instruction op);
-
+// void mach_do_op(stackframe *frame, lky_instruction op);
+// 
+// {
+//     while(frame->pc < frame->tape_len && !frame->ret)
+//     {
+//         mach_do_op(frame, frame->ops[++frame->pc]);
+//     }
+// 
+//     // printf("%d\n", pushes);
+// }
+void print_op(lky_instruction i);
 void mach_eval(stackframe *frame)
 {
-    while(frame->pc < frame->tape_len && !frame->ret)
-    {
-        mach_do_op(frame, frame->ops[++frame->pc]);
-    }
-
-    // printf("%d\n", pushes);
-}
-// void print_op(lky_instruction i);
-void mach_do_op(stackframe *frame, lky_instruction op)
-{
+    lky_instruction op;
     // print_stack();
 
     // printf("==> %d\n", op);
     // print_op(op);
+_opcode_whiplash_:
+    if(frame->pc >= frame->tape_len || frame->ret)
+        return;
+
+    op = frame->ops[++frame->pc];
 
     switch(op)
     {
@@ -121,6 +126,7 @@ void mach_do_op(stackframe *frame, lky_instruction op)
             lky_object *obj = frame->constants[idx];
 
             PUSH_RC(obj);
+            goto _opcode_whiplash_;
         }
         break;
         case LI_BINARY_ADD:
@@ -130,6 +136,7 @@ void mach_do_op(stackframe *frame, lky_instruction op)
             RC_TWO();
 
             PUSH_RC(obj);
+            goto _opcode_whiplash_;
         }
         break;
         case LI_BINARY_SUBTRACT:
@@ -139,6 +146,7 @@ void mach_do_op(stackframe *frame, lky_instruction op)
             RC_TWO();
 
             PUSH_RC(obj);
+            goto _opcode_whiplash_;
         }
         break;
         case LI_BINARY_MULTIPLY:
@@ -148,6 +156,7 @@ void mach_do_op(stackframe *frame, lky_instruction op)
             RC_TWO();
 
             PUSH_RC(obj);
+            goto _opcode_whiplash_;
         }
         break;
         case LI_BINARY_DIVIDE:
@@ -157,6 +166,7 @@ void mach_do_op(stackframe *frame, lky_instruction op)
             RC_TWO();
 
             PUSH_RC(obj);
+            goto _opcode_whiplash_;
         }
         break;
         case LI_BINARY_MODULO:
@@ -166,6 +176,7 @@ void mach_do_op(stackframe *frame, lky_instruction op)
             RC_TWO();
 
             PUSH_RC(obj);
+            goto _opcode_whiplash_;
         }
         break;
         case LI_BINARY_LT:
@@ -175,6 +186,7 @@ void mach_do_op(stackframe *frame, lky_instruction op)
             RC_TWO();
 
             PUSH_RC(obj);
+            goto _opcode_whiplash_;
         }
         break;
         case LI_BINARY_GT:
@@ -184,6 +196,7 @@ void mach_do_op(stackframe *frame, lky_instruction op)
             RC_TWO();
 
             PUSH_RC(obj);
+            goto _opcode_whiplash_;
         }
         break;
         case LI_BINARY_LTE:
@@ -193,6 +206,7 @@ void mach_do_op(stackframe *frame, lky_instruction op)
             RC_TWO();
 
             PUSH_RC(obj);
+            goto _opcode_whiplash_;
         }
         break;
         case LI_BINARY_GTE:
@@ -202,6 +216,7 @@ void mach_do_op(stackframe *frame, lky_instruction op)
             RC_TWO();
 
             PUSH_RC(obj);
+            goto _opcode_whiplash_;
         }
         break;
         case LI_BINARY_EQUAL:
@@ -211,6 +226,7 @@ void mach_do_op(stackframe *frame, lky_instruction op)
             RC_TWO();
 
             PUSH_RC(obj);
+            goto _opcode_whiplash_;
         }
         break;
         case LI_BINARY_NE:
@@ -220,6 +236,7 @@ void mach_do_op(stackframe *frame, lky_instruction op)
             RC_TWO();
 
             PUSH_RC(obj);
+            goto _opcode_whiplash_;
         }
         break;
         case LI_PRINT:
@@ -227,17 +244,20 @@ void mach_do_op(stackframe *frame, lky_instruction op)
             lky_object *a = POP();
             lobjb_print(a);
             rc_decr(a);
+            goto _opcode_whiplash_;
         }
         break;
         case LI_POP:
         {
             POP_RC();
+            goto _opcode_whiplash_;
         }
         break;
         case LI_JUMP:
         {
             char idx = frame->ops[++frame->pc];
             frame->pc = idx < frame->pc ? idx - 1 : idx;
+            goto _opcode_whiplash_;
         }
         break;
         case LI_JUMP_FALSE:
@@ -254,6 +274,7 @@ void mach_do_op(stackframe *frame, lky_instruction op)
                 // PUSH(&lky_nil);
             }
             rc_decr(obj);
+            goto _opcode_whiplash_;
         }
         break;
         case LI_SAVE_LOCAL:
@@ -269,6 +290,7 @@ void mach_do_op(stackframe *frame, lky_instruction op)
             // printf("=> %d\n", idx);
             // lobjb_print(obj);
 
+            goto _opcode_whiplash_;
             // rc_decr(obj);
         }
         break;
@@ -277,11 +299,13 @@ void mach_do_op(stackframe *frame, lky_instruction op)
             char idx = frame->ops[++frame->pc];
             lky_object *obj = frame->locals[idx];
             PUSH_RC(obj);
+            goto _opcode_whiplash_;
         }
         break;
         case LI_PUSH_NIL:
         {
             PUSH(&lky_nil);
+            goto _opcode_whiplash_;
         }
         break;
         case LI_CALL_FUNC:
@@ -317,12 +341,14 @@ void mach_do_op(stackframe *frame, lky_instruction op)
             lobjb_free_seq(seq);
 
             PUSH(ret);
+            goto _opcode_whiplash_;
         }
         break;
         case LI_RETURN:
         {
             lky_object *obj = POP();
             frame->ret = obj;
+            goto _opcode_whiplash_;
         }
         break;
         case LI_LOAD_MEMBER:
@@ -335,6 +361,7 @@ void mach_do_op(stackframe *frame, lky_instruction op)
             val = val ? val : &lky_nil;
 
             PUSH_RC(val);
+            goto _opcode_whiplash_;
         }
         break;
         case LI_SAVE_MEMBER:
@@ -348,6 +375,7 @@ void mach_do_op(stackframe *frame, lky_instruction op)
             lobj_set_member(obj, name, val);
 
             rc_decr(obj);
+            goto _opcode_whiplash_;
         }
         break;
         case LI_MAKE_FUNCTION:
@@ -369,6 +397,7 @@ void mach_do_op(stackframe *frame, lky_instruction op)
 
             //rc_decr(code);
             PUSH_RC(func);
+            goto _opcode_whiplash_;
         }
         break;
         case LI_SAVE_CLOSE:
@@ -397,6 +426,7 @@ void mach_do_op(stackframe *frame, lky_instruction op)
             lky_object *old = lobj_get_member(bk, name);
 
             lobj_set_member(bk, name, obj);
+            goto _opcode_whiplash_;
         }
         break;
         case LI_LOAD_CLOSE:
@@ -426,9 +456,11 @@ void mach_do_op(stackframe *frame, lky_instruction op)
                 PUSH_RC(obj);
             else
                 PUSH(&lky_nil);
+            goto _opcode_whiplash_;
         }
         break;
         default:
+            goto _opcode_whiplash_;
         break;
     }
 

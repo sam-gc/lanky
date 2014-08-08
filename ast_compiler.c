@@ -507,16 +507,25 @@ void compile_function(compiler_wrapper *cw, ast_node *root)
     compiler_wrapper nw;
     nw.local_idx = 0;
     nw.saved_locals = hm_create(100, 1);
+    nw.rnames = arr_create(10);
     
     int argc = 0;
     ast_value_node *v = (ast_value_node *)node->params;
     for(; v; v = (ast_value_node *)v->next)
     {
-        long idx = get_next_local(&nw);
-        lky_object *obj = lobjb_build_int(idx);
-        pool_add(&ast_memory_pool, obj);
-        hm_put(&nw.saved_locals, v->value.s, obj);
-        argc++;
+        char *idf = v->value.s;
+
+        long idx = nw.rnames.count;
+        char *nid = malloc(strlen(idf) + 1);
+        strcpy(nid, idf);
+
+        arr_append(&nw.rnames, nid);
+
+       //  long idx = get_next_local(&nw);
+       //  lky_object *obj = lobjb_build_int(idx);
+       //  pool_add(&ast_memory_pool, obj);
+       //  hm_put(&nw.saved_locals, v->value.s, obj);
+       argc++;
     }
     
     nw.save_val = 0;
@@ -660,7 +669,6 @@ lky_object_code *compile_ast_ext(ast_node *root, compiler_wrapper *incw)
     compiler_wrapper cw;
     cw.rops = arr_create(50);
     cw.rcon = arr_create(10);
-    cw.rnames = arr_create(50);
     cw.ifTag = 1000;
     cw.save_val = 0;
     cw.name_idx = 0;
@@ -669,11 +677,13 @@ lky_object_code *compile_ast_ext(ast_node *root, compiler_wrapper *incw)
     {
         cw.saved_locals = incw->saved_locals;
         cw.local_idx = incw->local_idx;
+        cw.rnames = incw->rnames;
     }
     else
     {
         cw.saved_locals = hm_create(100, 1);
         cw.local_idx = 0;
+        cw.rnames = arr_create(50);
     }
 
     compile_compound(&cw, root);

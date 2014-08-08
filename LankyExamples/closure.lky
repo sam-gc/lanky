@@ -22,7 +22,7 @@ loop(i = 0; i < 1000; i = i + 1) {
         adder.add();
     }
 
-    if(i % 4 == 0) {
+    if(i % 4) {
         ad2.add();
     }
 }

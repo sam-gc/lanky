@@ -40,7 +40,7 @@ lky_object *lobjb_build_func(lky_object_code *code, int argc, arraylist inherite
     func->members = trie_new();
     
     func->code = code;
-    // func->bucket = lobj_alloc();
+    func->bucket = NULL;
 
     func->parent_stack = inherited;
 
@@ -418,10 +418,15 @@ lky_object *lobjb_default_callable(lky_object_seq *args, lky_object *self)
     lky_object_function *func = (lky_object_function *)self;
     lky_object_code *code = func->code;
 
+    func->bucket = lobj_alloc();
+
     long i;
     for(i = 0; args; i++, args = args->next)
     {
-        code->locals[i] = args->value;
+        char *name = code->names[i];
+        lobj_set_member(func->bucket, name, args->value);
+        rc_decr(args->value);
+        // code->locals[i] = args->value;
     }
 
     return mach_execute(func);
@@ -465,7 +470,7 @@ char lobjb_quick_compare(lky_object *a, lky_object *b)
         return a == b;
     }
 
-    if(ab->type == LBI_FUNCTION || bb->type == LBI_FUNCTION)
+    if(ab->type == LBI_CODE || bb->type == LBI_CODE)
         return ab == bb;
 
     return OBJ_NUM_UNWRAP(ab) == OBJ_NUM_UNWRAP(bb);
@@ -607,6 +612,7 @@ lky_object *lobjb_deserialize_code(FILE *f)
     {
         long sz;
         fread(&sz, sizeof(long), 1, f);
+        names[i] = malloc(sz);
         fread(names[i], sizeof(char), sz, f);
     }
     
