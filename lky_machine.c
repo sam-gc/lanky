@@ -263,10 +263,11 @@ _opcode_whiplash_:
         case LI_JUMP_FALSE:
         {
             lky_object *obj = POP();
+            char idx = frame->ops[++frame->pc];
+
             // printf("=> %d\n", obj == &lky_nil || obj->type != LBI_STRING && !OBJ_NUM_UNWRAP(obj));
             if(obj == &lky_nil || (obj->type != LBI_STRING && !OBJ_NUM_UNWRAP(obj)))
             {
-                char idx = frame->ops[++frame->pc];
                 frame->pc = idx;
             }
             else

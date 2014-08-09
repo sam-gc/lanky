@@ -2,7 +2,7 @@
 #define INSTRUCTION_SET_H
 
 typedef enum {
-    LI_BINARY_ADD = 100,
+    LI_BINARY_ADD = 50,
     LI_BINARY_SUBTRACT,
     LI_BINARY_MULTIPLY,
     LI_BINARY_DIVIDE,

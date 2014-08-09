@@ -86,6 +86,7 @@ calllist : call
     ;
 funcdecl : TFUNC TLPAREN arglist TRPAREN block { $$ = create_func_decl_node($3, $5); }
     | TFUNC TLPAREN TRPAREN block { $$ = create_func_decl_node(NULL, $4); }
+    ;
 classdecl : TCLASS TLPAREN TRPAREN TARROW TIDENTIFIER block { $$ = create_class_decl_node($5, $6); }
     ;
 stmt : expression TSEMI
