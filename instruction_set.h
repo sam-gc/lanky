@@ -28,6 +28,7 @@ typedef enum {
     LI_LOAD_MEMBER,
     LI_SAVE_MEMBER,
     LI_MAKE_FUNCTION,
+    LI_MAKE_CLASS,
     LI_SAVE_CLOSE,
     LI_LOAD_CLOSE
 } lky_instruction;

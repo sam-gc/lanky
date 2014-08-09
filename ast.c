@@ -167,6 +167,20 @@ ast_node *create_func_decl_node(ast_node *params, ast_node *payload)
     return (ast_node *)node;
 }
 
+ast_node *create_class_decl_node(char *refname, ast_node *payload)
+{
+    ast_class_decl_node *node = MALLOC(sizeof(ast_class_decl_node));
+    pool_add(&ast_memory_pool, node);
+
+    node->type = ACLASS_DECL;
+    node->next = NULL;
+
+    node->refname = refname;
+    node->payload = payload;
+
+    return (ast_node *)node;
+}
+ 
 ast_node *create_func_call_node(ast_node *ident, ast_node *arguments)
 {
     ast_func_call_node *node = MALLOC(sizeof(ast_func_call_node));

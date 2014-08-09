@@ -42,20 +42,11 @@ typedef struct {
     long op_len;
 } lky_object_code;
 
+// TODO: Is this necessary?
 typedef struct {
     lky_object *member;
     char *name;
 } lky_class_member_wrapper;
-
-typedef struct {
-    lky_builtin_type type;
-    int mem_count;
-    Trie_t members;
-    
-    lky_callable callable;
-
-    arraylist methods;
-} lky_object_class;
 
 typedef struct {
     lky_builtin_type type;
@@ -71,9 +62,21 @@ typedef struct {
     lky_object_code *code;
 } lky_object_function;
 
+typedef struct {
+    lky_builtin_type type;
+    int mem_count;
+    Trie_t members;
+
+    lky_callable callable;
+
+    lky_object_function *builder;
+    char *refname;
+} lky_object_class;
+
 lky_object *lobjb_build_int(long value);
 lky_object *lobjb_build_float(double value);
 lky_object *lobjb_build_func(lky_object_code *code, int argc, arraylist inherited);
+lky_object *lobjb_build_class(lky_object_function *builder, char *refname);
 lky_object *lobjb_alloc(lky_builtin_type t, lky_builtin_value v);
 lky_object *lobjb_binary_add(lky_object *a, lky_object *b);
 lky_object *lobjb_binary_subtract(lky_object *a, lky_object *b);

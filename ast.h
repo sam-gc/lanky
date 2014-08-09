@@ -14,6 +14,7 @@ typedef enum {
     ABLOCK,
     AIF,
     AFUNC_DECL,
+    ACLASS_DECL,
     AFUNC_CALL,
     ALOOP,
     ATERNARY,
@@ -101,14 +102,22 @@ typedef struct {
 } ast_func_decl_node;
 
 typedef struct {
-	ast_type type;
-	struct ast_node *next;
+    ast_type type;
+    struct ast_node *next;
 
-	ast_loop_type loop_type;
-	struct ast_node *init;
-	struct ast_node *condition;
-	struct ast_node *onloop;
-	struct ast_node *payload;
+    char *refname;
+    struct ast_node *payload;
+} ast_class_decl_node;
+
+typedef struct {
+    ast_type type;
+    struct ast_node *next;
+
+    ast_loop_type loop_type;
+    struct ast_node *init;
+    struct ast_node *condition;
+    struct ast_node *onloop;
+    struct ast_node *payload;
 } ast_loop_node;
 
 typedef struct {
@@ -147,6 +156,7 @@ ast_node *create_block_node(ast_node *payload);
 ast_node *create_if_node(ast_node *condition, ast_node *payload);
 ast_node *create_loop_node(ast_node *init, ast_node *condition, ast_node *onloop, ast_node *payload);
 ast_node *create_func_decl_node(ast_node *params, ast_node *payload);
+ast_node *create_class_decl_node(char *refname, ast_node *payload); 
 ast_node *create_func_call_node(ast_node *ident, ast_node *arguments);
 ast_node *create_ternary_node(ast_node *condition, ast_node *first, ast_node *second);
 ast_node *create_member_access_node(ast_node *object, char *ident);

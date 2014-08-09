@@ -52,6 +52,24 @@ lky_object *lobjb_build_func(lky_object_code *code, int argc, arraylist inherite
     return (lky_object *)func;
 }
 
+lky_object *lobjb_build_class(lky_object_function *builder, char *refname)
+{
+    lky_object_class *cls = malloc(sizeof(lky_object_class));
+    cls->type = LBI_CLASS;
+    cls->mem_count = 0;
+    cls->members = trie_new();
+
+    cls->builder = builder;
+    cls->refname = refname;
+
+    lky_callable c;
+    c.function = &lobjb_default_class_callable;
+    c.argc = 0;
+    cls->callable = c;
+
+    return (lky_object *)cls;
+}
+
 void str_print(lky_builtin_type t, lky_builtin_value v, char *buf)
 {
     switch(t)
@@ -432,6 +450,29 @@ lky_object *lobjb_default_callable(lky_object_seq *args, lky_object *self)
     return mach_execute(func);
 }
 
+lky_object *lobjb_default_class_callable(lky_object_seq *args, lky_object *self)
+{
+    lky_object_class *cls = (lky_object_class *)self;
+
+    lky_object *obj = lobj_alloc();
+
+    lky_object_function *func = cls->builder;
+    func->bucket = lobj_alloc();
+
+    lky_object *outobj = lobj_alloc();
+
+    lobj_set_member(func->bucket, cls->refname, outobj);
+
+    lky_object *returned = mach_execute(func);
+
+    if(returned)
+    {
+        // TODO: This should not happen... Runtime error?
+        rc_decr(returned);
+    }
+
+    return outobj;
+}
 
 //lky_object *lobjb_default_class_callable(lky_object_seq *args, lky_object *self)
 //{

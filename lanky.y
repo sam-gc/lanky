@@ -23,14 +23,14 @@
 %token <token> TCEQ TCNE TCLT TCLE TCGT TCGE TEQUAL TAND TOR TNOT
 %token <token> TLPAREN TRPAREN TLBRACE TRBRACE TCOMMA TDOT
 %token <token> TPLUS TMINUS TMUL TDIV TMOD TPOW
-%token <token> TIF TELIF TELSE TPRT TCOMMENT TLOOP TCOLON TFUNC TSEMI TRET TQUESTION
+%token <token> TIF TELIF TELSE TPRT TCOMMENT TLOOP TCOLON TFUNC TSEMI TRET TQUESTION TARROW TCLASS
 
 /* Define the type of node our nonterminal symbols represent.
    The types refer to the %union declaration above. Ex: when
    we call an ident (defined by union type ident) we are really
    calling an (NIdentifier*). It makes the compiler happy.
  */
-%type <node> program stmts stmt expression ifblock block elifblock elifblocks elseblock loopblock funcdecl arg arglist call calllist memaccess
+%type <node> program stmts stmt expression ifblock block elifblock elifblocks elseblock loopblock funcdecl arg arglist call calllist memaccess classdecl
 
 /* Operator precedence for mathematical operators */
 %nonassoc TPRT TRET
@@ -44,7 +44,7 @@
 %left NEG
 %right TPOW
 %nonassoc TNOT
-%nonassoc TIF TELIF TELSE TLOOP TFUNC
+%nonassoc TIF TELIF TELSE TLOOP TFUNC TCLASS
 %nonassoc TLPAREN
 %left TDOT
 
@@ -86,6 +86,8 @@ calllist : call
     ;
 funcdecl : TFUNC TLPAREN arglist TRPAREN block { $$ = create_func_decl_node($3, $5); }
     | TFUNC TLPAREN TRPAREN block { $$ = create_func_decl_node(NULL, $4); }
+classdecl : TCLASS TLPAREN TRPAREN TARROW TIDENTIFIER block { $$ = create_class_decl_node($5, $6); }
+    ;
 stmt : expression TSEMI
     | loopblock
     | ifblock
@@ -120,6 +122,7 @@ expression :
     | expression TLPAREN TRPAREN { $$ = create_func_call_node($1, NULL); }
     | funcdecl
     | memaccess
+    | classdecl
     | TPRT expression { $$ = create_unary_node($2, 'p'); }
     | TNOT expression { $$ = create_unary_node($2, '!'); }
     | TRET expression { $$ = create_unary_node($2, 'r'); }

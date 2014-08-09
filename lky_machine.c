@@ -400,6 +400,19 @@ _opcode_whiplash_:
             goto _opcode_whiplash_;
         }
         break;
+        case LI_MAKE_CLASS:
+        {
+            lky_object_function *func = POP();
+            
+            int idx = frame->ops[++frame->pc];
+            char *name = frame->names[idx];
+
+            lky_object *cls = lobjb_build_class(func, name);
+
+            PUSH_RC(cls);
+            goto _opcode_whiplash_;
+        }
+        break;
         case LI_SAVE_CLOSE:
         {
             lky_object *obj = TOP();
