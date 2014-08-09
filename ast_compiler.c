@@ -16,6 +16,7 @@ typedef struct {
     int local_idx;
     int ifTag;
     int name_idx;
+    int classargc;
 } compiler_wrapper;
 
 void compile(compiler_wrapper *cw, ast_node *root);
@@ -142,6 +143,19 @@ void compile_binary(compiler_wrapper *cw, ast_node *root)
 
     if(node->opt == '=' && node->left->type == AMEMBER_ACCESS)
     {
+        char *sid = ((ast_value_node *)(node->left))->value.s;
+        if(!strcmp(sid, "build_"))
+        {
+            ast_node *r = node->right;
+            if(r->type != AFUNC_DECL) { /* TODO: Compiler error */ }
+            ast_func_decl_node *n = (ast_func_decl_node *)node;
+            ast_node *arg = NULL;
+            int args = 0;
+            for(arg = n->params; arg; arg = arg->next)
+                args++;
+
+            cw->classargc = args;
+        }
         compile_set_member(cw, root);
         return;
     }
@@ -572,7 +586,8 @@ void compile_class_decl(compiler_wrapper *cw, ast_node *root)
     append_op(cw, LI_LOAD_CONST);
     append_op(cw, cidx);
     append_op(cw, LI_MAKE_FUNCTION);
-    append_op(cw, 0);
+    append_op(cw, nw.classargc);
+    printf("%d --- \n", nw.classargc);
     append_op(cw, LI_MAKE_CLASS);
     append_op(cw, idx);
 }
@@ -710,6 +725,7 @@ lky_object_code *compile_ast_ext(ast_node *root, compiler_wrapper *incw)
     cw.ifTag = 1000;
     cw.save_val = 0;
     cw.name_idx = 0;
+    cw.classargc = 0;
     
     if(incw)
     {
@@ -724,9 +740,16 @@ lky_object_code *compile_ast_ext(ast_node *root, compiler_wrapper *incw)
         cw.rnames = arr_create(50);
     }
 
+
     compile_compound(&cw, root);
     replace_tags(&cw);
 
+    // We want to propogate the classargc
+    // (number of args passed to build_)
+    // back up to the caller.
+    if(incw)
+        incw->classargc = cw.classargc;
+    
     append_op(&cw, LI_PUSH_NIL);
     append_op(&cw, LI_RETURN);
 

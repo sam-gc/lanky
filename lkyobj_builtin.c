@@ -64,7 +64,7 @@ lky_object *lobjb_build_class(lky_object_function *builder, char *refname)
 
     lky_callable c;
     c.function = &lobjb_default_class_callable;
-    c.argc = 0;
+    c.argc = builder->callable.argc;
     cls->callable = c;
 
     return (lky_object *)cls;
@@ -469,6 +469,12 @@ lky_object *lobjb_default_class_callable(lky_object_seq *args, lky_object *self)
     {
         // TODO: This should not happen... Runtime error?
         rc_decr(returned);
+    }
+
+    lky_object *init = lobj_get_member(outobj, "build_");
+    if(init)
+    {
+        lobjb_default_callable(args, init);
     }
 
     return outobj;
