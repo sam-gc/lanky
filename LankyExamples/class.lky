@@ -1,4 +1,4 @@
-Dog = class() ref self {
+Dog = class() -> self {
     self.build_ = func(name) {
         self.name = name;
         self.weight = 40;
@@ -13,10 +13,17 @@ Dog = class() ref self {
     };
 };
 
-moki = Dog("Moki");
+moki = Dog();
+moki.build_("Moki");
 
 moki.bark();
 
 _prt "----------------";
 
-_prt moki == dog("Moki");
+fred = Dog();
+fred.name = "Fred";
+
+fred.bark();
+
+moki.bark();
+

@@ -542,6 +542,41 @@ void compile_function(compiler_wrapper *cw, ast_node *root)
     append_op(cw, argc);
 }
 
+void compile_class_decl(compiler_wrapper *cw, ast_node *root)
+{
+    ast_class_decl_node *node = (ast_class_decl_node *)root;
+
+    compiler_wrapper nw;
+    nw.local_idx = 0;
+    nw.saved_locals = hm_create(100, 1);
+    nw.rnames = arr_create(10);
+
+    long idx = find_prev_name(cw, node->refname);
+
+    if(idx < 0)
+    {
+        idx = cw->rnames.count;
+        char *nid = malloc(strlen(node->refname) + 1);
+        strcpy(nid, node->refname);
+        arr_append(&cw->rnames, nid);
+    }
+
+    nw.save_val = 0;
+    lky_object_code *code = compile_ast_ext(node->payload->next, &nw);
+
+    rc_incr(code);
+
+    long cidx = cw->rcon.count;
+    arr_append(&cw->rcon, code);
+
+    append_op(cw, LI_LOAD_CONST);
+    append_op(cw, cidx);
+    append_op(cw, LI_MAKE_FUNCTION);
+    append_op(cw, 0);
+    append_op(cw, LI_MAKE_CLASS);
+    append_op(cw, idx);
+}
+
 void compile_function_call(compiler_wrapper *cw, ast_node *root)
 {
     ast_func_call_node *node = (ast_func_call_node *)root;
@@ -581,6 +616,9 @@ void compile(compiler_wrapper *cw, ast_node *root)
         break;
         case AFUNC_CALL:
             compile_function_call(cw, root);
+        break;
+        case ACLASS_DECL:
+            compile_class_decl(cw, root);
         break;
         case ATERNARY:
             compile_ternary(cw, root);
