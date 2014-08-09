@@ -1,4 +1,4 @@
-Node = class() -> self {
+List = class() -> self {
     self.build_ = func(value) {
         self.value = value;
     };
@@ -9,7 +9,7 @@ Node = class() -> self {
             next = next.next;
         }
 
-        next.next = Node(value);
+        next.next = List(value);
     };
 
     self.forEach = func(callback) {
@@ -18,9 +18,20 @@ Node = class() -> self {
             callback(node.value);
         }
     };
+
+    self.contains = func(obj) {
+        contains = 0;
+        self.forEach(func(value) {
+            if(value == obj) {
+                contains = 1;
+            }
+        });
+
+        ret contains;
+    };
 };
 
-list = Node(1);
+list = List(1);
 _prt list.value;
 
 list.add(100);
@@ -39,4 +50,7 @@ list.forEach(func(value) {
 
 _prt "";
 _prt "Sum: " + sum;
+
+_prt "List contains 40: " + list.contains(40);
+_prt "List contains 100: " + list.contains(100);
 
