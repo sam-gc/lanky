@@ -49,9 +49,9 @@ int main(int argc, char *argv[])
     arraylist list = arr_create(1);
     lky_object *obj = lobj_alloc();
     arr_append(&list, obj);
-    lky_object_function *func = lobjb_build_func(code, 0, list);
+    lky_object *func = lobjb_build_func(code, 0, list);
 
-    mach_execute(func);
+    mach_execute((lky_object_function *)func);
 
     // eval(programBlock);
     // ast_node *n = ((ast_block_node *)programBlock)->payload;

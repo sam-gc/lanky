@@ -23,10 +23,8 @@ int main(int argc, char *argv[])
 
     lky_object_code *code = lobjb_load_file(argv[1]);
     arraylist list = arr_create(1);
-    lky_object *bk = lobj_alloc();
-    arr_append(&list, bk);
 
-    lky_object_function *func = lobjb_build_func(code, 0, list);
+    lky_object_function *func = (lky_object_function *)lobjb_build_func(code, 0, list);
 
     if(print_assembly)
         print_ops(code->ops, code->op_len);

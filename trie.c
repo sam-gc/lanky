@@ -113,7 +113,7 @@ void node_count(TrieNode_t *node, int *count)
     for(; child; child = child->next)
     {
         node_count(child->payload, count);
-        *count++;
+        (*count)++;
     }
 }
 

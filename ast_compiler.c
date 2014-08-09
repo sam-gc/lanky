@@ -545,7 +545,7 @@ void compile_function(compiler_wrapper *cw, ast_node *root)
     nw.save_val = 0;
     lky_object_code *code = compile_ast_ext(node->payload->next, &nw);
 
-    rc_incr(code);
+    rc_incr((lky_object *)code);
     
     long idx = cw->rcon.count;
     arr_append(&cw->rcon, code);
@@ -578,7 +578,7 @@ void compile_class_decl(compiler_wrapper *cw, ast_node *root)
     nw.save_val = 0;
     lky_object_code *code = compile_ast_ext(node->payload->next, &nw);
 
-    rc_incr(code);
+    rc_incr((lky_object *)code);
 
     long cidx = cw->rcon.count;
     arr_append(&cw->rcon, code);

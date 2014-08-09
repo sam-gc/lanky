@@ -1,7 +1,7 @@
 SOURCES=main.c parser.c tokens.c tools.c ast.c mempool.c trie.c hashmap.c ast_compiler.c lky_object.c arraylist.c lky_machine.c lkyobj_builtin.c
 CFLAGS=-lm -g
 COLOR=-fdiagnostics-color=always 
-CC=clang
+CC=gcc
 
 guts: lanky.l lanky.y
 	bison -d -o parser.c lanky.y -v

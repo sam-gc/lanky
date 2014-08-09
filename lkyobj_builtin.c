@@ -45,7 +45,7 @@ lky_object *lobjb_build_func(lky_object_code *code, int argc, arraylist inherite
     func->parent_stack = inherited;
 
     lky_callable c;
-    c.function = &lobjb_default_callable;
+    c.function = (lky_function_ptr)&lobjb_default_callable;
     c.argc = argc;
     func->callable = c;
     
@@ -63,7 +63,7 @@ lky_object *lobjb_build_class(lky_object_function *builder, char *refname)
     cls->refname = refname;
 
     lky_callable c;
-    c.function = &lobjb_default_class_callable;
+    c.function = (lky_function_ptr)&lobjb_default_class_callable;
     c.argc = builder->callable.argc;
     cls->callable = c;
 
@@ -442,8 +442,8 @@ lky_object *lobjb_default_callable(lky_object_seq *args, lky_object *self)
     for(i = 0; args; i++, args = args->next)
     {
         char *name = code->names[i];
-        lobj_set_member(func->bucket, name, args->value);
-        rc_decr(args->value);
+        lobj_set_member(func->bucket, name, (lky_object *)args->value);
+        rc_decr((lky_object *)args->value);
         // code->locals[i] = args->value;
     }
 
@@ -563,10 +563,10 @@ void lobjb_free_seq(lky_object_seq *seq)
 {
     while(seq)
     {
-        lky_object *obj = seq->value;
+        lky_object *obj = (lky_object *)seq->value;
         rc_decr(obj);
         lky_object_seq *next = seq->next;
-        lobj_dealloc(seq);
+        lobj_dealloc((lky_object *)seq);
         seq = next;
     }
 }
@@ -690,7 +690,7 @@ lky_object *lobjb_deserialize_code(FILE *f)
     for(i = 0; i < locals; i++)
         obj->locals[i] = NULL;
     
-    return obj;
+    return (lky_object *)obj;
 }
 
 lky_object *lobjb_deserialize(FILE *f)

@@ -336,7 +336,7 @@ _opcode_whiplash_:
             }
 
             lky_function_ptr ptr = c.function;
-            lky_object *ret = (*ptr)(seq, (lky_object *)func);
+            lky_object *ret = (lky_object *)(*ptr)(seq, (struct lky_object *)func);
 
             rc_decr(obj);
             lobjb_free_seq(seq);
