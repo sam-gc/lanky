@@ -266,7 +266,14 @@ _opcode_whiplash_:
             char idx = frame->ops[++frame->pc];
 
             // printf("=> %d\n", obj == &lky_nil || obj->type != LBI_STRING && !OBJ_NUM_UNWRAP(obj));
-            if(obj == &lky_nil || (obj->type != LBI_STRING && !OBJ_NUM_UNWRAP(obj)))
+            char needs_jump = 0;
+
+            if(obj == &lky_nil)
+                needs_jump = 1;
+            else if(obj->type == LBI_FLOAT || obj->type == LBI_INTEGER)
+                needs_jump = !OBJ_NUM_UNWRAP(obj);
+
+            if(needs_jump)
             {
                 frame->pc = idx;
             }

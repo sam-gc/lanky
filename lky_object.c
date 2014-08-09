@@ -51,8 +51,6 @@ void rc_decr(lky_object *obj)
 
 void lobj_dealloc(lky_object *obj)
 {
-    // printf("Freeing : ");
-    // lobjb_print(obj);
     if(obj->type != LBI_CUSTOM)
         lobjb_clean(obj);
     trie_free(obj->members);

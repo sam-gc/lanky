@@ -539,9 +539,10 @@ void lobjb_print(lky_object *a)
             printf("%s\n", b->value.s);
         break;
         case LBI_NIL:
-            printf("(nil)\n");
+            printf("(null)\n");
         break;
         default:
+            printf("%p\n", b);
             break;
 
     }

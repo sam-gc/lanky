@@ -1,0 +1,42 @@
+Node = class() -> self {
+    self.build_ = func(value) {
+        self.value = value;
+    };
+
+    self.add = func(value) {
+        next = self;
+        loop(next.next) {
+            next = next.next;
+        }
+
+        next.next = Node(value);
+    };
+
+    self.forEach = func(callback) {
+        node = self;
+        loop(node; node; node = node.next) {
+            callback(node.value);
+        }
+    };
+};
+
+list = Node(1);
+_prt list.value;
+
+list.add(100);
+_prt list.value;
+_prt list.next.value;
+
+list.add(1000);
+_prt list.next.next.value;
+
+sum = 0;
+
+list.forEach(func(value) {
+    _prt "Callback: " + value;
+    sum = sum + value;
+});
+
+_prt "";
+_prt "Sum: " + sum;
+
