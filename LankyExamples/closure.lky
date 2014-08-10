@@ -9,24 +9,14 @@ make_adder = func() {
         ret count;
     };
 
+    _prt obj;
     ret obj;
 };
 
 adder = make_adder();
+_prt adder.add;
 ad2 = make_adder();
 adder.add();
 _prt adder.get_count();
 
-loop(i = 0; i < 1000; i = i + 1) {
-    if(i % 2) {
-        adder.add();
-    }
-
-    if(i % 4) {
-        ad2.add();
-    }
-}
-
-_prt adder.get_count();
-_prt ad2.get_count();
 

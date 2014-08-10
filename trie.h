@@ -3,6 +3,8 @@
 
 struct TrieNode;
 
+typedef void(*trie_pointer_function)(void *);
+
 typedef struct list_node {
     struct list_node *next;
     struct TrieNode *payload;
@@ -16,6 +18,7 @@ typedef struct TrieNode {
 
 typedef struct {
     TrieNode_t *head;
+    trie_pointer_function free_func;
 } Trie_t;
 
 Trie_t trie_new();

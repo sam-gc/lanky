@@ -13,6 +13,7 @@ lky_object *lobjb_alloc(lky_builtin_type t, lky_builtin_value v)
     obj->type = t;
     obj->mem_count = 0;
     obj->members = trie_new();
+    obj->members.free_func = (trie_pointer_function)(&rc_decr);
     obj->value = v;
 
     return (lky_object *)obj;
@@ -38,6 +39,7 @@ lky_object *lobjb_build_func(lky_object_code *code, int argc, arraylist inherite
     func->type = LBI_FUNCTION;
     func->mem_count = 0;
     func->members = trie_new();
+    func->members.free_func = (trie_pointer_function)(&rc_decr);
     
     func->code = code;
     func->bucket = NULL;
@@ -58,6 +60,7 @@ lky_object *lobjb_build_class(lky_object_function *builder, char *refname)
     cls->type = LBI_CLASS;
     cls->mem_count = 0;
     cls->members = trie_new();
+    cls->members.free_func = (trie_pointer_function)(&rc_decr);
 
     cls->builder = builder;
     cls->refname = refname;
@@ -443,7 +446,7 @@ lky_object *lobjb_default_callable(lky_object_seq *args, lky_object *self)
     {
         char *name = code->names[i];
         lobj_set_member(func->bucket, name, (lky_object *)args->value);
-        rc_decr((lky_object *)args->value);
+        // rc_decr((lky_object *)args->value);
         // code->locals[i] = args->value;
     }
 
@@ -457,13 +460,19 @@ lky_object *lobjb_default_class_callable(lky_object_seq *args, lky_object *self)
     lky_object *obj = lobj_alloc();
 
     lky_object_function *func = cls->builder;
+    print_ops(func->code->ops, func->code->op_len);
     func->bucket = lobj_alloc();
+    rc_incr(func->bucket);
 
     lky_object *outobj = lobj_alloc();
+    rc_incr(outobj);
+    printf("...%d\n", outobj->mem_count);
+    printf("%p\n", outobj);
 
     lobj_set_member(func->bucket, cls->refname, outobj);
 
     lky_object *returned = mach_execute(func);
+    //printf("...%d\n", func->bucket->mem_count);
 
     if(returned)
     {
@@ -800,6 +809,8 @@ void lobjb_clean(lky_object *a)
         case LBI_STRING:
             free(obj->value.s);
         break;
+        case LBI_FUNCTION:
+            arr_free(&((lky_object_function *)a)->parent_stack);
         default:
         break;
     }

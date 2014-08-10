@@ -12,6 +12,7 @@ lky_object *lobj_alloc()
     obj->type = LBI_CUSTOM;
     obj->mem_count = 0;
     obj->members = trie_new();
+    obj->members.free_func = (trie_pointer_function)(&rc_decr);
     // obj->callable = NULL;
 
     // obj->value = value;
@@ -51,6 +52,8 @@ void rc_decr(lky_object *obj)
 
 void lobj_dealloc(lky_object *obj)
 {
+    printf("(D) ");
+    lobjb_print(obj);
     if(obj->type != LBI_CUSTOM)
         lobjb_clean(obj);
     trie_free(obj->members);

@@ -4,7 +4,6 @@ List = class() -> self {
     };
 
     self.add = func(value) {
-        _prt "Method: add";
         next = self;
         loop(next.next) {
             next = next.next;
@@ -33,8 +32,17 @@ List = class() -> self {
 };
 
 list = List(1);
-list.add(5);
 
+loop(i = 0; i < 2000; i = i + 1) {
+    list.add(i);
+}
+
+list.forEach(func(value) {
+    _prt "Callback: " + value;
+});
+
+_prt "List contains 40: " + list.contains(40);
+_prt "List contains 100: " + list.contains(100);
 _prt "List contains 101: " + list.contains(101);
 
 list.next = 5;

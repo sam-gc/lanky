@@ -91,9 +91,11 @@ lky_object *mach_execute(lky_object_function *func)
     void *stack[code->stack_size];
     frame.data_stack = stack;
 
-    func->bucket = NULL;
+    rc_incr(frame.bucket);
 
     mach_eval(&frame);
+
+    rc_decr(frame.bucket);
 
     return frame.ret;
     // print_ops();
@@ -135,6 +137,8 @@ _opcode_whiplash_:
             lky_object *obj = frame->constants[idx];
 
             PUSH_RC(obj);
+            rc_incr(obj);
+            rc_incr(obj);
             goto _opcode_whiplash_;
         }
         break;
@@ -365,6 +369,7 @@ _opcode_whiplash_:
         {
             lky_object *obj = POP();
             frame->ret = obj;
+            rc_incr(obj);
             goto _opcode_whiplash_;
         }
         break;
@@ -404,10 +409,14 @@ _opcode_whiplash_:
             int i;
             for(i = 0; i < pstack.count; i++)
             {
-                arr_append(&nplist, arr_get(&pstack, i));
+                lky_object *obk = arr_get(&pstack, i);
+                rc_incr(obk);
+
+                arr_append(&nplist, obk);
             }
 
             arr_append(&nplist, frame->bucket);
+            rc_incr(frame->bucket);
 
             char argc = frame->ops[++frame->pc];
             lky_object *func = lobjb_build_func(code, argc, nplist);

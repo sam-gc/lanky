@@ -16,6 +16,7 @@ Trie_t trie_new()
 {
     Trie_t t;
     t.head = new_node('\0');
+    t.free_func = NULL;
     return t;
 }
 
@@ -53,14 +54,16 @@ void trie_list_add(list_node_t **list, TrieNode_t *t)
     last->next = new;
 }
 
-void node_free(TrieNode_t *node)
+void node_free(TrieNode_t *node, trie_pointer_function free_func)
 {
     list_node_t *ln = node->children;
 
     while(ln)
     {
-        node_free(ln->payload);
+        node_free(ln->payload, free_func);
         list_node_t *nx = ln->next;
+        if(free_func && ln->payload->object)
+            free_func(ln->payload->object);
         free(ln);
         ln = nx;
     }
@@ -70,7 +73,7 @@ void node_free(TrieNode_t *node)
 
 void trie_free(Trie_t t)
 {
-    node_free(t.head);
+    node_free(t.head, t.free_func);
 }
 
 void node_add(TrieNode_t *node, char *str, void *val)

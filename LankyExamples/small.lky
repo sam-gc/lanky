@@ -1,0 +1,6 @@
+Test = class() -> self {
+    self.name = "Sam";
+};
+
+t = Test();
+
