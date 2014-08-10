@@ -103,6 +103,20 @@ long arr_index_of(arraylist *list, void *obj)
     return -1;
 }
 
+void arr_for_each(arraylist *list, arr_pointer_function callback)
+{
+    if(!callback)
+        return;
+
+    long i;
+    for(i = 0; i < list->count; i++)
+    {
+        char res = callback(list->items[i]);
+        if(!res)
+            return;
+    }
+}
+
 long arr_length(arraylist *list)
 {
     return list->count;
