@@ -40,6 +40,7 @@ typedef struct {
     char **names;
     char *ops;
     long op_len;
+    int stack_size;
 } lky_object_code;
 
 // TODO: Is this necessary?

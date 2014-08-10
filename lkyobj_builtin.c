@@ -580,6 +580,7 @@ void lobjb_serialize_code(lky_object *o, FILE *f)
     fwrite(&(code->num_constants), sizeof(long), 1, f);
     fwrite(&(code->num_locals), sizeof(long), 1, f);
     fwrite(&(code->num_names), sizeof(long), 1, f);
+    fwrite(&(code->stack_size), sizeof(long), 1, f);
 
     int i;
     for(i = 0; i < code->num_names; i++)
@@ -655,6 +656,9 @@ lky_object *lobjb_deserialize_code(FILE *f)
     fread(&num_names, sizeof(long), 1, f);
     char **names = malloc(sizeof(void *) * num_names);
 
+    long stack_size;
+    fread(&stack_size, sizeof(long), 1, f);
+
     int i;
     for(i = 0; i < num_names; i++)
     {
@@ -687,7 +691,8 @@ lky_object *lobjb_deserialize_code(FILE *f)
     obj->ops = ops;
     obj->op_len = len;
     obj->names = names;
-    
+    obj->stack_size = stack_size;
+
     for(i = 0; i < locals; i++)
         obj->locals[i] = NULL;
     
@@ -743,6 +748,9 @@ lky_object_code *lobjb_load_file(char *name)
     long num_names;
     fread(&num_names, sizeof(long), 1, f);
 
+    long stack_size;
+    fread(&stack_size, sizeof(long), 1, f);
+
     char **names = malloc(sizeof(char *) * num_names);
     int i;
     for(i = 0; i < num_names; i++)
@@ -775,6 +783,7 @@ lky_object_code *lobjb_load_file(char *name)
     obj->ops = ops;
     obj->op_len = len;
     obj->names = names;
+    obj->stack_size = stack_size;
 
     for(i = 0; i < locals; i++)
         obj->locals[i] = NULL;

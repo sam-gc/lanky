@@ -1,0 +1,705 @@
+Flat profile:
+
+Each sample counts as 0.01 seconds.
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls  ms/call  ms/call  name    
+ 58.63      0.34     0.34        1   340.07   575.11  mach_eval
+  8.62      0.39     0.05  2000035     0.00     0.00  lobjb_alloc
+  6.90      0.43     0.04  7000005     0.00     0.00  push_node
+  3.45      0.45     0.02  8000004     0.00     0.00  rc_decr
+  3.45      0.47     0.02  7000005     0.00     0.00  pop_node
+  3.45      0.49     0.02  1000000     0.00     0.00  lobjb_binary_add
+  2.59      0.51     0.02  4000003     0.00     0.00  node_get
+  2.59      0.52     0.02  2000000     0.00     0.00  node_free
+  1.72      0.53     0.01  5000004     0.00     0.00  child_with
+  1.72      0.54     0.01  3000002     0.00     0.00  lobj_get_member
+  1.72      0.55     0.01  2000000     0.00     0.00  trie_free
+  1.72      0.56     0.01  1000001     0.00     0.00  lobj_set_member
+  1.72      0.57     0.01  1000001     0.00     0.00  lobjb_binary_lessthan
+  0.86      0.58     0.01        1     5.00     5.00  trie_list_add
+  0.86      0.58     0.01                             node_count
+  0.00      0.58     0.00  8000009     0.00     0.00  rc_incr
+  0.00      0.58     0.00  4000003     0.00     0.00  trie_get
+  0.00      0.58     0.00  2000038     0.00     0.00  new_node
+  0.00      0.58     0.00  2000037     0.00     0.00  trie_new
+  0.00      0.58     0.00  2000000     0.00     0.00  lobj_dealloc
+  0.00      0.58     0.00  2000000     0.00     0.00  lobjb_clean
+  0.00      0.58     0.00  1000001     0.00     0.00  node_add
+  0.00      0.58     0.00  1000001     0.00     0.00  top_node
+  0.00      0.58     0.00  1000001     0.00     0.00  trie_add
+  0.00      0.58     0.00      106     0.00     0.00  free_add
+  0.00      0.58     0.00       76     0.00     0.00  malloc_add
+  0.00      0.58     0.00       65     0.00     0.00  arr_get
+  0.00      0.58     0.00       53     0.00     0.00  append_to_list
+  0.00      0.58     0.00       53     0.00     0.00  gen_node
+  0.00      0.58     0.00       53     0.00     0.00  pool_add
+  0.00      0.58     0.00       32     0.00     0.00  arr_append
+  0.00      0.58     0.00       32     0.00     0.00  arr_manage_size
+  0.00      0.58     0.00       30     0.00     0.00  lobjb_build_int
+  0.00      0.58     0.00       28     0.00     0.00  append_op
+  0.00      0.58     0.00       21     0.00     0.00  yylex
+  0.00      0.58     0.00       17     0.00     0.00  stack_effect_for
+  0.00      0.58     0.00       11     0.00     0.00  compile
+  0.00      0.58     0.00        8     0.00     0.00  alloc_str
+  0.00      0.58     0.00        8     0.00     0.00  create_value_node
+  0.00      0.58     0.00        6     0.00     0.00  compile_value
+  0.00      0.58     0.00        4     0.00     0.00  arr_create
+  0.00      0.58     0.00        4     0.00     0.00  compile_binary
+  0.00      0.58     0.00        4     0.00     0.00  find_prev_const
+  0.00      0.58     0.00        4     0.00     0.00  find_prev_name
+  0.00      0.58     0.00        4     0.00     0.00  lobjb_quick_compare
+  0.00      0.58     0.00        4     0.00     0.00  node_to_wrapper
+  0.00      0.58     0.00        4     0.00     0.00  wrapper_to_obj
+  0.00      0.58     0.00        3     0.00     0.00  lobjb_serialize
+  0.00      0.58     0.00        3     0.00     0.00  yy_load_buffer_state
+  0.00      0.58     0.00        3     0.00     0.00  yyalloc
+  0.00      0.58     0.00        2     0.00     0.00  ast_add_node
+  0.00      0.58     0.00        2     0.00     0.00  compile_compound
+  0.00      0.58     0.00        2     0.00     0.00  compile_var
+  0.00      0.58     0.00        2     0.00     0.00  create_assignment_node
+  0.00      0.58     0.00        2     0.00     0.00  create_binary_node
+  0.00      0.58     0.00        2     0.00     0.00  create_root_node
+  0.00      0.58     0.00        2     0.00     0.00  get_line
+  0.00      0.58     0.00        2     0.00     0.00  make_node
+  0.00      0.58     0.00        2     0.00     0.00  yy_flush_buffer
+  0.00      0.58     0.00        2     0.00     0.00  yy_get_next_buffer
+  0.00      0.58     0.00        2     0.00     0.00  yy_init_buffer
+  0.00      0.58     0.00        2     0.00     0.00  yydestruct
+  0.00      0.58     0.00        1     0.00     0.00  append_tag
+  0.00      0.58     0.00        1     0.00     0.00  ast_free
+  0.00      0.58     0.00        1     0.00     0.00  calculate_max_stack_depth
+  0.00      0.58     0.00        1     0.00     0.00  compile_ast
+  0.00      0.58     0.00        1     0.00     0.00  compile_ast_ext
+  0.00      0.58     0.00        1     0.00     0.00  compile_loop
+  0.00      0.58     0.00        1     0.00     0.00  create_loop_node
+  0.00      0.58     0.00        1     0.00     0.00  finalize_ops
+  0.00      0.58     0.00        1     0.00     0.00  free_tag_nodes
+  0.00      0.58     0.00        1     0.00     0.00  hm_create
+  0.00      0.58     0.00        1     0.00     0.00  lobj_alloc
+  0.00      0.58     0.00        1     0.00     0.00  lobjb_build_func
+  0.00      0.58     0.00        1     0.00   575.11  mach_execute
+  0.00      0.58     0.00        1     0.00     0.00  make_cons_array
+  0.00      0.58     0.00        1     0.00     0.00  make_names_array
+  0.00      0.58     0.00        1     0.00     0.00  next_if_tag
+  0.00      0.58     0.00        1     0.00     0.00  pool_drain
+  0.00      0.58     0.00        1     0.00     0.00  print_alloced
+  0.00      0.58     0.00        1     0.00     0.00  replace_tags
+  0.00      0.58     0.00        1     0.00     0.00  write_to_file
+  0.00      0.58     0.00        1     0.00     0.00  yy_create_buffer
+  0.00      0.58     0.00        1     0.00     0.00  yy_get_previous_state
+  0.00      0.58     0.00        1     0.00     0.00  yyensure_buffer_stack
+  0.00      0.58     0.00        1     0.00     0.00  yyparse
+  0.00      0.58     0.00        1     0.00     0.00  yyrestart
+
+ %         the percentage of the total running time of the
+time       program used by this function.
+
+cumulative a running sum of the number of seconds accounted
+ seconds   for by this function and those listed above it.
+
+ self      the number of seconds accounted for by this
+seconds    function alone.  This is the major sort for this
+           listing.
+
+calls      the number of times this function was invoked, if
+           this function is profiled, else blank.
+ 
+ self      the average number of milliseconds spent in this
+ms/call    function per call, if this function is profiled,
+	   else blank.
+
+ total     the average number of milliseconds spent in this
+ms/call    function and its descendents per call, if this 
+	   function is profiled, else blank.
+
+name       the name of the function.  This is the minor sort
+           for this listing. The index shows the location of
+	   the function in the gprof listing. If the index is
+	   in parenthesis it shows where it would appear in
+	   the gprof listing if it were to be printed.
+
+Copyright (C) 2012 Free Software Foundation, Inc.
+
+Copying and distribution of this file, with or without modification,
+are permitted in any medium without royalty provided the copyright
+notice and this notice are preserved.
+
+		     Call graph (explanation follows)
+
+
+granularity: each sample hit covers 2 byte(s) for 1.72% of 0.58 seconds
+
+index % time    self  children    called     name
+                                                 <spontaneous>
+[1]     99.1    0.00    0.58                 main [1]
+                0.00    0.58       1/1           mach_execute [3]
+                0.00    0.00       1/1           compile_ast [22]
+                0.00    0.00       1/1           yyparse [88]
+                0.00    0.00       1/1           write_to_file [84]
+                0.00    0.00       1/1           ast_free [71]
+                0.00    0.00       1/4           arr_create [52]
+                0.00    0.00       1/1           lobjb_build_func [78]
+                0.00    0.00       1/1           print_alloced [83]
+-----------------------------------------------
+                0.34    0.24       1/1           mach_execute [3]
+[2]     99.1    0.34    0.24       1         mach_eval [2]
+                0.02    0.03 1000000/1000000     lobjb_binary_add [6]
+                0.04    0.00 7000005/7000005     push_node [7]
+                0.02    0.02 7000004/8000004     rc_decr [5]
+                0.01    0.03 1000001/1000001     lobjb_binary_lessthan [8]
+                0.01    0.02 1000001/1000001     lobj_set_member [9]
+                0.01    0.02 3000002/3000002     lobj_get_member [10]
+                0.02    0.00 7000005/7000005     pop_node [15]
+                0.00    0.00 7000004/8000009     rc_incr [35]
+                0.00    0.00 1000001/1000001     top_node [39]
+-----------------------------------------------
+                0.00    0.58       1/1           main [1]
+[3]     99.1    0.00    0.58       1         mach_execute [3]
+                0.34    0.24       1/1           mach_eval [2]
+                0.00    0.00       1/1           lobj_alloc [77]
+-----------------------------------------------
+                0.00    0.00       4/2000035     wrapper_to_obj [32]
+                0.00    0.00      30/2000035     lobjb_build_int [25]
+                0.03    0.00 1000000/2000035     lobjb_binary_add [6]
+                0.03    0.00 1000001/2000035     lobjb_binary_lessthan [8]
+[4]      8.6    0.05    0.00 2000035         lobjb_alloc [4]
+                0.00    0.00 2000035/2000037     trie_new [37]
+-----------------------------------------------
+                0.00    0.00 1000000/8000004     lobj_set_member [9]
+                0.02    0.02 7000004/8000004     mach_eval [2]
+[5]      7.8    0.02    0.03 8000004         rc_decr [5]
+                0.00    0.03 2000000/2000000     lobj_dealloc [11]
+-----------------------------------------------
+                0.02    0.03 1000000/1000000     mach_eval [2]
+[6]      7.8    0.02    0.03 1000000         lobjb_binary_add [6]
+                0.03    0.00 1000000/2000035     lobjb_alloc [4]
+-----------------------------------------------
+                0.04    0.00 7000005/7000005     mach_eval [2]
+[7]      6.9    0.04    0.00 7000005         push_node [7]
+-----------------------------------------------
+                0.01    0.03 1000001/1000001     mach_eval [2]
+[8]      6.0    0.01    0.03 1000001         lobjb_binary_lessthan [8]
+                0.03    0.00 1000001/2000035     lobjb_alloc [4]
+-----------------------------------------------
+                0.01    0.02 1000001/1000001     mach_eval [2]
+[9]      4.9    0.01    0.02 1000001         lobj_set_member [9]
+                0.00    0.01 1000001/1000001     trie_add [19]
+                0.00    0.01 1000001/4000003     trie_get [14]
+                0.00    0.00 1000000/8000004     rc_decr [5]
+                0.00    0.00 1000001/8000009     rc_incr [35]
+-----------------------------------------------
+                0.01    0.02 3000002/3000002     mach_eval [2]
+[10]     4.7    0.01    0.02 3000002         lobj_get_member [10]
+                0.00    0.02 3000002/4000003     trie_get [14]
+-----------------------------------------------
+                0.00    0.03 2000000/2000000     rc_decr [5]
+[11]     4.3    0.00    0.03 2000000         lobj_dealloc [11]
+                0.01    0.02 2000000/2000000     trie_free [12]
+                0.00    0.00 2000000/2000000     lobjb_clean [38]
+-----------------------------------------------
+                0.01    0.02 2000000/2000000     lobj_dealloc [11]
+[12]     4.3    0.01    0.02 2000000         trie_free [12]
+                0.02    0.00 2000000/2000000     node_free [16]
+-----------------------------------------------
+                0.02    0.01 4000003/4000003     trie_get [14]
+[13]     4.0    0.02    0.01 4000003         node_get [13]
+                0.01    0.00 4000003/5000004     child_with [17]
+-----------------------------------------------
+                0.00    0.01 1000001/4000003     lobj_set_member [9]
+                0.00    0.02 3000002/4000003     lobj_get_member [10]
+[14]     4.0    0.00    0.02 4000003         trie_get [14]
+                0.02    0.01 4000003/4000003     node_get [13]
+-----------------------------------------------
+                0.02    0.00 7000005/7000005     mach_eval [2]
+[15]     3.4    0.02    0.00 7000005         pop_node [15]
+-----------------------------------------------
+                0.02    0.00 2000000/2000000     trie_free [12]
+[16]     2.6    0.02    0.00 2000000         node_free [16]
+-----------------------------------------------
+                0.00    0.00 1000001/5000004     node_add [18]
+                0.01    0.00 4000003/5000004     node_get [13]
+[17]     1.7    0.01    0.00 5000004         child_with [17]
+-----------------------------------------------
+                0.00    0.01 1000001/1000001     trie_add [19]
+[18]     1.2    0.00    0.01 1000001         node_add [18]
+                0.01    0.00       1/1           trie_list_add [20]
+                0.00    0.00 1000001/5000004     child_with [17]
+                0.00    0.00       1/2000038     new_node [36]
+-----------------------------------------------
+                0.00    0.01 1000001/1000001     lobj_set_member [9]
+[19]     1.2    0.00    0.01 1000001         trie_add [19]
+                0.00    0.01 1000001/1000001     node_add [18]
+-----------------------------------------------
+                0.01    0.00       1/1           node_add [18]
+[20]     0.9    0.01    0.00       1         trie_list_add [20]
+-----------------------------------------------
+                                                 <spontaneous>
+[21]     0.9    0.01    0.00                 node_count [21]
+-----------------------------------------------
+                0.00    0.00       1/1           main [1]
+[22]     0.0    0.00    0.00       1         compile_ast [22]
+                0.00    0.00       1/1           compile_ast_ext [23]
+-----------------------------------------------
+                0.00    0.00       1/1           compile_ast [22]
+[23]     0.0    0.00    0.00       1         compile_ast_ext [23]
+                0.00    0.00       1/1           compile_compound <cycle 1> [34]
+                0.00    0.00       2/28          append_op [26]
+                0.00    0.00       1/1           replace_tags [33]
+                0.00    0.00       3/4           arr_create [52]
+                0.00    0.00       1/1           hm_create [76]
+                0.00    0.00       1/1           make_cons_array [79]
+                0.00    0.00       1/1           finalize_ops [74]
+                0.00    0.00       1/1           make_names_array [80]
+                0.00    0.00       1/1           calculate_max_stack_depth [72]
+-----------------------------------------------
+[24]     0.0    0.00    0.00       1+17      <cycle 1 as a whole> [24]
+                0.00    0.00      11             compile <cycle 1> [27]
+                0.00    0.00       1             compile_loop <cycle 1> [29]
+                0.00    0.00       4             compile_binary <cycle 1> [30]
+                0.00    0.00       2             compile_compound <cycle 1> [34]
+-----------------------------------------------
+                0.00    0.00       2/30          replace_tags [33]
+                0.00    0.00      28/30          append_op [26]
+[25]     0.0    0.00    0.00      30         lobjb_build_int [25]
+                0.00    0.00      30/2000035     lobjb_alloc [4]
+-----------------------------------------------
+                0.00    0.00       1/28          compile_compound <cycle 1> [34]
+                0.00    0.00       2/28          compile_ast_ext [23]
+                0.00    0.00       4/28          compile_var [31]
+                0.00    0.00       6/28          compile_binary <cycle 1> [30]
+                0.00    0.00       7/28          compile_loop <cycle 1> [29]
+                0.00    0.00       8/28          compile_value [28]
+[26]     0.0    0.00    0.00      28         append_op [26]
+                0.00    0.00      28/30          lobjb_build_int [25]
+                0.00    0.00      28/53          pool_add [45]
+                0.00    0.00      28/32          arr_append [46]
+-----------------------------------------------
+                                   2             compile_compound <cycle 1> [34]
+                                   3             compile_loop <cycle 1> [29]
+                                   6             compile_binary <cycle 1> [30]
+[27]     0.0    0.00    0.00      11         compile <cycle 1> [27]
+                0.00    0.00       6/6           compile_value [28]
+                                   4             compile_binary <cycle 1> [30]
+                                   1             compile_loop <cycle 1> [29]
+-----------------------------------------------
+                0.00    0.00       6/6           compile <cycle 1> [27]
+[28]     0.0    0.00    0.00       6         compile_value [28]
+                0.00    0.00       8/28          append_op [26]
+                0.00    0.00       2/2           compile_var [31]
+                0.00    0.00       4/4           wrapper_to_obj [32]
+                0.00    0.00       4/4           node_to_wrapper [56]
+                0.00    0.00       4/8000009     rc_incr [35]
+                0.00    0.00       4/4           find_prev_const [53]
+                0.00    0.00       3/32          arr_append [46]
+-----------------------------------------------
+                                   1             compile <cycle 1> [27]
+[29]     0.0    0.00    0.00       1         compile_loop <cycle 1> [29]
+                0.00    0.00       7/28          append_op [26]
+                0.00    0.00       1/1           next_if_tag [81]
+                                   3             compile <cycle 1> [27]
+                                   1             compile_compound <cycle 1> [34]
+-----------------------------------------------
+                                   4             compile <cycle 1> [27]
+[30]     0.0    0.00    0.00       4         compile_binary <cycle 1> [30]
+                0.00    0.00       6/28          append_op [26]
+                0.00    0.00       2/4           find_prev_name [54]
+                0.00    0.00       1/32          arr_append [46]
+                                   6             compile <cycle 1> [27]
+-----------------------------------------------
+                0.00    0.00       2/2           compile_value [28]
+[31]     0.0    0.00    0.00       2         compile_var [31]
+                0.00    0.00       4/28          append_op [26]
+                0.00    0.00       2/4           find_prev_name [54]
+-----------------------------------------------
+                0.00    0.00       4/4           compile_value [28]
+[32]     0.0    0.00    0.00       4         wrapper_to_obj [32]
+                0.00    0.00       4/2000035     lobjb_alloc [4]
+-----------------------------------------------
+                0.00    0.00       1/1           compile_ast_ext [23]
+[33]     0.0    0.00    0.00       1         replace_tags [33]
+                0.00    0.00       2/30          lobjb_build_int [25]
+                0.00    0.00      26/65          arr_get [42]
+                0.00    0.00       2/2           get_line [64]
+                0.00    0.00       2/53          pool_add [45]
+                0.00    0.00       1/2           make_node [65]
+                0.00    0.00       1/1           append_tag [70]
+                0.00    0.00       1/1           free_tag_nodes [75]
+-----------------------------------------------
+                                   1             compile_loop <cycle 1> [29]
+                0.00    0.00       1/1           compile_ast_ext [23]
+[34]     0.0    0.00    0.00       2         compile_compound <cycle 1> [34]
+                0.00    0.00       1/28          append_op [26]
+                                   2             compile <cycle 1> [27]
+-----------------------------------------------
+                0.00    0.00       4/8000009     compile_value [28]
+                0.00    0.00 1000001/8000009     lobj_set_member [9]
+                0.00    0.00 7000004/8000009     mach_eval [2]
+[35]     0.0    0.00    0.00 8000009         rc_incr [35]
+-----------------------------------------------
+                0.00    0.00       1/2000038     node_add [18]
+                0.00    0.00 2000037/2000038     trie_new [37]
+[36]     0.0    0.00    0.00 2000038         new_node [36]
+-----------------------------------------------
+                0.00    0.00       1/2000037     lobj_alloc [77]
+                0.00    0.00       1/2000037     lobjb_build_func [78]
+                0.00    0.00 2000035/2000037     lobjb_alloc [4]
+[37]     0.0    0.00    0.00 2000037         trie_new [37]
+                0.00    0.00 2000037/2000038     new_node [36]
+-----------------------------------------------
+                0.00    0.00 2000000/2000000     lobj_dealloc [11]
+[38]     0.0    0.00    0.00 2000000         lobjb_clean [38]
+-----------------------------------------------
+                0.00    0.00 1000001/1000001     mach_eval [2]
+[39]     0.0    0.00    0.00 1000001         top_node [39]
+-----------------------------------------------
+                0.00    0.00     106/106         pool_drain [82]
+[40]     0.0    0.00    0.00     106         free_add [40]
+-----------------------------------------------
+                0.00    0.00       1/76          create_loop_node [73]
+                0.00    0.00       2/76          create_root_node [63]
+                0.00    0.00       2/76          create_binary_node [62]
+                0.00    0.00       2/76          create_assignment_node [61]
+                0.00    0.00       8/76          alloc_str [50]
+                0.00    0.00       8/76          create_value_node [51]
+                0.00    0.00      53/76          gen_node [44]
+[41]     0.0    0.00    0.00      76         malloc_add [41]
+-----------------------------------------------
+                0.00    0.00       1/65          make_names_array [80]
+                0.00    0.00       3/65          find_prev_name [54]
+                0.00    0.00       3/65          make_cons_array [79]
+                0.00    0.00       4/65          find_prev_const [53]
+                0.00    0.00      26/65          replace_tags [33]
+                0.00    0.00      28/65          finalize_ops [74]
+[42]     0.0    0.00    0.00      65         arr_get [42]
+-----------------------------------------------
+                0.00    0.00      53/53          pool_add [45]
+[43]     0.0    0.00    0.00      53         append_to_list [43]
+-----------------------------------------------
+                0.00    0.00      53/53          pool_add [45]
+[44]     0.0    0.00    0.00      53         gen_node [44]
+                0.00    0.00      53/76          malloc_add [41]
+-----------------------------------------------
+                0.00    0.00       1/53          create_loop_node [73]
+                0.00    0.00       2/53          create_root_node [63]
+                0.00    0.00       2/53          create_binary_node [62]
+                0.00    0.00       2/53          create_assignment_node [61]
+                0.00    0.00       2/53          replace_tags [33]
+                0.00    0.00       8/53          alloc_str [50]
+                0.00    0.00       8/53          create_value_node [51]
+                0.00    0.00      28/53          append_op [26]
+[45]     0.0    0.00    0.00      53         pool_add [45]
+                0.00    0.00      53/53          gen_node [44]
+                0.00    0.00      53/53          append_to_list [43]
+-----------------------------------------------
+                0.00    0.00       1/32          compile_binary <cycle 1> [30]
+                0.00    0.00       3/32          compile_value [28]
+                0.00    0.00      28/32          append_op [26]
+[46]     0.0    0.00    0.00      32         arr_append [46]
+                0.00    0.00      32/32          arr_manage_size [47]
+-----------------------------------------------
+                0.00    0.00      32/32          arr_append [46]
+[47]     0.0    0.00    0.00      32         arr_manage_size [47]
+-----------------------------------------------
+                0.00    0.00      21/21          yyparse [88]
+[48]     0.0    0.00    0.00      21         yylex [48]
+                0.00    0.00       8/8           alloc_str [50]
+                0.00    0.00       2/2           yy_get_next_buffer [67]
+                0.00    0.00       1/1           yyensure_buffer_stack [87]
+                0.00    0.00       1/1           yy_create_buffer [85]
+                0.00    0.00       1/3           yy_load_buffer_state [58]
+                0.00    0.00       1/1           yy_get_previous_state [86]
+-----------------------------------------------
+                0.00    0.00      17/17          calculate_max_stack_depth [72]
+[49]     0.0    0.00    0.00      17         stack_effect_for [49]
+-----------------------------------------------
+                0.00    0.00       8/8           yylex [48]
+[50]     0.0    0.00    0.00       8         alloc_str [50]
+                0.00    0.00       8/76          malloc_add [41]
+                0.00    0.00       8/53          pool_add [45]
+-----------------------------------------------
+                0.00    0.00       2/8           create_assignment_node [61]
+                0.00    0.00       6/8           yyparse [88]
+[51]     0.0    0.00    0.00       8         create_value_node [51]
+                0.00    0.00       8/76          malloc_add [41]
+                0.00    0.00       8/53          pool_add [45]
+-----------------------------------------------
+                0.00    0.00       1/4           main [1]
+                0.00    0.00       3/4           compile_ast_ext [23]
+[52]     0.0    0.00    0.00       4         arr_create [52]
+-----------------------------------------------
+                0.00    0.00       4/4           compile_value [28]
+[53]     0.0    0.00    0.00       4         find_prev_const [53]
+                0.00    0.00       4/65          arr_get [42]
+                0.00    0.00       4/4           lobjb_quick_compare [55]
+-----------------------------------------------
+                0.00    0.00       2/4           compile_binary <cycle 1> [30]
+                0.00    0.00       2/4           compile_var [31]
+[54]     0.0    0.00    0.00       4         find_prev_name [54]
+                0.00    0.00       3/65          arr_get [42]
+-----------------------------------------------
+                0.00    0.00       4/4           find_prev_const [53]
+[55]     0.0    0.00    0.00       4         lobjb_quick_compare [55]
+-----------------------------------------------
+                0.00    0.00       4/4           compile_value [28]
+[56]     0.0    0.00    0.00       4         node_to_wrapper [56]
+-----------------------------------------------
+                0.00    0.00       3/3           write_to_file [84]
+[57]     0.0    0.00    0.00       3         lobjb_serialize [57]
+-----------------------------------------------
+                0.00    0.00       1/3           yylex [48]
+                0.00    0.00       1/3           yyrestart [89]
+                0.00    0.00       1/3           yy_flush_buffer [66]
+[58]     0.0    0.00    0.00       3         yy_load_buffer_state [58]
+-----------------------------------------------
+                0.00    0.00       1/3           yyensure_buffer_stack [87]
+                0.00    0.00       2/3           yy_create_buffer [85]
+[59]     0.0    0.00    0.00       3         yyalloc [59]
+-----------------------------------------------
+                0.00    0.00       2/2           yyparse [88]
+[60]     0.0    0.00    0.00       2         ast_add_node [60]
+-----------------------------------------------
+                0.00    0.00       2/2           yyparse [88]
+[61]     0.0    0.00    0.00       2         create_assignment_node [61]
+                0.00    0.00       2/76          malloc_add [41]
+                0.00    0.00       2/53          pool_add [45]
+                0.00    0.00       2/8           create_value_node [51]
+-----------------------------------------------
+                0.00    0.00       2/2           yyparse [88]
+[62]     0.0    0.00    0.00       2         create_binary_node [62]
+                0.00    0.00       2/76          malloc_add [41]
+                0.00    0.00       2/53          pool_add [45]
+-----------------------------------------------
+                0.00    0.00       2/2           yyparse [88]
+[63]     0.0    0.00    0.00       2         create_root_node [63]
+                0.00    0.00       2/76          malloc_add [41]
+                0.00    0.00       2/53          pool_add [45]
+-----------------------------------------------
+                0.00    0.00       2/2           replace_tags [33]
+[64]     0.0    0.00    0.00       2         get_line [64]
+-----------------------------------------------
+                0.00    0.00       1/2           append_tag [70]
+                0.00    0.00       1/2           replace_tags [33]
+[65]     0.0    0.00    0.00       2         make_node [65]
+-----------------------------------------------
+                0.00    0.00       2/2           yy_init_buffer [68]
+[66]     0.0    0.00    0.00       2         yy_flush_buffer [66]
+                0.00    0.00       1/3           yy_load_buffer_state [58]
+-----------------------------------------------
+                0.00    0.00       2/2           yylex [48]
+[67]     0.0    0.00    0.00       2         yy_get_next_buffer [67]
+                0.00    0.00       1/1           yyrestart [89]
+-----------------------------------------------
+                0.00    0.00       1/2           yyrestart [89]
+                0.00    0.00       1/2           yy_create_buffer [85]
+[68]     0.0    0.00    0.00       2         yy_init_buffer [68]
+                0.00    0.00       2/2           yy_flush_buffer [66]
+-----------------------------------------------
+                0.00    0.00       2/2           yyparse [88]
+[69]     0.0    0.00    0.00       2         yydestruct [69]
+-----------------------------------------------
+                0.00    0.00       1/1           replace_tags [33]
+[70]     0.0    0.00    0.00       1         append_tag [70]
+                0.00    0.00       1/2           make_node [65]
+-----------------------------------------------
+                0.00    0.00       1/1           main [1]
+[71]     0.0    0.00    0.00       1         ast_free [71]
+                0.00    0.00       1/1           pool_drain [82]
+-----------------------------------------------
+                0.00    0.00       1/1           compile_ast_ext [23]
+[72]     0.0    0.00    0.00       1         calculate_max_stack_depth [72]
+                0.00    0.00      17/17          stack_effect_for [49]
+-----------------------------------------------
+                0.00    0.00       1/1           yyparse [88]
+[73]     0.0    0.00    0.00       1         create_loop_node [73]
+                0.00    0.00       1/76          malloc_add [41]
+                0.00    0.00       1/53          pool_add [45]
+-----------------------------------------------
+                0.00    0.00       1/1           compile_ast_ext [23]
+[74]     0.0    0.00    0.00       1         finalize_ops [74]
+                0.00    0.00      28/65          arr_get [42]
+-----------------------------------------------
+                0.00    0.00       1/1           replace_tags [33]
+[75]     0.0    0.00    0.00       1         free_tag_nodes [75]
+-----------------------------------------------
+                0.00    0.00       1/1           compile_ast_ext [23]
+[76]     0.0    0.00    0.00       1         hm_create [76]
+-----------------------------------------------
+                0.00    0.00       1/1           mach_execute [3]
+[77]     0.0    0.00    0.00       1         lobj_alloc [77]
+                0.00    0.00       1/2000037     trie_new [37]
+-----------------------------------------------
+                0.00    0.00       1/1           main [1]
+[78]     0.0    0.00    0.00       1         lobjb_build_func [78]
+                0.00    0.00       1/2000037     trie_new [37]
+-----------------------------------------------
+                0.00    0.00       1/1           compile_ast_ext [23]
+[79]     0.0    0.00    0.00       1         make_cons_array [79]
+                0.00    0.00       3/65          arr_get [42]
+-----------------------------------------------
+                0.00    0.00       1/1           compile_ast_ext [23]
+[80]     0.0    0.00    0.00       1         make_names_array [80]
+                0.00    0.00       1/65          arr_get [42]
+-----------------------------------------------
+                0.00    0.00       1/1           compile_loop <cycle 1> [29]
+[81]     0.0    0.00    0.00       1         next_if_tag [81]
+-----------------------------------------------
+                0.00    0.00       1/1           ast_free [71]
+[82]     0.0    0.00    0.00       1         pool_drain [82]
+                0.00    0.00     106/106         free_add [40]
+-----------------------------------------------
+                0.00    0.00       1/1           main [1]
+[83]     0.0    0.00    0.00       1         print_alloced [83]
+-----------------------------------------------
+                0.00    0.00       1/1           main [1]
+[84]     0.0    0.00    0.00       1         write_to_file [84]
+                0.00    0.00       3/3           lobjb_serialize [57]
+-----------------------------------------------
+                0.00    0.00       1/1           yylex [48]
+[85]     0.0    0.00    0.00       1         yy_create_buffer [85]
+                0.00    0.00       2/3           yyalloc [59]
+                0.00    0.00       1/2           yy_init_buffer [68]
+-----------------------------------------------
+                0.00    0.00       1/1           yylex [48]
+[86]     0.0    0.00    0.00       1         yy_get_previous_state [86]
+-----------------------------------------------
+                0.00    0.00       1/1           yylex [48]
+[87]     0.0    0.00    0.00       1         yyensure_buffer_stack [87]
+                0.00    0.00       1/3           yyalloc [59]
+-----------------------------------------------
+                0.00    0.00       1/1           main [1]
+[88]     0.0    0.00    0.00       1         yyparse [88]
+                0.00    0.00      21/21          yylex [48]
+                0.00    0.00       6/8           create_value_node [51]
+                0.00    0.00       2/2           create_root_node [63]
+                0.00    0.00       2/2           ast_add_node [60]
+                0.00    0.00       2/2           create_binary_node [62]
+                0.00    0.00       2/2           create_assignment_node [61]
+                0.00    0.00       2/2           yydestruct [69]
+                0.00    0.00       1/1           create_loop_node [73]
+-----------------------------------------------
+                0.00    0.00       1/1           yy_get_next_buffer [67]
+[89]     0.0    0.00    0.00       1         yyrestart [89]
+                0.00    0.00       1/3           yy_load_buffer_state [58]
+                0.00    0.00       1/2           yy_init_buffer [68]
+-----------------------------------------------
+
+ This table describes the call tree of the program, and was sorted by
+ the total amount of time spent in each function and its children.
+
+ Each entry in this table consists of several lines.  The line with the
+ index number at the left hand margin lists the current function.
+ The lines above it list the functions that called this function,
+ and the lines below it list the functions this one called.
+ This line lists:
+     index	A unique number given to each element of the table.
+		Index numbers are sorted numerically.
+		The index number is printed next to every function name so
+		it is easier to look up where the function is in the table.
+
+     % time	This is the percentage of the `total' time that was spent
+		in this function and its children.  Note that due to
+		different viewpoints, functions excluded by options, etc,
+		these numbers will NOT add up to 100%.
+
+     self	This is the total amount of time spent in this function.
+
+     children	This is the total amount of time propagated into this
+		function by its children.
+
+     called	This is the number of times the function was called.
+		If the function called itself recursively, the number
+		only includes non-recursive calls, and is followed by
+		a `+' and the number of recursive calls.
+
+     name	The name of the current function.  The index number is
+		printed after it.  If the function is a member of a
+		cycle, the cycle number is printed between the
+		function's name and the index number.
+
+
+ For the function's parents, the fields have the following meanings:
+
+     self	This is the amount of time that was propagated directly
+		from the function into this parent.
+
+     children	This is the amount of time that was propagated from
+		the function's children into this parent.
+
+     called	This is the number of times this parent called the
+		function `/' the total number of times the function
+		was called.  Recursive calls to the function are not
+		included in the number after the `/'.
+
+     name	This is the name of the parent.  The parent's index
+		number is printed after it.  If the parent is a
+		member of a cycle, the cycle number is printed between
+		the name and the index number.
+
+ If the parents of the function cannot be determined, the word
+ `<spontaneous>' is printed in the `name' field, and all the other
+ fields are blank.
+
+ For the function's children, the fields have the following meanings:
+
+     self	This is the amount of time that was propagated directly
+		from the child into the function.
+
+     children	This is the amount of time that was propagated from the
+		child's children to the function.
+
+     called	This is the number of times the function called
+		this child `/' the total number of times the child
+		was called.  Recursive calls by the child are not
+		listed in the number after the `/'.
+
+     name	This is the name of the child.  The child's index
+		number is printed after it.  If the child is a
+		member of a cycle, the cycle number is printed
+		between the name and the index number.
+
+ If there are any cycles (circles) in the call graph, there is an
+ entry for the cycle-as-a-whole.  This entry shows who called the
+ cycle (as parents) and the members of the cycle (as children.)
+ The `+' recursive calls entry shows the number of function calls that
+ were internal to the cycle, and the calls entry for each member shows,
+ for that member, how many times it was called from other members of
+ the cycle.
+
+Copyright (C) 2012 Free Software Foundation, Inc.
+
+Copying and distribution of this file, with or without modification,
+are permitted in any medium without royalty provided the copyright
+notice and this notice are preserved.
+
+Index by function name
+
+  [50] alloc_str              [44] gen_node               [15] pop_node
+  [26] append_op              [64] get_line               [83] print_alloced
+  [70] append_tag             [76] hm_create               [7] push_node
+  [43] append_to_list         [77] lobj_alloc              [5] rc_decr
+  [46] arr_append             [11] lobj_dealloc           [35] rc_incr
+  [52] arr_create             [10] lobj_get_member        [33] replace_tags
+  [42] arr_get                 [9] lobj_set_member        [49] stack_effect_for
+  [47] arr_manage_size         [4] lobjb_alloc            [39] top_node
+  [60] ast_add_node            [6] lobjb_binary_add       [19] trie_add
+  [71] ast_free                [8] lobjb_binary_lessthan  [12] trie_free
+  [72] calculate_max_stack_depth [78] lobjb_build_func    [14] trie_get
+  [17] child_with             [25] lobjb_build_int        [20] trie_list_add
+  [27] compile                [38] lobjb_clean            [37] trie_new
+  [22] compile_ast            [55] lobjb_quick_compare    [32] wrapper_to_obj
+  [23] compile_ast_ext        [57] lobjb_serialize        [84] write_to_file
+  [30] compile_binary          [2] mach_eval              [85] yy_create_buffer
+  [34] compile_compound        [3] mach_execute           [66] yy_flush_buffer
+  [29] compile_loop           [79] make_cons_array        [67] yy_get_next_buffer (tokens.c)
+  [28] compile_value          [80] make_names_array       [86] yy_get_previous_state (tokens.c)
+  [31] compile_var            [65] make_node              [68] yy_init_buffer (tokens.c)
+  [61] create_assignment_node [41] malloc_add             [58] yy_load_buffer_state (tokens.c)
+  [62] create_binary_node     [36] new_node               [59] yyalloc
+  [73] create_loop_node       [81] next_if_tag            [69] yydestruct (parser.c)
+  [63] create_root_node       [18] node_add               [87] yyensure_buffer_stack (tokens.c)
+  [51] create_value_node      [21] node_count             [48] yylex
+  [74] finalize_ops           [16] node_free              [88] yyparse
+  [53] find_prev_const        [13] node_get               [89] yyrestart
+  [54] find_prev_name         [56] node_to_wrapper        [24] <cycle 1>
+  [40] free_add               [45] pool_add
+  [75] free_tag_nodes         [82] pool_drain

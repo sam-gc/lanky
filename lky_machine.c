@@ -17,16 +17,18 @@
 #define RC_TWO() rc_decr(a); rc_decr(b)
 
 typedef struct stackframe {
-    arraylist data_stack;
     arraylist parent_stack;
     lky_object *bucket;
     void **constants;
     void **locals;
+    void **data_stack;
     char **names;
     long pc;
     char *ops;
     long tape_len;
 
+    long stack_pointer;
+    long stack_size;
     lky_object *ret;
 } stackframe;
 
@@ -44,19 +46,27 @@ int pushes = 0;
 
 void push_node(stackframe *frame, void *data)
 {
-    arr_append(&frame->data_stack, data);
+    if(frame->stack_pointer >= frame->stack_size)
+    {
+        // WE HAVE HAD A STACK OVERFLOW
+        // TODO: Make this an error.
+        
+        printf("Stack Overflow! Exiting.\n");
+        exit(0);
+    }
+    frame->data_stack[++frame->stack_pointer] = data;
     pushes++;
 }
 
 void *top_node(stackframe *frame)
 {
-    return arr_get(&frame->data_stack, frame->data_stack.count - 1);
+    return frame->data_stack[frame->stack_pointer];
 }
 
 void *pop_node(stackframe *frame)
 {
-    void *data = arr_get(&frame->data_stack, frame->data_stack.count - 1);
-    arr_remove(&frame->data_stack, NULL, frame->data_stack.count - 1);
+    void *data = frame->data_stack[frame->stack_pointer];
+    frame->stack_pointer--;
 
     return data;
 }
@@ -65,7 +75,6 @@ lky_object *mach_execute(lky_object_function *func)
 {
     lky_object_code *code = func->code;
     stackframe frame;
-    frame.data_stack = arr_create(100);
     frame.parent_stack = func->parent_stack;
     frame.bucket = func->bucket ? func->bucket : lobj_alloc();
     frame.constants = code->constants;
@@ -73,18 +82,18 @@ lky_object *mach_execute(lky_object_function *func)
     frame.pc = -1;
     frame.ops = code->ops;
     frame.tape_len = code->op_len;
+    // frame.data_stack = malloc(sizeof(void *) * code->stack_size);
+    frame.stack_pointer = -1;
+    frame.stack_size = code->stack_size;
     frame.names = code->names;
     frame.ret = NULL;
 
+    void *stack[code->stack_size];
+    frame.data_stack = stack;
+
     func->bucket = NULL;
 
-    arr_append(&frame.data_stack, NULL);
-
-    // printf("%d\n", tape_len);
-    
     mach_eval(&frame);
-
-    arr_free(&frame.data_stack);
 
     return frame.ret;
     // print_ops();

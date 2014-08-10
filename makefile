@@ -1,4 +1,4 @@
-SOURCES=main.c parser.c tokens.c tools.c ast.c mempool.c trie.c hashmap.c ast_compiler.c lky_object.c arraylist.c lky_machine.c lkyobj_builtin.c
+SOURCES=main.c parser.c tokens.c tools.c ast.c mempool.c trie.c hashmap.c ast_compiler.c lky_object.c arraylist.c lky_machine.c lkyobj_builtin.c bytecode_analyzer.c
 CFLAGS=-lm -g
 COLOR=-fdiagnostics-color=always 
 CC=gcc
