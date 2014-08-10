@@ -25,5 +25,6 @@ Trie_t trie_new();
 void trie_free(Trie_t t);
 void trie_add(Trie_t t, char *str, void *value);
 void *trie_get(Trie_t t, char *str);
+void trie_for_each(Trie_t t, trie_pointer_function callback);
 
 #endif

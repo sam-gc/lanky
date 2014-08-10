@@ -9,6 +9,7 @@
 #include "lky_machine.h"
 #include "lky_object.h"
 #include "lkyobj_builtin.h"
+#include "lky_gc.h"
 
 extern ast_node *programBlock;
 extern int yyparse();
@@ -27,7 +28,7 @@ int main(int argc, char *argv[])
     }
 
     // ctx_init();
-    
+       
     yyparse();
     lky_object_code *code = compile_ast(programBlock->next);
     write_to_file("test", code);
@@ -47,7 +48,10 @@ int main(int argc, char *argv[])
     printf("\nProgram output:\n==============================\n\n");
     
     arraylist list = arr_create(1);
+
+    gc_init();
     lky_object *func = lobjb_build_func(code, 0, list);
+    gc_add_root_object(func);
 
     mach_execute((lky_object_function *)func);
 

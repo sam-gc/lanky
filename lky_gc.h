@@ -5,6 +5,7 @@
 
 void gc_init();
 void gc_add_root_object(lky_object *obj);
-void gc_add_object(lky_object *obj, size_t size);
+void gc_add_root_stack(void **stack, int size);
+void gc_add_object(lky_object *obj);
 
 #endif

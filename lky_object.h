@@ -1,6 +1,7 @@
 #ifndef LKY_OBJECT_H
 #define LKY_OBJECT_H
 
+#include <stdlib.h>
 #include "trie.h"
 
 // #define INCREF(obj) (rc_decr(obj))
@@ -40,6 +41,7 @@ typedef struct lky_object_seq {
 typedef struct {
     lky_builtin_type type;
     int mem_count;
+    size_t size;
     Trie_t members;
 
     lky_callable callable;

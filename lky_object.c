@@ -1,9 +1,10 @@
 #include "lky_object.h"
 #include "lkyobj_builtin.h"
+#include "lky_gc.h"
 #include <stdio.h>
 #include <stdlib.h>
 
-lky_object lky_nil = {LBI_NIL, 0, {NULL}};
+lky_object lky_nil = {LBI_NIL, 0, sizeof(lky_object), {NULL}};
 
 int alloced = 0;
 lky_object *lobj_alloc()
@@ -11,8 +12,10 @@ lky_object *lobj_alloc()
     lky_object *obj = malloc(sizeof(lky_object));
     obj->type = LBI_CUSTOM;
     obj->mem_count = 0;
+    obj->size = sizeof(lky_object);
     obj->members = trie_new();
     obj->members.free_func = (trie_pointer_function)(&rc_decr);
+    gc_add_object(obj);
     // obj->callable = NULL;
 
     // obj->value = value;
@@ -39,6 +42,7 @@ lky_object *lobj_get_member(lky_object *obj, char *member)
 
 void rc_decr(lky_object *obj)
 {
+    return;
     if(obj == &lky_nil)
         return;
     
@@ -52,18 +56,18 @@ void rc_decr(lky_object *obj)
 
 void lobj_dealloc(lky_object *obj)
 {
-    printf("(D) ");
-    lobjb_print(obj);
+    // printf("(D) ");
+    // lobjb_print(obj);
     if(obj->type != LBI_CUSTOM)
         lobjb_clean(obj);
     trie_free(obj->members);
     free(obj);
-    alloced--;
+    // alloced--;
 }
 
 void rc_incr(lky_object *obj)
 {
-    (obj->mem_count)++;
+    //(obj->mem_count)++;
     // printf("%d (+)\n", obj->mem_count);
 }
 

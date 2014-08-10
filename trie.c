@@ -120,10 +120,32 @@ void node_count(TrieNode_t *node, int *count)
     }
 }
 
+void node_for_each(TrieNode_t *node, trie_pointer_function callback)
+{
+    if(!node)
+        return;
+    list_node_t *ln = node->children;
+
+    while(ln)
+    {
+        node_for_each(ln->payload, callback);
+        list_node_t *nx = ln->next;
+        if(callback && ln->payload->object)
+            callback(ln->payload->object);
+        ln = nx;
+    }
+}
+
 void trie_add(Trie_t t, char *str, void *value)
 {
     node_add(t.head, str, value);
 }
+
+void trie_for_each(Trie_t t, trie_pointer_function callback)
+{
+    node_for_each(t.head, callback);
+}
+
 
 void *trie_get(Trie_t t, char *str)
 {

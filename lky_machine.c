@@ -4,6 +4,7 @@
 #include "instruction_set.h"
 #include "lkyobj_builtin.h"
 #include "lky_object.h"
+#include "lky_gc.h"
 #include "hashmap.h"
 
 #define PUSH(data) (push_node(frame, data))
@@ -87,9 +88,12 @@ lky_object *mach_execute(lky_object_function *func)
     frame.stack_size = code->stack_size;
     frame.names = code->names;
     frame.ret = NULL;
+    func->bucket = frame.bucket;
 
     void *stack[code->stack_size];
     frame.data_stack = stack;
+
+    gc_add_root_stack(stack, frame.stack_size);
 
     rc_incr(frame.bucket);
 
@@ -135,7 +139,6 @@ _opcode_whiplash_:
         {
             char idx = frame->ops[++frame->pc];
             lky_object *obj = frame->constants[idx];
-
             PUSH_RC(obj);
             rc_incr(obj);
             rc_incr(obj);

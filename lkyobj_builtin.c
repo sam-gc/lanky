@@ -1,5 +1,6 @@
 #include "lkyobj_builtin.h"
 #include "lky_machine.h"
+#include "lky_gc.h"
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
@@ -11,10 +12,12 @@ lky_object *lobjb_alloc(lky_builtin_type t, lky_builtin_value v)
 {
     lky_object_builtin *obj = malloc(sizeof(lky_object_builtin));
     obj->type = t;
+    obj->size = sizeof(lky_object_builtin);
     obj->mem_count = 0;
     obj->members = trie_new();
     obj->members.free_func = (trie_pointer_function)(&rc_decr);
     obj->value = v;
+    gc_add_object(obj);
 
     return (lky_object *)obj;
 }
@@ -38,6 +41,7 @@ lky_object *lobjb_build_func(lky_object_code *code, int argc, arraylist inherite
     lky_object_function *func = malloc(sizeof(lky_object_function));
     func->type = LBI_FUNCTION;
     func->mem_count = 0;
+    func->size = sizeof(lky_object_function);
     func->members = trie_new();
     func->members.free_func = (trie_pointer_function)(&rc_decr);
     
@@ -45,6 +49,8 @@ lky_object *lobjb_build_func(lky_object_code *code, int argc, arraylist inherite
     func->bucket = NULL;
 
     func->parent_stack = inherited;
+
+    gc_add_object(func);
 
     lky_callable c;
     c.function = (lky_function_ptr)&lobjb_default_callable;
@@ -59,11 +65,13 @@ lky_object *lobjb_build_class(lky_object_function *builder, char *refname)
     lky_object_class *cls = malloc(sizeof(lky_object_class));
     cls->type = LBI_CLASS;
     cls->mem_count = 0;
+    cls->size = sizeof(lky_object_class);
     cls->members = trie_new();
     cls->members.free_func = (trie_pointer_function)(&rc_decr);
 
     cls->builder = builder;
     cls->refname = refname;
+    gc_add_object(cls);
 
     lky_callable c;
     c.function = (lky_function_ptr)&lobjb_default_class_callable;

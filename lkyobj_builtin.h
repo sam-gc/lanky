@@ -17,6 +17,7 @@ typedef union {
 typedef struct {
     lky_builtin_type type;
     int mem_count;
+    size_t size;
     Trie_t members;
 
     lky_callable callable;
@@ -27,6 +28,7 @@ typedef struct {
 typedef struct {
     lky_builtin_type type;
     int mem_count;
+    size_t size;
     Trie_t members;
 
     lky_callable callable;
@@ -52,6 +54,7 @@ typedef struct {
 typedef struct {
     lky_builtin_type type;
     int mem_count;
+    size_t size;
     Trie_t members;
 
     lky_callable callable;
@@ -66,6 +69,7 @@ typedef struct {
 typedef struct {
     lky_builtin_type type;
     int mem_count;
+    size_t size;
     Trie_t members;
 
     lky_callable callable;

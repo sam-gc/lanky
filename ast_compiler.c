@@ -760,6 +760,7 @@ lky_object_code *compile_ast_ext(ast_node *root, compiler_wrapper *incw)
     code->num_locals = cw.local_idx;
     code->type = LBI_CODE;
     code->num_names = cw.rnames.count;
+    code->members = trie_new();
     code->ops = finalize_ops(&cw);
     code->op_len = cw.rops.count;
     code->locals = malloc(sizeof(void *) * cw.local_idx);
