@@ -77,7 +77,10 @@ lky_object *mach_execute(lky_object_function *func)
     lky_object_code *code = func->code;
     stackframe frame;
     frame.parent_stack = func->parent_stack;
-    frame.bucket = func->bucket ? func->bucket : lobj_alloc();
+    if(func->bucket)
+        frame.bucket = func->bucket;
+    else
+        frame.bucket = lobj_alloc();
     frame.constants = code->constants;
     frame.locals = code->locals;
     frame.pc = -1;
@@ -88,10 +91,13 @@ lky_object *mach_execute(lky_object_function *func)
     frame.stack_size = code->stack_size;
     frame.names = code->names;
     frame.ret = NULL;
-    func->bucket = frame.bucket;
 
     void *stack[code->stack_size];
+    memset(stack, 0, sizeof(void *) * code->stack_size);
+
     frame.data_stack = stack;
+
+    func->bucket = frame.bucket;
 
     gc_add_root_stack(stack, frame.stack_size);
 
@@ -100,6 +106,9 @@ lky_object *mach_execute(lky_object_function *func)
     mach_eval(&frame);
 
     rc_decr(frame.bucket);
+
+    gc_remove_root_stack(NULL);
+    func->bucket = NULL;
 
     return frame.ret;
     // print_ops();

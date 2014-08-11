@@ -1,0 +1,898 @@
+==18399== Memcheck, a memory error detector
+==18399== Copyright (C) 2002-2013, and GNU GPL'd, by Julian Seward et al.
+==18399== Using Valgrind-3.9.0 and LibVEX; rerun with -h for copyright info
+==18399== Command: ./lanky LankyExamples/call.lky
+==18399== 
+==18399== Syscall param write(buf) points to uninitialised byte(s)
+==18399==    at 0x5213800: __write_nocancel (in /usr/lib/libc-2.19.so)
+==18399==    by 0x51AC23C: _IO_file_write@@GLIBC_2.2.5 (in /usr/lib/libc-2.19.so)
+==18399==    by 0x51AB8E2: new_do_write (in /usr/lib/libc-2.19.so)
+==18399==    by 0x51AD0F8: _IO_do_write@@GLIBC_2.2.5 (in /usr/lib/libc-2.19.so)
+==18399==    by 0x51ACA4F: _IO_file_close_it@@GLIBC_2.2.5 (in /usr/lib/libc-2.19.so)
+==18399==    by 0x51A135F: fclose@@GLIBC_2.2.5 (in /usr/lib/libc-2.19.so)
+==18399==    by 0x406CEE: write_to_file (ast_compiler.c:811)
+==18399==    by 0x400E49: main (main.c:34)
+==18399==  Address 0x402301c is not stack'd, malloc'd or (recently) free'd
+==18399== 
+==18399== Invalid read of size 8
+==18399==    at 0x4048A5: node_free (trie.c:65)
+==18399==    by 0x404917: trie_free (trie.c:76)
+==18399==    by 0x406E4E: lobj_dealloc (lky_object.c:63)
+==18399==    by 0x40AE51: gc_collect (lky_gc.c:88)
+==18399==    by 0x40ADCE: gc_add_object (lky_gc.c:73)
+==18399==    by 0x408AF9: lobjb_alloc (lkyobj_builtin.c:20)
+==18399==    by 0x409719: lobjb_binary_lessthan (lkyobj_builtin.c:322)
+==18399==    by 0x4079CB: mach_eval (lky_machine.c:210)
+==18399==    by 0x407569: mach_execute (lky_machine.c:106)
+==18399==    by 0x400F1E: main (main.c:56)
+==18399==  Address 0x54f4ba0 is 16 bytes inside a block of size 24 free'd
+==18399==    at 0x4C2999C: free (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18399==    by 0x4048E9: node_free (trie.c:71)
+==18399==    by 0x40488A: node_free (trie.c:63)
+==18399==    by 0x404917: trie_free (trie.c:76)
+==18399==    by 0x406E4E: lobj_dealloc (lky_object.c:63)
+==18399==    by 0x40AE51: gc_collect (lky_gc.c:88)
+==18399==    by 0x40ADCE: gc_add_object (lky_gc.c:73)
+==18399==    by 0x408AF9: lobjb_alloc (lkyobj_builtin.c:20)
+==18399==    by 0x409719: lobjb_binary_lessthan (lkyobj_builtin.c:322)
+==18399==    by 0x4079CB: mach_eval (lky_machine.c:210)
+==18399==    by 0x407569: mach_execute (lky_machine.c:106)
+==18399==    by 0x400F1E: main (main.c:56)
+==18399== 
+==18399== Invalid read of size 8
+==18399==    at 0x4048B6: node_free (trie.c:66)
+==18399==    by 0x404917: trie_free (trie.c:76)
+==18399==    by 0x406E4E: lobj_dealloc (lky_object.c:63)
+==18399==    by 0x40AE51: gc_collect (lky_gc.c:88)
+==18399==    by 0x40ADCE: gc_add_object (lky_gc.c:73)
+==18399==    by 0x408AF9: lobjb_alloc (lkyobj_builtin.c:20)
+==18399==    by 0x409719: lobjb_binary_lessthan (lkyobj_builtin.c:322)
+==18399==    by 0x4079CB: mach_eval (lky_machine.c:210)
+==18399==    by 0x407569: mach_execute (lky_machine.c:106)
+==18399==    by 0x400F1E: main (main.c:56)
+==18399==  Address 0x54f4ba0 is 16 bytes inside a block of size 24 free'd
+==18399==    at 0x4C2999C: free (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18399==    by 0x4048E9: node_free (trie.c:71)
+==18399==    by 0x40488A: node_free (trie.c:63)
+==18399==    by 0x404917: trie_free (trie.c:76)
+==18399==    by 0x406E4E: lobj_dealloc (lky_object.c:63)
+==18399==    by 0x40AE51: gc_collect (lky_gc.c:88)
+==18399==    by 0x40ADCE: gc_add_object (lky_gc.c:73)
+==18399==    by 0x408AF9: lobjb_alloc (lkyobj_builtin.c:20)
+==18399==    by 0x409719: lobjb_binary_lessthan (lkyobj_builtin.c:322)
+==18399==    by 0x4079CB: mach_eval (lky_machine.c:210)
+==18399==    by 0x407569: mach_execute (lky_machine.c:106)
+==18399==    by 0x400F1E: main (main.c:56)
+==18399== 
+==18399== Invalid read of size 8
+==18399==    at 0x409CF9: lobjb_default_callable (lkyobj_builtin.c:456)
+==18399==    by 0x40812A: mach_eval (lky_machine.c:371)
+==18399==    by 0x407569: mach_execute (lky_machine.c:106)
+==18399==    by 0x400F1E: main (main.c:56)
+==18399==  Address 0x54ff690 is 48 bytes inside a block of size 64 free'd
+==18399==    at 0x4C2999C: free (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18399==    by 0x406E5A: lobj_dealloc (lky_object.c:64)
+==18399==    by 0x40AE51: gc_collect (lky_gc.c:88)
+==18399==    by 0x40ADCE: gc_add_object (lky_gc.c:73)
+==18399==    by 0x406D56: lobj_alloc (lky_object.c:18)
+==18399==    by 0x409CC5: lobjb_default_callable (lkyobj_builtin.c:450)
+==18399==    by 0x40812A: mach_eval (lky_machine.c:371)
+==18399==    by 0x407569: mach_execute (lky_machine.c:106)
+==18399==    by 0x400F1E: main (main.c:56)
+==18399== 
+==18399== Invalid read of size 8
+==18399==    at 0x409D1D: lobjb_default_callable (lkyobj_builtin.c:453)
+==18399==    by 0x40812A: mach_eval (lky_machine.c:371)
+==18399==    by 0x407569: mach_execute (lky_machine.c:106)
+==18399==    by 0x400F1E: main (main.c:56)
+==18399==  Address 0x54ff698 is 56 bytes inside a block of size 64 free'd
+==18399==    at 0x4C2999C: free (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18399==    by 0x406E5A: lobj_dealloc (lky_object.c:64)
+==18399==    by 0x40AE51: gc_collect (lky_gc.c:88)
+==18399==    by 0x40ADCE: gc_add_object (lky_gc.c:73)
+==18399==    by 0x406D56: lobj_alloc (lky_object.c:18)
+==18399==    by 0x409CC5: lobjb_default_callable (lkyobj_builtin.c:450)
+==18399==    by 0x40812A: mach_eval (lky_machine.c:371)
+==18399==    by 0x407569: mach_execute (lky_machine.c:106)
+==18399==    by 0x400F1E: main (main.c:56)
+==18399== 
+==18399== Invalid read of size 8
+==18399==    at 0x40A0CF: lobjb_free_seq (lkyobj_builtin.c:586)
+==18399==    by 0x40814C: mach_eval (lky_machine.c:374)
+==18399==    by 0x407569: mach_execute (lky_machine.c:106)
+==18399==    by 0x400F1E: main (main.c:56)
+==18399==  Address 0x54ff690 is 48 bytes inside a block of size 64 free'd
+==18399==    at 0x4C2999C: free (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18399==    by 0x406E5A: lobj_dealloc (lky_object.c:64)
+==18399==    by 0x40AE51: gc_collect (lky_gc.c:88)
+==18399==    by 0x40ADCE: gc_add_object (lky_gc.c:73)
+==18399==    by 0x406D56: lobj_alloc (lky_object.c:18)
+==18399==    by 0x409CC5: lobjb_default_callable (lkyobj_builtin.c:450)
+==18399==    by 0x40812A: mach_eval (lky_machine.c:371)
+==18399==    by 0x407569: mach_execute (lky_machine.c:106)
+==18399==    by 0x400F1E: main (main.c:56)
+==18399== 
+==18399== Invalid read of size 8
+==18399==    at 0x40A0E7: lobjb_free_seq (lkyobj_builtin.c:588)
+==18399==    by 0x40814C: mach_eval (lky_machine.c:374)
+==18399==    by 0x407569: mach_execute (lky_machine.c:106)
+==18399==    by 0x400F1E: main (main.c:56)
+==18399==  Address 0x54ff698 is 56 bytes inside a block of size 64 free'd
+==18399==    at 0x4C2999C: free (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18399==    by 0x406E5A: lobj_dealloc (lky_object.c:64)
+==18399==    by 0x40AE51: gc_collect (lky_gc.c:88)
+==18399==    by 0x40ADCE: gc_add_object (lky_gc.c:73)
+==18399==    by 0x406D56: lobj_alloc (lky_object.c:18)
+==18399==    by 0x409CC5: lobjb_default_callable (lkyobj_builtin.c:450)
+==18399==    by 0x40812A: mach_eval (lky_machine.c:371)
+==18399==    by 0x407569: mach_execute (lky_machine.c:106)
+==18399==    by 0x400F1E: main (main.c:56)
+==18399== 
+Serializing function...
+
+Program output:
+==============================
+
+0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+
+=============DEBUG============
+>>>> 0
+==18399== 
+==18399== HEAP SUMMARY:
+==18399==     in use at exit: 8,027,666 bytes in 234 blocks
+==18399==   total heap usage: 1,634 allocs, 1,400 frees, 8,077,296 bytes allocated
+==18399== 
+==18399== 2 bytes in 1 blocks are definitely lost in loss record 8 of 98
+==18399==    at 0x4C28730: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18399==    by 0x405704: compile_binary (ast_compiler.c:209)
+==18399==    by 0x4064A3: compile (ast_compiler.c:616)
+==18399==    by 0x4058C3: compile_loop (ast_compiler.c:284)
+==18399==    by 0x406500: compile (ast_compiler.c:628)
+==18399==    by 0x40659B: compile_compound (ast_compiler.c:655)
+==18399==    by 0x406972: compile_ast_ext (ast_compiler.c:745)
+==18399==    by 0x406B0E: compile_ast (ast_compiler.c:779)
+==18399==    by 0x400E34: main (main.c:33)
+==18399== 
+==18399== 24 bytes in 1 blocks are definitely lost in loss record 23 of 98
+==18399==    at 0x4C28730: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18399==    by 0x404735: new_node (trie.c:7)
+==18399==    by 0x404773: trie_new (trie.c:18)
+==18399==    by 0x408ACD: lobjb_alloc (lkyobj_builtin.c:17)
+==18399==    by 0x408B29: lobjb_build_int (lkyobj_builtin.c:29)
+==18399==    by 0x4054F6: append_op (ast_compiler.c:136)
+==18399==    by 0x40602F: compile_value (ast_compiler.c:514)
+==18399==    by 0x4064D3: compile (ast_compiler.c:622)
+==18399==    by 0x405624: compile_binary (ast_compiler.c:167)
+==18399==    by 0x4064A3: compile (ast_compiler.c:616)
+==18399==    by 0x405801: compile_loop (ast_compiler.c:266)
+==18399==    by 0x406500: compile (ast_compiler.c:628)
+==18399== 
+==18399== 24 bytes in 1 blocks are definitely lost in loss record 24 of 98
+==18399==    at 0x4C28730: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18399==    by 0x404735: new_node (trie.c:7)
+==18399==    by 0x404773: trie_new (trie.c:18)
+==18399==    by 0x408ACD: lobjb_alloc (lkyobj_builtin.c:17)
+==18399==    by 0x408B29: lobjb_build_int (lkyobj_builtin.c:29)
+==18399==    by 0x4054F6: append_op (ast_compiler.c:136)
+==18399==    by 0x406046: compile_value (ast_compiler.c:515)
+==18399==    by 0x4064D3: compile (ast_compiler.c:622)
+==18399==    by 0x405624: compile_binary (ast_compiler.c:167)
+==18399==    by 0x4064A3: compile (ast_compiler.c:616)
+==18399==    by 0x405801: compile_loop (ast_compiler.c:266)
+==18399==    by 0x406500: compile (ast_compiler.c:628)
+==18399== 
+==18399== 24 bytes in 1 blocks are definitely lost in loss record 25 of 98
+==18399==    at 0x4C28730: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18399==    by 0x404735: new_node (trie.c:7)
+==18399==    by 0x404773: trie_new (trie.c:18)
+==18399==    by 0x408ACD: lobjb_alloc (lkyobj_builtin.c:17)
+==18399==    by 0x408B29: lobjb_build_int (lkyobj_builtin.c:29)
+==18399==    by 0x4054F6: append_op (ast_compiler.c:136)
+==18399==    by 0x4056DC: compile_binary (ast_compiler.c:207)
+==18399==    by 0x4064A3: compile (ast_compiler.c:616)
+==18399==    by 0x405801: compile_loop (ast_compiler.c:266)
+==18399==    by 0x406500: compile (ast_compiler.c:628)
+==18399==    by 0x40659B: compile_compound (ast_compiler.c:655)
+==18399==    by 0x406972: compile_ast_ext (ast_compiler.c:745)
+==18399== 
+==18399== 24 bytes in 1 blocks are definitely lost in loss record 26 of 98
+==18399==    at 0x4C28730: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18399==    by 0x404735: new_node (trie.c:7)
+==18399==    by 0x404773: trie_new (trie.c:18)
+==18399==    by 0x408ACD: lobjb_alloc (lkyobj_builtin.c:17)
+==18399==    by 0x408B29: lobjb_build_int (lkyobj_builtin.c:29)
+==18399==    by 0x4054F6: append_op (ast_compiler.c:136)
+==18399==    by 0x40576E: compile_binary (ast_compiler.c:219)
+==18399==    by 0x4064A3: compile (ast_compiler.c:616)
+==18399==    by 0x405801: compile_loop (ast_compiler.c:266)
+==18399==    by 0x406500: compile (ast_compiler.c:628)
+==18399==    by 0x40659B: compile_compound (ast_compiler.c:655)
+==18399==    by 0x406972: compile_ast_ext (ast_compiler.c:745)
+==18399== 
+==18399== 24 bytes in 1 blocks are definitely lost in loss record 27 of 98
+==18399==    at 0x4C28730: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18399==    by 0x404735: new_node (trie.c:7)
+==18399==    by 0x404773: trie_new (trie.c:18)
+==18399==    by 0x408ACD: lobjb_alloc (lkyobj_builtin.c:17)
+==18399==    by 0x408B29: lobjb_build_int (lkyobj_builtin.c:29)
+==18399==    by 0x4054F6: append_op (ast_compiler.c:136)
+==18399==    by 0x40581E: compile_loop (ast_compiler.c:268)
+==18399==    by 0x406500: compile (ast_compiler.c:628)
+==18399==    by 0x40659B: compile_compound (ast_compiler.c:655)
+==18399==    by 0x406972: compile_ast_ext (ast_compiler.c:745)
+==18399==    by 0x406B0E: compile_ast (ast_compiler.c:779)
+==18399==    by 0x400E34: main (main.c:33)
+==18399== 
+==18399== 24 bytes in 1 blocks are definitely lost in loss record 28 of 98
+==18399==    at 0x4C28730: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18399==    by 0x404735: new_node (trie.c:7)
+==18399==    by 0x404773: trie_new (trie.c:18)
+==18399==    by 0x408ACD: lobjb_alloc (lkyobj_builtin.c:17)
+==18399==    by 0x408B29: lobjb_build_int (lkyobj_builtin.c:29)
+==18399==    by 0x4054F6: append_op (ast_compiler.c:136)
+==18399==    by 0x405F54: compile_var (ast_compiler.c:483)
+==18399==    by 0x405FA3: compile_value (ast_compiler.c:499)
+==18399==    by 0x4064D3: compile (ast_compiler.c:622)
+==18399==    by 0x40560D: compile_binary (ast_compiler.c:165)
+==18399==    by 0x4064A3: compile (ast_compiler.c:616)
+==18399==    by 0x40584B: compile_loop (ast_compiler.c:274)
+==18399== 
+==18399== 24 bytes in 1 blocks are definitely lost in loss record 29 of 98
+==18399==    at 0x4C28730: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18399==    by 0x404735: new_node (trie.c:7)
+==18399==    by 0x404773: trie_new (trie.c:18)
+==18399==    by 0x408ACD: lobjb_alloc (lkyobj_builtin.c:17)
+==18399==    by 0x408B29: lobjb_build_int (lkyobj_builtin.c:29)
+==18399==    by 0x4054F6: append_op (ast_compiler.c:136)
+==18399==    by 0x405F69: compile_var (ast_compiler.c:484)
+==18399==    by 0x405FA3: compile_value (ast_compiler.c:499)
+==18399==    by 0x4064D3: compile (ast_compiler.c:622)
+==18399==    by 0x40560D: compile_binary (ast_compiler.c:165)
+==18399==    by 0x4064A3: compile (ast_compiler.c:616)
+==18399==    by 0x40584B: compile_loop (ast_compiler.c:274)
+==18399== 
+==18399== 24 bytes in 1 blocks are definitely lost in loss record 30 of 98
+==18399==    at 0x4C28730: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18399==    by 0x404735: new_node (trie.c:7)
+==18399==    by 0x404773: trie_new (trie.c:18)
+==18399==    by 0x408ACD: lobjb_alloc (lkyobj_builtin.c:17)
+==18399==    by 0x408B29: lobjb_build_int (lkyobj_builtin.c:29)
+==18399==    by 0x4054F6: append_op (ast_compiler.c:136)
+==18399==    by 0x40602F: compile_value (ast_compiler.c:514)
+==18399==    by 0x4064D3: compile (ast_compiler.c:622)
+==18399==    by 0x405624: compile_binary (ast_compiler.c:167)
+==18399==    by 0x4064A3: compile (ast_compiler.c:616)
+==18399==    by 0x40584B: compile_loop (ast_compiler.c:274)
+==18399==    by 0x406500: compile (ast_compiler.c:628)
+==18399== 
+==18399== 24 bytes in 1 blocks are definitely lost in loss record 31 of 98
+==18399==    at 0x4C28730: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18399==    by 0x404735: new_node (trie.c:7)
+==18399==    by 0x404773: trie_new (trie.c:18)
+==18399==    by 0x408ACD: lobjb_alloc (lkyobj_builtin.c:17)
+==18399==    by 0x408B29: lobjb_build_int (lkyobj_builtin.c:29)
+==18399==    by 0x4054F6: append_op (ast_compiler.c:136)
+==18399==    by 0x406046: compile_value (ast_compiler.c:515)
+==18399==    by 0x4064D3: compile (ast_compiler.c:622)
+==18399==    by 0x405624: compile_binary (ast_compiler.c:167)
+==18399==    by 0x4064A3: compile (ast_compiler.c:616)
+==18399==    by 0x40584B: compile_loop (ast_compiler.c:274)
+==18399==    by 0x406500: compile (ast_compiler.c:628)
+==18399== 
+==18399== 24 bytes in 1 blocks are definitely lost in loss record 32 of 98
+==18399==    at 0x4C28730: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18399==    by 0x404735: new_node (trie.c:7)
+==18399==    by 0x404773: trie_new (trie.c:18)
+==18399==    by 0x408ACD: lobjb_alloc (lkyobj_builtin.c:17)
+==18399==    by 0x408B29: lobjb_build_int (lkyobj_builtin.c:29)
+==18399==    by 0x4054F6: append_op (ast_compiler.c:136)
+==18399==    by 0x405786: compile_binary (ast_compiler.c:248)
+==18399==    by 0x4064A3: compile (ast_compiler.c:616)
+==18399==    by 0x40584B: compile_loop (ast_compiler.c:274)
+==18399==    by 0x406500: compile (ast_compiler.c:628)
+==18399==    by 0x40659B: compile_compound (ast_compiler.c:655)
+==18399==    by 0x406972: compile_ast_ext (ast_compiler.c:745)
+==18399== 
+==18399== 24 bytes in 1 blocks are definitely lost in loss record 33 of 98
+==18399==    at 0x4C28730: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18399==    by 0x404735: new_node (trie.c:7)
+==18399==    by 0x404773: trie_new (trie.c:18)
+==18399==    by 0x408ACD: lobjb_alloc (lkyobj_builtin.c:17)
+==18399==    by 0x408B29: lobjb_build_int (lkyobj_builtin.c:29)
+==18399==    by 0x4054F6: append_op (ast_compiler.c:136)
+==18399==    by 0x40585C: compile_loop (ast_compiler.c:275)
+==18399==    by 0x406500: compile (ast_compiler.c:628)
+==18399==    by 0x40659B: compile_compound (ast_compiler.c:655)
+==18399==    by 0x406972: compile_ast_ext (ast_compiler.c:745)
+==18399==    by 0x406B0E: compile_ast (ast_compiler.c:779)
+==18399==    by 0x400E34: main (main.c:33)
+==18399== 
+==18399== 24 bytes in 1 blocks are definitely lost in loss record 34 of 98
+==18399==    at 0x4C28730: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18399==    by 0x404735: new_node (trie.c:7)
+==18399==    by 0x404773: trie_new (trie.c:18)
+==18399==    by 0x408ACD: lobjb_alloc (lkyobj_builtin.c:17)
+==18399==    by 0x408B29: lobjb_build_int (lkyobj_builtin.c:29)
+==18399==    by 0x4054F6: append_op (ast_compiler.c:136)
+==18399==    by 0x405871: compile_loop (ast_compiler.c:276)
+==18399==    by 0x406500: compile (ast_compiler.c:628)
+==18399==    by 0x40659B: compile_compound (ast_compiler.c:655)
+==18399==    by 0x406972: compile_ast_ext (ast_compiler.c:745)
+==18399==    by 0x406B0E: compile_ast (ast_compiler.c:779)
+==18399==    by 0x400E34: main (main.c:33)
+==18399== 
+==18399== 24 bytes in 1 blocks are definitely lost in loss record 35 of 98
+==18399==    at 0x4C28730: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18399==    by 0x404735: new_node (trie.c:7)
+==18399==    by 0x404773: trie_new (trie.c:18)
+==18399==    by 0x408ACD: lobjb_alloc (lkyobj_builtin.c:17)
+==18399==    by 0x408B29: lobjb_build_int (lkyobj_builtin.c:29)
+==18399==    by 0x4054F6: append_op (ast_compiler.c:136)
+==18399==    by 0x405F54: compile_var (ast_compiler.c:483)
+==18399==    by 0x405FA3: compile_value (ast_compiler.c:499)
+==18399==    by 0x4064D3: compile (ast_compiler.c:622)
+==18399==    by 0x406428: compile_function_call (ast_compiler.c:603)
+==18399==    by 0x40652A: compile (ast_compiler.c:634)
+==18399==    by 0x40659B: compile_compound (ast_compiler.c:655)
+==18399== 
+==18399== 24 bytes in 1 blocks are definitely lost in loss record 36 of 98
+==18399==    at 0x4C28730: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18399==    by 0x404735: new_node (trie.c:7)
+==18399==    by 0x404773: trie_new (trie.c:18)
+==18399==    by 0x408ACD: lobjb_alloc (lkyobj_builtin.c:17)
+==18399==    by 0x408B29: lobjb_build_int (lkyobj_builtin.c:29)
+==18399==    by 0x4054F6: append_op (ast_compiler.c:136)
+==18399==    by 0x405F69: compile_var (ast_compiler.c:484)
+==18399==    by 0x405FA3: compile_value (ast_compiler.c:499)
+==18399==    by 0x4064D3: compile (ast_compiler.c:622)
+==18399==    by 0x406428: compile_function_call (ast_compiler.c:603)
+==18399==    by 0x40652A: compile (ast_compiler.c:634)
+==18399==    by 0x40659B: compile_compound (ast_compiler.c:655)
+==18399== 
+==18399== 24 bytes in 1 blocks are definitely lost in loss record 37 of 98
+==18399==    at 0x4C28730: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18399==    by 0x404735: new_node (trie.c:7)
+==18399==    by 0x404773: trie_new (trie.c:18)
+==18399==    by 0x408ACD: lobjb_alloc (lkyobj_builtin.c:17)
+==18399==    by 0x408B29: lobjb_build_int (lkyobj_builtin.c:29)
+==18399==    by 0x4054F6: append_op (ast_compiler.c:136)
+==18399==    by 0x405F54: compile_var (ast_compiler.c:483)
+==18399==    by 0x405FA3: compile_value (ast_compiler.c:499)
+==18399==    by 0x4064D3: compile (ast_compiler.c:622)
+==18399==    by 0x405DFC: compile_unary (ast_compiler.c:440)
+==18399==    by 0x4064BB: compile (ast_compiler.c:619)
+==18399==    by 0x40659B: compile_compound (ast_compiler.c:655)
+==18399== 
+==18399== 24 bytes in 1 blocks are definitely lost in loss record 38 of 98
+==18399==    at 0x4C28730: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18399==    by 0x404735: new_node (trie.c:7)
+==18399==    by 0x404773: trie_new (trie.c:18)
+==18399==    by 0x408ACD: lobjb_alloc (lkyobj_builtin.c:17)
+==18399==    by 0x408B29: lobjb_build_int (lkyobj_builtin.c:29)
+==18399==    by 0x4054F6: append_op (ast_compiler.c:136)
+==18399==    by 0x405F69: compile_var (ast_compiler.c:484)
+==18399==    by 0x405FA3: compile_value (ast_compiler.c:499)
+==18399==    by 0x4064D3: compile (ast_compiler.c:622)
+==18399==    by 0x405DFC: compile_unary (ast_compiler.c:440)
+==18399==    by 0x4064BB: compile (ast_compiler.c:619)
+==18399==    by 0x40659B: compile_compound (ast_compiler.c:655)
+==18399== 
+==18399== 24 bytes in 1 blocks are definitely lost in loss record 39 of 98
+==18399==    at 0x4C28730: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18399==    by 0x404735: new_node (trie.c:7)
+==18399==    by 0x404773: trie_new (trie.c:18)
+==18399==    by 0x408ACD: lobjb_alloc (lkyobj_builtin.c:17)
+==18399==    by 0x408B29: lobjb_build_int (lkyobj_builtin.c:29)
+==18399==    by 0x4054F6: append_op (ast_compiler.c:136)
+==18399==    by 0x405E4A: compile_unary (ast_compiler.c:455)
+==18399==    by 0x4064BB: compile (ast_compiler.c:619)
+==18399==    by 0x40659B: compile_compound (ast_compiler.c:655)
+==18399==    by 0x406972: compile_ast_ext (ast_compiler.c:745)
+==18399==    by 0x40616F: compile_function (ast_compiler.c:547)
+==18399==    by 0x406515: compile (ast_compiler.c:631)
+==18399== 
+==18399== 24 bytes in 1 blocks are definitely lost in loss record 40 of 98
+==18399==    at 0x4C28730: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18399==    by 0x404735: new_node (trie.c:7)
+==18399==    by 0x404773: trie_new (trie.c:18)
+==18399==    by 0x408ACD: lobjb_alloc (lkyobj_builtin.c:17)
+==18399==    by 0x408B29: lobjb_build_int (lkyobj_builtin.c:29)
+==18399==    by 0x4054F6: append_op (ast_compiler.c:136)
+==18399==    by 0x4069AC: compile_ast_ext (ast_compiler.c:754)
+==18399==    by 0x40616F: compile_function (ast_compiler.c:547)
+==18399==    by 0x406515: compile (ast_compiler.c:631)
+==18399==    by 0x406452: compile_function_call (ast_compiler.c:605)
+==18399==    by 0x40652A: compile (ast_compiler.c:634)
+==18399==    by 0x40659B: compile_compound (ast_compiler.c:655)
+==18399== 
+==18399== 24 bytes in 1 blocks are definitely lost in loss record 41 of 98
+==18399==    at 0x4C28730: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18399==    by 0x404735: new_node (trie.c:7)
+==18399==    by 0x404773: trie_new (trie.c:18)
+==18399==    by 0x408ACD: lobjb_alloc (lkyobj_builtin.c:17)
+==18399==    by 0x408B29: lobjb_build_int (lkyobj_builtin.c:29)
+==18399==    by 0x4054F6: append_op (ast_compiler.c:136)
+==18399==    by 0x4069C0: compile_ast_ext (ast_compiler.c:755)
+==18399==    by 0x40616F: compile_function (ast_compiler.c:547)
+==18399==    by 0x406515: compile (ast_compiler.c:631)
+==18399==    by 0x406452: compile_function_call (ast_compiler.c:605)
+==18399==    by 0x40652A: compile (ast_compiler.c:634)
+==18399==    by 0x40659B: compile_compound (ast_compiler.c:655)
+==18399== 
+==18399== 24 bytes in 1 blocks are definitely lost in loss record 42 of 98
+==18399==    at 0x4C28730: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18399==    by 0x404735: new_node (trie.c:7)
+==18399==    by 0x404773: trie_new (trie.c:18)
+==18399==    by 0x408ACD: lobjb_alloc (lkyobj_builtin.c:17)
+==18399==    by 0x408B29: lobjb_build_int (lkyobj_builtin.c:29)
+==18399==    by 0x4054F6: append_op (ast_compiler.c:136)
+==18399==    by 0x4061BC: compile_function (ast_compiler.c:554)
+==18399==    by 0x406515: compile (ast_compiler.c:631)
+==18399==    by 0x406452: compile_function_call (ast_compiler.c:605)
+==18399==    by 0x40652A: compile (ast_compiler.c:634)
+==18399==    by 0x40659B: compile_compound (ast_compiler.c:655)
+==18399==    by 0x40588C: compile_loop (ast_compiler.c:278)
+==18399== 
+==18399== 24 bytes in 1 blocks are definitely lost in loss record 43 of 98
+==18399==    at 0x4C28730: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18399==    by 0x404735: new_node (trie.c:7)
+==18399==    by 0x404773: trie_new (trie.c:18)
+==18399==    by 0x408ACD: lobjb_alloc (lkyobj_builtin.c:17)
+==18399==    by 0x408B29: lobjb_build_int (lkyobj_builtin.c:29)
+==18399==    by 0x4054F6: append_op (ast_compiler.c:136)
+==18399==    by 0x4061D2: compile_function (ast_compiler.c:555)
+==18399==    by 0x406515: compile (ast_compiler.c:631)
+==18399==    by 0x406452: compile_function_call (ast_compiler.c:605)
+==18399==    by 0x40652A: compile (ast_compiler.c:634)
+==18399==    by 0x40659B: compile_compound (ast_compiler.c:655)
+==18399==    by 0x40588C: compile_loop (ast_compiler.c:278)
+==18399== 
+==18399== 24 bytes in 1 blocks are definitely lost in loss record 44 of 98
+==18399==    at 0x4C28730: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18399==    by 0x404735: new_node (trie.c:7)
+==18399==    by 0x404773: trie_new (trie.c:18)
+==18399==    by 0x408ACD: lobjb_alloc (lkyobj_builtin.c:17)
+==18399==    by 0x408B29: lobjb_build_int (lkyobj_builtin.c:29)
+==18399==    by 0x4054F6: append_op (ast_compiler.c:136)
+==18399==    by 0x4061E6: compile_function (ast_compiler.c:556)
+==18399==    by 0x406515: compile (ast_compiler.c:631)
+==18399==    by 0x406452: compile_function_call (ast_compiler.c:605)
+==18399==    by 0x40652A: compile (ast_compiler.c:634)
+==18399==    by 0x40659B: compile_compound (ast_compiler.c:655)
+==18399==    by 0x40588C: compile_loop (ast_compiler.c:278)
+==18399== 
+==18399== 24 bytes in 1 blocks are definitely lost in loss record 45 of 98
+==18399==    at 0x4C28730: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18399==    by 0x404735: new_node (trie.c:7)
+==18399==    by 0x404773: trie_new (trie.c:18)
+==18399==    by 0x408ACD: lobjb_alloc (lkyobj_builtin.c:17)
+==18399==    by 0x408B29: lobjb_build_int (lkyobj_builtin.c:29)
+==18399==    by 0x4054F6: append_op (ast_compiler.c:136)
+==18399==    by 0x4061FE: compile_function (ast_compiler.c:557)
+==18399==    by 0x406515: compile (ast_compiler.c:631)
+==18399==    by 0x406452: compile_function_call (ast_compiler.c:605)
+==18399==    by 0x40652A: compile (ast_compiler.c:634)
+==18399==    by 0x40659B: compile_compound (ast_compiler.c:655)
+==18399==    by 0x40588C: compile_loop (ast_compiler.c:278)
+==18399== 
+==18399== 24 bytes in 1 blocks are definitely lost in loss record 46 of 98
+==18399==    at 0x4C28730: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18399==    by 0x404735: new_node (trie.c:7)
+==18399==    by 0x404773: trie_new (trie.c:18)
+==18399==    by 0x408ACD: lobjb_alloc (lkyobj_builtin.c:17)
+==18399==    by 0x408B29: lobjb_build_int (lkyobj_builtin.c:29)
+==18399==    by 0x4054F6: append_op (ast_compiler.c:136)
+==18399==    by 0x406463: compile_function_call (ast_compiler.c:606)
+==18399==    by 0x40652A: compile (ast_compiler.c:634)
+==18399==    by 0x40659B: compile_compound (ast_compiler.c:655)
+==18399==    by 0x40588C: compile_loop (ast_compiler.c:278)
+==18399==    by 0x406500: compile (ast_compiler.c:628)
+==18399==    by 0x40659B: compile_compound (ast_compiler.c:655)
+==18399== 
+==18399== 24 bytes in 1 blocks are definitely lost in loss record 47 of 98
+==18399==    at 0x4C28730: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18399==    by 0x404735: new_node (trie.c:7)
+==18399==    by 0x404773: trie_new (trie.c:18)
+==18399==    by 0x408ACD: lobjb_alloc (lkyobj_builtin.c:17)
+==18399==    by 0x408B29: lobjb_build_int (lkyobj_builtin.c:29)
+==18399==    by 0x4054F6: append_op (ast_compiler.c:136)
+==18399==    by 0x4065B8: compile_compound (ast_compiler.c:657)
+==18399==    by 0x40588C: compile_loop (ast_compiler.c:278)
+==18399==    by 0x406500: compile (ast_compiler.c:628)
+==18399==    by 0x40659B: compile_compound (ast_compiler.c:655)
+==18399==    by 0x406972: compile_ast_ext (ast_compiler.c:745)
+==18399==    by 0x406B0E: compile_ast (ast_compiler.c:779)
+==18399== 
+==18399== 24 bytes in 1 blocks are definitely lost in loss record 48 of 98
+==18399==    at 0x4C28730: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18399==    by 0x404735: new_node (trie.c:7)
+==18399==    by 0x404773: trie_new (trie.c:18)
+==18399==    by 0x408ACD: lobjb_alloc (lkyobj_builtin.c:17)
+==18399==    by 0x408B29: lobjb_build_int (lkyobj_builtin.c:29)
+==18399==    by 0x4054F6: append_op (ast_compiler.c:136)
+==18399==    by 0x405F54: compile_var (ast_compiler.c:483)
+==18399==    by 0x405FA3: compile_value (ast_compiler.c:499)
+==18399==    by 0x4064D3: compile (ast_compiler.c:622)
+==18399==    by 0x40560D: compile_binary (ast_compiler.c:165)
+==18399==    by 0x4064A3: compile (ast_compiler.c:616)
+==18399==    by 0x405624: compile_binary (ast_compiler.c:167)
+==18399== 
+==18399== 24 bytes in 1 blocks are definitely lost in loss record 49 of 98
+==18399==    at 0x4C28730: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18399==    by 0x404735: new_node (trie.c:7)
+==18399==    by 0x404773: trie_new (trie.c:18)
+==18399==    by 0x408ACD: lobjb_alloc (lkyobj_builtin.c:17)
+==18399==    by 0x408B29: lobjb_build_int (lkyobj_builtin.c:29)
+==18399==    by 0x4054F6: append_op (ast_compiler.c:136)
+==18399==    by 0x405F69: compile_var (ast_compiler.c:484)
+==18399==    by 0x405FA3: compile_value (ast_compiler.c:499)
+==18399==    by 0x4064D3: compile (ast_compiler.c:622)
+==18399==    by 0x40560D: compile_binary (ast_compiler.c:165)
+==18399==    by 0x4064A3: compile (ast_compiler.c:616)
+==18399==    by 0x405624: compile_binary (ast_compiler.c:167)
+==18399== 
+==18399== 24 bytes in 1 blocks are definitely lost in loss record 50 of 98
+==18399==    at 0x4C28730: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18399==    by 0x404735: new_node (trie.c:7)
+==18399==    by 0x404773: trie_new (trie.c:18)
+==18399==    by 0x408ACD: lobjb_alloc (lkyobj_builtin.c:17)
+==18399==    by 0x408B29: lobjb_build_int (lkyobj_builtin.c:29)
+==18399==    by 0x4054F6: append_op (ast_compiler.c:136)
+==18399==    by 0x40602F: compile_value (ast_compiler.c:514)
+==18399==    by 0x4064D3: compile (ast_compiler.c:622)
+==18399==    by 0x405624: compile_binary (ast_compiler.c:167)
+==18399==    by 0x4064A3: compile (ast_compiler.c:616)
+==18399==    by 0x405624: compile_binary (ast_compiler.c:167)
+==18399==    by 0x4064A3: compile (ast_compiler.c:616)
+==18399== 
+==18399== 24 bytes in 1 blocks are definitely lost in loss record 51 of 98
+==18399==    at 0x4C28730: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18399==    by 0x404735: new_node (trie.c:7)
+==18399==    by 0x404773: trie_new (trie.c:18)
+==18399==    by 0x408ACD: lobjb_alloc (lkyobj_builtin.c:17)
+==18399==    by 0x408B29: lobjb_build_int (lkyobj_builtin.c:29)
+==18399==    by 0x4054F6: append_op (ast_compiler.c:136)
+==18399==    by 0x406046: compile_value (ast_compiler.c:515)
+==18399==    by 0x4064D3: compile (ast_compiler.c:622)
+==18399==    by 0x405624: compile_binary (ast_compiler.c:167)
+==18399==    by 0x4064A3: compile (ast_compiler.c:616)
+==18399==    by 0x405624: compile_binary (ast_compiler.c:167)
+==18399==    by 0x4064A3: compile (ast_compiler.c:616)
+==18399== 
+==18399== 24 bytes in 1 blocks are definitely lost in loss record 52 of 98
+==18399==    at 0x4C28730: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18399==    by 0x404735: new_node (trie.c:7)
+==18399==    by 0x404773: trie_new (trie.c:18)
+==18399==    by 0x408ACD: lobjb_alloc (lkyobj_builtin.c:17)
+==18399==    by 0x408B29: lobjb_build_int (lkyobj_builtin.c:29)
+==18399==    by 0x4054F6: append_op (ast_compiler.c:136)
+==18399==    by 0x405786: compile_binary (ast_compiler.c:248)
+==18399==    by 0x4064A3: compile (ast_compiler.c:616)
+==18399==    by 0x405624: compile_binary (ast_compiler.c:167)
+==18399==    by 0x4064A3: compile (ast_compiler.c:616)
+==18399==    by 0x4058C3: compile_loop (ast_compiler.c:284)
+==18399==    by 0x406500: compile (ast_compiler.c:628)
+==18399== 
+==18399== 24 bytes in 1 blocks are definitely lost in loss record 53 of 98
+==18399==    at 0x4C28730: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18399==    by 0x404735: new_node (trie.c:7)
+==18399==    by 0x404773: trie_new (trie.c:18)
+==18399==    by 0x408ACD: lobjb_alloc (lkyobj_builtin.c:17)
+==18399==    by 0x408B29: lobjb_build_int (lkyobj_builtin.c:29)
+==18399==    by 0x4054F6: append_op (ast_compiler.c:136)
+==18399==    by 0x4056DC: compile_binary (ast_compiler.c:207)
+==18399==    by 0x4064A3: compile (ast_compiler.c:616)
+==18399==    by 0x4058C3: compile_loop (ast_compiler.c:284)
+==18399==    by 0x406500: compile (ast_compiler.c:628)
+==18399==    by 0x40659B: compile_compound (ast_compiler.c:655)
+==18399==    by 0x406972: compile_ast_ext (ast_compiler.c:745)
+==18399== 
+==18399== 24 bytes in 1 blocks are definitely lost in loss record 54 of 98
+==18399==    at 0x4C28730: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18399==    by 0x404735: new_node (trie.c:7)
+==18399==    by 0x404773: trie_new (trie.c:18)
+==18399==    by 0x408ACD: lobjb_alloc (lkyobj_builtin.c:17)
+==18399==    by 0x408B29: lobjb_build_int (lkyobj_builtin.c:29)
+==18399==    by 0x4054F6: append_op (ast_compiler.c:136)
+==18399==    by 0x40576E: compile_binary (ast_compiler.c:219)
+==18399==    by 0x4064A3: compile (ast_compiler.c:616)
+==18399==    by 0x4058C3: compile_loop (ast_compiler.c:284)
+==18399==    by 0x406500: compile (ast_compiler.c:628)
+==18399==    by 0x40659B: compile_compound (ast_compiler.c:655)
+==18399==    by 0x406972: compile_ast_ext (ast_compiler.c:745)
+==18399== 
+==18399== 24 bytes in 1 blocks are definitely lost in loss record 55 of 98
+==18399==    at 0x4C28730: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18399==    by 0x404735: new_node (trie.c:7)
+==18399==    by 0x404773: trie_new (trie.c:18)
+==18399==    by 0x408ACD: lobjb_alloc (lkyobj_builtin.c:17)
+==18399==    by 0x408B29: lobjb_build_int (lkyobj_builtin.c:29)
+==18399==    by 0x4054F6: append_op (ast_compiler.c:136)
+==18399==    by 0x4058E0: compile_loop (ast_compiler.c:286)
+==18399==    by 0x406500: compile (ast_compiler.c:628)
+==18399==    by 0x40659B: compile_compound (ast_compiler.c:655)
+==18399==    by 0x406972: compile_ast_ext (ast_compiler.c:745)
+==18399==    by 0x406B0E: compile_ast (ast_compiler.c:779)
+==18399==    by 0x400E34: main (main.c:33)
+==18399== 
+==18399== 24 bytes in 1 blocks are definitely lost in loss record 56 of 98
+==18399==    at 0x4C28730: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18399==    by 0x404735: new_node (trie.c:7)
+==18399==    by 0x404773: trie_new (trie.c:18)
+==18399==    by 0x408ACD: lobjb_alloc (lkyobj_builtin.c:17)
+==18399==    by 0x408B29: lobjb_build_int (lkyobj_builtin.c:29)
+==18399==    by 0x4054F6: append_op (ast_compiler.c:136)
+==18399==    by 0x4058FC: compile_loop (ast_compiler.c:290)
+==18399==    by 0x406500: compile (ast_compiler.c:628)
+==18399==    by 0x40659B: compile_compound (ast_compiler.c:655)
+==18399==    by 0x406972: compile_ast_ext (ast_compiler.c:745)
+==18399==    by 0x406B0E: compile_ast (ast_compiler.c:779)
+==18399==    by 0x400E34: main (main.c:33)
+==18399== 
+==18399== 24 bytes in 1 blocks are definitely lost in loss record 57 of 98
+==18399==    at 0x4C28730: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18399==    by 0x404735: new_node (trie.c:7)
+==18399==    by 0x404773: trie_new (trie.c:18)
+==18399==    by 0x408ACD: lobjb_alloc (lkyobj_builtin.c:17)
+==18399==    by 0x408B29: lobjb_build_int (lkyobj_builtin.c:29)
+==18399==    by 0x4054F6: append_op (ast_compiler.c:136)
+==18399==    by 0x405911: compile_loop (ast_compiler.c:291)
+==18399==    by 0x406500: compile (ast_compiler.c:628)
+==18399==    by 0x40659B: compile_compound (ast_compiler.c:655)
+==18399==    by 0x406972: compile_ast_ext (ast_compiler.c:745)
+==18399==    by 0x406B0E: compile_ast (ast_compiler.c:779)
+==18399==    by 0x400E34: main (main.c:33)
+==18399== 
+==18399== 24 bytes in 1 blocks are definitely lost in loss record 58 of 98
+==18399==    at 0x4C28730: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18399==    by 0x404735: new_node (trie.c:7)
+==18399==    by 0x404773: trie_new (trie.c:18)
+==18399==    by 0x408ACD: lobjb_alloc (lkyobj_builtin.c:17)
+==18399==    by 0x408B29: lobjb_build_int (lkyobj_builtin.c:29)
+==18399==    by 0x4054F6: append_op (ast_compiler.c:136)
+==18399==    by 0x405926: compile_loop (ast_compiler.c:292)
+==18399==    by 0x406500: compile (ast_compiler.c:628)
+==18399==    by 0x40659B: compile_compound (ast_compiler.c:655)
+==18399==    by 0x406972: compile_ast_ext (ast_compiler.c:745)
+==18399==    by 0x406B0E: compile_ast (ast_compiler.c:779)
+==18399==    by 0x400E34: main (main.c:33)
+==18399== 
+==18399== 24 bytes in 1 blocks are definitely lost in loss record 59 of 98
+==18399==    at 0x4C28730: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18399==    by 0x404735: new_node (trie.c:7)
+==18399==    by 0x404773: trie_new (trie.c:18)
+==18399==    by 0x408ACD: lobjb_alloc (lkyobj_builtin.c:17)
+==18399==    by 0x408B29: lobjb_build_int (lkyobj_builtin.c:29)
+==18399==    by 0x406665: replace_tags (ast_compiler.c:678)
+==18399==    by 0x406981: compile_ast_ext (ast_compiler.c:746)
+==18399==    by 0x406B0E: compile_ast (ast_compiler.c:779)
+==18399==    by 0x400E34: main (main.c:33)
+==18399== 
+==18399== 24 bytes in 1 blocks are definitely lost in loss record 60 of 98
+==18399==    at 0x4C28730: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18399==    by 0x404735: new_node (trie.c:7)
+==18399==    by 0x404773: trie_new (trie.c:18)
+==18399==    by 0x408ACD: lobjb_alloc (lkyobj_builtin.c:17)
+==18399==    by 0x408B29: lobjb_build_int (lkyobj_builtin.c:29)
+==18399==    by 0x4066A2: replace_tags (ast_compiler.c:683)
+==18399==    by 0x406981: compile_ast_ext (ast_compiler.c:746)
+==18399==    by 0x406B0E: compile_ast (ast_compiler.c:779)
+==18399==    by 0x400E34: main (main.c:33)
+==18399== 
+==18399== 24 bytes in 1 blocks are definitely lost in loss record 61 of 98
+==18399==    at 0x4C28730: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18399==    by 0x404735: new_node (trie.c:7)
+==18399==    by 0x404773: trie_new (trie.c:18)
+==18399==    by 0x408ACD: lobjb_alloc (lkyobj_builtin.c:17)
+==18399==    by 0x408B29: lobjb_build_int (lkyobj_builtin.c:29)
+==18399==    by 0x4054F6: append_op (ast_compiler.c:136)
+==18399==    by 0x4069AC: compile_ast_ext (ast_compiler.c:754)
+==18399==    by 0x406B0E: compile_ast (ast_compiler.c:779)
+==18399==    by 0x400E34: main (main.c:33)
+==18399== 
+==18399== 24 bytes in 1 blocks are definitely lost in loss record 62 of 98
+==18399==    at 0x4C28730: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18399==    by 0x404735: new_node (trie.c:7)
+==18399==    by 0x404773: trie_new (trie.c:18)
+==18399==    by 0x408ACD: lobjb_alloc (lkyobj_builtin.c:17)
+==18399==    by 0x408B29: lobjb_build_int (lkyobj_builtin.c:29)
+==18399==    by 0x4054F6: append_op (ast_compiler.c:136)
+==18399==    by 0x4069C0: compile_ast_ext (ast_compiler.c:755)
+==18399==    by 0x406B0E: compile_ast (ast_compiler.c:779)
+==18399==    by 0x400E34: main (main.c:33)
+==18399== 
+==18399== 80 bytes in 1 blocks are definitely lost in loss record 72 of 98
+==18399==    at 0x4C28730: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18399==    by 0x406EA3: arr_create (arraylist.c:9)
+==18399==    by 0x40687D: compile_ast_ext (ast_compiler.c:725)
+==18399==    by 0x406B0E: compile_ast (ast_compiler.c:779)
+==18399==    by 0x400E34: main (main.c:33)
+==18399== 
+==18399== 80 bytes in 1 blocks are definitely lost in loss record 73 of 98
+==18399==    at 0x4C28730: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18399==    by 0x406EA3: arr_create (arraylist.c:9)
+==18399==    by 0x40687D: compile_ast_ext (ast_compiler.c:725)
+==18399==    by 0x40616F: compile_function (ast_compiler.c:547)
+==18399==    by 0x406515: compile (ast_compiler.c:631)
+==18399==    by 0x406452: compile_function_call (ast_compiler.c:605)
+==18399==    by 0x40652A: compile (ast_compiler.c:634)
+==18399==    by 0x40659B: compile_compound (ast_compiler.c:655)
+==18399==    by 0x40588C: compile_loop (ast_compiler.c:278)
+==18399==    by 0x406500: compile (ast_compiler.c:628)
+==18399==    by 0x40659B: compile_compound (ast_compiler.c:655)
+==18399==    by 0x406972: compile_ast_ext (ast_compiler.c:745)
+==18399== 
+==18399== 82 (80 direct, 2 indirect) bytes in 1 blocks are definitely lost in loss record 74 of 98
+==18399==    at 0x4C28730: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18399==    by 0x406EA3: arr_create (arraylist.c:9)
+==18399==    by 0x4060A3: compile_function (ast_compiler.c:525)
+==18399==    by 0x406515: compile (ast_compiler.c:631)
+==18399==    by 0x406452: compile_function_call (ast_compiler.c:605)
+==18399==    by 0x40652A: compile (ast_compiler.c:634)
+==18399==    by 0x40659B: compile_compound (ast_compiler.c:655)
+==18399==    by 0x40588C: compile_loop (ast_compiler.c:278)
+==18399==    by 0x406500: compile (ast_compiler.c:628)
+==18399==    by 0x40659B: compile_compound (ast_compiler.c:655)
+==18399==    by 0x406972: compile_ast_ext (ast_compiler.c:745)
+==18399==    by 0x406B0E: compile_ast (ast_compiler.c:779)
+==18399== 
+==18399== 400 bytes in 1 blocks are definitely lost in loss record 86 of 98
+==18399==    at 0x4C28730: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18399==    by 0x406EA3: arr_create (arraylist.c:9)
+==18399==    by 0x406842: compile_ast_ext (ast_compiler.c:724)
+==18399==    by 0x406B0E: compile_ast (ast_compiler.c:779)
+==18399==    by 0x400E34: main (main.c:33)
+==18399== 
+==18399== 400 bytes in 1 blocks are definitely lost in loss record 87 of 98
+==18399==    at 0x4C28730: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18399==    by 0x406EA3: arr_create (arraylist.c:9)
+==18399==    by 0x406842: compile_ast_ext (ast_compiler.c:724)
+==18399==    by 0x40616F: compile_function (ast_compiler.c:547)
+==18399==    by 0x406515: compile (ast_compiler.c:631)
+==18399==    by 0x406452: compile_function_call (ast_compiler.c:605)
+==18399==    by 0x40652A: compile (ast_compiler.c:634)
+==18399==    by 0x40659B: compile_compound (ast_compiler.c:655)
+==18399==    by 0x40588C: compile_loop (ast_compiler.c:278)
+==18399==    by 0x406500: compile (ast_compiler.c:628)
+==18399==    by 0x40659B: compile_compound (ast_compiler.c:655)
+==18399==    by 0x406972: compile_ast_ext (ast_compiler.c:745)
+==18399== 
+==18399== 402 (400 direct, 2 indirect) bytes in 1 blocks are definitely lost in loss record 88 of 98
+==18399==    at 0x4C28730: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18399==    by 0x406EA3: arr_create (arraylist.c:9)
+==18399==    by 0x406938: compile_ast_ext (ast_compiler.c:741)
+==18399==    by 0x406B0E: compile_ast (ast_compiler.c:779)
+==18399==    by 0x400E34: main (main.c:33)
+==18399== 
+==18399== 800 bytes in 1 blocks are definitely lost in loss record 94 of 98
+==18399==    at 0x4C28730: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18399==    by 0x404C35: hm_create (hashmap.c:29)
+==18399==    by 0x406915: compile_ast_ext (ast_compiler.c:739)
+==18399==    by 0x406B0E: compile_ast (ast_compiler.c:779)
+==18399==    by 0x400E34: main (main.c:33)
+==18399== 
+==18399== 800 bytes in 1 blocks are definitely lost in loss record 95 of 98
+==18399==    at 0x4C28730: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18399==    by 0x404C35: hm_create (hashmap.c:29)
+==18399==    by 0x406087: compile_function (ast_compiler.c:524)
+==18399==    by 0x406515: compile (ast_compiler.c:631)
+==18399==    by 0x406452: compile_function_call (ast_compiler.c:605)
+==18399==    by 0x40652A: compile (ast_compiler.c:634)
+==18399==    by 0x40659B: compile_compound (ast_compiler.c:655)
+==18399==    by 0x40588C: compile_loop (ast_compiler.c:278)
+==18399==    by 0x406500: compile (ast_compiler.c:628)
+==18399==    by 0x40659B: compile_compound (ast_compiler.c:655)
+==18399==    by 0x406972: compile_ast_ext (ast_compiler.c:745)
+==18399==    by 0x406B0E: compile_ast (ast_compiler.c:779)
+==18399== 
+==18399== LEAK SUMMARY:
+==18399==    definitely lost: 4,002 bytes in 49 blocks
+==18399==    indirectly lost: 4 bytes in 2 blocks
+==18399==      possibly lost: 0 bytes in 0 blocks
+==18399==    still reachable: 8,023,660 bytes in 183 blocks
+==18399==         suppressed: 0 bytes in 0 blocks
+==18399== Reachable blocks (those to which a pointer was found) are not shown.
+==18399== To see them, rerun with: --leak-check=full --show-leak-kinds=all
+==18399== 
+==18399== For counts of detected and suppressed errors, rerun with: -v
+==18399== Use --track-origins=yes to see where uninitialised values come from
+==18399== ERROR SUMMARY: 232 errors from 56 contexts (suppressed: 2 from 2)

@@ -25,8 +25,8 @@ void gc_init()
     bundle.pool = arr_create(1000000);
     bundle.roots = arr_create(10);
     bundle.root_stacks = arr_create(10);
-    bundle.max_size = 16000000;
-    //bundle.max_size = 5000;
+    //bundle.max_size = 16000000;
+    bundle.max_size = 5000;
     bundle.cur_size = 0;
     gc_started = 1;
 }
@@ -49,6 +49,13 @@ void gc_add_root_stack(void **stack, int size)
     st->size = size;
 
     arr_append(&bundle.root_stacks, st);
+}
+
+void gc_remove_root_stack(void **stack)
+{
+    gc_stack *st = arr_get(&bundle.root_stacks, bundle.root_stacks.count - 1);
+    free(st);
+    arr_remove(&bundle.root_stacks, NULL, bundle.root_stacks.count - 1);
 }
 
 void gc_add_object(lky_object *obj)
@@ -95,9 +102,20 @@ void gc_mark_object(lky_object *o)
     switch(o->type)
     {
         case LBI_FUNCTION:
-            gc_mark_object(((lky_object_function *)o)->bucket);
-            gc_mark_object(((lky_object_function *)o)->code);
-            break;
+        {
+            lky_object_function *func = (lky_object_function *)o;
+
+            if(func->bucket)
+                gc_mark_object(func->bucket);
+            gc_mark_object(func->code);
+
+            int i;
+            for(i = 0; i < func->parent_stack.count; i++)
+            {
+                gc_mark_object(arr_get(&func->parent_stack, i));
+            }
+        }
+        break;
         case LBI_CODE:
         {
             lky_object_code *code = (lky_object_code *)o;
@@ -122,7 +140,6 @@ char gc_mark_stack_with_return(gc_stack *st)
     int i;
     for(i = 0; i < size; i++)
     {
-
         if(!stack[i])
             break;
         gc_mark_object(stack[i]);

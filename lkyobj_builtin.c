@@ -468,14 +468,11 @@ lky_object *lobjb_default_class_callable(lky_object_seq *args, lky_object *self)
     lky_object *obj = lobj_alloc();
 
     lky_object_function *func = cls->builder;
-    print_ops(func->code->ops, func->code->op_len);
     func->bucket = lobj_alloc();
     rc_incr(func->bucket);
 
     lky_object *outobj = lobj_alloc();
     rc_incr(outobj);
-    printf("...%d\n", outobj->mem_count);
-    printf("%p\n", outobj);
 
     lobj_set_member(func->bucket, cls->refname, outobj);
 
@@ -571,6 +568,8 @@ lky_object_seq *lobjb_make_seq_node(lky_object *value)
     seq->type = LBI_SEQUENCE;
     seq->mem_count = 0;
     seq->members = trie_new();
+    seq->size = sizeof(lky_object_seq);
+    gc_add_object(seq);
 
     seq->value = (struct lky_object *)value;
     seq->next = NULL;
@@ -584,7 +583,7 @@ void lobjb_free_seq(lky_object_seq *seq)
         lky_object *obj = (lky_object *)seq->value;
         rc_decr(obj);
         lky_object_seq *next = seq->next;
-        lobj_dealloc((lky_object *)seq);
+        //lobj_dealloc((lky_object *)seq);
         seq = next;
     }
 }
