@@ -140,6 +140,8 @@ _opcode_whiplash_:
     if(frame->pc >= frame->tape_len || frame->ret)
         return;
 
+    gc_gc();
+
     op = frame->ops[++frame->pc];
 
     switch(op)
@@ -352,6 +354,7 @@ _opcode_whiplash_:
             lky_object_function *func = (lky_object_function *)obj;
             lky_callable c = func->callable;
             lky_object_seq *seq = NULL;
+            lky_object_seq *first = NULL;
             int i;
             for(i = 0; i < c.argc; i++)
             {
@@ -359,7 +362,11 @@ _opcode_whiplash_:
                 lky_object_seq *ns = lobjb_make_seq_node(arg);
 
                 if(!seq)
+                {
                     seq = ns;
+                    gc_add_root_object(seq);
+                    first = seq;
+                }
                 else
                 {
                     ns->next = seq;
@@ -372,6 +379,7 @@ _opcode_whiplash_:
 
             rc_decr(obj);
             lobjb_free_seq(seq);
+            gc_remove_root_object(seq);
 
             PUSH(ret);
             goto _opcode_whiplash_;

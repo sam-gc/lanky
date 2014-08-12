@@ -569,7 +569,6 @@ lky_object_seq *lobjb_make_seq_node(lky_object *value)
     seq->mem_count = 0;
     seq->members = trie_new();
     seq->size = sizeof(lky_object_seq);
-    gc_add_object(seq);
 
     seq->value = (struct lky_object *)value;
     seq->next = NULL;

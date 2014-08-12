@@ -37,6 +37,12 @@ void gc_add_root_object(lky_object *obj)
         return;
 
     arr_append(&bundle.roots, obj);
+    arr_append(&bundle.pool, obj);
+}
+
+void gc_remove_root_object(lky_object *obj)
+{
+    arr_remove(&bundle.roots, obj, 0);
 }
 
 void gc_add_root_stack(void **stack, int size)
@@ -65,13 +71,15 @@ void gc_add_object(lky_object *obj)
 
     arr_append(&bundle.pool, obj);
     bundle.cur_size += obj->size;
+}
 
-    if(bundle.cur_size >= bundle.max_size)
-    {
-        gc_mark();
-        obj->mem_count = 1; 
-        gc_collect();
-    }
+void gc_gc()
+{
+    if(bundle.cur_size < bundle.max_size)
+        return;
+
+    gc_mark();
+    gc_collect();
 }
 
 void gc_collect()
@@ -83,11 +91,14 @@ void gc_collect()
         lky_object *o = arr_get(&pool, i);
         if(!o->mem_count)
         {
+            printf("-- %p (%d)\n", o, o->type);
             bundle.cur_size -= o->size;
             // TODO: This will need to change.
             lobj_dealloc(o);
             arr_remove(&pool, NULL, i);
         }
+        else
+            o->mem_count = 0;
     }
 
     bundle.pool = pool;
@@ -95,7 +106,12 @@ void gc_collect()
 
 void gc_mark_object(lky_object *o)
 {
+    printf("%p (%d)\n", o, o->type);
+    if(o->mem_count)
+        return;
+
     o->mem_count = 1;
+    printf("LSKDJFLSKDJFLKSDJFLKDSFJ\n");
 
     trie_for_each(o->members, (trie_pointer_function)&gc_mark_object);
 
@@ -114,6 +130,15 @@ void gc_mark_object(lky_object *o)
             {
                 gc_mark_object(arr_get(&func->parent_stack, i));
             }
+        }
+        break;
+        case LBI_SEQUENCE:
+        {
+            lky_object_seq *seq = (lky_object_seq *)o;
+            if(seq->next)
+                gc_mark_object(seq->next);
+            if(seq->value)
+                gc_mark_object(seq->value);
         }
         break;
         case LBI_CODE:
