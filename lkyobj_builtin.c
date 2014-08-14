@@ -440,6 +440,7 @@ lky_object *lobjb_default_callable(lky_object_seq *args, lky_object *self)
     lky_object_code *code = func->code;
 
     func->bucket = lobj_alloc();
+    rc_incr(func->bucket);
 
     long i;
     for(i = 0; args; i++, args = args->next)
@@ -450,29 +451,27 @@ lky_object *lobjb_default_callable(lky_object_seq *args, lky_object *self)
         // code->locals[i] = args->value;
     }
 
-    return mach_execute(func);
+    lky_object *ret = mach_execute(func);
+    rc_decr(func->bucket);
+    return ret;
 }
 
 lky_object *lobjb_default_class_callable(lky_object_seq *args, lky_object *self)
 {
     lky_object_class *cls = (lky_object_class *)self;
 
-    lky_object *obj = lobj_alloc();
-
     lky_object_function *func = cls->builder;
-    print_ops(func->code->ops, func->code->op_len);
     func->bucket = lobj_alloc();
-    rc_incr(func->bucket);
 
     lky_object *outobj = lobj_alloc();
     rc_incr(outobj);
-    printf("...%d\n", outobj->mem_count);
-    printf("%p\n", outobj);
 
     lobj_set_member(func->bucket, cls->refname, outobj);
 
     lky_object *returned = mach_execute(func);
-    //printf("...%d\n", func->bucket->mem_count);
+
+    rc_decr(func->bucket);
+    printf("...%d\n", func->bucket->mem_count);
 
     if(returned)
     {
@@ -483,7 +482,9 @@ lky_object *lobjb_default_class_callable(lky_object_seq *args, lky_object *self)
     lky_object *init = lobj_get_member(outobj, "build_");
     if(init)
     {
+        rc_incr(init);
         lobjb_default_callable(args, init);
+        rc_decr(init);
     }
 
     return outobj;
@@ -800,6 +801,17 @@ lky_object_code *lobjb_load_file(char *name)
     return obj;
 }
 
+char lobjb_decr_with_return(lky_object *obj)
+{
+    rc_decr(obj);
+    return 1;
+}
+
+void printprint(lky_object *obj)
+{
+    printf("==== %d\n", obj->mem_count);
+}
+
 void lobjb_clean(lky_object *a)
 {
     lky_object_builtin *obj = (lky_object_builtin *)a;
@@ -810,8 +822,13 @@ void lobjb_clean(lky_object *a)
             free(obj->value.s);
         break;
         case LBI_FUNCTION:
+            printf("Freeing function.\n");
+            arr_for_each(&((lky_object_function *)a)->parent_stack, (arr_pointer_function)&rc_decr);
+            arr_for_each(&((lky_object_function *)a)->parent_stack, (arr_pointer_function)&printprint);
             arr_free(&((lky_object_function *)a)->parent_stack);
+        break;
         default:
         break;
     }
 }
+

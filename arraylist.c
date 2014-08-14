@@ -108,6 +108,18 @@ long arr_length(arraylist *list)
     return list->count;
 }
 
+void arr_for_each(arraylist *list, arr_pointer_function callback)
+{
+    if(!callback)
+        return;
+
+    long i;
+    for(i = 0; i < list->count; i++)
+    {
+        callback(list->items[i]);
+    }
+}
+
 void arr_free(arraylist *list)
 {
     free(list->items);

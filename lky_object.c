@@ -43,6 +43,9 @@ void rc_decr(lky_object *obj)
         return;
     
     obj->mem_count--;
+    
+    if(obj->type == LBI_FUNCTION)
+        printf("Function has: %d\n", obj->mem_count);
     // printf("%d (-)\n", obj->mem_count);
     if(!obj->mem_count)
     {
@@ -52,8 +55,6 @@ void rc_decr(lky_object *obj)
 
 void lobj_dealloc(lky_object *obj)
 {
-    printf("(D) ");
-    lobjb_print(obj);
     if(obj->type != LBI_CUSTOM)
         lobjb_clean(obj);
     trie_free(obj->members);
