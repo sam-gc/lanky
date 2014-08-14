@@ -34,11 +34,11 @@ List = class() -> self {
 
 list = List(1);
 list.add(5);
+list.add(101);
 
 _prt "List contains 101: " + list.contains(101);
 
-list.next = 5;
-
-loop(i = 0; i < 10; i = i + 1) {
-    0;
+loop(i = 0; i < 10000000; i = i + 1) {
+    list = List(1);
+    _prt i;
 }
