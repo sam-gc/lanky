@@ -1,4 +1,4 @@
-loop(z = 0; z < 10000; z = z+1){
+loop(z = 0; z < 10000000; z = z+1){
 _prt " .. Beginning Test .. ";
 
 i = 1;

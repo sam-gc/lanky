@@ -60,10 +60,11 @@ void node_free(TrieNode_t *node, trie_pointer_function free_func)
 
     while(ln)
     {
-        node_free(ln->payload, free_func);
         list_node_t *nx = ln->next;
         if(free_func && ln->payload->object)
             free_func(ln->payload->object);
+        
+        node_free(ln->payload, free_func);
         free(ln);
         ln = nx;
     }

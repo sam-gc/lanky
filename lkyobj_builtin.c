@@ -465,8 +465,6 @@ lky_object *lobjb_default_class_callable(lky_object_seq *args, lky_object *self)
 {
     lky_object_class *cls = (lky_object_class *)self;
 
-    lky_object *obj = lobj_alloc();
-
     lky_object_function *func = cls->builder;
     func->bucket = lobj_alloc();
     rc_incr(func->bucket);
@@ -569,6 +567,7 @@ lky_object_seq *lobjb_make_seq_node(lky_object *value)
     seq->mem_count = 0;
     seq->members = trie_new();
     seq->size = sizeof(lky_object_seq);
+    gc_add_object(seq);
 
     seq->value = (struct lky_object *)value;
     seq->next = NULL;
@@ -669,7 +668,7 @@ lky_object *lobjb_deserialize_code(FILE *f)
 
     long num_names;
     fread(&num_names, sizeof(long), 1, f);
-    char **names = malloc(sizeof(void *) * num_names);
+    char **names = malloc(sizeof(char *) * num_names);
 
     long stack_size;
     fread(&stack_size, sizeof(long), 1, f);

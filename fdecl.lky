@@ -1,0 +1,3 @@
+test = func(name) {
+    _prt "Hello, " + name
+}

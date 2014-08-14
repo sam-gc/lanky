@@ -10,6 +10,9 @@ typedef struct {
     arraylist root_stacks;
     size_t max_size;
     size_t cur_size;
+    
+    size_t growth_size;
+    size_t marked_size;
 } gc_bundle;
 
 typedef struct {
@@ -25,8 +28,10 @@ void gc_init()
     bundle.pool = arr_create(1000000);
     bundle.roots = arr_create(10);
     bundle.root_stacks = arr_create(10);
-    //bundle.max_size = 16000000;
-    bundle.max_size = 5000;
+    bundle.max_size = 16000000;
+    bundle.growth_size = 16000000;
+    bundle.marked_size = 0;
+//    bundle.max_size = 5000;
     bundle.cur_size = 0;
     gc_started = 1;
 }
@@ -37,6 +42,10 @@ void gc_add_root_object(lky_object *obj)
         return;
 
     arr_append(&bundle.roots, obj);
+    
+    if(arr_index_of(&bundle.roots, obj) > -1)
+        return;
+    
     arr_append(&bundle.pool, obj);
 }
 
@@ -80,10 +89,14 @@ void gc_gc()
 
     gc_mark();
     gc_collect();
+    
+    bundle.max_size = bundle.marked_size + bundle.growth_size;
 }
 
 void gc_collect()
 {
+    bundle.marked_size = 0;
+    
     arraylist pool = bundle.pool;
     int i;
     for(i = pool.count - 1; i >= 0; i--)
@@ -91,14 +104,16 @@ void gc_collect()
         lky_object *o = arr_get(&pool, i);
         if(!o->mem_count)
         {
-            printf("-- %p (%d)\n", o, o->type);
             bundle.cur_size -= o->size;
             // TODO: This will need to change.
             lobj_dealloc(o);
             arr_remove(&pool, NULL, i);
         }
         else
+        {
+            bundle.marked_size += o->size;
             o->mem_count = 0;
+        }
     }
 
     bundle.pool = pool;
@@ -106,12 +121,10 @@ void gc_collect()
 
 void gc_mark_object(lky_object *o)
 {
-    printf("%p (%d)\n", o, o->type);
     if(o->mem_count)
         return;
 
     o->mem_count = 1;
-    printf("LSKDJFLSKDJFLKSDJFLKDSFJ\n");
 
     trie_for_each(o->members, (trie_pointer_function)&gc_mark_object);
 
@@ -147,6 +160,12 @@ void gc_mark_object(lky_object *o)
             int i;
             for(i = 0; i < code->num_constants; i++)
                 gc_mark_object(code->constants[i]);
+        }
+        break;
+        case LBI_CLASS:
+        {
+            lky_object_class *cls = (lky_object_class *)o;
+            gc_mark_object(cls->builder);
         }
         break;
     }

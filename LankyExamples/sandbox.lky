@@ -1,3 +1,5 @@
+loop(z = 0; z < 10000000; z = z + 1){
+
 a = 3;
 _prt a.name;
 
@@ -13,3 +15,4 @@ a.method = func(x) {
 };
 
 _prt a.method(10);
+}

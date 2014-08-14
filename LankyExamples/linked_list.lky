@@ -4,13 +4,13 @@ List = class() -> self {
     };
 
     self.add = func(value) {
-        _prt "Method: add";
-        next = self;
-        loop(next.next) {
-            next = next.next;
+        next = List(value);
+        
+        if(self.next) {
+            next.next = self.next;
         }
-
-        next.next = List(value);
+        
+        self.next = next;
     };
 
     self.forEach = func(callback) {
@@ -39,6 +39,9 @@ list.add(101);
 _prt "List contains 101: " + list.contains(101);
 
 loop(i = 0; i < 10000000; i = i + 1) {
-    list = List(1);
-    _prt i;
+    list.add(i);
+    if(i % 1000 == 0) {
+        list = List(1);
+        _prt "Resetting.";
+    }
 }
