@@ -704,6 +704,7 @@ lky_object *lobjb_deserialize_code(FILE *f)
     
     lky_object_code *obj = malloc(sizeof(lky_object_code));
     obj->constants = con;
+    obj->type = LBI_CODE;
     obj->members = trie_new();
     obj->type = LBI_CODE;
     obj->size = sizeof(lky_object_code);
@@ -808,6 +809,7 @@ lky_object_code *lobjb_load_file(char *name)
 
     lky_object_code *obj = malloc(sizeof(lky_object_code));
     obj->constants = con;
+    obj->type = LBI_CODE;
     obj->size = sizeof(lky_object_code);
     obj->num_constants = len;
     obj->num_locals = locals;

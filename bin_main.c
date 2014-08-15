@@ -22,9 +22,9 @@ int main(int argc, char *argv[])
             print_assembly = 1;
     }
 
-    gc_init();
-
     lky_object_code *code = lobjb_load_file(argv[1]);
+    
+    gc_init();
     arraylist list = arr_create(1);
 
     lky_object_function *func = (lky_object_function *)lobjb_build_func(code, 0, list);

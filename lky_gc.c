@@ -8,7 +8,7 @@ void gc_collect();
 typedef struct {
     gc_hashset pool;
     gc_hashset roots;
-    gc_hashset root_stacks;
+    arraylist root_stacks;
     size_t max_size;
     size_t cur_size;
     
@@ -28,11 +28,11 @@ void gc_init()
 {
     bundle.pool = gchs_create(8);
     bundle.roots = gchs_create(10);
-    bundle.root_stacks = gchs_create(10);
-    bundle.max_size = 16000000;
-    bundle.growth_size = 16000000;
+    bundle.root_stacks = arr_create(10);
+//    bundle.max_size = 16000000;
+    bundle.growth_size = 5000;
     bundle.marked_size = 0;
-//    bundle.max_size = 5000;
+    bundle.max_size = 5000;
     bundle.cur_size = 0;
     gc_started = 1;
 }
@@ -60,14 +60,14 @@ void gc_add_root_stack(void **stack, int size)
     st->stack = stack;
     st->size = size;
 
-    gchs_add(&bundle.root_stacks, st);
+    arr_append(&bundle.root_stacks, st);
 }
 
 void gc_remove_root_stack(void **stack)
 {
     gc_stack *st = arr_get(&bundle.root_stacks, bundle.root_stacks.count - 1);
     free(st);
-    gchs_remove(&bundle.root_stacks, st);
+    arr_remove(&bundle.root_stacks, NULL, bundle.root_stacks.count - 1);
 }
 
 void gc_add_object(lky_object *obj)
@@ -114,6 +114,8 @@ void gc_collect()
             o->mem_count = 0;
         }
     }
+    
+    free(objs);
 }
 
 void gc_mark_object(lky_object *o)
@@ -170,7 +172,7 @@ void gc_mark_object(lky_object *o)
     }
 }
 
-void gc_mark_stack(gc_stack *st)
+char gc_mark_stack(gc_stack *st)
 {
     void **stack = st->stack;
     int size = st->size;
@@ -181,12 +183,14 @@ void gc_mark_stack(gc_stack *st)
             break;
         gc_mark_object(stack[i]);
     }
+    
+    return 1;
 }
 
 void gc_mark()
 {
     gchs_for_each(&bundle.roots, (gchs_pointer_function)&gc_mark_object);
-    gchs_for_each(&bundle.root_stacks, (gchs_pointer_function)&gc_mark_stack);
+    arr_for_each(&bundle.root_stacks, (arr_pointer_function)&gc_mark_stack);
 
     // arr_for_each(&bundle.pool, (arr_pointer_function)&gc_reset_mark);
     // arr_for_each(&bundle.roots, (arr_pointer_function)&gc_mark_object_with_return);
