@@ -17,7 +17,7 @@ lky_object *lobjb_alloc(lky_builtin_type t, lky_builtin_value v)
     obj->members = trie_new();
     obj->members.free_func = (trie_pointer_function)(&rc_decr);
     obj->value = v;
-    gc_add_object(obj);
+    gc_add_object((lky_object *)obj);
 
     return (lky_object *)obj;
 }
@@ -50,7 +50,7 @@ lky_object *lobjb_build_func(lky_object_code *code, int argc, arraylist inherite
 
     func->parent_stack = inherited;
 
-    gc_add_object(func);
+    gc_add_object((lky_object *)func);
 
     lky_callable c;
     c.function = (lky_function_ptr)&lobjb_default_callable;
@@ -71,7 +71,7 @@ lky_object *lobjb_build_class(lky_object_function *builder, char *refname)
 
     cls->builder = builder;
     cls->refname = refname;
-    gc_add_object(cls);
+    gc_add_object((lky_object *)cls);
 
     lky_callable c;
     c.function = (lky_function_ptr)&lobjb_default_class_callable;
@@ -567,7 +567,7 @@ lky_object_seq *lobjb_make_seq_node(lky_object *value)
     seq->mem_count = 0;
     seq->members = trie_new();
     seq->size = sizeof(lky_object_seq);
-    gc_add_object(seq);
+    gc_add_object((lky_object *)seq);
 
     seq->value = (struct lky_object *)value;
     seq->next = NULL;
@@ -681,31 +681,43 @@ lky_object *lobjb_deserialize_code(FILE *f)
         names[i] = malloc(sz);
         fread(names[i], sizeof(char), sz, f);
     }
-    
-    void **con = malloc(sizeof(void *) * len);
-    
-    for(i = 0; i < len; i++)
+   
+    void **con = NULL; 
+    if(len > 0)
     {
-        lky_object *obj = lobjb_deserialize(f);
-        rc_incr(obj);
-        con[i] = obj;
+        con = malloc(sizeof(void *) * len);
+        printf("...%d\n", len);
+    
+        for(i = 0; i < len; i++)
+        {
+            lky_object *obj = lobjb_deserialize(f);
+            rc_incr(obj);
+            con[i] = obj;
+            lobjb_print(obj);
+        }
     }
     
-    fread(&len, sizeof(long), 1, f);
-    char *ops = malloc(len);
-    fread(ops, sizeof(char), len, f);
+    long oplen;
+    fread(&oplen, sizeof(long), 1, f);
+    char *ops = malloc(oplen);
+    fread(ops, sizeof(char), oplen, f);
     
     lky_object_code *obj = malloc(sizeof(lky_object_code));
     obj->constants = con;
+    obj->members = trie_new();
     obj->type = LBI_CODE;
+    obj->size = sizeof(lky_object_code);
+    obj->mem_count = 0;
     obj->num_constants = len;
     obj->num_locals = locals;
     obj->num_names = num_names;
     obj->locals = malloc(sizeof(void *) * locals);
     obj->ops = ops;
-    obj->op_len = len;
+    obj->op_len = oplen;
     obj->names = names;
     obj->stack_size = stack_size;
+
+    gc_add_object(obj);
 
     for(i = 0; i < locals; i++)
         obj->locals[i] = NULL;
@@ -776,28 +788,39 @@ lky_object_code *lobjb_load_file(char *name)
         names[i] = str;
     }
 
-    void **con = malloc(sizeof(void *) * len);
-    for(i = 0; i < len; i++)
+    void **con = NULL;
+
+    if(len > 0)
     {
-        lky_object *obj = lobjb_deserialize(f);
-        rc_incr(obj);
-        con[i] = obj;
+        con = malloc(sizeof(void *) * len);
+        for(i = 0; i < len; i++)
+        {
+            lky_object *obj = lobjb_deserialize(f);
+            rc_incr(obj);
+            con[i] = obj;
+        }
     }
 
-    fread(&len, sizeof(long), 1, f);
-    char *ops = malloc(len);
-    fread(ops, sizeof(char), len, f);
+    long oplen;
+    fread(&oplen, sizeof(long), 1, f);
+    char *ops = malloc(oplen);
+    fread(ops, sizeof(char), oplen, f);
 
     lky_object_code *obj = malloc(sizeof(lky_object_code));
     obj->constants = con;
+    obj->size = sizeof(lky_object_code);
     obj->num_constants = len;
     obj->num_locals = locals;
+    obj->members = trie_new();
+    obj->mem_count = 0;
     obj->num_names = num_names;
     obj->locals = malloc(sizeof(void *) * locals);
     obj->ops = ops;
-    obj->op_len = len;
+    obj->op_len = oplen;
     obj->names = names;
     obj->stack_size = stack_size;
+
+    gc_add_object(obj);
 
     for(i = 0; i < locals; i++)
         obj->locals[i] = NULL;

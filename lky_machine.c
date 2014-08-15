@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "arraylist.h"
 #include "instruction_set.h"
 #include "lkyobj_builtin.h"
@@ -100,7 +101,7 @@ lky_object *mach_execute(lky_object_function *func)
     func->bucket = frame.bucket;
 
     gc_add_root_stack(stack, frame.stack_size);
-    gc_add_root_object(func);
+    gc_add_root_object((lky_object *)func);
 
     rc_incr(frame.bucket);
 
@@ -108,7 +109,7 @@ lky_object *mach_execute(lky_object_function *func)
 
     rc_decr(frame.bucket);
 
-    gc_remove_root_object(func);
+    gc_remove_root_object((lky_object *)func);
     gc_remove_root_stack(NULL);
     func->bucket = NULL;
 
@@ -366,7 +367,7 @@ _opcode_whiplash_:
                 if(!seq)
                 {
                     seq = ns;
-                    gc_add_root_object(seq);
+                    gc_add_root_object((lky_object *)seq);
                     first = seq;
                 }
                 else
@@ -382,7 +383,7 @@ _opcode_whiplash_:
             rc_decr(obj);
             lobjb_free_seq(seq);
             if(seq)
-                gc_remove_root_object(first);
+                gc_remove_root_object((lky_object *)first);
 
             PUSH(ret);
             goto _opcode_whiplash_;

@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "lky_machine.h"
+#include "lky_gc.h"
 #include "lkyobj_builtin.h"
 
 int main(int argc, char *argv[])
@@ -20,6 +21,8 @@ int main(int argc, char *argv[])
         if(!strcmp("-s", argv[i]))
             print_assembly = 1;
     }
+
+    gc_init();
 
     lky_object_code *code = lobjb_load_file(argv[1]);
     arraylist list = arr_create(1);
