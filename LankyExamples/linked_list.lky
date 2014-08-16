@@ -38,7 +38,7 @@ list.add(101);
 
 _prt "List contains 101: " + list.contains(101);
 
-loop(i = 0; i < 10000000; i = i + 1) {
+loop(i = 0; i < 10000; i = i + 1) {
     list.add(i);
     if(i % 1000 == 0) {
         _prt "Cts: " + list.contains(101);
@@ -46,3 +46,8 @@ loop(i = 0; i < 10000000; i = i + 1) {
         _prt "Resetting.";
     }
 }
+
+loop(i = 0; i < 1000; i = i + 1) {
+    _prt i;
+}
+

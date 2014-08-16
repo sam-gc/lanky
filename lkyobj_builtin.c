@@ -697,8 +697,8 @@ lky_object *lobjb_deserialize_code(FILE *f)
     
     long oplen;
     fread(&oplen, sizeof(long), 1, f);
-    char *ops = malloc(oplen);
-    fread(ops, sizeof(char), oplen, f);
+    unsigned char *ops = malloc(oplen);
+    fread(ops, sizeof(unsigned char), oplen, f);
     
     lky_object_code *obj = malloc(sizeof(lky_object_code));
     obj->constants = con;
@@ -802,8 +802,8 @@ lky_object_code *lobjb_load_file(char *name)
 
     long oplen;
     fread(&oplen, sizeof(long), 1, f);
-    char *ops = malloc(oplen);
-    fread(ops, sizeof(char), oplen, f);
+    unsigned char *ops = malloc(oplen);
+    fread(ops, sizeof(unsigned char), oplen, f);
 
     lky_object_code *obj = malloc(sizeof(lky_object_code));
     obj->constants = con;

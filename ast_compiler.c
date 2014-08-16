@@ -30,10 +30,10 @@ int find_prev_name(compiler_wrapper *cw, char *name);
 typedef struct tag_node {
     struct tag_node *next;
     long tag;
-    char line;
+    long line;
 } tag_node;
 
-char get_line(tag_node *node, long tag)
+long get_line(tag_node *node, long tag)
 {
     for(; node; node = node->next)
     {
@@ -54,7 +54,7 @@ tag_node *make_node()
     return node;
 }
 
-void append_tag(tag_node *node, long tag, char line)
+void append_tag(tag_node *node, long tag, long line)
 {
     for(; node->next; node = node->next);
 
@@ -117,15 +117,15 @@ ast_value_wrapper node_to_wrapper(ast_value_node *node)
     return wrap;
 }
 
-char *finalize_ops(compiler_wrapper *cw)
+unsigned char *finalize_ops(compiler_wrapper *cw)
 {
-    char *ops = malloc(cw->rops.count);
+    unsigned char *ops = malloc(cw->rops.count);
 
     long i;
     for(i = 0; i < cw->rops.count; i++)
     {
         lky_object_builtin *obj = arr_get(&cw->rops, i);
-        ops[i] = (char)obj->value.i;
+        ops[i] = (unsigned char)obj->value.i;
     }
 
     return ops;
@@ -660,6 +660,10 @@ void compile_compound(compiler_wrapper *cw, ast_node *root)
     }
 }
 
+//void int_to_byte_array(char *buffer, char *sz)
+//{
+    
+
 void replace_tags(compiler_wrapper *cw)
 {
     tag_node *tags = make_node();
@@ -670,7 +674,7 @@ void replace_tags(compiler_wrapper *cw)
         long op = ((lky_object_builtin *)arr_get(&cw->rops, i))->value.i;
         if(op > 999)
         {
-            char line = get_line(tags, op);
+            long line = get_line(tags, op);
             if(line < 0)
             {
                 append_tag(tags, op, i);
@@ -797,7 +801,7 @@ void write_to_file(char *name, lky_object_code *code)
         char *str = code->names[i];
         long len = strlen(str) + 1;
         fwrite(&len, sizeof(long), 1, f);
-        fwrite(str, sizeof(char), len, f);
+        fwrite(str, sizeof(unsigned char), len, f);
     }
 
     for(i = 0; i < code->num_constants; i++)

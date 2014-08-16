@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 #include "arraylist.h"
 #include "instruction_set.h"
 #include "lkyobj_builtin.h"
@@ -26,7 +27,7 @@ typedef struct stackframe {
     void **data_stack;
     char **names;
     long pc;
-    char *ops;
+    unsigned char *ops;
     long tape_len;
 
     long stack_pointer;
@@ -133,6 +134,14 @@ lky_object *mach_execute(lky_object_function *func)
 //     // printf("%d\n", pushes);
 // }
 void print_op(lky_instruction i);
+
+// This function is responsible for determining
+// the jump location from the arguments to the
+// jump instructions. It will use the
+// appropriate integer type and will increment
+// the stack pointer accordingly.
+long mach_calc_jump_idx(stackframe *frame, char sz);
+
 void mach_eval(stackframe *frame)
 {
     lky_instruction op;
@@ -286,7 +295,9 @@ _opcode_whiplash_:
         break;
         case LI_JUMP:
         {
-            char idx = frame->ops[++frame->pc];
+            unsigned char idx = frame->ops[++frame->pc];
+            //long idx = mach_calc_jump_idx(frame, len);
+
             frame->pc = idx < frame->pc ? idx - 1 : idx;
             goto _opcode_whiplash_;
         }
@@ -294,7 +305,9 @@ _opcode_whiplash_:
         case LI_JUMP_FALSE:
         {
             lky_object *obj = POP();
-            char idx = frame->ops[++frame->pc];
+            
+            unsigned char idx = frame->ops[++frame->pc];
+            //long idx = mach_calc_jump_idx(frame, len);
 
             // printf("=> %d\n", obj == &lky_nil || obj->type != LBI_STRING && !OBJ_NUM_UNWRAP(obj));
             char needs_jump = 0;
@@ -534,6 +547,31 @@ _opcode_whiplash_:
     // print_op(frame.ops[frame.pc]);
 
     // printf("----> %d\n", frame.pc);
+}
+
+long mach_calc_jump_idx(stackframe *frame, char sz)
+{
+    long ret, add;
+    switch(sz)
+    {
+    case 1:
+        return frame->ops[++frame->pc];
+    case 2:
+        add = 1;
+        ret = *(uint16_t *)frame->ops[++frame->pc];
+        break;
+    case 4:
+        add = 3;
+        ret = *(uint32_t *)frame->ops[++frame->pc];
+        break;
+    case 8:
+        add = 7;
+        ret = *(uint64_t *)frame->ops[++frame->pc];
+        break;
+    }
+
+    frame->pc += add;
+    return ret;
 }
 
 void print_op(lky_instruction op)

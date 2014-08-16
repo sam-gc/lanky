@@ -40,7 +40,7 @@ typedef struct {
     void **constants;
     void **locals;
     char **names;
-    char *ops;
+    unsigned char *ops;
     long op_len;
     int stack_size;
 } lky_object_code;
