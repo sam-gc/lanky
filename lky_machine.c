@@ -135,13 +135,6 @@ lky_object *mach_execute(lky_object_function *func)
 // }
 void print_op(lky_instruction i);
 
-// This function is responsible for determining
-// the jump location from the arguments to the
-// jump instructions. It will use the
-// appropriate integer type and will increment
-// the stack pointer accordingly.
-long mach_calc_jump_idx(stackframe *frame, char sz);
-
 void mach_eval(stackframe *frame)
 {
     lky_instruction op;
@@ -549,31 +542,6 @@ _opcode_whiplash_:
     // print_op(frame.ops[frame.pc]);
 
     // printf("----> %d\n", frame.pc);
-}
-
-long mach_calc_jump_idx(stackframe *frame, char sz)
-{
-    long ret, add;
-    switch(sz)
-    {
-    case 1:
-        return frame->ops[++frame->pc];
-    case 2:
-        add = 1;
-        ret = *(uint16_t *)frame->ops[++frame->pc];
-        break;
-    case 4:
-        add = 3;
-        ret = *(uint32_t *)frame->ops[++frame->pc];
-        break;
-    case 8:
-        add = 7;
-        ret = *(uint64_t *)frame->ops[++frame->pc];
-        break;
-    }
-
-    frame->pc += add;
-    return ret;
 }
 
 void print_op(lky_instruction op)

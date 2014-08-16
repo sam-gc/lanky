@@ -26,6 +26,7 @@ void compile_single_if(compiler_wrapper *cw, ast_if_node *node, int tagOut, int 
 lky_object_code *compile_ast_ext(ast_node *root, compiler_wrapper *incw);
 void compile_set_member(compiler_wrapper *cw, ast_node *root);
 int find_prev_name(compiler_wrapper *cw, char *name);
+void int_to_byte_array(unsigned char *buffer, int val);
 
 typedef struct tag_node {
     struct tag_node *next;
