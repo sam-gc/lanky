@@ -4,12 +4,13 @@ List = class() -> self {
     };
 
     self.add = func(value) {
-        next = self;
-        loop(next.next) {
-            next = next.next;
+        next = List(value);
+        
+        if(self.next) {
+            next.next = self.next;
         }
-
-        next.next = List(value);
+        
+        self.next = next;
     };
 
     self.forEach = func(callback) {
@@ -33,7 +34,7 @@ List = class() -> self {
 
 list = List(1);
 
-loop(i = 0; i < 2000; i = i + 1) {
+loop(i = 0; i < 1000; i = i + 1) {
     list.add(i);
 }
 
