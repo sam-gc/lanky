@@ -716,7 +716,7 @@ lky_object *lobjb_deserialize_code(FILE *f)
     obj->names = names;
     obj->stack_size = stack_size;
 
-    gc_add_object(obj);
+    gc_add_object((lky_object *)obj);
 
     for(i = 0; i < locals; i++)
         obj->locals[i] = NULL;
@@ -820,7 +820,7 @@ lky_object_code *lobjb_load_file(char *name)
     obj->names = names;
     obj->stack_size = stack_size;
 
-    gc_add_object(obj);
+    gc_add_object((lky_object *)obj);
 
     for(i = 0; i < locals; i++)
         obj->locals[i] = NULL;
