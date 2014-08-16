@@ -295,7 +295,8 @@ _opcode_whiplash_:
         break;
         case LI_JUMP:
         {
-            unsigned char idx = frame->ops[++frame->pc];
+            unsigned int idx = *(unsigned int *)(frame->ops + (++frame->pc));
+            frame->pc += 3;
             //long idx = mach_calc_jump_idx(frame, len);
 
             frame->pc = idx < frame->pc ? idx - 1 : idx;
@@ -306,7 +307,8 @@ _opcode_whiplash_:
         {
             lky_object *obj = POP();
             
-            unsigned char idx = frame->ops[++frame->pc];
+            unsigned int idx = *(unsigned int *)(frame->ops + (++frame->pc));
+            frame->pc += 3;
             //long idx = mach_calc_jump_idx(frame, len);
 
             // printf("=> %d\n", obj == &lky_nil || obj->type != LBI_STRING && !OBJ_NUM_UNWRAP(obj));

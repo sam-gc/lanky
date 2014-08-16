@@ -1,2 +1,2 @@
-_prt a = b = "Hello"
-_prt a + " " + b
+_prt a = b = "Hello";
+_prt a + " " + b;

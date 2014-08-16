@@ -274,6 +274,9 @@ void compile_loop(compiler_wrapper *cw, ast_node *root)
     compile(cw, node->condition);
     append_op(cw, LI_JUMP_FALSE);
     append_op(cw, tagOut);
+    append_op(cw, -1);
+    append_op(cw, -1);
+    append_op(cw, -1);
 
     compile_compound(cw, node->payload->next);
 
@@ -288,7 +291,13 @@ void compile_loop(compiler_wrapper *cw, ast_node *root)
     }
 
     append_op(cw, LI_JUMP);
-    append_op(cw, start);
+    unsigned char buf[4];
+    int_to_byte_array(buf, start);
+
+    append_op(cw, buf[0]);
+    append_op(cw, buf[1]);
+    append_op(cw, buf[2]);
+    append_op(cw, buf[3]);
     append_op(cw, tagOut);
 
     cw->save_val = 1;
@@ -334,6 +343,9 @@ void compile_single_if(compiler_wrapper *cw, ast_if_node *node, int tagOut, int 
 
         append_op(cw, LI_JUMP_FALSE);
         append_op(cw, tagNext);
+        append_op(cw, -1);
+        append_op(cw, -1);
+        append_op(cw, -1);
         // printf("%d\n", tagNext);
     }
 
@@ -349,6 +361,9 @@ void compile_single_if(compiler_wrapper *cw, ast_if_node *node, int tagOut, int 
     {
         append_op(cw, LI_JUMP);
         append_op(cw, tagOut);
+        append_op(cw, -1);
+        append_op(cw, -1);
+        append_op(cw, -1);
     }
 }
 
@@ -365,11 +380,17 @@ void compile_ternary(compiler_wrapper *cw, ast_node *n)
     compile(cw, node->condition);
     append_op(cw, LI_JUMP_FALSE);
     append_op(cw, tagNext);
+    append_op(cw, -1);
+    append_op(cw, -1);
+    append_op(cw, -1);
 
     // Compile 'b'
     compile(cw, node->first);
     append_op(cw, LI_JUMP);
     append_op(cw, tagOut);
+    append_op(cw, -1);
+    append_op(cw, -1);
+    append_op(cw, -1);
 
     // Compile 'c'
     append_op(cw, tagNext);
@@ -660,9 +681,14 @@ void compile_compound(compiler_wrapper *cw, ast_node *root)
     }
 }
 
-//void int_to_byte_array(char *buffer, char *sz)
-//{
-    
+// TODO: We should probably worry about endienness
+void int_to_byte_array(unsigned char *buffer, int val)
+{
+    buffer[3] = (val >> 24) & 0xFF;
+    buffer[2] = (val >> 16) & 0xFF;
+    buffer[1] = (val >> 8)  & 0xFF;
+    buffer[0] = val         & 0xFF;
+}
 
 void replace_tags(compiler_wrapper *cw)
 {
@@ -672,6 +698,9 @@ void replace_tags(compiler_wrapper *cw)
     for(i = cw->rops.count - 1; i >= 0; i--)
     {
         long op = ((lky_object_builtin *)arr_get(&cw->rops, i))->value.i;
+        if(op < 0)
+            continue;
+
         if(op > 999)
         {
             long line = get_line(tags, op);
@@ -684,9 +713,17 @@ void replace_tags(compiler_wrapper *cw)
                 cw->rops.items[i] = obj;
                 continue;
             }
-            lky_object *obj = lobjb_build_int(line);
-            pool_add(&ast_memory_pool, obj);
-            cw->rops.items[i] = obj;
+
+            unsigned char buf[4];
+            int_to_byte_array(buf, line);
+
+            int j;
+            for(j = 0; j < 4; j++)
+            {
+                lky_object *obj = lobjb_build_int(buf[j]);
+                pool_add(&ast_memory_pool, obj);
+                cw->rops.items[i + j] = obj;
+            }
         }
     }
 
