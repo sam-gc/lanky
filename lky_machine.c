@@ -272,6 +272,26 @@ _opcode_whiplash_:
             goto _opcode_whiplash_;
         }
         break;
+        case LI_BINARY_AND:
+        {
+            POP_TWO();
+            lky_object *obj = lobjb_binary_and(b, a);
+            RC_TWO();
+
+            PUSH_RC(obj);
+            goto _opcode_whiplash_;
+        }
+        break;
+        case LI_BINARY_OR:
+        {
+            POP_TWO();
+            lky_object *obj = lobjb_binary_or(b, a);
+            RC_TWO();
+
+            PUSH_RC(obj);
+            goto _opcode_whiplash_;
+        }
+        break;
         case LI_PRINT:
         {
             lky_object *a = POP();

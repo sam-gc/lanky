@@ -1,5 +1,3 @@
-loop(z = 0; z < 100000000; z = z + 1) {
-
 Dog = class() -> self {
     self.build_ = func(name) {
         self.name = name;
@@ -7,8 +5,7 @@ Dog = class() -> self {
     };
 
     self.equals_ = func(other) {
-        _prt self.name + " " + other.name;
-        ret self.name == other.name;
+        ret self.name == other.name & self.weight == other.weight;
     };
 
     self.bark = func() {
@@ -28,9 +25,8 @@ _prt fred.equals_(moki);
 _prt moki.equals_(fred);
 fred.name = "Moki";
 _prt fred.equals_(moki);
+fred.weight = 39;
 _prt moki.equals_(fred);
 
 moki.bark();
-
-}
 

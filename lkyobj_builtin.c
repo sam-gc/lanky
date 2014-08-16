@@ -56,6 +56,9 @@ lky_object *lobjb_build_func(lky_object_code *code, int argc, arraylist inherite
     c.function = (lky_function_ptr)&lobjb_default_callable;
     c.argc = argc;
     func->callable = c;
+
+    // Add argc member (this should probably be done somewhere else.
+    lobj_set_member((lky_object *)func, "argc", (lky_object *)lobjb_build_int(argc)); 
     
     return (lky_object *)func;
 }
@@ -440,6 +443,36 @@ lky_object *lobjb_binary_notequal(lky_object *a, lky_object *b)
         v.i = (OBJ_NUM_UNWRAP(ab) != OBJ_NUM_UNWRAP(bb));
 
     return lobjb_alloc(t, v);
+}
+
+lky_object *lobjb_binary_and(lky_object *a, lky_object *b)
+{
+    BI_CAST(a, ab);
+    BI_CAST(b, bb);
+
+    if(a == &lky_nil || b == &lky_nil)
+        return lobjb_build_int(0);
+
+    int vala = a->type == LBI_INTEGER || a->type == LBI_FLOAT ? OBJ_NUM_UNWRAP(ab) : 1;
+    int valb = b->type == LBI_INTEGER || b->type == LBI_FLOAT ? OBJ_NUM_UNWRAP(bb) : 1;
+
+    return lobjb_build_int(vala && valb);
+}
+
+lky_object *lobjb_binary_or(lky_object *a, lky_object *b)
+{
+    BI_CAST(a, ab);
+    BI_CAST(b, bb);
+
+    if(a == &lky_nil && b == &lky_nil)
+        return lobjb_build_int(0);
+
+    int vala = a->type == LBI_INTEGER || a->type == LBI_FLOAT ? OBJ_NUM_UNWRAP(ab) : 1;
+    int valb = b->type == LBI_INTEGER || b->type == LBI_FLOAT ? OBJ_NUM_UNWRAP(bb) : 1;
+    vala = a == &lky_nil ? 0 : vala;
+    valb = b == &lky_nil ? 0 : valb;
+
+    return lobjb_build_int(vala || valb);
 }
 
 lky_object *lobjb_default_callable(lky_object_seq *args, lky_object *self)

@@ -203,6 +203,12 @@ void compile_binary(compiler_wrapper *cw, ast_node *root)
     case 'n':
         istr = LI_BINARY_NE;
         break;
+    case '&':
+        istr = LI_BINARY_AND;
+        break;
+    case '|':
+        istr = LI_BINARY_OR;
+        break;
     case '=':
         {
             append_op(cw, LI_SAVE_CLOSE);
