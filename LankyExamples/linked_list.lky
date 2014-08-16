@@ -41,7 +41,7 @@ _prt "List contains 101: " + list.contains(101);
 loop(i = 0; i < 10000000; i = i + 1) {
     list.add(i);
     if(i % 1000 == 0) {
-        _prt list.contains(101);
+        _prt "Cts: " + list.contains(101);
         list = List(1 % 1000);
         _prt "Resetting.";
     }

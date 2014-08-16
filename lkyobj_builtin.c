@@ -686,14 +686,12 @@ lky_object *lobjb_deserialize_code(FILE *f)
     if(len > 0)
     {
         con = malloc(sizeof(void *) * len);
-        printf("...%d\n", len);
     
         for(i = 0; i < len; i++)
         {
             lky_object *obj = lobjb_deserialize(f);
             rc_incr(obj);
             con[i] = obj;
-            lobjb_print(obj);
         }
     }
     
