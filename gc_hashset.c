@@ -32,6 +32,7 @@ void gchs_add(gc_hashset *set, void *obj)
             gchs_add(&next, data[i]);
         }
 
+        gchs_add(&next, obj);
         free(data);
         gchs_free(set);
         *set = next;

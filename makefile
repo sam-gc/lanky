@@ -1,6 +1,6 @@
 COMPILER_SOURCES=parser.c tokens.c tools.c ast.c mempool.c main.c ast_compiler.c bytecode_analyzer.c 
 MACHINE_SOURCES=trie.c hashmap.c lky_object.c arraylist.c lky_machine.c lkyobj_builtin.c lky_gc.c gc_hashset.c
-CFLAGS=-lm -g -pg
+CFLAGS=-lm -g
 COLOR=-fdiagnostics-color=always 
 CC=gcc
 

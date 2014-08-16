@@ -1,3 +1,4 @@
+loop(z = 0; z < 100000000; z = z + 1) {
 _prt " .. Beginning Test .. ";
 
 i = 1;
@@ -30,3 +31,4 @@ if(1) {
 }
 
 _prt " .. Finished Test .. ";
+}
