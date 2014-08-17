@@ -92,6 +92,7 @@ lky_object *lobjb_binary_add(lky_object *a, lky_object *b)
 
 lky_object *lobjb_binary_subtract(lky_object *a, lky_object *b)
 {
+    CHECK_EXEC_CUSTOM_IMPL(a, b, "op_subtract_");
     BI_CAST(a, ab);
     BI_CAST(b, bb);
 
@@ -117,6 +118,7 @@ lky_object *lobjb_binary_subtract(lky_object *a, lky_object *b)
 
 lky_object *lobjb_binary_multiply(lky_object *a, lky_object *b)
 {
+    CHECK_EXEC_CUSTOM_IMPL(a, b, "op_multiply_");
     BI_CAST(a, ab);
     BI_CAST(b, bb);
 
@@ -179,6 +181,7 @@ lky_object *lobjb_binary_multiply(lky_object *a, lky_object *b)
 
 lky_object *lobjb_binary_divide(lky_object *a, lky_object *b)
 {
+    CHECK_EXEC_CUSTOM_IMPL(a, b, "op_divide_");
     BI_CAST(a, ab);
     BI_CAST(b, bb);
 
@@ -204,6 +207,7 @@ lky_object *lobjb_binary_divide(lky_object *a, lky_object *b)
 
 lky_object *lobjb_binary_modulo(lky_object *a, lky_object *b)
 {
+    CHECK_EXEC_CUSTOM_IMPL(a, b, "op_modulo_");
     BI_CAST(a, ab);
     BI_CAST(b, bb);
 
@@ -229,6 +233,7 @@ lky_object *lobjb_binary_modulo(lky_object *a, lky_object *b)
 
 lky_object *lobjb_binary_lessthan(lky_object *a, lky_object *b)
 {
+    CHECK_EXEC_CUSTOM_IMPL(a, b, "op_lt_");
     BI_CAST(a, ab);
     BI_CAST(b, bb);
 
@@ -255,6 +260,7 @@ lky_object *lobjb_binary_lessthan(lky_object *a, lky_object *b)
 
 lky_object *lobjb_binary_greaterthan(lky_object *a, lky_object *b)
 {
+    CHECK_EXEC_CUSTOM_IMPL(a, b, "op_gt_");
     BI_CAST(a, ab);
     BI_CAST(b, bb);
 
@@ -307,6 +313,7 @@ lky_object *lobjb_binary_equals(lky_object *a, lky_object *b)
 
 lky_object *lobjb_binary_lessequal(lky_object *a, lky_object *b)
 {
+    CHECK_EXEC_CUSTOM_IMPL(a, b, "op_lte_");
     BI_CAST(a, ab);
     BI_CAST(b, bb);
 
@@ -331,6 +338,7 @@ lky_object *lobjb_binary_lessequal(lky_object *a, lky_object *b)
 
 lky_object *lobjb_binary_greatequal(lky_object *a, lky_object *b)
 {
+    CHECK_EXEC_CUSTOM_IMPL(a, b, "op_gte_");
     BI_CAST(a, ab);
     BI_CAST(b, bb);
 
@@ -355,6 +363,7 @@ lky_object *lobjb_binary_greatequal(lky_object *a, lky_object *b)
 
 lky_object *lobjb_binary_notequal(lky_object *a, lky_object *b)
 {
+    CHECK_EXEC_CUSTOM_IMPL(a, b, "op_notequal_");
     BI_CAST(a, ab);
     BI_CAST(b, bb);
 
@@ -379,6 +388,7 @@ lky_object *lobjb_binary_notequal(lky_object *a, lky_object *b)
 
 lky_object *lobjb_binary_and(lky_object *a, lky_object *b)
 {
+    CHECK_EXEC_CUSTOM_IMPL(a, b, "op_and_");
     BI_CAST(a, ab);
     BI_CAST(b, bb);
 
@@ -393,6 +403,7 @@ lky_object *lobjb_binary_and(lky_object *a, lky_object *b)
 
 lky_object *lobjb_binary_or(lky_object *a, lky_object *b)
 {
+    CHECK_EXEC_CUSTOM_IMPL(a, b, "op_or_");
     BI_CAST(a, ab);
     BI_CAST(b, bb);
 
