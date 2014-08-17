@@ -17,7 +17,7 @@ guts: src/grammar/lanky.l src/grammar/lanky.y
 	lex -o src/grammar/tokens.c src/grammar/lanky.l
 
 glory: $(COMP_OBJ_FILES) $(INT_OBJ_FILES) src/main.c src/grammar/parser.c src/grammar/tokens.c
-	$(CC) $(LDFLAGS) $(CFLAGS) -o lanky $^
+	$(CC) $(CFLAGS) -o lanky $^ $(LDFLAGS)     
 
 clean:
 	rm -f lanky machine test
@@ -25,7 +25,7 @@ clean:
 	rm -f src/grammar/parser.* src/grammar/tokens.c
 
 machine: $(INT_OBJ_FILES) src/bin_main.c
-	$(CC) $(LDFLAGS) $(CFLAGS) -o machine $^
+	$(CC) $(CFLAGS) -o machine $^ $(LDFLAGS)
 
 obj/compiler/%.o: src/compiler/%.c
 	$(MKDIR) obj/compiler/
