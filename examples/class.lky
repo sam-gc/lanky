@@ -31,4 +31,3 @@ fred.weight = 39;
 _prt fred == moki;
 
 moki.bark();
-

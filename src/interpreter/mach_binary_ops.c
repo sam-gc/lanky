@@ -12,7 +12,7 @@
             if(!func || func->type != LBI_FUNCTION) \
                 break; \
             lky_object_function *cfunc = (lky_object_function *)func;\
-            if(cfunc->callable.argc != 1 || !cfunc->code) \
+            if(cfunc->callable.argc != 1) \
                 break; \
             return bin_op_exec_custom(cfunc, b); \
         } \
@@ -20,18 +20,15 @@
 
 lky_object *bin_op_exec_custom(lky_object_function *func, lky_object *other)
 {
-    lky_object_code *code = func->code;
+    lky_object_seq *seq = lobjb_make_seq_node(other);
+    lky_callable c = func->callable;
 
-    lky_object *bucket = lobj_alloc();
-
-    lobj_set_member(bucket, code->names[0], other);
-
-    func->bucket = bucket;
-    return mach_execute(func);
+    return (lky_object *)c.function(seq, (struct lky_object *)func);
 }
 
 lky_object *lobjb_binary_add(lky_object *a, lky_object *b)
 {
+    CHECK_EXEC_CUSTOM_IMPL(a, b, "op_add_");
     BI_CAST(a, ab);
     BI_CAST(b, bb);
 
