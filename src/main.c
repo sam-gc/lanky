@@ -1,10 +1,8 @@
 #include <stdio.h>
 #include <string.h>
 #include "ast.h"
-#include "ast_interpreter.h"
 #include "parser.h"
 #include "tools.h"
-#include "context.h"
 #include "ast_compiler.h"
 #include "lky_machine.h"
 #include "lky_object.h"

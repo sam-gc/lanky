@@ -11,3 +11,5 @@ parser.output
 *.swp
 *.swo
 *~
+obj/
+*.o

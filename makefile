@@ -1,26 +1,38 @@
-COMPILER_SOURCES=parser.c tokens.c tools.c ast.c mempool.c main.c ast_compiler.c bytecode_analyzer.c 
-MACHINE_SOURCES=trie.c hashmap.c lky_object.c arraylist.c lky_machine.c lkyobj_builtin.c lky_gc.c gc_hashset.c
-CFLAGS=-lm -g
+COMPILER_SOURCES=$(wildcard src/compiler/*.c)
+INTERPRETER_SOURCES=$(wildcard src/interpreter/*.c)
+
+COMP_OBJ_FILES=$(addprefix obj/compiler/,$(notdir $(COMPILER_SOURCES:.c=.o)))
+INT_OBJ_FILES=$(addprefix obj/interpreter/,$(notdir $(INTERPRETER_SOURCES:.c=.o)))
+
+CFLAGS=-g -Isrc/interpreter -Isrc/compiler -Isrc/grammar
+LDFLAGS=-lm
 COLOR=-fdiagnostics-color=always 
 CC=gcc
+MKDIR=mkdir -p
 
-guts: lanky.l lanky.y
-	bison -d -o parser.c lanky.y -v
-	lex -o tokens.c lanky.l
+all: lanky machine
 
-glory: $(SOURCES)
-	$(CC) -o lanky $(COMPILER_SOURCES) $(MACHINE_SOURCES) $(CFLAGS)
+guts: src/grammar/lanky.l src/grammar/lanky.y
+	bison -d -o src/grammar/parser.c src/grammar/lanky.y -v
+	lex -o src/grammar/tokens.c src/grammar/lanky.l
 
-all: guts glory
+glory: $(COMP_OBJ_FILES) $(INT_OBJ_FILES) src/main.c src/grammar/parser.c src/grammar/tokens.c
+	$(CC) $(LDFLAGS) $(CFLAGS) -o lanky $^
 
 clean:
-	rm lanky bnm machine arrtests parser.c parser.h tokens.c
+	rm -f lanky machine test
+	rm -rf obj
+	rm -f src/grammar/parser.* src/grammar/tokens.c
 
-arraytests: arrtests.c arraylist.c
-	gcc -o arrtests arrtests.c arraylist.c -g
+machine: $(INT_OBJ_FILES) src/bin_main.c
+	$(CC) $(LDFLAGS) $(CFLAGS) -o machine $^
 
-bnm: binary_file_maker.c
-	gcc -o bnm binary_file_maker.c lky_object.c lkyobj_builtin.c arraylist.c
+obj/compiler/%.o: src/compiler/%.c
+	$(MKDIR) obj/compiler/
+	$(CC) $(CFLAGS) -c -o $@ $<
 
-machine: $(MACHINE_SOURCES) bin_main.c
-	$(CC) -o machine bin_main.c $(MACHINE_SOURCES) $(CFLAGS)
+obj/interpreter/%.o: src/interpreter/%.c 
+	$(MKDIR) obj/interpreter/
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+lanky: guts glory
