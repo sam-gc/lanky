@@ -4,7 +4,7 @@ Dog = class() -> self {
         self.weight = 40;
     };
 
-    self.equals_ = func(other) {
+    self.op_equals_ = func(other) {
         ret self.name == other.name & self.weight == other.weight;
     };
 
@@ -21,12 +21,14 @@ _prt moki.weight;
 _prt "----------------";
 
 fred = Dog("Fred");
-_prt fred.equals_(moki);
-_prt moki.equals_(fred);
+_prt fred.op_equals_(moki);
+_prt moki.op_equals_(fred);
+
 fred.name = "Moki";
-_prt fred.equals_(moki);
+
+_prt fred == moki;
 fred.weight = 39;
-_prt moki.equals_(fred);
+_prt fred == moki;
 
 moki.bark();
 

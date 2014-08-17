@@ -3,6 +3,7 @@
 
 #define OBJ_NUM_UNWRAP(obj) (((lky_object_builtin *)obj)->type == LBI_FLOAT ? ((lky_object_builtin *)obj)->value.d : ((lky_object_builtin *)obj)->value.i)
 #define BIN_ARGS lky_object *a, lky_object *b
+#define BI_CAST(o, n) lky_object_builtin * n = (lky_object_builtin *) o
 
 #include "lky_object.h"
 #include "arraylist.h"
@@ -62,7 +63,6 @@ typedef struct {
     arraylist parent_stack;
     lky_object *bucket;
 
-    int argc;
     lky_object_code *code;
 } lky_object_function;
 
@@ -83,19 +83,6 @@ lky_object *lobjb_build_float(double value);
 lky_object *lobjb_build_func(lky_object_code *code, int argc, arraylist inherited);
 lky_object *lobjb_build_class(lky_object_function *builder, char *refname);
 lky_object *lobjb_alloc(lky_builtin_type t, lky_builtin_value v);
-lky_object *lobjb_binary_add(lky_object *a, lky_object *b);
-lky_object *lobjb_binary_subtract(lky_object *a, lky_object *b);
-lky_object *lobjb_binary_multiply(lky_object *a, lky_object *b);
-lky_object *lobjb_binary_divide(lky_object *a, lky_object *b);
-lky_object *lobjb_binary_modulo(lky_object *a, lky_object *b);
-lky_object *lobjb_binary_lessthan(lky_object *a, lky_object *b);
-lky_object *lobjb_binary_greaterthan(lky_object *a, lky_object *b);
-lky_object *lobjb_binary_equals(lky_object *a, lky_object *b);
-lky_object *lobjb_binary_lessequal(lky_object *a, lky_object *b);
-lky_object *lobjb_binary_greatequal(lky_object *a, lky_object *b);
-lky_object *lobjb_binary_notequal(lky_object *a, lky_object *b);
-lky_object *lobjb_binary_and(lky_object *a, lky_object *b);
-lky_object *lobjb_binary_or(lky_object *a, lky_object *b);
 lky_object *lobjb_default_callable(lky_object_seq *args, lky_object *self);
 lky_object *lobjb_default_class_callable(lky_object_seq *args, lky_object *self);
 

@@ -5,6 +5,7 @@
 #include "arraylist.h"
 #include "instruction_set.h"
 #include "lkyobj_builtin.h"
+#include "mach_binary_ops.h"
 #include "lky_object.h"
 #include "lky_gc.h"
 #include "hashmap.h"
