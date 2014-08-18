@@ -4,6 +4,7 @@
 #include "lky_machine.h"
 #include "lky_gc.h"
 #include "lkyobj_builtin.h"
+#include "stanky.h"
 
 int main(int argc, char *argv[])
 {
@@ -28,6 +29,8 @@ int main(int argc, char *argv[])
     arraylist list = arr_create(1);
 
     lky_object_function *func = (lky_object_function *)lobjb_build_func(code, 0, list);
+    func->bucket = lobj_alloc();
+    func->bucket->members = get_stdlib_objects();
 
     if(print_assembly)
         print_ops(code->ops, code->op_len);

@@ -15,3 +15,24 @@ loop(i = 0; i < 100; i = i + 1) {
 arr.forEach(func(val, idx) {
     _prt idx + ": " + val;
 });
+
+lista = Array();
+listb = Array();
+
+lista.append("A");
+lista.append("B");
+lista.append("C");
+
+listb.append(1);
+listb.append(2);
+listb.append(3);
+
+printer = func(val) {
+    _prt val;
+};
+
+_prt "";
+_prt "........................";
+lista.forEach(printer);
+_prt "........................";
+listb.forEach(printer);
