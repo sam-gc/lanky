@@ -8,7 +8,7 @@ lky_object *stlio_input(lky_object_seq *args, lky_object *func)
     lky_object *prompt = args->value;
     lobjb_print_object(prompt);
 
-    char *buf;
+    char *buf = NULL;
     size_t sz = 0;
     getline(&buf, &sz, stdin);
 
