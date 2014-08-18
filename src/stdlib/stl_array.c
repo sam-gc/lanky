@@ -25,6 +25,31 @@ lky_object *stlarr_get(lky_object_seq *args, lky_object_function *func)
     return arr_get(&data->container, idx);
 }
 
+lky_object *stlarr_for_each(lky_object_seq *args, lky_object_function *func)
+{
+    lky_object_custom *self = (lky_object_custom *)func->owner;
+    stlarr_data *data = self->data;
+    arraylist list = data->container;
+    
+    lky_object_function *callback = args->value;
+
+    char useidx = 0;
+    if(callback->callable.argc == 2)
+        useidx = 1;
+
+    long i;
+    for(i = 0; i < list.count; i++)
+    {
+        lky_object_seq *seq = lobjb_make_seq_node(arr_get(&list, i));
+        if(useidx)
+            seq->next = lobjb_make_seq_node(lobjb_build_int(i));
+
+        callback->callable.function(seq, callback);
+    }
+
+    return &lky_nil;
+}
+
 void stlarr_dealloc(lky_object *o)
 {
     lky_object_custom *self = (lky_object_custom *)o;
@@ -35,7 +60,6 @@ void stlarr_dealloc(lky_object *o)
 
 void stlarr_save(lky_object *o)
 {
-    printf("HERE\n");
     lky_object_custom *self = (lky_object_custom *)o;
     stlarr_data *data = self->data;
     
@@ -54,6 +78,7 @@ lky_object *stlarr_build(lky_object_seq *args, lky_object *func)
     
     lobj_set_member(obj, "append", lobjb_build_func_ex(obj, 1, stlarr_append));
     lobj_set_member(obj, "get", lobjb_build_func_ex(obj, 1, stlarr_get));
+    lobj_set_member(obj, "forEach", lobjb_build_func_ex(obj, 1, stlarr_for_each));
 
     obj->freefunc = stlarr_dealloc;
     obj->savefunc = stlarr_save;

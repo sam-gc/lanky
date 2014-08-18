@@ -58,7 +58,7 @@ void lobj_dealloc(lky_object *obj)
 {
     // printf("(D) ");
     // lobjb_print(obj);
-    if(obj->type != LBI_CUSTOM)
+    if(obj->type != LBI_CUSTOM && obj->type != LBI_CUSTOM_EX)
         lobjb_clean(obj);
     else if(obj->type == LBI_CUSTOM_EX)
     {
