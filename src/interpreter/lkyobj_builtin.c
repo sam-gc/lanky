@@ -33,6 +33,21 @@ lky_object *lobjb_build_float(double value)
     return lobjb_alloc(LBI_FLOAT, v);
 }
 
+lky_object *lobjb_build_error(char *name, char *text)
+{
+    lky_object_error *err = malloc(sizeof(lky_object_error));
+    err->type = LBI_ERROR;
+    err->size = sizeof(lky_object_error);
+    err->mem_count = 0;
+    err->members = trie_new();
+    err->name = name;
+    err->text = text;
+
+    gc_add_object((lky_object *)err);
+
+    return (lky_object *)err;
+}
+
 lky_object_custom *lobjb_build_custom(size_t extra_size)
 {
     lky_object_custom *obj = malloc(sizeof(lky_object_custom));

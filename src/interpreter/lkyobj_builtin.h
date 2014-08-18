@@ -95,8 +95,19 @@ typedef struct {
     char *refname;
 } lky_object_class;
 
+typedef struct {
+    lky_builtin_type type;
+    int mem_count;
+    size_t size;
+    Trie_t members;
+
+    char *name;
+    char *text;
+} lky_object_error;
+
 lky_object *lobjb_build_int(long value);
 lky_object *lobjb_build_float(double value);
+lky_object *lobjb_build_error(char *name, char *text);
 lky_object_custom *lobjb_build_custom(size_t extra_size);
 lky_object *lobjb_build_func(lky_object_code *code, int argc, arraylist inherited);
 lky_object *lobjb_build_func_ex(lky_object *owner, int argc, lky_function_ptr ptr);

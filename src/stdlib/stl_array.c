@@ -2,6 +2,9 @@
 #include "stl_array.h"
 #include "arraylist.h"
 #include "lky_gc.h"
+#include "lky_machine.h"
+
+#define FAIL_CHECK(check, name, text) do { if(check) { mach_halt_with_err(lobjb_build_error(name, text)); return &lky_nil; } }while(0);
 
 typedef struct {
     arraylist container;
@@ -32,6 +35,8 @@ lky_object *stlarr_for_each(lky_object_seq *args, lky_object_function *func)
     arraylist list = data->container;
     
     lky_object_function *callback = args->value;
+    FAIL_CHECK(callback->type != LBI_FUNCTION, "MismatchedType", "Expected function type");
+    FAIL_CHECK(!callback->callable.argc || callback->callable.argc > 2, "MismatchedType", "Expected function with 1 or 2 arguments");
 
     char useidx = 0;
     if(callback->callable.argc == 2)

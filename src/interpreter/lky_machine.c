@@ -47,6 +47,7 @@ void mach_eval(stackframe *frame);
 // static long tape_len;
 
 int pushes = 0;
+int good = 1;
 
 void push_node(stackframe *frame, void *data)
 {
@@ -74,6 +75,13 @@ void *pop_node(stackframe *frame)
     frame->stack_pointer--;
 
     return data;
+}
+
+void mach_halt_with_err(lky_object *err)
+{
+    lky_object_error *error = (lky_object_error *)err;
+    printf("Fatal error: %s\nMessage: %s\n\nHalting.\n", error->name, error->text);
+    good = 0;
 }
 
 lky_object *mach_execute(lky_object_function *func)
@@ -146,6 +154,11 @@ void mach_eval(stackframe *frame)
 _opcode_whiplash_:
     if(frame->pc >= frame->tape_len || frame->ret)
         return;
+    if(!good)
+    {
+        frame->ret = &lky_nil;
+        return;
+    }
 
     gc_gc();
 
