@@ -167,6 +167,14 @@ void gc_mark_object(lky_object *o)
             gc_mark_object((lky_object *)cls->builder);
         }
         break;
+        case LBI_CUSTOM_EX:
+        {
+            lky_object_custom *cu = (lky_object_custom *)o;
+            if(!cu->savefunc)
+                break;
+            cu->savefunc(o);
+        }
+        break;
         default:
         break;
     }

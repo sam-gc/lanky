@@ -33,6 +33,22 @@ lky_object *lobjb_build_float(double value)
     return lobjb_alloc(LBI_FLOAT, v);
 }
 
+lky_object_custom *lobjb_build_custom(size_t extra_size)
+{
+    lky_object_custom *obj = malloc(sizeof(lky_object_custom));
+    obj->type = LBI_CUSTOM_EX;
+    obj->size = sizeof(lky_object_custom) + extra_size;
+    obj->mem_count = 0;
+    obj->members = trie_new();
+    obj->data = NULL;
+    obj->freefunc = NULL;
+    obj->savefunc = NULL;
+
+    gc_add_object((lky_object *)obj);
+
+    return obj;
+}
+
 lky_object *lobjb_build_func(lky_object_code *code, int argc, arraylist inherited)
 {
     lky_object_function *func = malloc(sizeof(lky_object_function));
@@ -55,6 +71,33 @@ lky_object *lobjb_build_func(lky_object_code *code, int argc, arraylist inherite
     func->callable = c;
 
     // Add argc member (this should probably be done somewhere else.
+    lobj_set_member((lky_object *)func, "argc", (lky_object *)lobjb_build_int(argc)); 
+    
+    return (lky_object *)func;
+}
+
+lky_object *lobjb_build_func_ex(lky_object *owner, int argc, lky_function_ptr ptr)
+{
+    lky_object_function *func = malloc(sizeof(lky_object_function));
+    func->type = LBI_FUNCTION;
+    func->mem_count = 0;
+    func->size = sizeof(lky_object_function);
+    func->members = trie_new();
+    
+    func->code = NULL;
+    func->bucket = NULL;
+
+    func->parent_stack = arr_create(1);
+
+    gc_add_object((lky_object *)func);
+
+    lky_callable c;
+    c.function = ptr;
+    c.argc = argc;
+
+    func->callable = c;
+    func->owner = owner;
+
     lobj_set_member((lky_object *)func, "argc", (lky_object *)lobjb_build_int(argc)); 
     
     return (lky_object *)func;

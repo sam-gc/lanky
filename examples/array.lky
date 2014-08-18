@@ -1,0 +1,9 @@
+loop(i = 0; i < 10000000; i = i + 1) {
+arr = Array();
+
+arr.append("Hello");
+arr.append("World");
+
+_prt arr.get(0);
+_prt arr.get(1);
+}

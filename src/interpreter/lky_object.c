@@ -60,6 +60,13 @@ void lobj_dealloc(lky_object *obj)
     // lobjb_print(obj);
     if(obj->type != LBI_CUSTOM)
         lobjb_clean(obj);
+    else if(obj->type == LBI_CUSTOM_EX)
+    {
+        lky_object_custom *cu = (lky_object_custom *)obj;
+        if(cu->freefunc)
+            cu->freefunc(obj);
+    }
+
     trie_free(obj->members);
     free(obj);
     // alloced--;

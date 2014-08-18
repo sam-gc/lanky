@@ -8,6 +8,7 @@
 #include "lky_object.h"
 #include "lkyobj_builtin.h"
 #include "lky_gc.h"
+#include "stanky.h"
 
 extern ast_node *programBlock;
 extern int yyparse();
@@ -48,9 +49,11 @@ int main(int argc, char *argv[])
     arraylist list = arr_create(1);
 
     gc_init();
-    lky_object *func = lobjb_build_func(code, 0, list);
+    lky_object_function *func = (lky_object_function *)lobjb_build_func(code, 0, list);
     gc_add_root_object(func);
 
+    func->bucket = lobj_alloc();
+    func->bucket->members = get_stdlib_objects();
     mach_execute((lky_object_function *)func);
 
     // eval(programBlock);

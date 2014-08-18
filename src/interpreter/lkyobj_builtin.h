@@ -9,6 +9,9 @@
 #include "arraylist.h"
 #include <stdio.h>
 
+typedef void(*lobjb_custom_ex_dealloc_function)(lky_object *o);
+typedef void(*lobjb_gc_save_function)(lky_object *o);
+
 typedef union {
     double d;
     long i;
@@ -25,6 +28,19 @@ typedef struct {
 
     lky_builtin_value value;
 } lky_object_builtin;
+
+typedef struct {
+    lky_builtin_type type;
+    int mem_count;
+    size_t size;
+    Trie_t members;
+
+    lky_callable callable;
+
+    void *data;
+    lobjb_custom_ex_dealloc_function freefunc;
+    lobjb_gc_save_function savefunc;
+} lky_object_custom;
 
 typedef struct {
     lky_builtin_type type;
@@ -64,6 +80,7 @@ typedef struct {
     lky_object *bucket;
 
     lky_object_code *code;
+    lky_object *owner;
 } lky_object_function;
 
 typedef struct {
@@ -80,7 +97,9 @@ typedef struct {
 
 lky_object *lobjb_build_int(long value);
 lky_object *lobjb_build_float(double value);
+lky_object_custom *lobjb_build_custom(size_t extra_size);
 lky_object *lobjb_build_func(lky_object_code *code, int argc, arraylist inherited);
+lky_object *lobjb_build_func_ex(lky_object *owner, int argc, lky_function_ptr ptr);
 lky_object *lobjb_build_class(lky_object_function *builder, char *refname);
 lky_object *lobjb_alloc(lky_builtin_type t, lky_builtin_value v);
 lky_object *lobjb_default_callable(lky_object_seq *args, lky_object *self);

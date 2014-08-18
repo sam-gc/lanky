@@ -17,7 +17,8 @@ typedef enum {
     LBI_FUNCTION,
     LBI_CLASS,
     LBI_CODE,
-    LBI_CUSTOM
+    LBI_CUSTOM,
+    LBI_CUSTOM_EX
 } lky_builtin_type;
 
 typedef struct lky_object *(*lky_function_ptr)(struct lky_object_seq *args, struct lky_object *self);
