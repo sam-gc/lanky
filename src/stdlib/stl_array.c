@@ -3,6 +3,7 @@
 #include "arraylist.h"
 #include "lky_gc.h"
 #include "lky_machine.h"
+#include "mach_binary_ops.h"
 
 #define FAIL_CHECK(check, name, text) do { if(check) { mach_halt_with_err(lobjb_build_error(name, text)); return &lky_nil; } }while(0);
 
@@ -15,6 +16,7 @@ lky_object *stlarr_append(lky_object_seq *args, lky_object_function *func)
     lky_object_custom *self = (lky_object_custom *)func->owner;
     stlarr_data *data = self->data;
     arr_append(&data->container, args->value);
+    lobj_set_member(self, "count", lobjb_build_int(data->container.count));
     return &lky_nil;
 }
 
@@ -26,6 +28,36 @@ lky_object *stlarr_get(lky_object_seq *args, lky_object_function *func)
     long idx = b->value.i;
 
     return arr_get(&data->container, idx);
+}
+
+lky_object *stlarr_contains(lky_object_seq *args, lky_object_function *func)
+{
+    lky_object_custom *self = (lky_object_custom *)func->owner;
+    stlarr_data *data = self->data;
+    arraylist list = data->container;
+    lky_object *a = args->value;
+
+    int toret = 0;
+
+    long i;
+    for(i = 0; i < list.count; i++)
+    {
+        lky_object *b = arr_get(&list, i);
+        lky_object *result = lobjb_binary_equals(a, b);
+        if(result->type == LBI_INTEGER || result->type == LBI_FLOAT)
+        {
+            toret = !!OBJ_NUM_UNWRAP(result);
+            break;
+        }
+        
+        if(result->type == &lky_nil)
+            continue;
+
+        toret = 1;
+        break;
+    }
+
+    return lobjb_build_int(toret);
 }
 
 lky_object *stlarr_for_each(lky_object_seq *args, lky_object_function *func)
@@ -84,6 +116,8 @@ lky_object *stlarr_build(lky_object_seq *args, lky_object *func)
     lobj_set_member(obj, "append", lobjb_build_func_ex(obj, 1, stlarr_append));
     lobj_set_member(obj, "get", lobjb_build_func_ex(obj, 1, stlarr_get));
     lobj_set_member(obj, "forEach", lobjb_build_func_ex(obj, 1, stlarr_for_each));
+    lobj_set_member(obj, "count", lobjb_build_int(0));
+    lobj_set_member(obj, "contains", lobjb_build_func_ex(obj, 1, stlarr_contains));
 
     obj->freefunc = stlarr_dealloc;
     obj->savefunc = stlarr_save;

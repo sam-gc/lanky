@@ -36,3 +36,32 @@ _prt "........................";
 lista.forEach(printer);
 _prt "........................";
 listb.forEach(printer);
+
+_prt "........................";
+
+Dog = class() -> self {
+    self.build_ = func(name) {
+        self.name = name;
+        self.weight = 40;
+    };
+
+    self.bark = func() {
+        _prt self.name + ": Bark!";
+    };
+
+    self.op_equals_ = func(other) {
+        ret self.name == other.name & self.weight == other.weight;
+    };
+};
+
+moki = Dog("Moki");
+
+group = Array();
+group.append(moki);
+group.append(Dog("Joe"));
+
+if(group.contains(Dog("Moki"))) {
+    moki.bark();
+}
+
+
