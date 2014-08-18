@@ -119,6 +119,7 @@ lky_object *lobjb_default_class_callable(lky_object_seq *args, lky_object *self)
 lky_object_seq *lobjb_make_seq_node(lky_object *value);
 void lobjb_free_seq(lky_object_seq *seq);
 
+void lobjb_print_object(lky_object *a);
 void lobjb_print(lky_object *a);
 char lobjb_quick_compare(lky_object *a, lky_object *b);
 

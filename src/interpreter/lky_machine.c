@@ -279,7 +279,7 @@ _opcode_whiplash_:
         case LI_BINARY_NE:
         {
             POP_TWO();
-            lky_object *obj = lobjb_binary_equals(b, a);
+            lky_object *obj = lobjb_binary_notequal(b, a);
             RC_TWO();
 
             PUSH_RC(obj);

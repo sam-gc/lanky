@@ -247,29 +247,35 @@ char lobjb_quick_compare(lky_object *a, lky_object *b)
     return OBJ_NUM_UNWRAP(ab) == OBJ_NUM_UNWRAP(bb);
 }
 
-void lobjb_print(lky_object *a)
+void lobjb_print_object(lky_object *a)
 {
     lky_object_builtin *b = (lky_object_builtin *)a;
 
     switch(b->type)
     {
         case LBI_FLOAT:
-            printf("%lf\n", b->value.d);
+            printf("%lf", b->value.d);
         break;
         case LBI_INTEGER:
-            printf("%ld\n", b->value.i);
+            printf("%ld", b->value.i);
         break;
         case LBI_STRING:
-            printf("%s\n", b->value.s);
+            printf("%s", b->value.s);
         break;
         case LBI_NIL:
-            printf("(null)\n");
+            printf("(null)");
         break;
         default:
-            printf("%p\n", b);
+            printf("%p", b);
             break;
 
     }
+}
+
+void lobjb_print(lky_object *a)
+{
+    lobjb_print_object(a);
+    printf("\n");
 }
 
 lky_object_seq *lobjb_make_seq_node(lky_object *value)

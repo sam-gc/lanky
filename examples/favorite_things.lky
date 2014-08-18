@@ -1,0 +1,20 @@
+_prt "These are a few of my favorite things:";
+
+things = Array();
+
+line = "...";
+
+loop(line != "") {
+    line = Io.input("> ");
+    if(line != "") {
+        things.append(line);
+    }
+}
+
+_prt "";
+_prt "       Favorite Things";
+_prt "==========>>>oOo<<<==========";
+
+things.forEach(func(val, idx) {
+    _prt (idx + 1) + ": " + val;
+});
