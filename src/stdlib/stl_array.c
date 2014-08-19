@@ -49,7 +49,7 @@ lky_object *stlarr_contains(lky_object_seq *args, lky_object_function *func)
             toret = !!OBJ_NUM_UNWRAP(result);
             break;
         }
-        
+
         if(result->type == &lky_nil)
             continue;
 
@@ -68,7 +68,7 @@ lky_object *stlarr_for_each(lky_object_seq *args, lky_object_function *func)
 
     stlarr_data *data = self->data;
     arraylist list = data->container;
-    
+
     lky_object_function *callback = args->value;
     FAIL_CHECK(callback->type != LBI_FUNCTION, "MismatchedType", "Expected function type");
     FAIL_CHECK(!callback->callable.argc || callback->callable.argc > 2, "MismatchedType", "Expected function with 1 or 2 arguments");
@@ -92,6 +92,34 @@ lky_object *stlarr_for_each(lky_object_seq *args, lky_object_function *func)
     return &lky_nil;
 }
 
+lky_object *stlarr_index_of(lky_object_seq *args, lky_object_function *func)
+{
+    lky_object_custom *self = (lky_object_custom *)func->owner;
+    stlarr_data *data = self->data;
+    arraylist list = data->container;
+    lky_object *a = args->value;
+
+    long i;
+    for(i = 0; i < list.count; i++)
+    {
+        lky_object *b = arr_get(&list, i);
+        lky_object *result = lobjb_binary_equals(a, b);
+        if(result->type == LBI_INTEGER || result->type == LBI_FLOAT)
+        {
+            if(OBJ_NUM_UNWRAP(result))
+                return lobjb_build_int(i);
+            continue;
+        }
+
+        if(result->type == &lky_nil)
+            continue;
+
+        return lobjb_build_int(i);
+    }
+
+    return lobjb_build_int(-1);
+}
+
 void stlarr_dealloc(lky_object *o)
 {
     lky_object_custom *self = (lky_object_custom *)o;
@@ -104,7 +132,7 @@ void stlarr_save(lky_object *o)
 {
     lky_object_custom *self = (lky_object_custom *)o;
     stlarr_data *data = self->data;
-    
+
     long i;
     for(i = 0; i < data->container.count; i++)
         gc_mark_object(arr_get(&data->container, i));
@@ -117,12 +145,16 @@ lky_object *stlarr_cinit(arraylist inlist)
     stlarr_data *data = malloc(sizeof(stlarr_data));
     data->container = inlist;
     obj->data = data;
-    
+
+    lky_object *getter = lobjb_build_func_ex(obj, 1, stlarr_get);
+
     lobj_set_member(obj, "append", lobjb_build_func_ex(obj, 1, stlarr_append));
-    lobj_set_member(obj, "get", lobjb_build_func_ex(obj, 1, stlarr_get));
+    lobj_set_member(obj, "get", getter); // We want to let people directly call get
+    lobj_set_member(obj, "op_index_", getter); // For the builtin getting syntax
     lobj_set_member(obj, "forEach", lobjb_build_func_ex(obj, 1, stlarr_for_each));
-    lobj_set_member(obj, "count", lobjb_build_int(0));
+    lobj_set_member(obj, "count", lobjb_build_int(inlist.count));
     lobj_set_member(obj, "contains", lobjb_build_func_ex(obj, 1, stlarr_contains));
+    lobj_set_member(obj, "indexOf", lobjb_build_func_ex(obj, 1, stlarr_index_of));
 
     obj->freefunc = stlarr_dealloc;
     obj->savefunc = stlarr_save;
@@ -132,7 +164,7 @@ lky_object *stlarr_cinit(arraylist inlist)
 lky_object *stlarr_build(lky_object_seq *args, lky_object *func)
 {
     return stlarr_cinit(arr_create(10));
-} 
+}
 
 
 lky_object *stlarr_get_class()

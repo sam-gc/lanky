@@ -57,6 +57,8 @@ comment (\#|(\-\-)).*(\n)
 ","                     return TOKEN(TCOMMA);
 "+"                     return TOKEN(TPLUS);
 "-"                     return TOKEN(TMINUS);
+"["                     return TOKEN(TLBRACKET);
+"]"                     return TOKEN(TRBRACKET);
 "*"                     return TOKEN(TMUL);
 "/"                     return TOKEN(TDIV);
 "%"                     return TOKEN(TMOD);

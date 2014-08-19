@@ -21,7 +21,7 @@
  */
 %token <string> TIDENTIFIER TINTEGER TFLOAT TSTRING
 %token <token> TCEQ TCNE TCLT TCLE TCGT TCGE TEQUAL TAND TOR TNOT
-%token <token> TLPAREN TRPAREN TLBRACE TRBRACE TCOMMA TDOT
+%token <token> TLPAREN TRPAREN TLBRACE TRBRACE TLBRACKET TRBRACKET TCOMMA TDOT
 %token <token> TPLUS TMINUS TMUL TDIV TMOD TPOW
 %token <token> TIF TELIF TELSE TPRT TCOMMENT TLOOP TCOLON TFUNC TSEMI TRET TQUESTION TARROW TCLASS
 
@@ -30,7 +30,7 @@
    we call an ident (defined by union type ident) we are really
    calling an (NIdentifier*). It makes the compiler happy.
  */
-%type <node> program stmts stmt expression ifblock block elifblock elifblocks elseblock loopblock funcdecl arg arglist call calllist memaccess classdecl
+%type <node> program stmts stmt expression ifblock block elifblock elifblocks elseblock loopblock funcdecl arg arglist call calllist memaccess classdecl arrdecl
 
 /* Operator precedence for mathematical operators */
 %nonassoc TPRT TRET
@@ -45,7 +45,7 @@
 %right TPOW
 %nonassoc TNOT
 %nonassoc TIF TELIF TELSE TLOOP TFUNC TCLASS
-%nonassoc TLPAREN
+%nonassoc TLPAREN TLBRACKET TRBRACKET
 %left TDOT
 
 %start program
@@ -95,6 +95,9 @@ stmt : expression TSEMI
     ;
 memaccess : expression TDOT TIDENTIFIER { $$ = create_member_access_node($1, $3); }
     ;
+arrdecl : TLBRACKET TRBRACKET { $$ = create_array_node(NULL); }
+    | TLBRACKET calllist TRBRACKET { $$ = create_array_node($2); }
+    ;
 
 expression : 
     TINTEGER { $$ = create_value_node(VINT, (void *)$1); }
@@ -121,9 +124,11 @@ expression :
     | memaccess TEQUAL expression { $$ = create_binary_node($1, $3, '='); }
     | expression TLPAREN calllist TRPAREN { $$ = create_func_call_node($1, $3); }
     | expression TLPAREN TRPAREN { $$ = create_func_call_node($1, NULL); }
+    | expression TLBRACKET expression TRBRACKET { $$ = create_index_node($1, $3); }
     | funcdecl
     | memaccess
     | classdecl
+    | arrdecl
     | TPRT expression { $$ = create_unary_node($2, 'p'); }
     | TNOT expression { $$ = create_unary_node($2, '!'); }
     | TRET expression { $$ = create_unary_node($2, 'r'); }

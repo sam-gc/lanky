@@ -206,6 +206,25 @@ lky_object *lobjb_default_class_callable(lky_object_seq *args, lky_object *self)
     return outobj;
 }
 
+lky_object *lobjb_unary_index(lky_object *obj, lky_object *indexer)
+{
+    lky_object_function *func = (lky_object_function *)lobj_get_member(obj, "op_index_");
+
+    if(!func)
+    {
+        mach_halt_with_err(lobjb_build_error("MismatchedType", "The given type cannot be indexed."));
+        return &lky_nil;
+    }
+
+    gc_add_root_object(func);
+
+    lky_object *ret = func->callable.function(lobjb_make_seq_node(indexer), func);
+
+    gc_remove_root_object(func);
+
+    return ret;
+}
+
 //lky_object *lobjb_default_class_callable(lky_object_seq *args, lky_object *self)
 //{
 //    lky_object_class *cls = (lky_object_class *)self;

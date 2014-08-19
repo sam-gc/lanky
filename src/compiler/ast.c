@@ -122,6 +122,29 @@ ast_node *create_block_node(ast_node *payload)
     return (ast_node *)node;
 }
 
+ast_node *create_array_node(ast_node *payload)
+{
+    ast_array_node *node = MALLOC(sizeof(ast_array_node));
+    pool_add(&ast_memory_pool, node);
+    node->type = AARRAY;
+    node->next = NULL;
+
+    node->list = payload;
+    return (ast_node *)node;
+}
+
+ast_node *create_index_node(ast_node *target, ast_node *indexer)
+{
+    ast_index_node *node = MALLOC(sizeof(ast_index_node));
+    pool_add(&ast_memory_pool, node);
+    node->type = AINDEX;
+    node->next = NULL;
+
+    node->target = target;
+    node->indexer = indexer;
+    return (ast_node *)node;
+}
+
 ast_node *create_if_node(ast_node *condition, ast_node *payload)
 {
     ast_if_node *node = MALLOC(sizeof(ast_if_node));

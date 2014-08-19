@@ -8,6 +8,7 @@
 #include "mach_binary_ops.h"
 #include "lky_object.h"
 #include "lky_gc.h"
+#include "stl_array.h"
 #include "hashmap.h"
 
 #define PUSH(data) (push_node(frame, data))
@@ -564,6 +565,38 @@ _opcode_whiplash_:
             goto _opcode_whiplash_;
         }
         break;
+        case LI_MAKE_ARRAY:
+        {
+            unsigned int ct = *(unsigned int *)(frame->ops + (++frame->pc));
+            frame->pc += 3;
+
+            arraylist arr = arr_create(ct + 10);
+
+            int i;
+            for(i = ct - 1; i >= 0; i--)
+            {
+                lky_object *obj = frame->data_stack[frame->stack_pointer - i];
+                frame->data_stack[frame->stack_pointer - i] = NULL;
+                arr_append(&arr, obj);
+            }
+
+            frame->stack_pointer -= ct;
+
+            lky_object *outobj = stlarr_cinit(arr);
+            PUSH(outobj);
+
+            goto _opcode_whiplash_;
+        }
+        break;
+        case LI_INDEX:
+        {
+            lky_object *idx = POP();
+            lky_object *targ = POP();
+
+            PUSH(lobjb_unary_index(targ, idx));
+            goto _opcode_whiplash_;
+        }
+        break; 
         default:
             goto _opcode_whiplash_;
         break;

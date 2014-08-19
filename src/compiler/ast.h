@@ -18,7 +18,9 @@ typedef enum {
     AFUNC_CALL,
     ALOOP,
     ATERNARY,
-    AMEMBER_ACCESS
+    AMEMBER_ACCESS,
+    AARRAY,
+    AINDEX
 } ast_type;
 
 typedef enum {
@@ -83,6 +85,21 @@ typedef struct ast_block_node {
 
     struct ast_node *payload;
 } ast_block_node;
+
+typedef struct ast_array_node {
+    ast_type type;
+    struct ast_node *next;
+
+    struct ast_node *list;
+} ast_array_node;
+
+typedef struct ast_index_node {
+    ast_type type;
+    struct ast_node *next;
+
+    struct ast_node *target;
+    struct ast_node *indexer;
+} ast_index_node;
 
 typedef struct {
     ast_type type;
@@ -159,6 +176,8 @@ ast_node *create_func_decl_node(ast_node *params, ast_node *payload);
 ast_node *create_class_decl_node(char *refname, ast_node *payload); 
 ast_node *create_func_call_node(ast_node *ident, ast_node *arguments);
 ast_node *create_ternary_node(ast_node *condition, ast_node *first, ast_node *second);
+ast_node *create_array_node(ast_node *payload);
+ast_node *create_index_node(ast_node *target, ast_node *indexer);
 ast_node *create_member_access_node(ast_node *object, char *ident);
 void ast_add_if_node(ast_node *curr, ast_node *next);
 

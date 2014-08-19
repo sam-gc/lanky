@@ -116,6 +116,8 @@ lky_object *lobjb_alloc(lky_builtin_type t, lky_builtin_value v);
 lky_object *lobjb_default_callable(lky_object_seq *args, lky_object *self);
 lky_object *lobjb_default_class_callable(lky_object_seq *args, lky_object *self);
 
+lky_object *lobjb_unary_index(lky_object *obj, lky_object *indexer);
+
 lky_object_seq *lobjb_make_seq_node(lky_object *value);
 void lobjb_free_seq(lky_object_seq *seq);
 

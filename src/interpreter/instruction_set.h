@@ -32,7 +32,9 @@ typedef enum {
     LI_MAKE_FUNCTION,
     LI_MAKE_CLASS,
     LI_SAVE_CLOSE,
-    LI_LOAD_CLOSE
+    LI_LOAD_CLOSE,
+    LI_MAKE_ARRAY,
+    LI_INDEX,
 } lky_instruction;
 
 typedef enum {

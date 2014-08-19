@@ -374,6 +374,39 @@ void compile_single_if(compiler_wrapper *cw, ast_if_node *node, int tagOut, int 
     }
 }
 
+void compile_array(compiler_wrapper *cw, ast_node *n)
+{
+    ast_array_node *node = (ast_array_node *)n;
+
+    int ct = 0;
+    ast_node *list = node->list;
+    for(; list; list = list->next)
+    {
+        compile(cw, list);
+        ct++;
+    }
+
+    append_op(cw, LI_MAKE_ARRAY);
+
+    unsigned char buf[4];
+    int_to_byte_array(buf, ct);
+
+    append_op(cw, buf[0]);
+    append_op(cw, buf[1]);
+    append_op(cw, buf[2]);
+    append_op(cw, buf[3]);
+}
+
+void compile_indx(compiler_wrapper *cw, ast_node *n)
+{
+    ast_index_node *node = (ast_index_node *)n;
+
+    compile(cw, node->target);
+    compile(cw, node->indexer);
+
+    append_op(cw, LI_INDEX);
+}
+
 void compile_ternary(compiler_wrapper *cw, ast_node *n)
 {
     ast_ternary_node *node = (ast_ternary_node *)n;
@@ -669,6 +702,12 @@ void compile(compiler_wrapper *cw, ast_node *root)
         break;
         case AMEMBER_ACCESS:
             compile_member_access(cw, root);
+        break;
+        case AARRAY:
+            compile_array(cw, root);
+        break;
+        case AINDEX:
+            compile_indx(cw, root);
         break;
         default:
         break;
