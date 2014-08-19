@@ -1,0 +1,11 @@
+f = Io.fopen("makefile", "r");
+lines = f.readlines();
+
+lines.forEach(func(val) {
+    Io.putln(val);
+});
+
+f.close();
+
+Io.putln(Io.fopen);
+

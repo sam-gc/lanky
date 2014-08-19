@@ -106,11 +106,11 @@ void stlarr_save(lky_object *o)
 
 }
 
-lky_object *stlarr_build(lky_object_seq *args, lky_object *func)
+lky_object *stlarr_cinit(arraylist inlist)
 {
     lky_object_custom *obj = lobjb_build_custom(sizeof(stlarr_data));
     stlarr_data *data = malloc(sizeof(stlarr_data));
-    data->container = arr_create(10);
+    data->container = inlist;
     obj->data = data;
     
     lobj_set_member(obj, "append", lobjb_build_func_ex(obj, 1, stlarr_append));
@@ -122,6 +122,11 @@ lky_object *stlarr_build(lky_object_seq *args, lky_object *func)
     obj->freefunc = stlarr_dealloc;
     obj->savefunc = stlarr_save;
     return (lky_object *)obj;
+}
+
+lky_object *stlarr_build(lky_object_seq *args, lky_object *func)
+{
+    return stlarr_cinit(arr_create(10));
 } 
 
 

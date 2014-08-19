@@ -3,6 +3,7 @@
 
 #include "lkyobj_builtin.h"
 
+lky_object *stlarr_cinit(arraylist inlist);
 lky_object *stlarr_get_class();
 
 #endif
