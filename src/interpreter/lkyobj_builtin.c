@@ -75,6 +75,7 @@ lky_object *lobjb_build_func(lky_object_code *code, int argc, arraylist inherite
     
     func->code = code;
     func->bucket = NULL;
+    func->owner = NULL;
 
     func->parent_stack = inherited;
 
@@ -98,6 +99,7 @@ lky_object *lobjb_build_func_ex(lky_object *owner, int argc, lky_function_ptr pt
     func->mem_count = 0;
     func->size = sizeof(lky_object_function);
     func->members = trie_new();
+    func->owner = NULL;
     
     func->code = NULL;
     func->bucket = NULL;

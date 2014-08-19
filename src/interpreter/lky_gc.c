@@ -137,6 +137,8 @@ void gc_mark_object(lky_object *o)
                 gc_mark_object(func->bucket);
             if(func->code)
                 gc_mark_object((lky_object *)func->code);
+            if(func->owner)
+                gc_mark_object((lky_object *)func->owner);
 
             int i;
             for(i = 0; i < func->parent_stack.count; i++)

@@ -1,20 +1,25 @@
-_prt "These are a few of my favorite things:";
+Io.putln("These are a few of my favorite things:");
 
 things = Array();
 
 line = "...";
 
 loop(line != "") {
-    line = Io.input("> ");
+    line = Io.prompt("> ");
     if(line != "") {
         things.append(line);
     }
 }
 
-_prt "";
-_prt "       Favorite Things";
-_prt "==========>>>oOo<<<==========";
+of = Io.fopen("things.txt", "w");
+
+Io.putln("");
+Io.putln("       Favorite Things");
+Io.putln("==========>>>oOo<<<==========");
 
 things.forEach(func(val, idx) {
-    _prt (idx + 1) + ": " + val;
+    Io.putln((idx + 1) + ": " + val);
+    of.putln(val);
 });
+
+of.close();
