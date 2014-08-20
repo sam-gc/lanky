@@ -8,3 +8,7 @@ nested.forEach(func(iarr, idx) {
     Io.putln("");
 });
 
+loop(i = 0; i < 10000000; i = i + 1) {
+    nested[2] = i;
+    Io.putln(i);
+}   

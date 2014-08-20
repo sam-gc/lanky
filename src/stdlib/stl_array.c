@@ -20,6 +20,34 @@ lky_object *stlarr_append(lky_object_seq *args, lky_object_function *func)
     return &lky_nil;
 }
 
+lky_object *stlarr_set(lky_object_seq *args, lky_object_function *func)
+{
+    lky_object_custom *self = (lky_object_function *)func->owner;
+    stlarr_data *data = self->data;
+    arraylist list = data->container;
+
+    lky_object *indexer = args->value;
+    lky_object *newobj = args->next->value;
+
+    if(indexer->type != LBI_FLOAT && indexer->type != LBI_INTEGER)
+    {
+        mach_halt_with_err(lobjb_build_error("MismatchedType", "You can only index an array with an int or a float!"));
+        return &lky_nil;
+    }
+
+    lky_object_builtin *b = (lky_object_builtin *)indexer;
+    long idx = OBJ_NUM_UNWRAP(b);
+    if(idx >= list.count || idx < 0)
+    {
+        mach_halt_with_err(lobjb_build_error("IndexOutOfBounds", "The given index is not valid for the array."));
+        return &lky_nil;
+    }
+
+    list.items[idx] = newobj;
+
+    return &lky_nil;
+}
+
 lky_object *stlarr_get(lky_object_seq *args, lky_object_function *func)
 {
     lky_object_custom *self = (lky_object_custom *)func->owner;
@@ -147,10 +175,13 @@ lky_object *stlarr_cinit(arraylist inlist)
     obj->data = data;
 
     lky_object *getter = lobjb_build_func_ex(obj, 1, stlarr_get);
+    lky_object *setter = lobjb_build_func_ex(obj, 2, stlarr_set);
 
     lobj_set_member(obj, "append", lobjb_build_func_ex(obj, 1, stlarr_append));
     lobj_set_member(obj, "get", getter); // We want to let people directly call get
-    lobj_set_member(obj, "op_index_", getter); // For the builtin getting syntax
+    lobj_set_member(obj, "op_get_index_", getter); // For the builtin getting syntax
+    lobj_set_member(obj, "set", setter); // Direct call
+    lobj_set_member(obj, "op_set_index_", setter); // For the builtin setting syntax
     lobj_set_member(obj, "forEach", lobjb_build_func_ex(obj, 1, stlarr_for_each));
     lobj_set_member(obj, "count", lobjb_build_int(inlist.count));
     lobj_set_member(obj, "contains", lobjb_build_func_ex(obj, 1, stlarr_contains));

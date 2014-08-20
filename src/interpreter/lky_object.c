@@ -25,17 +25,17 @@ lky_object *lobj_alloc()
 
 void lobj_set_member(lky_object *obj, char *member, lky_object *val)
 {
-    lky_object *old = trie_get(obj->members, member);
+    lky_object *old = trie_get(&obj->members, member);
     if(old)
         rc_decr(old);
 
-    trie_add(obj->members, member, val);
+    trie_add(&obj->members, member, val);
     rc_incr(val);
 }
 
 lky_object *lobj_get_member(lky_object *obj, char *member)
 {
-    lky_object *val = trie_get(obj->members, member);
+    lky_object *val = trie_get(&obj->members, member);
 
     return val;
 }

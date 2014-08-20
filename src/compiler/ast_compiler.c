@@ -25,6 +25,7 @@ void compile_compound(compiler_wrapper *cw, ast_node *root);
 void compile_single_if(compiler_wrapper *cw, ast_if_node *node, int tagOut, int tagNext);
 lky_object_code *compile_ast_ext(ast_node *root, compiler_wrapper *incw);
 void compile_set_member(compiler_wrapper *cw, ast_node *root);
+void compile_set_index(compiler_wrapper *cw, ast_node *root);
 int find_prev_name(compiler_wrapper *cw, char *name);
 void int_to_byte_array(unsigned char *buffer, int val);
 
@@ -158,7 +159,13 @@ void compile_binary(compiler_wrapper *cw, ast_node *root)
 
             cw->classargc = args;
         }
+
         compile_set_member(cw, root);
+        return;
+    }
+    else if(node->opt == '=' && node->left->type == AINDEX)
+    {
+        compile_set_index(cw, root);
         return;
     }
 
@@ -404,7 +411,7 @@ void compile_indx(compiler_wrapper *cw, ast_node *n)
     compile(cw, node->target);
     compile(cw, node->indexer);
 
-    append_op(cw, LI_INDEX);
+    append_op(cw, LI_LOAD_INDEX);
 }
 
 void compile_ternary(compiler_wrapper *cw, ast_node *n)
@@ -492,6 +499,19 @@ void compile_set_member(compiler_wrapper *cw, ast_node *root)
 
     append_op(cw, LI_SAVE_MEMBER);
     append_op(cw, idx);
+}
+
+void compile_set_index(compiler_wrapper *cw, ast_node *root)
+{
+    ast_binary_node *bin = (ast_binary_node *)root;
+    ast_index_node *left = (ast_index_node *)bin->left;
+    ast_node *right = bin->right;
+
+    compile(cw, right);
+    compile(cw, left->target);
+    compile(cw, left->indexer);
+
+    append_op(cw, LI_SAVE_INDEX);
 }
 
 void compile_unary(compiler_wrapper *cw, ast_node *root)

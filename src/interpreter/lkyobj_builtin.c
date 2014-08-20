@@ -206,9 +206,9 @@ lky_object *lobjb_default_class_callable(lky_object_seq *args, lky_object *self)
     return outobj;
 }
 
-lky_object *lobjb_unary_index(lky_object *obj, lky_object *indexer)
+lky_object *lobjb_unary_load_index(lky_object *obj, lky_object *indexer)
 {
-    lky_object_function *func = (lky_object_function *)lobj_get_member(obj, "op_index_");
+    lky_object_function *func = (lky_object_function *)lobj_get_member(obj, "op_get_index_");
 
     if(!func)
     {
@@ -219,6 +219,28 @@ lky_object *lobjb_unary_index(lky_object *obj, lky_object *indexer)
     gc_add_root_object(func);
 
     lky_object *ret = func->callable.function(lobjb_make_seq_node(indexer), func);
+
+    gc_remove_root_object(func);
+
+    return ret;
+}
+
+lky_object *lobjb_unary_save_index(lky_object *obj, lky_object *indexer, lky_object *newobj)
+{
+    lky_object_function *func = (lky_object_function *)lobj_get_member(obj, "op_set_index_");
+
+    if(!func)
+    {
+        mach_halt_with_err(lobjb_build_error("MismatchedType", "The given type cannot be indexed."));
+        return &lky_nil;
+    }
+
+    gc_add_root_object(func);
+
+    lky_object_seq *args = lobjb_make_seq_node(indexer);
+    args->next = lobjb_make_seq_node(newobj);
+
+    lky_object *ret = func->callable.function(args, func);
 
     gc_remove_root_object(func);
 

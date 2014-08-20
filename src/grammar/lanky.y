@@ -30,7 +30,7 @@
    we call an ident (defined by union type ident) we are really
    calling an (NIdentifier*). It makes the compiler happy.
  */
-%type <node> program stmts stmt expression ifblock block elifblock elifblocks elseblock loopblock funcdecl arg arglist call calllist memaccess classdecl arrdecl
+%type <node> program stmts stmt expression ifblock block elifblock elifblocks elseblock loopblock funcdecl arg arglist call calllist memaccess classdecl arrdecl arraccess
 
 /* Operator precedence for mathematical operators */
 %nonassoc TPRT TRET
@@ -95,6 +95,8 @@ stmt : expression TSEMI
     ;
 memaccess : expression TDOT TIDENTIFIER { $$ = create_member_access_node($1, $3); }
     ;
+arraccess : expression TLBRACKET expression TRBRACKET { $$ = create_index_node($1, $3); }
+    ;
 arrdecl : TLBRACKET TRBRACKET { $$ = create_array_node(NULL); }
     | TLBRACKET calllist TRBRACKET { $$ = create_array_node($2); }
     ;
@@ -122,9 +124,10 @@ expression :
     | expression TQUESTION expression TCOLON expression { $$ = create_ternary_node($1, $3, $5); }
     | TIDENTIFIER TEQUAL expression { $$ = create_assignment_node($1, $3); }
     | memaccess TEQUAL expression { $$ = create_binary_node($1, $3, '='); }
+    | arraccess TEQUAL expression { $$ = create_binary_node($1, $3, '='); }
     | expression TLPAREN calllist TRPAREN { $$ = create_func_call_node($1, $3); }
     | expression TLPAREN TRPAREN { $$ = create_func_call_node($1, NULL); }
-    | expression TLBRACKET expression TRBRACKET { $$ = create_index_node($1, $3); }
+    | arraccess
     | funcdecl
     | memaccess
     | classdecl

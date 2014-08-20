@@ -17,6 +17,7 @@ Trie_t trie_new()
     Trie_t t;
     t.head = new_node('\0');
     t.free_func = NULL;
+    t.count = 0;
     return t;
 }
 
@@ -77,22 +78,29 @@ void trie_free(Trie_t t)
     node_free(t.head, t.free_func);
 }
 
-void node_add(TrieNode_t *node, char *str, void *val)
+char node_add(TrieNode_t *node, char *str, void *val)
 {
+    char ret = 0;
     char first = str[0];
 
     TrieNode_t *next = child_with(node, first);
 
     if(!next)
     {
+        ret = 1;
         next = new_node(first);
         trie_list_add(&node->children, next);
     }
 
     if(strlen(str) > 1)
-        node_add(next, str + 1, val);
+        ret = node_add(next, str + 1, val);
     else
+    {
+        ret = !next->object;
         next->object = val;
+    }
+
+    return ret;
 }
 
 void *node_get(TrieNode_t *node, char *str)
@@ -137,18 +145,19 @@ void node_for_each(TrieNode_t *node, trie_pointer_function callback)
     }
 }
 
-void trie_add(Trie_t t, char *str, void *value)
+void trie_add(Trie_t *t, char *str, void *value)
 {
-    node_add(t.head, str, value);
+    if(node_add(t->head, str, value))
+        t->count++;
 }
 
-void trie_for_each(Trie_t t, trie_pointer_function callback)
+void trie_for_each(Trie_t *t, trie_pointer_function callback)
 {
-    node_for_each(t.head, callback);
+    node_for_each(t->head, callback);
 }
 
 
-void *trie_get(Trie_t t, char *str)
+void *trie_get(Trie_t *t, char *str)
 {
-    return node_get(t.head, str);
+    return node_get(t->head, str);
 }

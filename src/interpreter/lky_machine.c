@@ -588,15 +588,26 @@ _opcode_whiplash_:
             goto _opcode_whiplash_;
         }
         break;
-        case LI_INDEX:
+        case LI_LOAD_INDEX:
         {
             lky_object *idx = POP();
             lky_object *targ = POP();
 
-            PUSH(lobjb_unary_index(targ, idx));
+            PUSH(lobjb_unary_load_index(targ, idx));
             goto _opcode_whiplash_;
         }
         break; 
+        case LI_SAVE_INDEX:
+        {
+            lky_object *idx = POP();
+            lky_object *targ = POP();
+            lky_object *nobj = TOP();
+
+            lobjb_unary_save_index(targ, idx, nobj);
+
+            goto _opcode_whiplash_;
+        }
+        break;
         default:
             goto _opcode_whiplash_;
         break;

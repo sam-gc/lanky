@@ -125,7 +125,7 @@ void gc_mark_object(lky_object *o)
 
     o->mem_count = 1;
 
-    trie_for_each(o->members, (trie_pointer_function)&gc_mark_object);
+    trie_for_each(&o->members, (trie_pointer_function)&gc_mark_object);
 
     switch(o->type)
     {
