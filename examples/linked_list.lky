@@ -30,11 +30,24 @@ List = class() -> self {
 
         ret contains;
     };
+
+    self.op_get_index_ = func(idx) {
+        ct = 0;
+        loop(node = self; node; node = node.next) {
+            if(idx == ct) {
+                ret node.value;
+            }
+
+            ct = ct + 1;
+        }
+    };
 };
 
 list = List(1);
 list.add(5);
 list.add(101);
+
+_prt list[1];
 
 _prt "List contains 101: " + list.contains(101);
 
@@ -47,7 +60,9 @@ loop(i = 0; i < 10000; i = i + 1) {
     }
 }
 
+list = List(1);
 loop(i = 0; i < 1000; i = i + 1) {
-    _prt i;
+    list.add(i);
 }
 
+Io.putln(list[3]);

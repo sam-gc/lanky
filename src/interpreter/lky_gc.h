@@ -4,6 +4,8 @@
 #include "lkyobj_builtin.h"
 
 void gc_init();
+void gc_pause();
+void gc_resume();
 void gc_add_root_object(lky_object *obj);
 void gc_remove_root_object(lky_object *obj);
 void gc_add_root_stack(void **stack, int size);

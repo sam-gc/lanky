@@ -6,6 +6,7 @@
 #include "instruction_set.h"
 #include "lkyobj_builtin.h"
 #include "mach_binary_ops.h"
+#include "lky_machine.h"
 #include "lky_object.h"
 #include "lky_gc.h"
 #include "stl_array.h"
@@ -20,22 +21,6 @@
 
 #define POP_TWO() lky_object *a = POP(); lky_object *b = POP()
 #define RC_TWO() rc_decr(a); rc_decr(b)
-
-typedef struct stackframe {
-    arraylist parent_stack;
-    lky_object *bucket;
-    void **constants;
-    void **locals;
-    void **data_stack;
-    char **names;
-    long pc;
-    unsigned char *ops;
-    long tape_len;
-
-    long stack_pointer;
-    long stack_size;
-    lky_object *ret;
-} stackframe;
 
 void mach_eval(stackframe *frame);
 
@@ -85,47 +70,134 @@ void mach_halt_with_err(lky_object *err)
     good = 0;
 }
 
+lky_object *mach_interrupt_exec(lky_object_function *func)
+{
+    mach_interp *interp = func->interp;
+    
+    lky_object_code *code = func->code;
+    stackframe *frame = malloc(sizeof(stackframe));
+    
+    stackframe *curr = interp->stack;
+    
+    frame->parent_stack = curr->parent_stack;
+    frame->bucket = curr->bucket;
+    frame->constants = code->constants;
+    frame->locals = code->locals;
+    frame->pc = -1;
+    frame->ops = code->ops;
+    frame->tape_len = code->op_len;
+    frame->stack_pointer = -1;
+    frame->stack_size = code->stack_size;
+    frame->names = code->names;
+    frame->ret = NULL;
+    frame->interp = interp;
+    
+    frame->prev = interp->stack ? interp->stack : NULL;
+    frame->next = NULL;
+    
+    func->parent_stack = frame->parent_stack;
+    
+    if(interp->stack)
+        interp->stack->next = frame;
+    
+    interp->stack = frame;
+    
+    void *stack[code->stack_size];
+    memset(stack, 0, sizeof(void *) * code->stack_size);
+    
+    frame->data_stack = stack;
+    func->bucket = frame->bucket;
+    
+    gc_add_root_stack(stack, frame->stack_size);
+    gc_add_root_object((lky_object *)func);
+    
+    //    rc_incr(frame.bucket);
+    
+    mach_eval(frame);
+    
+    //    rc_decr(frame.bucket);
+    
+    gc_remove_root_object((lky_object *)func);
+    gc_remove_root_stack(NULL);
+    
+    func->bucket = NULL;
+    func->parent_stack = arr_create(1);
+    
+    // Pop the stackframe.
+    interp->stack = interp->stack->prev;
+    if(interp->stack)
+        interp->stack->next = NULL;
+    
+    lky_object *ret = &lky_nil;
+    if(frame->stack_pointer > -1)
+        ret = frame->data_stack[frame->stack_pointer];
+    
+    free(frame);
+    
+    return ret;
+}
+
 lky_object *mach_execute(lky_object_function *func)
 {
+    mach_interp *interp = func->interp;
+    
     lky_object_code *code = func->code;
-    stackframe frame;
-    frame.parent_stack = func->parent_stack;
+    stackframe *frame = malloc(sizeof(stackframe));
+    frame->parent_stack = func->parent_stack;
     if(func->bucket)
-        frame.bucket = func->bucket;
+        frame->bucket = func->bucket;
     else
-        frame.bucket = lobj_alloc();
-    frame.constants = code->constants;
-    frame.locals = code->locals;
-    frame.pc = -1;
-    frame.ops = code->ops;
-    frame.tape_len = code->op_len;
+        frame->bucket = lobj_alloc();
+    frame->constants = code->constants;
+    frame->locals = code->locals;
+    frame->pc = -1;
+    frame->ops = code->ops;
+    frame->tape_len = code->op_len;
     // frame.data_stack = malloc(sizeof(void *) * code->stack_size);
-    frame.stack_pointer = -1;
-    frame.stack_size = code->stack_size;
-    frame.names = code->names;
-    frame.ret = NULL;
+    frame->stack_pointer = -1;
+    frame->stack_size = code->stack_size;
+    frame->names = code->names;
+    frame->ret = NULL;
+    
+    frame->interp = interp;
+    
+    // Setup stackframe with the previous stack
+    frame->prev = interp->stack ? interp->stack : NULL;
+    frame->next = NULL;
+    
+    if(interp->stack)
+        interp->stack->next = frame;
+    
+    interp->stack = frame;
 
     void *stack[code->stack_size];
     memset(stack, 0, sizeof(void *) * code->stack_size);
 
-    frame.data_stack = stack;
+    frame->data_stack = stack;
 
-    func->bucket = frame.bucket;
+    func->bucket = frame->bucket;
 
-    gc_add_root_stack(stack, frame.stack_size);
+    gc_add_root_stack(stack, frame->stack_size);
     gc_add_root_object((lky_object *)func);
 
-    rc_incr(frame.bucket);
+//    rc_incr(frame.bucket);
 
-    mach_eval(&frame);
+    mach_eval(frame);
 
-    rc_decr(frame.bucket);
+//    rc_decr(frame.bucket);
 
     gc_remove_root_object((lky_object *)func);
     gc_remove_root_stack(NULL);
     func->bucket = NULL;
+    
+    // Pop the stackframe.
+    interp->stack = interp->stack->prev;
+    if(interp->stack)
+        interp->stack->next = NULL;
 
-    return frame.ret;
+    lky_object *ret = frame->ret;
+    free(frame);
+    return ret;
     // print_ops();
 
     // arr_free(&main_stack);
@@ -327,7 +399,10 @@ _opcode_whiplash_:
             frame->pc += 3;
             //long idx = mach_calc_jump_idx(frame, len);
 
-            frame->pc = idx < frame->pc ? idx - 1 : idx;
+            if(!idx)
+                frame->pc = -1;
+            else
+                frame->pc = idx < frame->pc ? idx - 1 : idx;
             goto _opcode_whiplash_;
         }
         break;
@@ -393,10 +468,6 @@ _opcode_whiplash_:
         case LI_CALL_FUNC:
         {
             lky_object *obj = POP();
-            if(obj->type != LBI_FUNCTION)
-            {
-                // TODO: Error
-            }
 
             lky_object_function *func = (lky_object_function *)obj;
             lky_callable c = func->callable;
@@ -447,7 +518,9 @@ _opcode_whiplash_:
             int idx = frame->ops[++frame->pc];
             char *name = frame->names[idx];
             lky_object *val = lobj_get_member(obj, name);
-            val = val ? val : &lky_nil;
+            
+            if(!val)
+                mach_halt_with_err(lobjb_build_error("UndeclaredIdentifier", "The provided object does not have a member with the provided name."));
 
             PUSH_RC(val);
             goto _opcode_whiplash_;
@@ -486,7 +559,7 @@ _opcode_whiplash_:
             rc_incr(frame->bucket);
 
             char argc = frame->ops[++frame->pc];
-            lky_object *func = lobjb_build_func(code, argc, nplist);
+            lky_object *func = lobjb_build_func(code, argc, nplist, frame->interp);
 
             //rc_decr(code);
             PUSH_RC(func);
@@ -561,7 +634,7 @@ _opcode_whiplash_:
             if(obj)
                 PUSH_RC(obj);
             else
-                PUSH(&lky_nil);
+                mach_halt_with_err(lobjb_build_error("UndeclaredIdentifier", "A bad name was used..."));
             goto _opcode_whiplash_;
         }
         break;
@@ -660,6 +733,12 @@ void print_op(lky_instruction op)
     case LI_BINARY_NE:
         name = "BINARY_NE";
         break;
+    case LI_BINARY_AND:
+        name = "BINARY_AND";
+        break;
+    case LI_BINARY_OR:
+        name = "BINARY_OR";
+        break;
     case LI_LOAD_CONST:
         name = "LOAD_CONST";
         break;
@@ -705,11 +784,23 @@ void print_op(lky_instruction op)
     case LI_MAKE_FUNCTION:
         name = "MAKE_FUNCTION";
         break;
-    case LI_LOAD_CLOSE:
-        name = "LOAD_CLOSE";
+    case LI_MAKE_CLASS:
+        name = "MAKE_CLASS";
         break;
     case LI_SAVE_CLOSE:
         name = "SAVE_CLOSE";
+        break;
+    case LI_LOAD_CLOSE:
+        name = "LOAD_CLOSE";
+        break;
+    case LI_MAKE_ARRAY:
+        name = "MAKE_ARRAY";
+        break;
+    case LI_LOAD_INDEX:
+        name = "LOAD_INDEX";
+        break;
+    case LI_SAVE_INDEX:
+        name = "SAVE_INDEX";
         break;
     default:
         printf("   --> %d\n", op);

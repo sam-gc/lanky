@@ -7,7 +7,10 @@
 
 #include "lky_object.h"
 #include "arraylist.h"
+#include "lky_machine.h"
 #include <stdio.h>
+
+typedef struct interp mach_interp;
 
 typedef void(*lobjb_custom_ex_dealloc_function)(lky_object *o);
 typedef void(*lobjb_gc_save_function)(lky_object *o);
@@ -68,7 +71,7 @@ typedef struct {
     char *name;
 } lky_class_member_wrapper;
 
-typedef struct {
+typedef struct _lky_object_function {
     lky_builtin_type type;
     int mem_count;
     size_t size;
@@ -78,6 +81,8 @@ typedef struct {
 
     arraylist parent_stack;
     lky_object *bucket;
+    
+    mach_interp *interp;
 
     lky_object_code *code;
     lky_object *owner;
@@ -109,7 +114,7 @@ lky_object *lobjb_build_int(long value);
 lky_object *lobjb_build_float(double value);
 lky_object *lobjb_build_error(char *name, char *text);
 lky_object_custom *lobjb_build_custom(size_t extra_size);
-lky_object *lobjb_build_func(lky_object_code *code, int argc, arraylist inherited);
+lky_object *lobjb_build_func(lky_object_code *code, int argc, arraylist inherited, mach_interp *interp);
 lky_object *lobjb_build_func_ex(lky_object *owner, int argc, lky_function_ptr ptr);
 lky_object *lobjb_build_class(lky_object_function *builder, char *refname);
 lky_object *lobjb_alloc(lky_builtin_type t, lky_builtin_value v);

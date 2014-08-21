@@ -7,7 +7,7 @@ INT_OBJ_FILES=$(addprefix obj/interpreter/,$(notdir $(INTERPRETER_SOURCES:.c=.o)
 STD_OBJ_FILES=$(addprefix obj/stdlib/,$(notdir $(STD_SOURCES:.c=.o)))
 
 CFLAGS=-g -Isrc/interpreter -Isrc/compiler -Isrc/grammar -Isrc/stdlib
-LDFLAGS=-lm
+LDFLAGS=-lm -ledit
 COLOR=-fdiagnostics-color=always 
 CC=gcc
 MKDIR=mkdir -p

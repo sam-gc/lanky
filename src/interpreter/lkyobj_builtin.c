@@ -64,7 +64,7 @@ lky_object_custom *lobjb_build_custom(size_t extra_size)
     return obj;
 }
 
-lky_object *lobjb_build_func(lky_object_code *code, int argc, arraylist inherited)
+lky_object *lobjb_build_func(lky_object_code *code, int argc, arraylist inherited, mach_interp *interp)
 {
     lky_object_function *func = malloc(sizeof(lky_object_function));
     func->type = LBI_FUNCTION;
@@ -76,6 +76,8 @@ lky_object *lobjb_build_func(lky_object_code *code, int argc, arraylist inherite
     func->code = code;
     func->bucket = NULL;
     func->owner = NULL;
+    
+    func->interp = interp;
 
     func->parent_stack = inherited;
 

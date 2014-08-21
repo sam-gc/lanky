@@ -24,6 +24,16 @@ typedef struct {
 gc_bundle bundle;
 char gc_started = 0;
 
+void gc_pause()
+{
+    gc_started = 0;
+}
+
+void gc_resume()
+{
+    gc_started = 1;
+}
+
 void gc_init()
 {
     bundle.pool = gchs_create(8);
