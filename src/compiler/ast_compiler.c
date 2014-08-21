@@ -151,7 +151,7 @@ void compile_binary(compiler_wrapper *cw, ast_node *root)
         {
             ast_node *r = node->right;
             if(r->type != AFUNC_DECL) { /* TODO: Compiler error */ }
-            ast_func_decl_node *n = (ast_func_decl_node *)node;
+            ast_func_decl_node *n = (ast_func_decl_node *)r;
             ast_node *arg = NULL;
             int args = 0;
             for(arg = n->params; arg; arg = arg->next)

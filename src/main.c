@@ -87,6 +87,7 @@ int main(int argc, char *argv[])
         stackframe frame;
         frame.bucket = lobj_alloc();
         frame.bucket->members = get_stdlib_objects();
+        frame.parent_stack = list;
         
         interp.stack = &frame;
         

@@ -18,6 +18,33 @@ extern YY_BUFFER_STATE yy_scan_string(char * str);
 extern void yy_delete_buffer(YY_BUFFER_STATE buffer);
 extern char yyyhad_error;
 
+int needs_multiline(char *line)
+{
+    int b = 0;
+    
+    int len = strlen(line);
+    int i;
+    for(i = 0; i < len; i++)
+    {
+        char c = line[i];
+        if(c == '(' || c == '{' || c == '[')
+            b++;
+        if(c == ')' || c == '}' || c == ']')
+            b--;
+    }
+    
+    return b;
+}
+
+void print_indents(int b)
+{
+    int i;
+    for(i = 0; i < b; i++)
+    {
+        printf("....");
+    }
+}
+
 lky_object *compile_and_exec(char *str, mach_interp *interp)
 {
     // We want to handle errors properly.
@@ -61,24 +88,50 @@ lky_object *compile_and_exec(char *str, mach_interp *interp)
 
 void run_repl(mach_interp *interp)
 {
+    char *prompt = "==$ ";
     char *buf;
     
 //    rl_bind_key('\t', rl_abort); // We don't want autocomplete.
+    char *line = malloc(1);
+    strcpy(line, "");
     
-    while((buf = readline("\n==$ ")) != NULL)
+    int bmulti = 0;
+    
+    while((buf = readline(prompt)) != NULL)
     {
         if (strcmp(buf,"quit") == 0)
             break;
         
-        lky_object *ret = compile_and_exec(buf, interp);
+        char *tmp = line;
+        line = malloc(strlen(tmp) + strlen(buf) + 1);
+        strcpy(line, tmp);
+        strcat(line, buf);
+        
+        free(tmp);
+        
+        if(needs_multiline(line))
+        {
+            bmulti += needs_multiline(buf);
+            print_indents(bmulti);
+            prompt = "    ";
+            continue;
+        }
+        
+        lky_object *ret = compile_and_exec(line, interp);
         lobjb_print(ret);
         
         if (buf[0] != 0)
             add_history(buf);
         
         free(buf);
+        free(line);
+        line = malloc(1);
+        strcpy(line, "");
+        prompt = "==$ ";
+        bmulti = 0;
     }
     
+    free(line);
     free(buf);
 }
 
