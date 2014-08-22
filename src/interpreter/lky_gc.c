@@ -1,4 +1,5 @@
 #include "lky_gc.h"
+#include "lky_machine.h"
 #include "arraylist.h"
 #include "gc_hashset.h"
 
@@ -8,7 +9,7 @@ void gc_collect();
 typedef struct {
     gc_hashset pool;
     gc_hashset roots;
-    arraylist root_stacks;
+    stackframe *function_stacks;
     size_t max_size;
     size_t cur_size;
     
@@ -34,16 +35,21 @@ void gc_resume()
     gc_started = 1;
 }
 
+void gc_add_func_stack(stackframe *frame)
+{
+    bundle.function_stacks = frame;
+}
+
 void gc_init()
 {
     bundle.pool = gchs_create(8);
     bundle.roots = gchs_create(10);
-    bundle.root_stacks = arr_create(10);
 //    bundle.max_size = 16000000;
     bundle.growth_size = 5000;
     bundle.marked_size = 0;
     bundle.max_size = 5000;
     bundle.cur_size = 0;
+    bundle.function_stacks = NULL;
     gc_started = 1;
 }
 
@@ -59,25 +65,6 @@ void gc_add_root_object(lky_object *obj)
 void gc_remove_root_object(lky_object *obj)
 {
     gchs_remove(&bundle.roots, obj);
-}
-
-void gc_add_root_stack(void **stack, int size)
-{
-    if(!gc_started)
-        return;
-
-    gc_stack *st = malloc(sizeof(gc_stack));
-    st->stack = stack;
-    st->size = size;
-
-    arr_append(&bundle.root_stacks, st);
-}
-
-void gc_remove_root_stack(void **stack)
-{
-    gc_stack *st = arr_get(&bundle.root_stacks, bundle.root_stacks.count - 1);
-    free(st);
-    arr_remove(&bundle.root_stacks, NULL, bundle.root_stacks.count - 1);
 }
 
 void gc_add_object(lky_object *obj)
@@ -193,10 +180,8 @@ void gc_mark_object(lky_object *o)
     }
 }
 
-char gc_mark_stack(gc_stack *st)
+void gc_mark_stack(void **stack, int size)
 {
-    void **stack = st->stack;
-    int size = st->size;
     int i;
     for(i = 0; i < size; i++)
     {
@@ -204,15 +189,23 @@ char gc_mark_stack(gc_stack *st)
             break;
         gc_mark_object(stack[i]);
     }
-    
-    return 1;
+}
+
+void gc_mark_function_stack(stackframe *frame)
+{
+    for(; frame; frame = frame->next)
+    {
+        gc_mark_object(frame->bucket);
+        gc_mark_stack(frame->data_stack, frame->stack_size);
+    }
 }
 
 void gc_mark()
 {
     gchs_for_each(&bundle.roots, (gchs_pointer_function)&gc_mark_object);
-    arr_for_each(&bundle.root_stacks, (arr_pointer_function)&gc_mark_stack);
-
+//    arr_for_each(&bundle.root_stacks, (arr_pointer_function)&gc_mark_stack);
+    gc_mark_function_stack(bundle.function_stacks);
+    
     // arr_for_each(&bundle.pool, (arr_pointer_function)&gc_reset_mark);
     // arr_for_each(&bundle.roots, (arr_pointer_function)&gc_mark_object_with_return);
     // arr_for_each(&bundle.root_stacks, (arr_pointer_function)&gc_mark_stack_with_return);

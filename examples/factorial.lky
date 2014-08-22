@@ -6,20 +6,6 @@ factorial = func(val) {
     ret factorial(val - 1) * val;
 };
 
-Io.putln(factorial(5));
-Io.putln(factorial(5));
-Io.putln(factorial(5));
-Io.putln(factorial(5));
-Io.putln(factorial(5));
-Io.putln(factorial(5));
-Io.putln(factorial(5));
-Io.putln(factorial(5));
-Io.putln(factorial(5));
-Io.putln(factorial(5));
-Io.putln(factorial(5));
-Io.putln(factorial(5));
-Io.putln(factorial(5));
-Io.putln(factorial(5));
-Io.putln(factorial(5));
-Io.putln(factorial(5));
-Io.putln(factorial(5));
+loop(i = 0; i < 1000000; i = i + 1) {
+    Io.putln(factorial(5));
+}

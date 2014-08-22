@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
 
         gc_init();
         lky_object_function *func = (lky_object_function *)lobjb_build_func(code, 0, list, &interp);
-        gc_add_root_object(func);
+//        gc_add_root_object(func);
 
         func->bucket = lobj_alloc();
         func->bucket->members = get_stdlib_objects();
@@ -88,10 +88,13 @@ int main(int argc, char *argv[])
         frame.bucket = lobj_alloc();
         frame.bucket->members = get_stdlib_objects();
         frame.parent_stack = list;
+        frame.stack_size = 0;
         
         interp.stack = &frame;
         
-        gc_add_root_object(frame.bucket);
+        gc_add_func_stack(&frame);
+        
+//        gc_add_root_object(frame.bucket);
         
         trie_add(&frame.bucket->members, "Meta", stlmeta_get_class(&interp));
         

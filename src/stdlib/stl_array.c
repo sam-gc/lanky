@@ -92,7 +92,7 @@ lky_object *stlarr_for_each(lky_object_seq *args, lky_object_function *func)
 {
     lky_object_custom *self = (lky_object_custom *)func->owner;
 
-    gc_add_root_object(self);
+//    gc_add_root_object(self);
 
     stlarr_data *data = self->data;
     arraylist list = data->container;
@@ -115,7 +115,7 @@ lky_object *stlarr_for_each(lky_object_seq *args, lky_object_function *func)
         callback->callable.function(seq, callback);
     }
 
-    gc_remove_root_object(self);
+//    gc_remove_root_object(self);
 
     return &lky_nil;
 }

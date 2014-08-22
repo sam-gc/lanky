@@ -34,7 +34,10 @@ int needs_multiline(char *line)
             b--;
     }
     
-    return b;
+    if(!b)
+        return b;
+    
+    return b < 0 ? -1 : 1;
 }
 
 void print_indents(int b)

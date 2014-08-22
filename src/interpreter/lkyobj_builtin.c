@@ -165,7 +165,7 @@ lky_object *lobjb_default_callable(lky_object_seq *args, lky_object *self)
 
     func->bucket = lobj_alloc();
 
-    gc_add_root_object(func);
+//    gc_add_root_object(func);
     long i;
     for(i = 0; args; i++, args = args->next)
     {
@@ -176,7 +176,7 @@ lky_object *lobjb_default_callable(lky_object_seq *args, lky_object *self)
     }
 
     lky_object *ret = mach_execute(func);
-    gc_remove_root_object(func);
+//    gc_remove_root_object(func);
     return ret;
 }
 
@@ -221,11 +221,11 @@ lky_object *lobjb_unary_load_index(lky_object *obj, lky_object *indexer)
         return &lky_nil;
     }
 
-    gc_add_root_object(func);
+//    gc_add_root_object(func);
 
     lky_object *ret = func->callable.function(lobjb_make_seq_node(indexer), func);
 
-    gc_remove_root_object(func);
+//    gc_remove_root_object(func);
 
     return ret;
 }
@@ -240,14 +240,14 @@ lky_object *lobjb_unary_save_index(lky_object *obj, lky_object *indexer, lky_obj
         return &lky_nil;
     }
 
-    gc_add_root_object(func);
+//    gc_add_root_object(func);
 
     lky_object_seq *args = lobjb_make_seq_node(indexer);
     args->next = lobjb_make_seq_node(newobj);
 
     lky_object *ret = func->callable.function(args, func);
 
-    gc_remove_root_object(func);
+//    gc_remove_root_object(func);
 
     return ret;
 }
