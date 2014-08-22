@@ -6,6 +6,7 @@
 #include "arraylist.h"
 #include "lky_gc.h"
 #include "instruction_set.h"
+#include "colors.h"
 #include <string.h>
 
 #include <readline/readline.h>
@@ -41,7 +42,7 @@ void print_indents(int b)
     int i;
     for(i = 0; i < b; i++)
     {
-        printf("....");
+        printf("\001" DARK_GREY "\002" "....");
     }
 }
 
@@ -88,7 +89,8 @@ lky_object *compile_and_exec(char *str, mach_interp *interp)
 
 void run_repl(mach_interp *interp)
 {
-    char *prompt = "==$ ";
+    char *prompt = "\001" LIGHT_BLUE "\002" "==$ " "\001" DEFAULT "\002";
+
     char *buf;
     
 //    rl_bind_key('\t', rl_abort); // We don't want autocomplete.
@@ -96,7 +98,7 @@ void run_repl(mach_interp *interp)
     strcpy(line, "");
     
     int bmulti = 0;
-    
+
     while((buf = readline(prompt)) != NULL)
     {
         if (strcmp(buf,"quit") == 0)
@@ -113,11 +115,14 @@ void run_repl(mach_interp *interp)
         {
             bmulti += needs_multiline(buf);
             print_indents(bmulti);
-            prompt = "    ";
+            prompt = "    \001" DEFAULT "\002";
             continue;
         }
         
+        printf(WHITE);
         lky_object *ret = compile_and_exec(line, interp);
+
+        printf(DEFAULT);
         lobjb_print(ret);
         
         if (buf[0] != 0)
@@ -127,7 +132,7 @@ void run_repl(mach_interp *interp)
         free(line);
         line = malloc(1);
         strcpy(line, "");
-        prompt = "==$ ";
+        prompt = "\001" LIGHT_BLUE "\002" "==$ " "\001" DEFAULT "\002";
         bmulti = 0;
     }
     

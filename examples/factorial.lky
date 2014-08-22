@@ -1,0 +1,25 @@
+factorial = func(val) {
+    if(val == 1) {
+        ret 1;
+    }
+
+    ret factorial(val - 1) * val;
+};
+
+Io.putln(factorial(5));
+Io.putln(factorial(5));
+Io.putln(factorial(5));
+Io.putln(factorial(5));
+Io.putln(factorial(5));
+Io.putln(factorial(5));
+Io.putln(factorial(5));
+Io.putln(factorial(5));
+Io.putln(factorial(5));
+Io.putln(factorial(5));
+Io.putln(factorial(5));
+Io.putln(factorial(5));
+Io.putln(factorial(5));
+Io.putln(factorial(5));
+Io.putln(factorial(5));
+Io.putln(factorial(5));
+Io.putln(factorial(5));

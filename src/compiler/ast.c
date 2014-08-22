@@ -49,7 +49,7 @@ ast_node *create_value_node(ast_value_type type, void *data)
         char *raw = (char *)data;
         char *str = MALLOC(strlen(raw) - 1);
         pool_add(&ast_memory_pool, str);
-        strcpy(str, "");
+        memset(str, 0, strlen(raw) - 1);
         memcpy(str, raw + 1, strlen(raw) - 2);
         u.s = (char *)str;
         // FREE(raw);

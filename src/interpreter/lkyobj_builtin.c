@@ -165,6 +165,7 @@ lky_object *lobjb_default_callable(lky_object_seq *args, lky_object *self)
 
     func->bucket = lobj_alloc();
 
+    gc_add_root_object(func);
     long i;
     for(i = 0; args; i++, args = args->next)
     {
@@ -174,7 +175,9 @@ lky_object *lobjb_default_callable(lky_object_seq *args, lky_object *self)
         // code->locals[i] = args->value;
     }
 
-    return mach_execute(func);
+    lky_object *ret = mach_execute(func);
+    gc_remove_root_object(func);
+    return ret;
 }
 
 lky_object *lobjb_default_class_callable(lky_object_seq *args, lky_object *self)
