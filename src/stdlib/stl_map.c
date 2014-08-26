@@ -8,7 +8,7 @@ typedef struct {
 
 lky_object *stlmap_build(lky_object_seq *args, lky_object *func)
 {
-
+    return NULL;
 }
 
 lky_object *stlmap_get_class()

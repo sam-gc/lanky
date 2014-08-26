@@ -4,6 +4,7 @@
 #include "lkyobj_builtin.h"
 #include "hashmap.h"
 #include "bytecode_analyzer.h"
+#include "stl_string.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -97,9 +98,9 @@ lky_object *wrapper_to_obj(ast_value_wrapper wrap)
         v.i = wrap.value.i;
         break;
     case VSTRING:
-        t = LBI_STRING;
-        v.s = malloc(strlen(wrap.value.s) + 1);
-        strcpy(v.s, wrap.value.s);
+        {
+            return stlstr_cinit(wrap.value.s);
+        }
         break;
     default:
         printf("--> %d\n", wrap.type);

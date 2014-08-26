@@ -1,8 +1,10 @@
 #include <stdlib.h>
+#include <string.h>
 #include "stl_array.h"
 #include "arraylist.h"
 #include "lky_gc.h"
 #include "lky_machine.h"
+#include "stl_string.h"
 #include "mach_binary_ops.h"
 
 #define FAIL_CHECK(check, name, text) do { if(check) { mach_halt_with_err(lobjb_build_error(name, text)); return &lky_nil; } }while(0);
@@ -167,6 +169,67 @@ void stlarr_save(lky_object *o)
 
 }
 
+lky_object *stlarr_stringify(lky_object_seq *args, lky_object_function *func)
+{
+    lky_object_custom *self = (lky_object_custom *)func->owner;
+    stlarr_data *data = self->data;
+    arraylist list = data->container;
+    
+    char *innards[list.count];
+    size_t tlen = 0;
+    
+    int i;
+    for(i = 0; i < list.count; i++)
+    {
+        lky_object_custom *strobj = NULL;
+        lky_object *obj = arr_get(&list, i);
+        lky_object_function *f = (lky_object_function *)lobj_get_member(obj, "stringify_");
+        
+        if(!f)
+        {
+            char str[100];
+            
+            if(obj->type == LBI_FLOAT || obj->type == LBI_INTEGER)
+                strobj = (lky_object_custom *)lobjb_num_to_string(obj);
+            else
+            {
+                sprintf(str, "%p", obj);
+                strobj = (lky_object_custom *)stlstr_cinit(str);
+            }
+        }
+        else
+        {
+            strobj = (lky_object_custom *)(f->callable.function)(NULL, (struct lky_object *)f);
+        }
+        
+        char *str = strobj->data;
+        
+        innards[i] = str;
+        tlen += strlen(str);
+    }
+    
+    // Adding to the total length:
+    //      brackets      commas & spaces
+    tlen +=    4     +  2 * (list.count > 0 ? list.count - 1 : 0);
+    
+    char *str = malloc(tlen);
+    strcpy(str, "[ ");
+    
+    for(i = 0; i < list.count - 1; i++)
+    {
+        strcat(str, innards[i]);
+        strcat(str, ", ");
+    }
+    
+    strcat(str, innards[i]);
+    strcat(str, " ]");
+    
+    lky_object *ret = stlstr_cinit(str);
+    free(str);
+    
+    return ret;
+}
+
 lky_object *stlarr_cinit(arraylist inlist)
 {
     lky_object_custom *obj = lobjb_build_custom(sizeof(stlarr_data));
@@ -186,6 +249,7 @@ lky_object *stlarr_cinit(arraylist inlist)
     lobj_set_member(obj, "count", lobjb_build_int(inlist.count));
     lobj_set_member(obj, "contains", lobjb_build_func_ex(obj, 1, stlarr_contains));
     lobj_set_member(obj, "indexOf", lobjb_build_func_ex(obj, 1, stlarr_index_of));
+    lobj_set_member(obj, "stringify_", lobjb_build_func_ex(obj, 0, stlarr_stringify));
 
     obj->freefunc = stlarr_dealloc;
     obj->savefunc = stlarr_save;

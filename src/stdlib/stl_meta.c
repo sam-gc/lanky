@@ -122,7 +122,7 @@ void run_repl(mach_interp *interp)
             continue;
         }
         
-        printf(WHITE);
+//        printf(WHITE);
         lky_object *ret = compile_and_exec(line, interp);
 
         printf(DEFAULT);

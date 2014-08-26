@@ -130,6 +130,7 @@ void lobjb_free_seq(lky_object_seq *seq);
 void lobjb_print_object(lky_object *a);
 void lobjb_print(lky_object *a);
 char lobjb_quick_compare(lky_object *a, lky_object *b);
+lky_object *lobjb_num_to_string(lky_object *a);
 
 lky_object_code *lobjb_load_file(char *name);
 

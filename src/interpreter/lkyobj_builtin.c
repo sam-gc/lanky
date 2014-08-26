@@ -1,6 +1,7 @@
 #include "lkyobj_builtin.h"
 #include "lky_machine.h"
 #include "lky_gc.h"
+#include "stl_string.h"
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
@@ -158,6 +159,15 @@ void str_print(lky_builtin_type t, lky_builtin_value v, char *buf)
     }
 }
 
+lky_object *lobjb_num_to_string(lky_object *a)
+{
+    lky_object_builtin *b = (lky_object_builtin *)a;
+    char str[100];
+    str_print(b->type, b->value, str);
+    
+    return stlstr_cinit(str);
+}
+
 lky_object *lobjb_default_callable(lky_object_seq *args, lky_object *self)
 {
     lky_object_function *func = (lky_object_function *)self;
@@ -313,6 +323,21 @@ void lobjb_print_object(lky_object *a)
         case LBI_NIL:
             printf("(null)");
         break;
+        case LBI_CUSTOM:
+        case LBI_CUSTOM_EX:
+        {
+            lky_object_function *func = lobj_get_member(a, "stringify_");
+            
+            if(!func)
+            {
+                printf("%p", b);
+                break;
+            }
+            lky_object_custom *s = (func->callable.function)(NULL, func);
+            char *str = s->data;
+            printf("%s", s->data);
+            break;
+        }
         default:
             printf("%p", b);
             break;
@@ -512,7 +537,9 @@ lky_object *lobjb_deserialize(FILE *f)
         {
             char *str = malloc(sz);
             fread(str, sz, 1, f);
-            value.s = str;
+            lky_object *obj = stlstr_cinit(str);
+            free(str);
+            return obj;
         }
         break;
         case LBI_CODE:

@@ -7,22 +7,27 @@
 #define OBJ_NUM_PROMO(a, b) (a->type == LBI_FLOAT || b->type == LBI_FLOAT ? LBI_FLOAT : LBI_INTEGER) 
 #define CHECK_EXEC_CUSTOM_IMPL(a, b, name) \
     do { \
-        if(a->type == LBI_CUSTOM) { \
-            lky_object *func = lobj_get_member(a, name); \
+        if(a->type == LBI_CUSTOM || a->type == LBI_CUSTOM_EX || b->type == LBI_CUSTOM || b->type == LBI_CUSTOM_EX) { \
+            lky_object *caller = a->type == LBI_CUSTOM || a->type == LBI_CUSTOM_EX ? a : b;\
+            lky_object *other = caller == a ? b : a; \
+            lky_object *func = lobj_get_member(caller, name); \
             if(!func || func->type != LBI_FUNCTION) \
                 break; \
             lky_object_function *cfunc = (lky_object_function *)func;\
-            if(cfunc->callable.argc != 1) \
+            if(cfunc->callable.argc != 1 && cfunc->callable.argc != 2) \
                 break; \
-            return bin_op_exec_custom(cfunc, b); \
+            return bin_op_exec_custom(cfunc, other, caller == a); \
         } \
     } while(0)
 
-lky_object *bin_op_exec_custom(lky_object_function *func, lky_object *other)
+lky_object *bin_op_exec_custom(lky_object_function *func, lky_object *other, char first)
 {
     lky_object_seq *seq = lobjb_make_seq_node(other);
     lky_callable c = func->callable;
 
+    if(c.argc == 2)
+        seq->next = lobjb_make_seq_node(lobjb_build_int(first));
+    
     return (lky_object *)c.function(seq, (struct lky_object *)func);
 }
 
