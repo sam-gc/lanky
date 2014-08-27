@@ -179,9 +179,9 @@ lky_object *stlio_get_class()
 {
     lky_object *obj = lobj_alloc();
 
-    lobj_set_member(obj, "prompt", lobjb_build_func_ex(obj, 1, stlio_input));
-    lobj_set_member(obj, "put", lobjb_build_func_ex(obj, 1, stlio_put));
-    lobj_set_member(obj, "putln", lobjb_build_func_ex(obj, 1, stlio_putln));
-    lobj_set_member(obj, "fopen", lobjb_build_func_ex(obj, 2, stlio_make_file_object));
+    lobj_set_member(obj, "prompt", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlio_input));
+    lobj_set_member(obj, "put", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlio_put));
+    lobj_set_member(obj, "putln", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlio_putln));
+    lobj_set_member(obj, "fopen", lobjb_build_func_ex(obj, 2, (lky_function_ptr)stlio_make_file_object));
     return obj;
 }

@@ -590,7 +590,7 @@ _opcode_whiplash_:
             arraylist ps = frame->parent_stack;
 
             int i;
-            for(i = ps.count - 1; i >= 0 && !bk; i--)
+            for(i = (int)ps.count - 1; i >= 0 && !bk; i--)
             {
                 lky_object *n = arr_get(&ps, i);
                 if(lobj_get_member(n, name))
@@ -602,7 +602,6 @@ _opcode_whiplash_:
             if(!bk)
                 bk = frame->bucket;
 
-            lky_object *old = lobj_get_member(bk, name);
             if(!strcmp(name, "curr"))
             {
                 printf("");
@@ -621,7 +620,7 @@ _opcode_whiplash_:
             arraylist ps = frame->parent_stack;
 
             int i;
-            for(i = ps.count - 1; i >= 0 && !bk; i--)
+            for(i = (int)ps.count - 1; i >= 0 && !bk; i--)
             {
                 lky_object *n = arr_get(&ps, i);
                 if(lobj_get_member(n, name))

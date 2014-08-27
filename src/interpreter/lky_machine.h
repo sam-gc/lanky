@@ -32,7 +32,7 @@ typedef struct interp {
     
 } mach_interp;
 
-typedef struct _lky_object_function lky_object_function;
+typedef struct lky_object_function lky_object_function;
 
 mach_interp mach_make_interp();
 

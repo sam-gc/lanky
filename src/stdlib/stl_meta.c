@@ -23,7 +23,7 @@ int needs_multiline(char *line)
 {
     int b = 0;
     
-    int len = strlen(line);
+    int len = (int)strlen(line);
     int i;
     for(i = 0; i < len; i++)
     {
@@ -147,8 +147,8 @@ lky_object *stlmeta_exec(lky_object_seq *args, lky_object_function *func)
 {
     lky_object_custom *self = (lky_object_custom *)func->owner;
     
-    lky_object_builtin *strobj = args->value;
-    char *str = strobj->value.s;
+    lky_object_custom *strobj = (lky_object_custom *)args->value;
+    char *str = strobj->data;
     
     return compile_and_exec(str, self->data);
 }
@@ -358,10 +358,12 @@ lky_object *stlmeta_get_class(mach_interp *interp)
     custom->freefunc = NULL;
     custom->savefunc = NULL;
     custom->data = interp;
-
-    lobj_set_member(custom, "exec", lobjb_build_func_ex(custom, 1, (lky_function_ptr)stlmeta_exec));
-    lobj_set_member(custom, "repl", lobjb_build_func_ex(custom, 0, (lky_function_ptr)stlmeta_repl));
-    lobj_set_member(custom, "examine", lobjb_build_func_ex(custom, 1, (lky_function_ptr)stlmeta_examine));
     
-    return custom;
+    lky_object *obj = (lky_object *)custom;
+
+    lobj_set_member(obj, "exec", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlmeta_exec));
+    lobj_set_member(obj, "repl", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlmeta_repl));
+    lobj_set_member(obj, "examine", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlmeta_examine));
+    
+    return obj;
 }

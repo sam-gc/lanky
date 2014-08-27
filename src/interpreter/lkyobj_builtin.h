@@ -10,7 +10,7 @@
 #include "lky_machine.h"
 #include <stdio.h>
 
-typedef struct interp mach_interp;
+//typedef struct interp mach_interp;
 
 typedef void(*lobjb_custom_ex_dealloc_function)(lky_object *o);
 typedef void(*lobjb_gc_save_function)(lky_object *o);
@@ -74,7 +74,7 @@ typedef struct {
     char *name;
 } lky_class_member_wrapper;
 
-typedef struct _lky_object_function {
+struct lky_object_function {
     lky_builtin_type type;
     int mem_count;
     size_t size;
@@ -90,7 +90,7 @@ typedef struct _lky_object_function {
 
     lky_object_code *code;
     lky_object *owner;
-} lky_object_function;
+};
 
 typedef struct {
     lky_builtin_type type;

@@ -59,7 +59,7 @@ ast_node *create_value_node(ast_value_type type, void *data)
         u.s = data;
         break;
     default:
-        DEBUG("Shouldn't have reached here...");
+//        DEBUG("Shouldn't have reached here...");
         break;
     }
 

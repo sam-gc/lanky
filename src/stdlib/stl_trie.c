@@ -66,13 +66,15 @@ void stltrie_free(lky_object *o)
 
 lky_object *stltrie_build(lky_object_seq *args, lky_object_function *func)
 {
-    lky_object_custom *obj = lobjb_build_custom(sizeof(stltrie_object_data));
+    lky_object_custom *cobj = lobjb_build_custom(sizeof(stltrie_object_data));
     
     stltrie_object_data *data = malloc(sizeof(stltrie_object_data));
     data->container = trie_new();
     
-    obj->data = data;
-    obj->freefunc = stltrie_free;
+    cobj->data = data;
+    cobj->freefunc = stltrie_free;
+    
+    lky_object *obj = (lky_object *)cobj;
     
     lobj_set_member(obj, "contains", (lky_object *)lobjb_build_func_ex(obj, 1, (lky_function_ptr)stltrie_contains));
     lobj_set_member(obj, "hasPath", (lky_object *)lobjb_build_func_ex(obj, 1, (lky_function_ptr)stltrie_has_path));

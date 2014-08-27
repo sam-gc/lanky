@@ -39,45 +39,7 @@ lky_object *lobjb_binary_add(lky_object *a, lky_object *b)
 
     if(a == &lky_nil || b == &lky_nil)
         return &lky_nil;
-
-    if(ab->type == LBI_STRING || bb->type == LBI_STRING)
-    {
-        char *r, *l;
-        char nr, nl;
-        nr = nl = 0;
-        if(ab->type != LBI_STRING)
-        {
-            l = malloc(100);
-            str_print(ab->type, ab->value, l);
-            r = bb->value.s;
-            nl = 1;
-        }
-        else if(bb->type != LBI_STRING)
-        {
-            r = malloc(100);
-            str_print(bb->type, bb->value, r);
-            l = ab->value.s;
-            nr = 1;
-        }
-        else
-        {
-            l = ab->value.s;
-            r = bb->value.s;
-        }
-
-        char *n = malloc(strlen(r) + strlen(l) + 1);
-        sprintf(n, "%s%s", l, r);
-        lky_builtin_value v;
-        v.s = n;
-
-        if(nr)
-            free(r);
-        if(nl)
-            free(l);
-
-        return lobjb_alloc(LBI_STRING, v);
-    }
-
+    
     lky_builtin_value v;
     lky_builtin_type t = OBJ_NUM_PROMO(ab, bb);
     switch(t)
@@ -133,40 +95,40 @@ lky_object *lobjb_binary_multiply(lky_object *a, lky_object *b)
     if(a == &lky_nil || b == &lky_nil)
         return &lky_nil;
 
-    if(ab->type == LBI_STRING || bb->type == LBI_STRING)
-    {
-        if(ab->type == LBI_STRING && bb->type == LBI_STRING)
-            return &lky_nil;
-
-        lky_object_builtin *strobj = ab->type == LBI_STRING ? ab : bb;
-        lky_object_builtin *oobj = strobj == ab ? bb : ab;
-
-        if(oobj->type != LBI_INTEGER)
-            return &lky_nil;
-
-        char *str = strobj->value.s;
-        long ct = oobj->value.i;
-
-        int len = strlen(str);
-        int targ = len * ct;
-
-        char *nstr = malloc(len * ct + 1);
-        nstr[targ] = 0;
-        strcpy(nstr, str);
-
-        long done = len;
-        while(done < targ)
-        {
-            long n = (done <= targ - done ? done : targ - done);
-            memcpy(nstr + done, nstr, n);
-            done += n;
-        }
-
-        v.s = nstr;
-        t = LBI_STRING;
-
-        return lobjb_alloc(t, v);
-    }
+//    if(ab->type == LBI_STRING || bb->type == LBI_STRING)
+//    {
+//        if(ab->type == LBI_STRING && bb->type == LBI_STRING)
+//            return &lky_nil;
+//
+//        lky_object_builtin *strobj = ab->type == LBI_STRING ? ab : bb;
+//        lky_object_builtin *oobj = strobj == ab ? bb : ab;
+//
+//        if(oobj->type != LBI_INTEGER)
+//            return &lky_nil;
+//
+//        char *str = strobj->value.s;
+//        long ct = oobj->value.i;
+//
+//        int len = strlen(str);
+//        int targ = len * ct;
+//
+//        char *nstr = malloc(len * ct + 1);
+//        nstr[targ] = 0;
+//        strcpy(nstr, str);
+//
+//        long done = len;
+//        while(done < targ)
+//        {
+//            long n = (done <= targ - done ? done : targ - done);
+//            memcpy(nstr + done, nstr, n);
+//            done += n;
+//        }
+//
+//        v.s = nstr;
+//        t = LBI_STRING;
+//
+//        return lobjb_alloc(t, v);
+//    }
 
     t = OBJ_NUM_PROMO(ab, bb);
     switch(t)
@@ -400,8 +362,8 @@ lky_object *lobjb_binary_and(lky_object *a, lky_object *b)
     if(a == &lky_nil || b == &lky_nil)
         return lobjb_build_int(0);
 
-    int vala = a->type == LBI_INTEGER || a->type == LBI_FLOAT ? OBJ_NUM_UNWRAP(ab) : 1;
-    int valb = b->type == LBI_INTEGER || b->type == LBI_FLOAT ? OBJ_NUM_UNWRAP(bb) : 1;
+    int vala = a->type == LBI_INTEGER || a->type == LBI_FLOAT ? (int)OBJ_NUM_UNWRAP(ab) : 1;
+    int valb = b->type == LBI_INTEGER || b->type == LBI_FLOAT ? (int)OBJ_NUM_UNWRAP(bb) : 1;
 
     return lobjb_build_int(vala && valb);
 }
@@ -415,8 +377,8 @@ lky_object *lobjb_binary_or(lky_object *a, lky_object *b)
     if(a == &lky_nil && b == &lky_nil)
         return lobjb_build_int(0);
 
-    int vala = a->type == LBI_INTEGER || a->type == LBI_FLOAT ? OBJ_NUM_UNWRAP(ab) : 1;
-    int valb = b->type == LBI_INTEGER || b->type == LBI_FLOAT ? OBJ_NUM_UNWRAP(bb) : 1;
+    int vala = a->type == LBI_INTEGER || a->type == LBI_FLOAT ? (int)OBJ_NUM_UNWRAP(ab) : 1;
+    int valb = b->type == LBI_INTEGER || b->type == LBI_FLOAT ? (int)OBJ_NUM_UNWRAP(bb) : 1;
     vala = a == &lky_nil ? 0 : vala;
     valb = b == &lky_nil ? 0 : valb;
 

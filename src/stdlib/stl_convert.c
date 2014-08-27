@@ -3,7 +3,7 @@
 
 lky_object *stlcon_to_int(lky_object_seq *args, lky_object *func)
 {
-    lky_object *from = args->value;
+    lky_object *from = (lky_object *)args->value;
 
     if(from->type == LBI_INTEGER)
         return from;
@@ -25,7 +25,7 @@ lky_object *stlcon_get_class()
 {
     lky_object *obj = lobj_alloc();
 
-    lobj_set_member(obj, "toInt", lobjb_build_func_ex(obj, 1, stlcon_to_int));
+    lobj_set_member(obj, "toInt", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlcon_to_int));
 
     return obj;
 }

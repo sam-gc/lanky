@@ -43,15 +43,15 @@ lky_object *lobj_get_member(lky_object *obj, char *member)
 void rc_decr(lky_object *obj)
 {
     return;
-    if(obj == &lky_nil)
-        return;
-    
-    obj->mem_count--;
-    // printf("%d (-)\n", obj->mem_count);
-    if(!obj->mem_count)
-    {
-        lobj_dealloc(obj);
-    }
+//    if(obj == &lky_nil)
+//        return;
+//    
+//    obj->mem_count--;
+//    // printf("%d (-)\n", obj->mem_count);
+//    if(!obj->mem_count)
+//    {
+//        lobj_dealloc(obj);
+//    }
 }
 
 void lobj_dealloc(lky_object *obj)

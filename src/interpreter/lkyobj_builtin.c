@@ -210,9 +210,9 @@ lky_object *lobjb_default_class_callable(lky_object_seq *args, lky_object *self)
 
     lobj_set_member(func->bucket, cls->refname, outobj);
 
-    gc_add_root_object(args);
+    gc_add_root_object((lky_object *)args);
     lky_object *returned = mach_execute(func);
-    gc_remove_root_object(args);
+    gc_remove_root_object((lky_object *)args);
     //printf("...%d\n", func->bucket->mem_count);
 
     if(returned)
@@ -244,7 +244,7 @@ lky_object *lobjb_unary_load_index(lky_object *obj, lky_object *indexer)
 
 //    gc_add_root_object(func);
 
-    lky_object *ret = func->callable.function(lobjb_make_seq_node(indexer), func);
+    lky_object *ret = (lky_object *)func->callable.function(lobjb_make_seq_node(indexer), (struct lky_object *)func);
 
 //    gc_remove_root_object(func);
 
@@ -266,7 +266,7 @@ lky_object *lobjb_unary_save_index(lky_object *obj, lky_object *indexer, lky_obj
     lky_object_seq *args = lobjb_make_seq_node(indexer);
     args->next = lobjb_make_seq_node(newobj);
 
-    lky_object *ret = func->callable.function(args, func);
+    lky_object *ret = (lky_object *)func->callable.function(args, (struct lky_object *)func);
 
 //    gc_remove_root_object(func);
 
@@ -337,15 +337,14 @@ void lobjb_print_object(lky_object *a)
         case LBI_CUSTOM:
         case LBI_CUSTOM_EX:
         {
-            lky_object_function *func = lobj_get_member(a, "stringify_");
+            lky_object_function *func = (lky_object_function *)lobj_get_member(a, "stringify_");
             
             if(!func)
             {
                 printf("%p", b);
                 break;
             }
-            lky_object_custom *s = (func->callable.function)(NULL, func);
-            char *str = s->data;
+            lky_object_custom *s = (lky_object_custom *)(func->callable.function)(NULL, (struct lky_object *)func);
             printf("%s", s->data);
             break;
         }
@@ -518,7 +517,7 @@ lky_object *lobjb_deserialize_code(FILE *f)
     obj->op_len = oplen;
     obj->names = names;
     obj->cls = NULL;
-    obj->stack_size = stack_size;
+    obj->stack_size = (int)stack_size;
 
     gc_add_object((lky_object *)obj);
 
@@ -625,7 +624,7 @@ lky_object_code *lobjb_load_file(char *name)
     obj->op_len = oplen;
     obj->names = names;
     obj->cls = NULL;
-    obj->stack_size = stack_size;
+    obj->stack_size = (int)stack_size;
 
     gc_add_object((lky_object *)obj);
 

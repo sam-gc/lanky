@@ -3,7 +3,7 @@
 
 int stack_effect_for(lky_instruction op, int *skip);
 
-int calculate_max_stack_depth(char *code, int len)
+int calculate_max_stack_depth(unsigned char *code, int len)
 {
     int max, current;
     max = current = 0;
@@ -51,6 +51,7 @@ int stack_effect_for(lky_instruction op, int *skip)
         case LI_LOAD_LOCAL:
         case LI_LOAD_CLOSE:
         case LI_PUSH_NIL:
+        case LI_LOAD_INDEX:
             *skip = 1;
             return 1;
         case LI_JUMP:
@@ -62,6 +63,9 @@ int stack_effect_for(lky_instruction op, int *skip)
         case LI_CALL_FUNC:
         case LI_MAKE_FUNCTION:
         case LI_MAKE_CLASS:
+        case LI_MAKE_ARRAY:
+        case LI_SAVE_INDEX:
+            
             return 0;
     }
     return 0;

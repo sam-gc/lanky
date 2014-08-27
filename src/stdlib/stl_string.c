@@ -105,10 +105,10 @@ lky_object *stlstr_split(lky_object_seq *args, lky_object_function *func)
 
 lky_object *stlstr_add(lky_object_seq *args, lky_object_function *func)
 {
-    lky_object_custom *self = func->owner;
+    lky_object_custom *self = (lky_object_custom *)func->owner;
     char *mestr = self->data;
     
-    lky_object *other = args->value;
+    lky_object *other = (lky_object *)args->value;
     char sbf = ((lky_object_builtin *)args->next->value)->value.i;
     
     lky_object *ostr = NULL;
@@ -118,13 +118,13 @@ lky_object *stlstr_add(lky_object_seq *args, lky_object_function *func)
         case LBI_CUSTOM:
         case LBI_CUSTOM_EX:
         {
-            lky_object_function *strf = lobj_get_member(other, "stringify_");
+            lky_object_function *strf = (lky_object_function *)lobj_get_member(other, "stringify_");
             if(!strf)
             {
                 // TODO: Error
             }
             
-            ostr = (strf->callable.function)(NULL, strf);
+            ostr = (lky_object *)(strf->callable.function)(NULL, (struct lky_object *)strf);
 //            ostr = ((lky_object_custom *)nstr)->data;
         }
         break;
@@ -134,6 +134,8 @@ lky_object *stlstr_add(lky_object_seq *args, lky_object_function *func)
             ostr = lobjb_num_to_string(other);
         }
         break;
+        default:
+            break;
     }
     
     char *chr = ((lky_object_custom *)ostr)->data;

@@ -3,7 +3,7 @@
 
 #include "mempool.h"
 
-#define DEBUG(txt) printf("%d %s\n", __LINE__, txt )
+//#define DEBUG(txt) printf("%d %s\n", __LINE__, txt )
 
 extern lky_mempool ast_memory_pool;
 

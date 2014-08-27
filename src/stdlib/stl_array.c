@@ -18,18 +18,18 @@ lky_object *stlarr_append(lky_object_seq *args, lky_object_function *func)
     lky_object_custom *self = (lky_object_custom *)func->owner;
     stlarr_data *data = self->data;
     arr_append(&data->container, args->value);
-    lobj_set_member(self, "count", lobjb_build_int(data->container.count));
+    lobj_set_member((lky_object *)self, "count", lobjb_build_int(data->container.count));
     return &lky_nil;
 }
 
 lky_object *stlarr_set(lky_object_seq *args, lky_object_function *func)
 {
-    lky_object_custom *self = (lky_object_function *)func->owner;
+    lky_object_custom *self = (lky_object_custom *)func->owner;
     stlarr_data *data = self->data;
     arraylist list = data->container;
 
-    lky_object *indexer = args->value;
-    lky_object *newobj = args->next->value;
+    lky_object *indexer = (lky_object *)args->value;
+    lky_object *newobj = (lky_object *)args->next->value;
 
     if(indexer->type != LBI_FLOAT && indexer->type != LBI_INTEGER)
     {
@@ -54,7 +54,7 @@ lky_object *stlarr_get(lky_object_seq *args, lky_object_function *func)
 {
     lky_object_custom *self = (lky_object_custom *)func->owner;
     stlarr_data *data = self->data;
-    lky_object_builtin *b = args->value;
+    lky_object_builtin *b = (lky_object_builtin *)args->value;
     long idx = b->value.i;
 
     return arr_get(&data->container, idx);
@@ -65,7 +65,7 @@ lky_object *stlarr_contains(lky_object_seq *args, lky_object_function *func)
     lky_object_custom *self = (lky_object_custom *)func->owner;
     stlarr_data *data = self->data;
     arraylist list = data->container;
-    lky_object *a = args->value;
+    lky_object *a = (lky_object *)args->value;
 
     int toret = 0;
 
@@ -81,8 +81,8 @@ lky_object *stlarr_contains(lky_object_seq *args, lky_object_function *func)
                 break;
         }
 
-        if(result->type == &lky_nil)
-            continue;
+//        if(result->type == &lky_nil)
+//            continue;
 
 //        toret = 1;
 //        break;
@@ -100,7 +100,7 @@ lky_object *stlarr_for_each(lky_object_seq *args, lky_object_function *func)
     stlarr_data *data = self->data;
     arraylist list = data->container;
 
-    lky_object_function *callback = args->value;
+    lky_object_function *callback = (lky_object_function *)args->value;
     FAIL_CHECK(callback->type != LBI_FUNCTION, "MismatchedType", "Expected function type");
     FAIL_CHECK(!callback->callable.argc || callback->callable.argc > 2, "MismatchedType", "Expected function with 1 or 2 arguments");
 
@@ -115,7 +115,7 @@ lky_object *stlarr_for_each(lky_object_seq *args, lky_object_function *func)
         if(useidx)
             seq->next = lobjb_make_seq_node(lobjb_build_int(i));
 
-        callback->callable.function(seq, callback);
+        callback->callable.function(seq, (struct lky_object *)callback);
     }
 
 //    gc_remove_root_object(self);
@@ -128,7 +128,7 @@ lky_object *stlarr_index_of(lky_object_seq *args, lky_object_function *func)
     lky_object_custom *self = (lky_object_custom *)func->owner;
     stlarr_data *data = self->data;
     arraylist list = data->container;
-    lky_object *a = args->value;
+    lky_object *a = (lky_object *)args->value;
 
     long i;
     for(i = 0; i < list.count; i++)
@@ -142,7 +142,7 @@ lky_object *stlarr_index_of(lky_object_seq *args, lky_object_function *func)
             continue;
         }
 
-        if(result->type == &lky_nil)
+        if(result == &lky_nil)
             continue;
 
         return lobjb_build_int(i);
@@ -188,7 +188,7 @@ lky_object *stlarr_remove_at(lky_object_seq *args, lky_object_function *func)
     lky_object *obj = arr_get(list, idx);
     arr_remove(list, NULL, idx);
     
-    lobj_set_member(self, "count", lobjb_build_int(data->container.count));
+    lobj_set_member((lky_object *)self, "count", lobjb_build_int(data->container.count));
     
     return obj;
 }
@@ -256,28 +256,30 @@ lky_object *stlarr_stringify(lky_object_seq *args, lky_object_function *func)
 
 lky_object *stlarr_cinit(arraylist inlist)
 {
-    lky_object_custom *obj = lobjb_build_custom(sizeof(stlarr_data));
+    lky_object_custom *cobj = lobjb_build_custom(sizeof(stlarr_data));
     stlarr_data *data = malloc(sizeof(stlarr_data));
     data->container = inlist;
-    obj->data = data;
+    cobj->data = data;
+    
+    lky_object *obj = (lky_object *)cobj;
 
-    lky_object *getter = lobjb_build_func_ex(obj, 1, stlarr_get);
-    lky_object *setter = lobjb_build_func_ex(obj, 2, stlarr_set);
+    lky_object *getter = lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlarr_get);
+    lky_object *setter = lobjb_build_func_ex(obj, 2, (lky_function_ptr)stlarr_set);
 
-    lobj_set_member(obj, "append", lobjb_build_func_ex(obj, 1, stlarr_append));
+    lobj_set_member(obj, "append", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlarr_append));
     lobj_set_member(obj, "get", getter); // We want to let people directly call get
     lobj_set_member(obj, "op_get_index_", getter); // For the builtin getting syntax
     lobj_set_member(obj, "set", setter); // Direct call
     lobj_set_member(obj, "op_set_index_", setter); // For the builtin setting syntax
-    lobj_set_member(obj, "forEach", lobjb_build_func_ex(obj, 1, stlarr_for_each));
+    lobj_set_member(obj, "forEach", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlarr_for_each));
     lobj_set_member(obj, "count", lobjb_build_int(inlist.count));
-    lobj_set_member(obj, "contains", lobjb_build_func_ex(obj, 1, stlarr_contains));
-    lobj_set_member(obj, "indexOf", lobjb_build_func_ex(obj, 1, stlarr_index_of));
-    lobj_set_member(obj, "stringify_", lobjb_build_func_ex(obj, 0, stlarr_stringify));
-    lobj_set_member(obj, "removeAt", lobjb_build_func_ex(obj, 1, stlarr_remove_at));
+    lobj_set_member(obj, "contains", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlarr_contains));
+    lobj_set_member(obj, "indexOf", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlarr_index_of));
+    lobj_set_member(obj, "stringify_", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlarr_stringify));
+    lobj_set_member(obj, "removeAt", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlarr_remove_at));
 
-    obj->freefunc = stlarr_dealloc;
-    obj->savefunc = stlarr_save;
+    cobj->freefunc = stlarr_dealloc;
+    cobj->savefunc = stlarr_save;
     return (lky_object *)obj;
 }
 

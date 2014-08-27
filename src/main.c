@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
         {
             if(!strcmp(argv[i], "-S"))
             {
-                stlmeta_examine(lobjb_make_seq_node(func), NULL);
+                stlmeta_examine(lobjb_make_seq_node((lky_object *)func), NULL);
                 return 0;
             }
         }

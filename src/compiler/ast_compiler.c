@@ -175,7 +175,7 @@ void compile_binary(compiler_wrapper *cw, ast_node *root)
 
     compile(cw, node->right);
 
-    lky_instruction istr;
+    lky_instruction istr = LI_IGNORE;
     switch(node->opt)
     {
     case '+':
@@ -227,7 +227,7 @@ void compile_binary(compiler_wrapper *cw, ast_node *root)
             int idx = find_prev_name(cw, nsid);
             if(idx < 0)
             {
-                idx = cw->rnames.count;
+                idx = (int)cw->rnames.count;
                 arr_append(&cw->rnames, nsid);
             }
 
@@ -284,7 +284,7 @@ void compile_loop(compiler_wrapper *cw, ast_node *root)
         cw->save_val = save;
     }
 
-    int start = cw->rops.count;
+    int start = (int)cw->rops.count;
 
     compile(cw, node->condition);
     append_op(cw, LI_JUMP_FALSE);
@@ -455,7 +455,7 @@ int find_prev_name(compiler_wrapper *cw, char *name)
     {
         char *n = arr_get(&cw->rnames, i);
         if(strcmp(name, n) == 0)
-            return i;
+            return (int)i;
     }
 
     return -1;
@@ -471,7 +471,7 @@ void compile_member_access(compiler_wrapper *cw, ast_node *n)
 
     if(idx < 0)
     {
-        idx = cw->rnames.count;
+        idx = (int)cw->rnames.count;
         arr_append(&cw->rnames, name);
     }
 
@@ -494,7 +494,7 @@ void compile_set_member(compiler_wrapper *cw, ast_node *root)
 
     if(idx < 0)
     {
-        idx = cw->rnames.count;
+        idx = (int)cw->rnames.count;
         arr_append(&cw->rnames, left->ident);
     }
 
@@ -521,7 +521,7 @@ void compile_unary(compiler_wrapper *cw, ast_node *root)
 
     compile(cw, node->target);
 
-    lky_instruction istr;
+    lky_instruction istr = LI_IGNORE;
     switch(node->opt)
     {
     case 'p':
@@ -556,7 +556,7 @@ void compile_var(compiler_wrapper *cw, ast_value_node *node)
 
     if(idx < 0)
     {
-        idx = cw->rnames.count;
+        idx = (int)cw->rnames.count;
         char *ns = malloc(strlen(node->value.s) + 1);
         strcpy(ns, node->value.s);
         arr_append(&cw->rnames, ns);
@@ -612,7 +612,6 @@ void compile_function(compiler_wrapper *cw, ast_node *root)
     {
         char *idf = v->value.s;
 
-        long idx = nw.rnames.count;
         char *nid = malloc(strlen(idf) + 1);
         strcpy(nid, idf);
 
@@ -782,7 +781,7 @@ void replace_tags(compiler_wrapper *cw)
             }
 
             unsigned char buf[4];
-            int_to_byte_array(buf, line);
+            int_to_byte_array(buf, (int)line);
 
             int j;
             for(j = 0; j < 4; j++)
@@ -876,7 +875,7 @@ lky_object_code *compile_ast_ext(ast_node *root, compiler_wrapper *incw)
     code->locals = malloc(sizeof(void *) * cw.local_idx);
     code->names = make_names_array(&cw);
     code->cls = NULL;
-    code->stack_size = calculate_max_stack_depth(code->ops, code->op_len);
+    code->stack_size = calculate_max_stack_depth(code->ops, (int)code->op_len);
 
     int i;
     for(i = 0; i < cw.local_idx; i++)
