@@ -92,7 +92,7 @@ lky_object *compile_and_exec(char *str, mach_interp *interp)
 
 void run_repl(mach_interp *interp)
 {
-    char *prompt = "\001" LIGHT_BLUE "\002" "==$ " "\001" DEFAULT "\002";
+    char *prompt = "\001" LIGHT_BLUE "\002" "> " "\001" DEFAULT "\002";
 
     char *buf;
     
@@ -135,7 +135,7 @@ void run_repl(mach_interp *interp)
         free(line);
         line = malloc(1);
         strcpy(line, "");
-        prompt = "\001" LIGHT_BLUE "\002" "==$ " "\001" DEFAULT "\002";
+        prompt = "\001" LIGHT_BLUE "\002" "> " "\001" DEFAULT "\002";
         bmulti = 0;
     }
     
@@ -153,6 +153,205 @@ lky_object *stlmeta_exec(lky_object_seq *args, lky_object_function *func)
     return compile_and_exec(str, self->data);
 }
 
+lky_object *stlmeta_repl(lky_object_seq *args, lky_object_function *func)
+{
+    lky_object_custom *self = (lky_object_custom *)func->owner;
+    
+    run_repl(self->data);
+    
+    return &lky_nil;
+}
+
+char *stlmeta_string_for_instruction(lky_instruction instr)
+{
+    // Switch statement generated using "instrgen.lky".
+    switch(instr)
+    {
+        case LI_BINARY_ADD:
+            return "BINARY_ADD";
+        case LI_BINARY_SUBTRACT:
+            return "BINARY_SUBTRACT";
+        case LI_BINARY_MULTIPLY:
+            return "BINARY_MULTIPLY";
+        case LI_BINARY_DIVIDE:
+            return "BINARY_DIVIDE";
+        case LI_BINARY_MODULO:
+            return "BINARY_MODULO";
+        case LI_BINARY_LT:
+            return "BINARY_LT";
+        case LI_BINARY_GT:
+            return "BINARY_GT";
+        case LI_BINARY_EQUAL:
+            return "BINARY_EQUAL";
+        case LI_BINARY_LTE:
+            return "BINARY_LTE";
+        case LI_BINARY_GTE:
+            return "BINARY_GTE";
+        case LI_BINARY_NE:
+            return "BINARY_NE";
+        case LI_BINARY_AND:
+            return "BINARY_AND";
+        case LI_BINARY_OR:
+            return "BINARY_OR";
+        case LI_LOAD_CONST:
+            return "LOAD_CONST";
+        case LI_PRINT:
+            return "PRINT";
+        case LI_POP:
+            return "POP";
+        case LI_JUMP_FALSE:
+            return "JUMP_FALSE";
+        case LI_JUMP_TRUE:
+            return "JUMP_TRUE";
+        case LI_JUMP:
+            return "JUMP";
+        case LI_IGNORE:
+            return "IGNORE";
+        case LI_SAVE_LOCAL:
+            return "SAVE_LOCAL";
+        case LI_LOAD_LOCAL:
+            return "LOAD_LOCAL";
+        case LI_PUSH_NIL:
+            return "PUSH_NIL";
+        case LI_CALL_FUNC:
+            return "CALL_FUNC";
+        case LI_RETURN:
+            return "RETURN";
+        case LI_LOAD_MEMBER:
+            return "LOAD_MEMBER";
+        case LI_SAVE_MEMBER:
+            return "SAVE_MEMBER";
+        case LI_MAKE_FUNCTION:
+            return "MAKE_FUNCTION";
+        case LI_MAKE_CLASS:
+            return "MAKE_CLASS";
+        case LI_SAVE_CLOSE:
+            return "SAVE_CLOSE";
+        case LI_LOAD_CLOSE:
+            return "LOAD_CLOSE";
+        case LI_MAKE_ARRAY:
+            return "MAKE_ARRAY";
+        case LI_LOAD_INDEX:
+            return "LOAD_INDEX";
+        case LI_SAVE_INDEX:
+            return "SAVE_INDEX";
+        default:
+            return "";
+    }
+}
+
+void stlmeta_print_dissassembly(lky_object_code *code)
+{
+    long i;
+    for(i = 0; i < code->op_len; i++)
+    {
+        lky_instruction instr = code->ops[i];
+        printf("%ld: %s", i, stlmeta_string_for_instruction(instr));
+        
+        switch(instr)
+        {
+            case LI_BINARY_ADD:
+            case LI_BINARY_SUBTRACT:
+            case LI_BINARY_MULTIPLY:
+            case LI_BINARY_DIVIDE:
+            case LI_BINARY_MODULO:
+            case LI_BINARY_LT:
+            case LI_BINARY_GT:
+            case LI_BINARY_EQUAL:
+            case LI_BINARY_LTE:
+            case LI_BINARY_GTE:
+            case LI_BINARY_NE:
+            case LI_BINARY_AND:
+            case LI_BINARY_OR:
+            case LI_PRINT:
+            case LI_POP:
+            case LI_IGNORE:
+            case LI_PUSH_NIL:
+            case LI_CALL_FUNC:
+            case LI_RETURN:
+            case LI_LOAD_INDEX:
+            case LI_SAVE_INDEX:
+                break;
+            case LI_LOAD_CONST:
+                printf("\t%d\t(", code->ops[++i]);
+                lobjb_print_object(code->constants[code->ops[i]]);
+                printf(")");
+                break;
+            case LI_LOAD_CLOSE:
+            case LI_SAVE_CLOSE:
+            case LI_LOAD_MEMBER:
+            case LI_SAVE_MEMBER:
+                printf("\t%d\t(\"%s\")", code->ops[++i], code->names[code->ops[i]]);
+                break;
+            case LI_JUMP:
+            case LI_JUMP_FALSE:
+            case LI_JUMP_TRUE:
+            {
+                unsigned int idx = *(unsigned int *)(code->ops + (++i));
+                printf("\t%u\t[jump location]", idx);
+                i += 3;
+                
+                break;
+            }
+            case LI_LOAD_LOCAL:
+            case LI_SAVE_LOCAL:
+                printf("\tUnimplemented");
+                break;
+            case LI_MAKE_ARRAY:
+            {
+                unsigned int idx = *(unsigned int *)(code->ops + (++i));
+                printf("\t%u\t[item count]", idx);
+                i += 3;
+                
+                break;
+            }
+            case LI_MAKE_CLASS:
+            case LI_MAKE_FUNCTION:
+                printf("\t%d\t[argc]", code->ops[++i]);
+                break;
+        }
+        
+        printf("\n");
+    }
+}
+
+lky_object *stlmeta_examine(lky_object_seq *args, lky_object_function *func)
+{
+    lky_object_function *obj = (lky_object_function *)args->value;
+    lky_object_code *code = obj->code;
+    
+    if(!code)
+    {
+        printf("C extension function at %p taking %d argument%s.\n", obj->callable.function, obj->callable.argc, obj->callable.argc == 1 ? "" : "s");
+        return &lky_nil;
+    }
+    
+    printf("Lanky native function taking %d argument%s.\n", obj->callable.argc, obj->callable.argc == 1 ? "" : "s");
+    
+    int i;
+    printf("Names: \n[");
+    
+    for(i = 0; i < code->num_names; i++)
+    {
+        printf("\"%s\"%s", code->names[i], i == code->num_names - 1 ? "" : ", ");
+    }
+    
+    printf("]\n\nConstants: \n[");
+    
+    for(i = 0; i < code->num_constants; i++)
+    {
+        lobjb_print_object(code->constants[i]);
+        
+        if(i < code->num_constants - 1)
+            printf(", ");
+    }
+    
+    printf("]\n\n");
+    stlmeta_print_dissassembly(code);
+    
+    return &lky_nil;
+}
+
 lky_object *stlmeta_get_class(mach_interp *interp)
 {
     lky_object_custom *custom = lobjb_build_custom(sizeof(mach_interp));
@@ -161,6 +360,8 @@ lky_object *stlmeta_get_class(mach_interp *interp)
     custom->data = interp;
 
     lobj_set_member(custom, "exec", lobjb_build_func_ex(custom, 1, (lky_function_ptr)stlmeta_exec));
+    lobj_set_member(custom, "repl", lobjb_build_func_ex(custom, 0, (lky_function_ptr)stlmeta_repl));
+    lobj_set_member(custom, "examine", lobjb_build_func_ex(custom, 1, (lky_function_ptr)stlmeta_examine));
     
     return custom;
 }

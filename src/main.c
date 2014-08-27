@@ -32,13 +32,19 @@ int main(int argc, char *argv[])
         lky_object_code *code = compile_ast(programBlock->next);
         write_to_file("test", code);
         ast_free(programBlock);
+        
+        arraylist list = arr_create(1);
+        mach_interp interp = {NULL};
+        
+        gc_init();
+        lky_object_function *func = (lky_object_function *)lobjb_build_func(code, 0, list, &interp);
 
         int i;
         for(i = 0; i < argc; i++)
         {
-            if(!strcmp(argv[i], "-s"))
+            if(!strcmp(argv[i], "-S"))
             {
-                print_ops(code->ops, code->op_len);
+                stlmeta_examine(lobjb_make_seq_node(func), NULL);
                 return 0;
             }
         }
@@ -46,11 +52,6 @@ int main(int argc, char *argv[])
         // printf("%p ... %p ... %p\n", programBlock, programBlock->next, programBlock->next->next);
         printf("\nProgram output:\n==============================\n\n");
         
-        arraylist list = arr_create(1);
-        mach_interp interp = {NULL};
-
-        gc_init();
-        lky_object_function *func = (lky_object_function *)lobjb_build_func(code, 0, list, &interp);
 //        gc_add_root_object(func);
 
         func->bucket = lobj_alloc();

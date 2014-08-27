@@ -1,0 +1,39 @@
+f = Io.fopen("src/interpreter/instruction_set.h", "r");
+
+lines = f.getlns();
+f.close();
+
+instrs = Array();
+
+lines.forEach(func(line) {
+	if(line.length > 4) {
+		if(line[4] == "L" & line[5] == "I") {
+			line = line.split("    ")[1].split(" = ")[0].split(",")[0];
+			instrs.append(line);
+		}
+	}
+});
+
+Io.putln("    switch(istr)");
+Io.putln("    {");
+
+instrs.forEach(func(ins) {
+	Io.putln("        case " + ins + ":");
+	Io.putln('            return "' + ins.split("LI_")[1] + '";');
+});
+
+singletons = Array();
+
+instrs.forEach(func(ins) {
+	res = Io.prompt(ins + "? ");
+
+	if(res == "y") {
+		singletons.append(ins);
+	}
+});
+
+singletons.forEach(func(sing) {
+	Io.putln("        case " + sing + ":");
+});
+
+Meta.repl();

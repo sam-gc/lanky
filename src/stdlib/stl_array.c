@@ -209,8 +209,8 @@ lky_object *stlarr_stringify(lky_object_seq *args, lky_object_function *func)
     }
     
     // Adding to the total length:
-    //      brackets      commas & spaces
-    tlen +=    4     +  2 * (list.count > 0 ? list.count - 1 : 0);
+    //      brackets      commas & spaces                           null termination
+    tlen +=    4     +  2 * (list.count > 0 ? list.count - 1 : 0)  +       1;
     
     char *str = malloc(tlen);
     strcpy(str, "[ ");

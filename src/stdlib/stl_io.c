@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include "stl_io.h"
 #include "stl_array.h"
+#include "stl_string.h"
 #include "arraylist.h"
 
 typedef struct {
@@ -61,10 +62,10 @@ lky_object *stlio_file_readlines(lky_object_seq *args, lky_object_function *func
     size_t sz = 0;
     while(getline(&line, &sz, f) != -1)
     {
+        // Replace the newline character.
         line[strlen(line) - 1] = '\0';
-        lky_builtin_value v;
-        v.s = line;
-        lky_object *str = lobjb_alloc(LBI_STRING, v);
+        lky_object *str = stlstr_cinit(line);
+        free(line);
         arr_append(&list, str);
         line = NULL;
         sz = 0;
@@ -96,9 +97,9 @@ lky_object *stlio_file_readline(lky_object_seq *args, lky_object_function *func)
 
     line[strlen(line) - 1] = '\0';
 
-    lky_builtin_value v;
-    v.s = line;
-    return (lky_object *)lobjb_alloc(LBI_STRING, v);
+    lky_object *ret = stlstr_cinit(line);
+    free(line);
+    return ret;
 }
 
 lky_object *stlio_file_write(lky_object_seq *args, lky_object_function *func)
