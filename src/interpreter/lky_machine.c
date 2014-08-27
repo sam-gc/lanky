@@ -110,7 +110,7 @@ lky_object *mach_interrupt_exec(lky_object_function *func)
     frame->data_stack = stack;
     func->bucket = frame->bucket;
     
-    gc_add_root_object((lky_object *)func);
+//    gc_add_root_object((lky_object *)func);
     
     //    rc_incr(frame.bucket);
     
@@ -118,7 +118,7 @@ lky_object *mach_interrupt_exec(lky_object_function *func)
     
     //    rc_decr(frame.bucket);
     
-    gc_remove_root_object((lky_object *)func);
+//    gc_remove_root_object((lky_object *)func);
     
     func->bucket = NULL;
     func->parent_stack = arr_create(1);
@@ -495,7 +495,7 @@ _opcode_whiplash_:
             lky_function_ptr ptr = c.function;
             lky_object *ret = (lky_object *)(*ptr)(seq, (struct lky_object *)func);
 
-            lobjb_free_seq(seq);
+//            lobjb_free_seq(seq);
             if(seq)
                 gc_remove_root_object((lky_object *)first);
 
@@ -603,8 +603,12 @@ _opcode_whiplash_:
                 bk = frame->bucket;
 
             lky_object *old = lobj_get_member(bk, name);
-
+            if(!strcmp(name, "curr"))
+            {
+                printf("");
+            }
             lobj_set_member(bk, name, obj);
+            
             goto _opcode_whiplash_;
         }
         break;

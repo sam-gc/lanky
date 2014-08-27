@@ -6,9 +6,14 @@
 void gc_mark();
 void gc_collect();
 
+typedef struct gc_root_list {
+    struct gc_root_list *next;
+    void *value;
+} gc_root_list;
+
 typedef struct {
     gc_hashset pool;
-    gc_hashset roots;
+    gc_root_list *roots;
     stackframe *function_stacks;
     size_t max_size;
     size_t cur_size;
@@ -43,11 +48,11 @@ void gc_add_func_stack(stackframe *frame)
 void gc_init()
 {
     bundle.pool = gchs_create(8);
-    bundle.roots = gchs_create(10);
-//    bundle.max_size = 16000000;
-    bundle.growth_size = 5000;
+    bundle.roots = NULL;
+    //    bundle.max_size = 16000000;
+    bundle.growth_size = 1600000;
     bundle.marked_size = 0;
-    bundle.max_size = 5000;
+    bundle.max_size = 1600000;
     bundle.cur_size = 0;
     bundle.function_stacks = NULL;
     gc_started = 1;
@@ -57,21 +62,45 @@ void gc_add_root_object(lky_object *obj)
 {
     if(!gc_started)
         return;
-
-    gchs_add(&bundle.roots, obj);
-    gchs_add(&bundle.pool, obj);
+    
+    gc_root_list *list = malloc(sizeof(gc_root_list));
+    list->next = NULL;
+    list->value = obj;
+    
+    if(bundle.roots)
+        list->next = bundle.roots;
+    bundle.roots = list;
+    //    gchs_add(&bundle.pool, obj);
 }
 
 void gc_remove_root_object(lky_object *obj)
 {
-    gchs_remove(&bundle.roots, obj);
+    gc_root_list *list = bundle.roots;
+    gc_root_list *prev = NULL;
+    for(; list; list = list->next)
+    {
+        if(list->value == obj)
+        {
+            if(prev)
+                prev->next = list->next;
+            
+            if(bundle.roots == list)
+                bundle.roots = list->next;
+            
+            free(list);
+            break;
+        }
+        
+        prev = list;
+    }
+    
 }
 
 void gc_add_object(lky_object *obj)
 {
     if(!gc_started || !obj)
         return;
-
+    
     gchs_add(&bundle.pool, obj);
     bundle.cur_size += obj->size;
 }
@@ -80,7 +109,7 @@ void gc_gc()
 {
     if(bundle.cur_size < bundle.max_size)
         return;
-
+    
     gc_mark();
     gc_collect();
     
@@ -93,7 +122,7 @@ void gc_collect()
     
     gc_hashset pool = bundle.pool;
     void **objs = gchs_to_list(&bundle.pool);
-
+    
     int i;
     for(i = pool.count - 1; i >= 0; i--)
     {
@@ -119,31 +148,31 @@ void gc_mark_object(lky_object *o)
 {
     if(o->mem_count)
         return;
-
+    
     o->mem_count = 1;
-
+    
     trie_for_each(&o->members, (trie_pointer_function)&gc_mark_object);
-
+    
     switch(o->type)
     {
         case LBI_FUNCTION:
         {
             lky_object_function *func = (lky_object_function *)o;
-
+            
             if(func->bucket)
                 gc_mark_object(func->bucket);
             if(func->code)
                 gc_mark_object((lky_object *)func->code);
             if(func->owner)
                 gc_mark_object((lky_object *)func->owner);
-
+            
             int i;
             for(i = 0; i < func->parent_stack.count; i++)
             {
                 gc_mark_object(arr_get(&func->parent_stack, i));
             }
         }
-        break;
+            break;
         case LBI_SEQUENCE:
         {
             lky_object_seq *seq = (lky_object_seq *)o;
@@ -152,7 +181,7 @@ void gc_mark_object(lky_object *o)
             if(seq->value)
                 gc_mark_object((lky_object *)seq->value);
         }
-        break;
+            break;
         case LBI_CODE:
         {
             lky_object_code *code = (lky_object_code *)o;
@@ -160,13 +189,13 @@ void gc_mark_object(lky_object *o)
             for(i = 0; i < code->num_constants; i++)
                 gc_mark_object(code->constants[i]);
         }
-        break;
+            break;
         case LBI_CLASS:
         {
             lky_object_class *cls = (lky_object_class *)o;
             gc_mark_object((lky_object *)cls->builder);
         }
-        break;
+            break;
         case LBI_CUSTOM_EX:
         {
             lky_object_custom *cu = (lky_object_custom *)o;
@@ -174,9 +203,9 @@ void gc_mark_object(lky_object *o)
                 break;
             cu->savefunc(o);
         }
-        break;
+            break;
         default:
-        break;
+            break;
     }
 }
 
@@ -197,13 +226,26 @@ void gc_mark_function_stack(stackframe *frame)
     {
         gc_mark_object(frame->bucket);
         gc_mark_stack(frame->data_stack, frame->stack_size);
+        
+        int i;
+        for(i = 0; i < frame->parent_stack.count; i++)
+        {
+            gc_mark_object(arr_get(&frame->parent_stack, i));
+        }
     }
 }
 
 void gc_mark()
 {
-    gchs_for_each(&bundle.roots, (gchs_pointer_function)&gc_mark_object);
-//    arr_for_each(&bundle.root_stacks, (arr_pointer_function)&gc_mark_stack);
+    gc_root_list *list = bundle.roots;
+    
+    for(; list; list = list->next)
+    {
+        gc_mark_object(list->value);
+        
+    }
+    
+    //    arr_for_each(&bundle.root_stacks, (arr_pointer_function)&gc_mark_stack);
     gc_mark_function_stack(bundle.function_stacks);
     
     // arr_for_each(&bundle.pool, (arr_pointer_function)&gc_reset_mark);

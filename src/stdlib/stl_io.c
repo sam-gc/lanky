@@ -22,10 +22,9 @@ lky_object *stlio_input(lky_object_seq *args, lky_object *func)
     unsigned long len = strlen(buf);
     buf[len - 1] = '\0';
     
-    lky_builtin_value v;
-    v.s = buf;
-
-    return lobjb_alloc(LBI_STRING, v);
+    lky_object *toret = stlstr_cinit(buf);
+    free(buf);
+    return toret;
 }
 
 lky_object *stlio_put(lky_object_seq *args, lky_object *func)

@@ -145,6 +145,21 @@ void node_for_each(TrieNode_t *node, trie_pointer_function callback)
     }
 }
 
+char node_contains_path(TrieNode_t *node, char *str)
+{
+    char first = str[0];
+    
+    TrieNode_t *next = child_with(node, first);
+    
+    if(strlen(str) == 1 && next)
+        return 1;
+    
+    if(!next)
+        return 0;
+    
+    return node_contains_path(next, str + 1);
+}
+
 void trie_add(Trie_t *t, char *str, void *value)
 {
     if(node_add(t->head, str, value))
@@ -160,4 +175,9 @@ void trie_for_each(Trie_t *t, trie_pointer_function callback)
 void *trie_get(Trie_t *t, char *str)
 {
     return node_get(t->head, str);
+}
+
+char trie_contains_path(Trie_t *t, char *str)
+{
+    return node_contains_path(t->head, str);
 }

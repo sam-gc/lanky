@@ -77,14 +77,15 @@ lky_object *stlarr_contains(lky_object_seq *args, lky_object_function *func)
         if(result->type == LBI_INTEGER || result->type == LBI_FLOAT)
         {
             toret = !!OBJ_NUM_UNWRAP(result);
-            break;
+            if(toret)
+                break;
         }
 
         if(result->type == &lky_nil)
             continue;
 
-        toret = 1;
-        break;
+//        toret = 1;
+//        break;
     }
 
     return lobjb_build_int(toret);
@@ -165,8 +166,31 @@ void stlarr_save(lky_object *o)
 
     long i;
     for(i = 0; i < data->container.count; i++)
+    {
+        lky_object *obj = arr_get(&data->container, i);
+        if(!obj)
+            continue;
+        
         gc_mark_object(arr_get(&data->container, i));
+    }
 
+}
+
+lky_object *stlarr_remove_at(lky_object_seq *args, lky_object_function *func)
+{
+    lky_object_custom *self = (lky_object_custom *)func->owner;
+    stlarr_data *data = self->data;
+    
+    arraylist *list = &data->container;
+    
+    long idx = OBJ_NUM_UNWRAP(args->value);
+    
+    lky_object *obj = arr_get(list, idx);
+    arr_remove(list, NULL, idx);
+    
+    lobj_set_member(self, "count", lobjb_build_int(data->container.count));
+    
+    return obj;
 }
 
 lky_object *stlarr_stringify(lky_object_seq *args, lky_object_function *func)
@@ -250,6 +274,7 @@ lky_object *stlarr_cinit(arraylist inlist)
     lobj_set_member(obj, "contains", lobjb_build_func_ex(obj, 1, stlarr_contains));
     lobj_set_member(obj, "indexOf", lobjb_build_func_ex(obj, 1, stlarr_index_of));
     lobj_set_member(obj, "stringify_", lobjb_build_func_ex(obj, 0, stlarr_stringify));
+    lobj_set_member(obj, "removeAt", lobjb_build_func_ex(obj, 1, stlarr_remove_at));
 
     obj->freefunc = stlarr_dealloc;
     obj->savefunc = stlarr_save;

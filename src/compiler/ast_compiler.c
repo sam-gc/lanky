@@ -875,6 +875,7 @@ lky_object_code *compile_ast_ext(ast_node *root, compiler_wrapper *incw)
     code->op_len = cw.rops.count;
     code->locals = malloc(sizeof(void *) * cw.local_idx);
     code->names = make_names_array(&cw);
+    code->cls = NULL;
     code->stack_size = calculate_max_stack_depth(code->ops, code->op_len);
 
     int i;

@@ -15,6 +15,7 @@ lky_object *lobjb_alloc(lky_builtin_type t, lky_builtin_value v)
     obj->members = trie_new();
     obj->members.free_func = (trie_pointer_function)(&rc_decr);
     obj->value = v;
+    obj->cls = NULL;
     gc_add_object((lky_object *)obj);
 
     return (lky_object *)obj;
@@ -43,6 +44,7 @@ lky_object *lobjb_build_error(char *name, char *text)
     err->members = trie_new();
     err->name = name;
     err->text = text;
+    err->cls = NULL;
 
     gc_add_object((lky_object *)err);
 
@@ -59,6 +61,7 @@ lky_object_custom *lobjb_build_custom(size_t extra_size)
     obj->data = NULL;
     obj->freefunc = NULL;
     obj->savefunc = NULL;
+    obj->cls = NULL;
 
     gc_add_object((lky_object *)obj);
 
@@ -77,6 +80,7 @@ lky_object *lobjb_build_func(lky_object_code *code, int argc, arraylist inherite
     func->code = code;
     func->bucket = NULL;
     func->owner = NULL;
+    func->cls = NULL;
     
     func->interp = interp;
 
@@ -106,6 +110,7 @@ lky_object *lobjb_build_func_ex(lky_object *owner, int argc, lky_function_ptr pt
     
     func->code = NULL;
     func->bucket = NULL;
+    func->cls = NULL;
 
     func->parent_stack = arr_create(1);
 
@@ -131,6 +136,7 @@ lky_object *lobjb_build_class(lky_object_function *builder, char *refname)
     cls->size = sizeof(lky_object_class);
     cls->members = trie_new();
     cls->members.free_func = (trie_pointer_function)(&rc_decr);
+    cls->cls = NULL;
 
     cls->builder = builder;
     cls->refname = refname;
@@ -199,11 +205,14 @@ lky_object *lobjb_default_class_callable(lky_object_seq *args, lky_object *self)
     rc_incr(func->bucket);
 
     lky_object *outobj = lobj_alloc();
+    outobj->cls = (struct lky_object *)cls;
     rc_incr(outobj);
 
     lobj_set_member(func->bucket, cls->refname, outobj);
 
+    gc_add_root_object(args);
     lky_object *returned = mach_execute(func);
+    gc_remove_root_object(args);
     //printf("...%d\n", func->bucket->mem_count);
 
     if(returned)
@@ -217,6 +226,8 @@ lky_object *lobjb_default_class_callable(lky_object_seq *args, lky_object *self)
     {
         lobjb_default_callable(args, init);
     }
+    
+    lobj_set_member(outobj, "class_", (lky_object *)cls);
 
     return outobj;
 }
@@ -358,6 +369,7 @@ lky_object_seq *lobjb_make_seq_node(lky_object *value)
     seq->mem_count = 0;
     seq->members = trie_new();
     seq->size = sizeof(lky_object_seq);
+    seq->cls = NULL;
     gc_add_object((lky_object *)seq);
 
     seq->value = (struct lky_object *)value;
@@ -505,6 +517,7 @@ lky_object *lobjb_deserialize_code(FILE *f)
     obj->ops = ops;
     obj->op_len = oplen;
     obj->names = names;
+    obj->cls = NULL;
     obj->stack_size = stack_size;
 
     gc_add_object((lky_object *)obj);
@@ -611,6 +624,7 @@ lky_object_code *lobjb_load_file(char *name)
     obj->ops = ops;
     obj->op_len = oplen;
     obj->names = names;
+    obj->cls = NULL;
     obj->stack_size = stack_size;
 
     gc_add_object((lky_object *)obj);

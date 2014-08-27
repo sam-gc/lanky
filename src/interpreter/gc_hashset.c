@@ -119,6 +119,8 @@ void gchs_remove(gc_hashset *set, void *obj)
 
 void gchs_for_each(gc_hashset *set, gchs_pointer_function callback)
 {
+    if(!set->count)
+        return;
     int i;
     for(i = 0; i < set->hash_size; i++)
     {

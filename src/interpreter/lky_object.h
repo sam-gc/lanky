@@ -34,6 +34,7 @@ typedef struct lky_object_seq {
     int mem_count;
     size_t size;
     Trie_t members;
+    struct lky_object *cls;
 
     lky_callable callable;
 
@@ -46,6 +47,7 @@ typedef struct {
     int mem_count;
     size_t size;
     Trie_t members;
+    struct lky_object *cls;
 
     lky_callable callable;
 } lky_object;

@@ -1,0 +1,129 @@
+f = Io.fopen("ospd.txt", "r");
+words = Trie();
+
+Io.putln("Loading dictionary...");
+loop(f.EOF != 1) {
+	if(word = f.getln()) {
+		words.put(word);
+
+	}
+}
+Io.putln("Finished loading dictionary.");
+f.close();
+
+Tile = class() -> self {
+	self.build_ = func(c, x, y) {
+		self.c = c;
+		self.x = x;
+		self.y = y;
+	};
+};
+
+neighbors = [ [0-1, 0-1], [0, 0-1], [1, 0-1], [1, 0], [1, 1], [0, 1], [0-1, 1], [0-1, 0] ];
+
+combineArr = func(arr) {
+	str = "";
+	arr.forEach(func(t) {
+		str = str + t.c;
+	});
+
+	ret str;
+};
+
+Solver = class() -> self {
+	self.build_ = func() {
+		self.board = Array();
+		self.idx = 0;
+
+		self.board.append(Array());
+		self.board.append(Array());
+		self.board.append(Array());
+		self.board.append(Array());
+
+	};
+
+	self.add = func(c) {
+		idx = self.idx;
+		x = idx % 4;
+		y = idx / 4;
+
+		t = Tile(c, x, y);
+
+		self.board[x].append(t);
+
+		self.idx = self.idx + 1;
+	};
+
+	self.solve = func() {
+		self.found = Array();
+
+		self.board.forEach(func(arr) {
+			arr.forEach(func(t) {
+				self.solveFrom(t);
+			});
+		});
+
+		ret self.found;
+	};
+
+	self.printRep = func() {
+		loop(x = 0; x < 4; x = x + 1) {
+			loop(y = 0; y < 4; y = y + 1) {
+				t = self.board[y][x];
+				Io.put(t.c + "(" + t.x + " " + t.y + "),");
+			}
+
+			Io.putln("");
+		}
+	};
+
+	self.solveFrom = func(t) {
+		Io.putln("Starting from " + t.c);
+		work = [ [t] ];
+
+		loop(work.count) {
+			curr = work.removeAt(0);
+
+			tmpStr = combineArr(curr);
+
+			if(words.contains(tmpStr) & tmpStr.length > 2) {
+				self.found.append(tmpStr);
+			}
+
+			last = curr[curr.count - 1];
+			neighbors.forEach(func(n) {
+				nX = last.x + n[0];
+				nY = last.y + n[1];
+
+				if(nX < 0 | nX > 3 | nY < 0 | nY > 3) {
+					ret 0;
+				}
+
+				tmp = Array();
+				curr.forEach(func(z) {
+					tmp.append(z);
+				});
+
+				nC = self.board[nX][nY];
+
+				if(tmp.contains(nC) == 0) {
+					tmp.append(nC);
+
+					if(words.hasPath(combineArr(tmp))) {
+						work.append(tmp);
+					}
+				}
+			});
+		}
+	};
+};
+
+sol = Solver();
+
+loop(i = 0; i < 16; i = i + 1) {
+	sol.add(Io.prompt("Tile > "));
+}
+
+found = sol.solve();
+
+Meta.repl();
