@@ -77,10 +77,16 @@ lky_object *stlreq_compile(lky_object_seq *args, lky_object *func)
     soname[lastnum] = 's';
     soname[lastnum + 1] = 'o';
 
+#ifdef __APPLE__
+    char *compilefrmt = "gcc -shared -undefined dynamic_lookup -o %s %s";
+#else
+    char *compilefrmt = "gcc -shared -o %s %s";
+#endif
+
     char *compcmd = calloc(1000, sizeof(char));
     sprintf(compcmd, "gcc -fPIC -c %s -o %s", filename, objname);
     system(compcmd);
-    sprintf(compcmd, "gcc -shared -o %s %s", soname, objname);
+    sprintf(compcmd, compilefrmt, soname, objname);
     system(compcmd);
 
     free(soname);
