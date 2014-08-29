@@ -61,7 +61,40 @@ lky_object *stlreq_import(lky_object_seq *args, lky_object_function *func)
     return obj;
 }
 
+lky_object *stlreq_compile(lky_object_seq *args, lky_object *func)
+{
+    lky_object_custom *fileobj = (lky_object_custom *)args->value;
+    char *filename = fileobj->data;
+
+    unsigned long lastnum = strlen(filename) - 1;
+    char *objname = calloc(lastnum + 2, sizeof(char));
+    char *soname = calloc(lastnum + 3, sizeof(char));
+
+    strcpy(objname, filename);
+    strcpy(soname, filename);
+
+    objname[lastnum] = 'o';
+    soname[lastnum] = 's';
+    soname[lastnum + 1] = 'o';
+
+    char *compcmd = calloc(1000, sizeof(char));
+    sprintf(compcmd, "gcc -fPIC -c %s -o %s", filename, objname);
+    system(compcmd);
+    sprintf(compcmd, "gcc -shared -o %s %s", soname, objname);
+    system(compcmd);
+
+    free(soname);
+    free(objname);
+    
+    return &lky_nil;
+}
+
 lky_object *stlreq_get_class()
 {
-    return lobjb_build_func_ex(NULL, 1, (lky_function_ptr)&stlreq_import);            
+    lky_object *obj = lobj_alloc();
+    
+    lobj_set_member(obj, "import", lobjb_build_func_ex(obj, 1, (lky_function_ptr)&stlreq_import));
+    lobj_set_member(obj, "compile", lobjb_build_func_ex(obj, 1, (lky_function_ptr)&stlreq_compile));
+    
+    return obj;
 }

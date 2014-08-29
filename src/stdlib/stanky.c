@@ -14,6 +14,6 @@ Trie_t get_stdlib_objects()
     trie_add(&t, "Io", stlio_get_class());
     trie_add(&t, "Convert", stlcon_get_class());
     trie_add(&t, "Trie", stltrie_get_class());
-    trie_add(&t, "require", stlreq_get_class());
+    trie_add(&t, "C", stlreq_get_class());
     return t;
 }

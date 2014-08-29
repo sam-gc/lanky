@@ -25,6 +25,8 @@ clean:
 	rm -f lanky machine test
 	rm -rf obj
 	rm -f src/grammar/parser.* src/grammar/tokens.c
+	rm -f extensions/*.o
+	rm -f extensions/*.so
 
 machine: $(INT_OBJ_FILES) $(STD_OBJ_FILES) src/bin_main.c
 	$(CC) $(CFLAGS) -o machine $^ $(LDFLAGS)

@@ -13,3 +13,4 @@ parser.output
 *~
 obj/
 *.o
+*.so
