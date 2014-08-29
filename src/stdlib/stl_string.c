@@ -155,12 +155,45 @@ lky_object *stlstr_add(lky_object_seq *args, lky_object_function *func)
     return ret;
 }
 
+char stlstr_escape_for(char i)
+{
+    switch(i)
+    {
+        case 'n':
+            return '\n';
+        case 't':
+            return '\t';
+        default:
+            return '\\';
+    }
+}
+
+char *stlstr_copy_and_escape(char *str)
+{
+    unsigned long len = strlen(str);
+    unsigned long i, o;
+
+    char *cop = calloc(len + 1, sizeof(char));
+    for(i = o = 0; i < len; ++i, ++o)
+    {
+        if(str[i] != '\\')
+        {
+            cop[o] = str[i];
+            continue;
+        }
+
+        i++;
+        cop[o] = stlstr_escape_for(str[i]);
+    }
+
+    return cop;
+}
+
 lky_object *stlstr_cinit(char *str)
 {
     lky_object_custom *cobj = lobjb_build_custom(0);
     
-    char *copied = malloc(strlen(str) + 1);
-    strcpy(copied, str);
+    char *copied = stlstr_copy_and_escape(str);
     
     cobj->data = copied;
     

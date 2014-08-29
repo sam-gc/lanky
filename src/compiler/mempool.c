@@ -2,6 +2,7 @@
 #include "tools.h"
 #include <stdlib.h>
 
+
 struct poolnode *gen_node(void *obj)
 {
     struct poolnode *node = MALLOC(sizeof(struct poolnode));
@@ -30,6 +31,7 @@ lky_mempool pool_create()
 {
     lky_mempool pool;
     pool.head = NULL;
+    pool.free_func = NULL;
 
     return pool;
 }
@@ -46,7 +48,10 @@ void pool_drain(lky_mempool *pool)
     while(node)
     {
         void *data = node->data;
-        FREE(data);
+        if(pool->free_func)
+            pool->free_func(data);
+        else
+            FREE(data);
         struct poolnode *cur = node;
         node = node->next;
         FREE(cur);

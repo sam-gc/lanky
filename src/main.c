@@ -10,6 +10,7 @@
 #include "lky_gc.h"
 #include "stanky.h"
 #include "stl_meta.h"
+#include "stl_requisitions.h"
 
 extern ast_node *programBlock;
 extern int yyparse();
@@ -101,4 +102,5 @@ int main(int argc, char *argv[])
         
         run_repl(&interp);
     }
+    pool_drain(&dlmempool);
 }

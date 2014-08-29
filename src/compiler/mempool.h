@@ -8,6 +8,7 @@ struct poolnode {
 
 typedef struct {
     struct poolnode *head;
+    void (*free_func)(void *);
 } lky_mempool;
 
 lky_mempool pool_create();
