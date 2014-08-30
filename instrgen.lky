@@ -6,34 +6,35 @@ f.close();
 instrs = Array();
 
 lines.forEach(func(line) {
-	if(line.length > 4) {
-		if(line[4] == "L" & line[5] == "I") {
-			line = line.split("    ")[1].split(" = ")[0].split(",")[0];
-			instrs.append(line);
-		}
-	}
+    if(line.length > 4) {
+        if(line[4] == "L" & line[5] == "I") {
+            line = line.split("    ")[1].split(" = ")[0].split(",")[0];
+            instrs.append(line);
+        }
+    }
 });
 
-Io.putln("    switch(istr)");
-Io.putln("    {");
+Io.putln("    switch(istr)\n    {");
 
 instrs.forEach(func(ins) {
-	Io.putln("        case " + ins + ":");
-	Io.putln('            return "' + ins.split("LI_")[1] + '";');
+    Io.putln("        case " + ins + ":");
+    Io.putln('            return "' + ins.split("LI_")[1] + '";');
 });
 
-singletons = Array();
+Io.putln("    }");
 
-instrs.forEach(func(ins) {
-	res = Io.prompt(ins + "? ");
+-- singletons = Array();
 
-	if(res == "y") {
-		singletons.append(ins);
-	}
-});
+-- instrs.forEach(func(ins) {
+--     res = Io.prompt(ins + "? ");
 
-singletons.forEach(func(sing) {
-	Io.putln("        case " + sing + ":");
-});
+--     if(res == "y") {
+--         singletons.append(ins);
+--     }
+-- });
 
-Meta.repl();
+-- singletons.forEach(func(sing) {
+--     Io.putln("        case " + sing + ":");
+-- });
+
+-- Meta.repl();

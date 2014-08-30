@@ -111,10 +111,10 @@ void gchs_remove(gc_hashset *set, void *obj)
 
         free(n);
 
+        set->count--;
+
         break;
     }
-
-    set->count--;
 }
 
 void gchs_for_each(gc_hashset *set, gchs_pointer_function callback)

@@ -110,7 +110,7 @@ lky_object *mach_interrupt_exec(lky_object_function *func)
     frame->data_stack = stack;
     func->bucket = frame->bucket;
     
-//    gc_add_root_object((lky_object *)func);
+    gc_add_root_object((lky_object *)func);
     
     //    rc_incr(frame.bucket);
     
@@ -118,7 +118,7 @@ lky_object *mach_interrupt_exec(lky_object_function *func)
     
     //    rc_decr(frame.bucket);
     
-//    gc_remove_root_object((lky_object *)func);
+    gc_remove_root_object((lky_object *)func);
     
     func->bucket = NULL;
     func->parent_stack = arr_create(1);
@@ -179,7 +179,7 @@ lky_object *mach_execute(lky_object_function *func)
 
     func->bucket = frame->bucket;
 
-//    gc_add_root_object((lky_object *)func);
+    gc_add_root_object((lky_object *)func);
 
 //    rc_incr(frame.bucket);
 
@@ -187,7 +187,7 @@ lky_object *mach_execute(lky_object_function *func)
 
 //    rc_decr(frame.bucket);
 
-//    gc_remove_root_object((lky_object *)func);
+    gc_remove_root_object((lky_object *)func);
     func->bucket = NULL;
     
     // Pop the stackframe.

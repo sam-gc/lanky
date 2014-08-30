@@ -1,4 +1,5 @@
 #include "stl_requisitions.h"
+#include "stl_string.h"
 #include <dlfcn.h>
 #include <stdlib.h>
 #include <string.h>
@@ -23,12 +24,15 @@ lky_object *stlreq_import(lky_object_seq *args, lky_object_function *func)
         }
 
         shrtloc = shortname + i + 1;
+        break;
     }
     if(!shrtloc)
         shrtloc = shortname;
 
     char *initname = malloc(strlen(shrtloc) + 6);
     sprintf(initname, "%s_init", shrtloc);
+
+    printf("%s\n", initname);
 
     free(shortname);
 
@@ -98,9 +102,16 @@ lky_object *stlreq_compile(lky_object_seq *args, lky_object *func)
 lky_object *stlreq_get_class()
 {
     lky_object *obj = lobj_alloc();
+
+#ifdef __APPLE__
+    char *compcmd = "gcc -fPIC -c *.o\ngcc -shared -undefined dynamic_lookup -o <module name> *.o";
+#else
+    char *compcmd = "gcc -fPIC -c *.o\ngcc -shared -o <module name> *.o";
+#endif
     
     lobj_set_member(obj, "import", lobjb_build_func_ex(obj, 1, (lky_function_ptr)&stlreq_import));
     lobj_set_member(obj, "compile", lobjb_build_func_ex(obj, 1, (lky_function_ptr)&stlreq_compile));
+    lobj_set_member(obj, "buildCmd", stlstr_cinit(compcmd));
     
     return obj;
 }
