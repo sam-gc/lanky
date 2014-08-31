@@ -7,6 +7,9 @@
 
 extern lky_mempool ast_memory_pool;
 
+// An enumeration of all the different possible types
+// of AST nodes. The compiler will walk the tree and
+// decide what to do based on this enum.
 typedef enum {
     ABINARY_EXPRESSION,
     AUNARY_EXPRESSION,
@@ -23,6 +26,7 @@ typedef enum {
     AINDEX
 } ast_type;
 
+// The different value types...
 typedef enum {
     VDOUBLE,
     VINT,
@@ -32,11 +36,14 @@ typedef enum {
     VNONE
 } ast_value_type;
 
+// The different loop types...
 typedef enum {
 	LFOR,
 	LWHILE
 } ast_loop_type;
 
+// A union to contain the value for
+// a value node
 typedef union {
     double d;
     long long i;
@@ -44,16 +51,31 @@ typedef union {
     void *o;
 } ast_value_union;
 
+// A helper wrapper to contain all
+// the requisite information for
+// a value
 typedef struct {
     ast_value_type type;
     ast_value_union value;
 } ast_value_wrapper;
 
+// The base struct, ast_node. All
+// other nodes should derive their
+// structure from this one, and
+// all externally visible references
+// to ast_nodes should be pointed
+// to by a pointer of this type,
+// except where the specific fields
+// are needed.
 typedef struct ast_node {
     ast_type type;
     struct ast_node *next;
 } ast_node;
 
+// A binary node, which can have
+// a left tree and a right tree
+// with an operator in the middle
+// (i.e. 3 + 4)
 typedef struct ast_binary_node {
     ast_type type;
     struct ast_node *next;
@@ -63,6 +85,8 @@ typedef struct ast_binary_node {
     char opt;
 } ast_binary_node;
 
+// A unary node for things like
+// _prt, !, and -neg
 typedef struct {
     ast_type type;
     struct ast_node *next;
@@ -71,6 +95,8 @@ typedef struct {
     char opt;
 } ast_unary_node;
 
+// A value node that wraps constants
+// and variables
 typedef struct ast_value_node {
     ast_type type;
     struct ast_node *next;
@@ -79,6 +105,9 @@ typedef struct ast_value_node {
     ast_value_union value;
 } ast_value_node;
 
+// A collection of statements/nodes;
+// this struct is used for conditions,
+// loops, and functions.
 typedef struct ast_block_node {
     ast_type type;
     struct ast_node *next;
@@ -86,6 +115,8 @@ typedef struct ast_block_node {
     struct ast_node *payload;
 } ast_block_node;
 
+// An ast_node that can represent an
+// array literal
 typedef struct ast_array_node {
     ast_type type;
     struct ast_node *next;
@@ -93,6 +124,7 @@ typedef struct ast_array_node {
     struct ast_node *list;
 } ast_array_node;
 
+// The index operator, i.e. arr[2]
 typedef struct ast_index_node {
     ast_type type;
     struct ast_node *next;
@@ -101,6 +133,7 @@ typedef struct ast_index_node {
     struct ast_node *indexer;
 } ast_index_node;
 
+// A node for conditionals
 typedef struct {
     ast_type type;
     struct ast_node *next;
@@ -110,6 +143,8 @@ typedef struct {
     struct ast_node *payload;
 } ast_if_node;
 
+// A node to represent function
+// declarations
 typedef struct {
     ast_type type;
     struct ast_node *next;
@@ -118,14 +153,31 @@ typedef struct {
     struct ast_node *payload;
 } ast_func_decl_node;
 
+// A node to represent class
+// declarations
 typedef struct {
     ast_type type;
     struct ast_node *next;
 
+    // refname is the 'self' token in the example below:
+    //    class() -> self { ... };
+    // it is used to reference the particular instance
+    // of the class. This allows the user to explicitly
+    // name the 'this' variable in C++/Java and the 'self'
+    // variable in Objective-C. The Python way of adding
+    // an invisible argument to method names confuses me,
+    // but I like the ability to change the keyword. This
+    // is the compromise.
     char *refname;
     struct ast_node *payload;
 } ast_class_decl_node;
 
+// A loop node to represent loop syntax. There
+// are two types of loops currently: standard
+// and for loops. With standard loops (think 'while'),
+// only the condition and payload fields are used,
+// whereas the for loop uses all four 'init', 'condition',
+// 'onloop', and 'payload' are ued.
 typedef struct {
     ast_type type;
     struct ast_node *next;
@@ -137,6 +189,7 @@ typedef struct {
     struct ast_node *payload;
 } ast_loop_node;
 
+// A node that represents a function call
 typedef struct {
     ast_type type;
     struct ast_node *next;
@@ -145,6 +198,7 @@ typedef struct {
     struct ast_node *arguments;
 } ast_func_call_node;
 
+// A node for the special turnary syntax
 typedef struct {
     ast_type type;
     struct ast_node *next;
@@ -154,6 +208,9 @@ typedef struct {
     struct ast_node *second;
 } ast_ternary_node;
 
+// A node to access members of an object;
+// typically in other languages this is
+// the 'dot' operator.
 typedef struct {
     ast_type type;
     struct ast_node *next;
@@ -165,6 +222,12 @@ typedef struct {
 void ast_init();
 ast_node *create_root_node();
 void ast_add_node(ast_node *curr, ast_node *next);
+
+// All of the helper functions that Bison uses to build the
+// AST with the given grammar. As mentioned earlier, it is
+// important that all of these functions return the abstract
+// type 'ast_node' even though under the hood they are
+// creating specific instances of the structs defined above.
 ast_node *create_value_node(ast_value_type type, void *data);
 ast_node *create_binary_node(ast_node *left, ast_node *right, char opt);
 ast_node *create_unary_node(ast_node *target, char opt);

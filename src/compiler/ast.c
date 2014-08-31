@@ -4,7 +4,10 @@
 #include <string.h>
 #include <stdio.h>
 
-lky_mempool ast_memory_pool = {NULL};
+// In order to not have to worry about memory during
+// compilation, use this pool struct to collect bulk-
+// free the memory created.
+lky_mempool ast_memory_pool = {NULL, NULL};
 
 ast_node *create_root_node()
 {
@@ -16,6 +19,7 @@ ast_node *create_root_node()
     return node;
 }
 
+// Used to chain statements together (i.e. two statements)
 void ast_add_node(ast_node *curr, ast_node *next)
 {
     ast_node *node = curr;
@@ -26,6 +30,7 @@ void ast_add_node(ast_node *curr, ast_node *next)
     node->next = next;
 }
 
+// Helper method to create a value node with a given type
 ast_node *create_value_node(ast_value_type type, void *data)
 {
     ast_value_node *node = MALLOC(sizeof(ast_value_node));

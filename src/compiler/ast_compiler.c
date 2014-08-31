@@ -1,3 +1,22 @@
+// ast_compiler.c
+// ================================
+// This step of execution happens in several phases/passes. First a compilation environment is
+// setup. That environment contains all of the information and tools we will eventually need:
+// there is a collection of local variables, a set of names, a set of operations (instructions)
+// and a few other misc. bits (see the 'compiler_wrapper' struct below). Once that initial
+// setup is complete, we actually begin the compilation process by walking the syntax tree and
+// generating the resulting instructions. In general, each ast_type (see ast.h) has its own
+// compilation function called compile_<type>, though some types have multiple functions. All
+// of the instructions are appended to a running list. In addition, sometimes tags are used
+// when working with jumps -- we do not know when we are first compiling a loop condition
+// where the end of that loop will be. Thus we add a unique tag that represents the end of the
+// loop. Tags are recognizeable as they begin at 1000 (instructions are limited to the range
+// [0, MAX_UCHAR]). Later, after compilation of the given unit is completed (see
+// compile_compound), the tags are replaced with the index of the next operation now that it
+// is known. After this is completed, the arraylist of instructions is translated to an
+// unsigned character array and the resulting code object is built. This code object just
+// needs to be attached to a function and then it can be executed by the interpreter.
+
 #include "ast_compiler.h"
 #include "arraylist.h"
 #include "instruction_set.h"
@@ -9,18 +28,23 @@
 #include <stdlib.h>
 #include <string.h>
 
+// A compiler wrapper to reduce global state.
+// This struct allows us to compile in
+// different contexts (for example a nested
+// function).
 typedef struct {
-    arraylist rops;
-    arraylist rcon;
-    arraylist rnames;
-    Hashmap saved_locals;
-    char save_val;
-    int local_idx;
-    int ifTag;
-    int name_idx;
-    int classargc;
+    arraylist rops; // The arraylist for the instructions (think RunningOPerationS)
+    arraylist rcon; // The arraylist for the constants (think RunningCONstants)
+    arraylist rnames; // The arraylist for the names (think RunningNAMES)
+    Hashmap saved_locals; // A set of locals (not currently used)
+    char save_val; // Used to determine if we want to save the result of an operation or pop it.
+    int local_idx; // Current local slot (not currently used)
+    int ifTag; // The index of the tagging system described above 
+    int name_idx; // The index of the current name
+    int classargc; // The number of arguments for class instantiation.
 } compiler_wrapper;
 
+// Forward declarations of necessary functions.
 void compile(compiler_wrapper *cw, ast_node *root);
 void compile_compound(compiler_wrapper *cw, ast_node *root);
 void compile_single_if(compiler_wrapper *cw, ast_if_node *node, int tagOut, int tagNext);
@@ -30,12 +54,18 @@ void compile_set_index(compiler_wrapper *cw, ast_node *root);
 int find_prev_name(compiler_wrapper *cw, char *name);
 void int_to_byte_array(unsigned char *buffer, int val);
 
+// A struct used to represent 'tags' in the
+// intermediate code; we use this struct to
+// collect associations between tag and
+// line/instruction number
 typedef struct tag_node {
     struct tag_node *next;
     long tag;
     long line;
 } tag_node;
 
+// Look up previous tags to find if there
+// is a line number already found.
 long get_line(tag_node *node, long tag)
 {
     for(; node; node = node->next)
@@ -47,6 +77,7 @@ long get_line(tag_node *node, long tag)
     return -1;
 }
 
+// Helper function for tag system
 tag_node *make_node()
 {
     tag_node *node = malloc(sizeof(tag_node));
@@ -57,6 +88,7 @@ tag_node *make_node()
     return node;
 }
 
+// Helper function for tag system
 void append_tag(tag_node *node, long tag, long line)
 {
     for(; node->next; node = node->next);
@@ -68,6 +100,7 @@ void append_tag(tag_node *node, long tag, long line)
     node->next = n;
 }
 
+// Helper function for tag system
 void free_tag_nodes(tag_node *node)
 {
     while(node)
@@ -78,11 +111,18 @@ void free_tag_nodes(tag_node *node)
     }
 }
 
+// Returns the index of the next local. This
+// is merely used as a count for local variables.
+// Currently we only use closure variables for
+// simplicity's sake (at the cost of slower
+// performance)
 int get_next_local(compiler_wrapper *cw)
 {
     return cw->local_idx++;
 }
 
+// Makes a lky_object from the value wrapper described
+// in 'ast.h'
 lky_object *wrapper_to_obj(ast_value_wrapper wrap)
 {
     lky_builtin_type t;
@@ -110,6 +150,7 @@ lky_object *wrapper_to_obj(ast_value_wrapper wrap)
     return (lky_object *)lobjb_alloc(t, v);
 }
 
+// Helper function (boilerplate -_-)
 ast_value_wrapper node_to_wrapper(ast_value_node *node)
 {
     ast_value_wrapper wrap;
@@ -120,6 +161,11 @@ ast_value_wrapper node_to_wrapper(ast_value_node *node)
     return wrap;
 }
 
+// Converts the arraylist 'rops' referenced in 'cw'
+// into an unsigned char array. Note that we are 
+// downcasting from a long to an unsigned char.
+// We need to make sure everything makes sense
+// *before* this step.
 unsigned char *finalize_ops(compiler_wrapper *cw)
 {
     unsigned char *ops = malloc(cw->rops.count);
@@ -134,6 +180,9 @@ unsigned char *finalize_ops(compiler_wrapper *cw)
     return ops;
 }
 
+// Helper function to add an instruction/tag to
+// the running operations list. This should be
+// the only function that appends to that list.
 void append_op(compiler_wrapper *cw, long ins)
 {
     lky_object *obj = lobjb_build_int(ins);
@@ -145,8 +194,14 @@ void compile_binary(compiler_wrapper *cw, ast_node *root)
 {
     ast_binary_node *node = (ast_binary_node *)root;
 
+    // We want to do something slightly different if the expression
+    // is of the form 'foo.bar = baz' rather than 'bar = baz'.
     if(node->opt == '=' && node->left->type == AMEMBER_ACCESS)
     {
+        // We also want to handle the special case for the 'build_'
+        // function on class objects. All the below conditional
+        // does is lookup the number of arguments requested by
+        // the build_ function.
         char *sid = ((ast_value_node *)(node->left))->value.s;
         if(!strcmp(sid, "build_"))
         {
@@ -161,20 +216,27 @@ void compile_binary(compiler_wrapper *cw, ast_node *root)
             cw->classargc = args;
         }
 
+        // Call the member set compiler.
         compile_set_member(cw, root);
         return;
     }
+    // We also need to concern ourselves with the case of
+    // 'foo[bar] = baz'
     else if(node->opt == '=' && node->left->type == AINDEX)
     {
         compile_set_index(cw, root);
         return;
     }
 
+    // Handle the generic '=' case for compilation
     if(node->opt != '=')
         compile(cw, node->left);
 
     compile(cw, node->right);
 
+    // The rest of the binary instructions are quite 
+    // straightforward. We can just evaluate them in
+    // a switch.
     lky_instruction istr = LI_IGNORE;
     switch(node->opt)
     {
@@ -219,6 +281,7 @@ void compile_binary(compiler_wrapper *cw, ast_node *root)
         break;
     case '=':
         {
+            // Deal with the weirdness of the '=' case.
             append_op(cw, LI_SAVE_CLOSE);
             char *sid = ((ast_value_node *)(node->left))->value.s;
             char *nsid = malloc(strlen(sid) + 1);
@@ -263,6 +326,8 @@ void compile_binary(compiler_wrapper *cw, ast_node *root)
     append_op(cw, (char)istr);
 }
 
+// Helper function to return the next tag for the
+// tag system described at the top of this file.
 int next_if_tag(compiler_wrapper *cw)
 {
     return cw->ifTag++;
@@ -270,11 +335,11 @@ int next_if_tag(compiler_wrapper *cw)
 
 void compile_loop(compiler_wrapper *cw, ast_node *root)
 {
-    int tagOut = next_if_tag(cw);
+    int tagOut = next_if_tag(cw); // Prepare the exit tag
 
     ast_loop_node *node = (ast_loop_node *)root;
 
-    if(node->init)
+    if(node->init) // If we have a for loop, compile the init
     {
         char save = cw->save_val;
         cw->save_val = 0;
@@ -284,18 +349,18 @@ void compile_loop(compiler_wrapper *cw, ast_node *root)
         cw->save_val = save;
     }
 
-    int start = (int)cw->rops.count;
+    int start = (int)cw->rops.count; // The start location (for loop jumps)
 
-    compile(cw, node->condition);
+    compile(cw, node->condition); // Append the tag for the unknown end location
     append_op(cw, LI_JUMP_FALSE);
     append_op(cw, tagOut);
-    append_op(cw, -1);
-    append_op(cw, -1);
-    append_op(cw, -1);
+    append_op(cw, -1); // Note that we use for bytes to represent jump locations.
+    append_op(cw, -1); // This allows us to index locations beyond 255 in the
+    append_op(cw, -1); // interpreter.
 
     compile_compound(cw, node->payload->next);
 
-    if(node->onloop)
+    if(node->onloop) // If a for loop, compile the onloop.
     {
         char save = cw->save_val;
         cw->save_val = 0;
@@ -305,7 +370,7 @@ void compile_loop(compiler_wrapper *cw, ast_node *root)
         cw->save_val = save;
     }
 
-    append_op(cw, LI_JUMP);
+    append_op(cw, LI_JUMP); // Add the jump to the start location
     unsigned char buf[4];
     int_to_byte_array(buf, start);
 
@@ -318,14 +383,17 @@ void compile_loop(compiler_wrapper *cw, ast_node *root)
     cw->save_val = 1;
 }
 
+// Generic if compilation with special cases handled in helper
+// functions below.
 void compile_if(compiler_wrapper *cw, ast_node *root)
 {
+    // Prepare tags
     int tagNext = next_if_tag(cw);
     int tagOut = next_if_tag(cw);
 
     ast_if_node *node = (ast_if_node *)root;
 
-    if(!node->next_if)
+    if(!node->next_if) // If we have only one if statement
     {
         compile_single_if(cw, node, tagNext, tagNext);
         append_op(cw, tagNext);
@@ -335,6 +403,7 @@ void compile_if(compiler_wrapper *cw, ast_node *root)
 
     compile_single_if(cw, node, tagOut, tagNext);
 
+    // Compile the other if statements from if/elif/else etc.
     node = (ast_if_node *)node->next_if;
     while(node)
     {
@@ -350,6 +419,7 @@ void compile_if(compiler_wrapper *cw, ast_node *root)
     cw->save_val = 1;
 }
 
+// If helper function
 void compile_single_if(compiler_wrapper *cw, ast_if_node *node, int tagOut, int tagNext)
 {
     if(node->condition)
@@ -382,6 +452,7 @@ void compile_single_if(compiler_wrapper *cw, ast_if_node *node, int tagOut, int 
     }
 }
 
+// Compiles array literals
 void compile_array(compiler_wrapper *cw, ast_node *n)
 {
     ast_array_node *node = (ast_array_node *)n;
@@ -405,6 +476,7 @@ void compile_array(compiler_wrapper *cw, ast_node *n)
     append_op(cw, buf[3]);
 }
 
+// Array indexing
 void compile_indx(compiler_wrapper *cw, ast_node *n)
 {
     ast_index_node *node = (ast_index_node *)n;
@@ -448,6 +520,7 @@ void compile_ternary(compiler_wrapper *cw, ast_node *n)
     append_op(cw, tagOut);
 }
 
+// Used to lookup and reuse previous names/identifiers
 int find_prev_name(compiler_wrapper *cw, char *name)
 {
     long i;
@@ -547,6 +620,7 @@ void compile_unary(compiler_wrapper *cw, ast_node *root)
     append_op(cw, (char)istr);
 }
 
+// Used to find and reuse previous constants.
 long find_prev_const(compiler_wrapper *cw, lky_object *obj)
 {
     long i;
@@ -582,6 +656,7 @@ void compile_var(compiler_wrapper *cw, ast_value_node *node)
 //    append_op(cw, (char)idx);
 }
 
+// Used to compile constants and variables
 void compile_value(compiler_wrapper *cw, ast_node *root)
 {
     ast_value_node *node = (ast_value_node *)root;
@@ -607,15 +682,19 @@ void compile_value(compiler_wrapper *cw, ast_node *root)
     append_op(cw, (char)idx);
 }
 
+// Compiles a function declaration
 void compile_function(compiler_wrapper *cw, ast_node *root)
 {
-    ast_func_decl_node *node = (ast_func_decl_node *)root;
-    
+    ast_func_decl_node *node = (ast_func_decl_node *)root; 
+
+    // We want to build a new compiler wrapper for building
+    // the function in a new context.
     compiler_wrapper nw;
     nw.local_idx = 0;
     nw.saved_locals = hm_create(100, 1);
     nw.rnames = arr_create(10);
     
+    // Deal with parameters
     int argc = 0;
     ast_value_node *v = (ast_value_node *)node->params;
     for(; v; v = (ast_value_node *)v->next)
@@ -699,6 +778,7 @@ void compile_function_call(compiler_wrapper *cw, ast_node *root)
     // cw->save_val = 1;
 }
 
+// Main compiler dispatch system
 void compile(compiler_wrapper *cw, ast_node *root)
 {
     switch(root->type)
@@ -744,6 +824,7 @@ void compile(compiler_wrapper *cw, ast_node *root)
     }
 }
 
+// Compiles multi-statements/blocks of code
 void compile_compound(compiler_wrapper *cw, ast_node *root)
 {
     while(root)
@@ -766,6 +847,12 @@ void int_to_byte_array(unsigned char *buffer, int val)
     buffer[0] = val         & 0xFF;
 }
 
+// As described in the explanation at the top of the file,
+// we need to replace tags with and index to other code. The way this
+// works is the array of operations is walked backwards. The first
+// time a tag is seen, it is recorded as the final destination for
+// that particular tag. Every subsquent lookup, the tag is replaced
+// with the location.
 void replace_tags(compiler_wrapper *cw)
 {
     tag_node *tags = make_node();
@@ -774,28 +861,31 @@ void replace_tags(compiler_wrapper *cw)
     for(i = cw->rops.count - 1; i >= 0; i--)
     {
         long op = ((lky_object_builtin *)arr_get(&cw->rops, i))->value.i;
-        if(op < 0)
+        if(op < 0) // This should *never* happen.
             continue;
 
-        if(op > 999)
+        if(op > 999) // If we are dealing with a tag...
         {
-            long line = get_line(tags, op);
-            if(line < 0)
+            long line = get_line(tags, op); // Get the line associated with the tag
+            if(line < 0) // A negative value indicates the tag is as-yet unseen.
             {
+                // Make a new tag location with the current index (i)
                 append_tag(tags, op, i);
 
+                // Replace the tag with the 'ignore' instruction (think NOP)
                 lky_object *obj = lobjb_build_int(LI_IGNORE);
                 pool_add(&ast_memory_pool, obj);
                 cw->rops.items[i] = obj;
                 continue;
             }
 
+            // Otherwise we have a valid tag location and we can fix our jumps.
             unsigned char buf[4];
             int_to_byte_array(buf, (int)line);
 
             int j;
             for(j = 0; j < 4; j++)
-            {
+            {   // Deal with our multiple bytes for addressing
                 lky_object *obj = lobjb_build_int(buf[j]);
                 pool_add(&ast_memory_pool, obj);
                 cw->rops.items[i + j] = obj;
@@ -806,6 +896,7 @@ void replace_tags(compiler_wrapper *cw)
     free_tag_nodes(tags);
 }
 
+// Finalize the constants into an array
 void **make_cons_array(compiler_wrapper *cw)
 {
     void **data = malloc(sizeof(void *) * cw->rcon.count);
@@ -819,6 +910,7 @@ void **make_cons_array(compiler_wrapper *cw)
     return data;
 }
 
+// Finalize the names into an array
 char **make_names_array(compiler_wrapper *cw)
 {
     char **names = malloc(sizeof(char *) * cw->rnames.count);
@@ -835,6 +927,9 @@ char **make_names_array(compiler_wrapper *cw)
     return names;
 }
 
+// The brain of the operation; compiles an AST from its root. Sometimes we want
+// to set some initial settings, so we pass in a compiler wrapper. That argument
+// is optional.
 lky_object_code *compile_ast_ext(ast_node *root, compiler_wrapper *incw)
 {
     compiler_wrapper cw;
@@ -871,6 +966,7 @@ lky_object_code *compile_ast_ext(ast_node *root, compiler_wrapper *incw)
     append_op(&cw, LI_PUSH_NIL);
     append_op(&cw, LI_RETURN);
 
+    // Build the resultant code object.
     lky_object_code *code = malloc(sizeof(lky_object_code));
     code->constants = make_cons_array(&cw);
     code->num_constants = cw.rcon.count;
@@ -894,11 +990,13 @@ lky_object_code *compile_ast_ext(ast_node *root, compiler_wrapper *incw)
     return code;
 }
 
+// Externally visible compilation function
 lky_object_code *compile_ast(ast_node *root)
 {
     return compile_ast_ext(root, NULL);
 }
 
+// Writes the code to a file (now deprecated.)
 void write_to_file(char *name, lky_object_code *code)
 {
     FILE *f = fopen(name, "w");
