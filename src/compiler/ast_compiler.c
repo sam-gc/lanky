@@ -532,6 +532,9 @@ void compile_unary(compiler_wrapper *cw, ast_node *root)
         istr = LI_RETURN;
         cw->save_val = 1;
         break;
+    case '!':
+        istr = LI_UNARY_NOT;
+        break;
     }
 
     append_op(cw, (char)istr);

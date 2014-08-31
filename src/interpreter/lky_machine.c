@@ -6,6 +6,7 @@
 #include "instruction_set.h"
 #include "lkyobj_builtin.h"
 #include "mach_binary_ops.h"
+#include "mach_unary_ops.h"
 #include "lky_machine.h"
 #include "lky_object.h"
 #include "lky_gc.h"
@@ -374,6 +375,15 @@ _opcode_whiplash_:
             POP_TWO();
             lky_object *obj = lobjb_binary_or(b, a);
             RC_TWO();
+
+            PUSH_RC(obj);
+            goto _opcode_whiplash_;
+        }
+        break;
+        case LI_UNARY_NOT:
+        {
+            lky_object *a = POP();
+            lky_object *obj = lobjb_unary_not(a);
 
             PUSH_RC(obj);
             goto _opcode_whiplash_;

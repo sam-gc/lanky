@@ -332,7 +332,7 @@ void lobjb_print_object(lky_object *a)
             printf("%s", b->value.s);
         break;
         case LBI_NIL:
-            printf("(null)");
+            printf("(nil)");
         break;
         case LBI_CUSTOM:
         case LBI_CUSTOM_EX:

@@ -144,7 +144,6 @@ void list_free(ListNode *node)
 
 void solve_from(Piece *start)
 {
-    printf("Starting. %d\n", trie_get(&dict, "test"));
     ListNode *work = malloc(sizeof(ListNode));
     ListNode *first = malloc(sizeof(ListNode));
     first->value = start;
@@ -177,7 +176,7 @@ void solve_from(Piece *start)
             char candidate[100];
             list_to_str(newlist, candidate);
 
-            if(dict_is_word(candidate))
+            if(dict_is_word(candidate) && strlen(candidate) > 2)
                 HS_add(&found, candidate);
             if(dict_is_prefix(candidate))
                 list_add(&work, newlist);

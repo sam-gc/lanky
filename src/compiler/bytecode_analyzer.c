@@ -65,6 +65,7 @@ int stack_effect_for(lky_instruction op, int *skip)
         case LI_MAKE_CLASS:
         case LI_MAKE_ARRAY:
         case LI_SAVE_INDEX:
+        case LI_UNARY_NOT:
             
             return 0;
     }
