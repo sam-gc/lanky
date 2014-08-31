@@ -519,7 +519,11 @@ void compile_unary(compiler_wrapper *cw, ast_node *root)
 {
     ast_unary_node *node = (ast_unary_node *)root;
 
-    compile(cw, node->target);
+    // Only if there actually is a target. We use a unary
+    // node for lky_nil for convenience, but that does
+    // not have a target itself.
+    if(node->target)
+        compile(cw, node->target);
 
     lky_instruction istr = LI_IGNORE;
     switch(node->opt)
@@ -534,6 +538,9 @@ void compile_unary(compiler_wrapper *cw, ast_node *root)
         break;
     case '!':
         istr = LI_UNARY_NOT;
+        break;
+    case '0':
+        istr = LI_PUSH_NIL;
         break;
     }
 

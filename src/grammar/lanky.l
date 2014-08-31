@@ -40,6 +40,7 @@ comment (\#|(\-\-)).*(\n)
 "ret"                   return TOKEN(TRET);
 "->"                   return TOKEN(TARROW);
 "class"                 return TOKEN(TCLASS);
+"nil"                   return TOKEN(TNIL);
 {nvar}      {SAVE_TOKEN; return TIDENTIFIER;}
 {real}      {SAVE_TOKEN; return TFLOAT;}
 {integer}   {SAVE_TOKEN; return TINTEGER;}

@@ -23,7 +23,7 @@
 %token <token> TCEQ TCNE TCLT TCLE TCGT TCGE TEQUAL TAND TOR TNOT
 %token <token> TLPAREN TRPAREN TLBRACE TRBRACE TLBRACKET TRBRACKET TCOMMA TDOT
 %token <token> TPLUS TMINUS TMUL TDIV TMOD TPOW
-%token <token> TIF TELIF TELSE TPRT TCOMMENT TLOOP TCOLON TFUNC TSEMI TRET TQUESTION TARROW TCLASS
+%token <token> TIF TELIF TELSE TPRT TCOMMENT TLOOP TCOLON TFUNC TSEMI TRET TQUESTION TARROW TCLASS TNIL
 
 /* Define the type of node our nonterminal symbols represent.
    The types refer to the %union declaration above. Ex: when
@@ -33,7 +33,7 @@
 %type <node> program stmts stmt expression ifblock block elifblock elifblocks elseblock loopblock funcdecl arg arglist call calllist memaccess classdecl arrdecl arraccess
 
 /* Operator precedence for mathematical operators */
-%nonassoc TPRT TRET
+%nonassoc TPRT TRET TNIL
 %left TEQUAL
 %left TQUESTION TCOLON
 %left TOR
@@ -132,6 +132,7 @@ expression :
     | memaccess
     | classdecl
     | arrdecl
+    | TNIL { $$ = create_unary_node(NULL, '0'); }
     | TPRT expression { $$ = create_unary_node($2, 'p'); }
     | TNOT expression { $$ = create_unary_node($2, '!'); }
     | TRET expression { $$ = create_unary_node($2, 'r'); }
