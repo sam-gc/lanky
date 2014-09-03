@@ -41,6 +41,42 @@ lky_object *stlstr_equals(lky_object_seq *args, lky_object_function *func)
     return lobjb_build_int(!strcmp(stra, strb));
 }
 
+lky_object *stlstr_not_equals(lky_object_seq *args, lky_object_function *func)
+{
+    lky_object_custom *self = (lky_object_custom *)func->owner;
+
+    lky_object_custom *obj = (lky_object_custom *)args->value;
+
+    char *stra = self->data;
+    char *strb = obj->data;
+
+    return lobjb_build_int(!!strcmp(stra, strb));
+}
+
+lky_object *stlstr_greater_than(lky_object_seq *args, lky_object_function *func)
+{
+    lky_object_custom *self = (lky_object_custom *)func->owner;
+
+    lky_object_custom *obj = (lky_object_custom *)args->value;
+
+    char *stra = self->data;
+    char *strb = obj->data;
+
+    return lobjb_build_int(strcmp(stra, strb) > 0);
+}
+
+lky_object *stlstr_lesser_than(lky_object_seq *args, lky_object_function *func)
+{
+    lky_object_custom *self = (lky_object_custom *)func->owner;
+
+    lky_object_custom *obj = (lky_object_custom *)args->value;
+
+    char *stra = self->data;
+    char *strb = obj->data;
+
+    return lobjb_build_int(strcmp(stra, strb) < 0);
+}
+
 lky_object *stlstr_set_index(lky_object_seq *args, lky_object_function *func)
 {
     lky_object_custom *self = (lky_object_custom *)func->owner;
@@ -206,6 +242,9 @@ lky_object *stlstr_cinit(char *str)
     lobj_set_member(obj, "op_get_index_", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlstr_get_index));
     lobj_set_member(obj, "op_set_index_", lobjb_build_func_ex(obj, 2, (lky_function_ptr)stlstr_set_index));
     lobj_set_member(obj, "op_equals_", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlstr_equals));
+    lobj_set_member(obj, "op_notequal_", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlstr_not_equals));
+    lobj_set_member(obj, "op_gt_", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlstr_greater_than));
+    lobj_set_member(obj, "op_lt_", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlstr_lesser_than));
     
     cobj->freefunc = stlstr_free;
     
