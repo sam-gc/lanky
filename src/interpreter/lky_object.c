@@ -1,6 +1,7 @@
 #include "lky_object.h"
 #include "lkyobj_builtin.h"
 #include "lky_gc.h"
+#include "stl_string.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -54,6 +55,22 @@ char lobj_is_of_class(lky_object *obj, void *cls)
 char lobj_have_same_class(lky_object *a, lky_object *b)
 {
     return lobj_is_of_class(b, (void *)a->cls);
+}
+
+char *lobj_stringify(lky_object *obj)
+{
+    lky_object_function *func = (lky_object_function *)lobj_get_member(obj, "stringify_");
+    if(!func)
+        return NULL;
+    
+    lky_object *strobj = (lky_object *)(func->callable.function)(NULL, func);
+    if(!strobj)
+        return NULL;
+
+    if(strobj->cls != stlstr_class())
+        return NULL;
+
+    return ((lky_object_custom *)strobj)->data;
 }
 
 void rc_decr(lky_object *obj)

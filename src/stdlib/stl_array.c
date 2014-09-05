@@ -193,6 +193,75 @@ lky_object *stlarr_remove_at(lky_object_seq *args, lky_object_function *func)
     return obj;
 }
 
+lky_object *stlarr_joined(lky_object_seq *args, lky_object_function *func)
+{
+    lky_object_custom *self = (lky_object_custom *)func->owner;
+    stlarr_data *data = self->data;
+    arraylist list = data->container;
+
+    char *joiner = lobj_stringify(args->value);
+
+    if(!joiner)
+        return &lky_nil;
+    
+    if(list.count == 0)
+        return stlstr_cinit("");
+
+    char *innards[list.count];
+    size_t tlen = 0;
+
+    int i;
+    for(i = 0; i < list.count; i++)
+    {
+        lky_object_custom *strobj = NULL;
+        lky_object *obj = arr_get(&list, i);
+        lky_object_function *f = (lky_object_function *)lobj_get_member(obj, "stringify_");
+        
+        if(!f)
+        {
+            char str[100];
+            
+            if(obj->type == LBI_FLOAT || obj->type == LBI_INTEGER)
+                strobj = (lky_object_custom *)lobjb_num_to_string(obj);
+            else
+            {
+                sprintf(str, "%p", obj);
+                strobj = (lky_object_custom *)stlstr_cinit(str);
+            }
+        }
+        else
+        {
+            strobj = (lky_object_custom *)(f->callable.function)(NULL, (struct lky_object *)f);
+        }
+        
+        char *str = strobj->data;
+        
+        innards[i] = str;
+        tlen += strlen(str);
+    }
+    
+    size_t jlen = strlen(joiner);
+
+    // Adding to the total length:
+    //      brackets      commas & spaces                           null termination
+    tlen += jlen * (list.count ? list.count - 1 : 0) + 1;
+    
+    char *str = malloc(tlen);
+    
+    for(i = 0; i < list.count - 1; i++)
+    {
+        strcat(str, innards[i]);
+        strcat(str, joiner);
+    }
+    
+    strcat(str, innards[i]);
+
+    lky_object *ret = stlstr_cinit(str);
+    free(str);
+
+    return ret;
+}
+
 lky_object *stlarr_stringify(lky_object_seq *args, lky_object_function *func)
 {
     lky_object_custom *self = (lky_object_custom *)func->owner;
@@ -277,6 +346,7 @@ lky_object *stlarr_cinit(arraylist inlist)
     lobj_set_member(obj, "indexOf", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlarr_index_of));
     lobj_set_member(obj, "stringify_", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlarr_stringify));
     lobj_set_member(obj, "removeAt", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlarr_remove_at));
+    lobj_set_member(obj, "joined", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlarr_joined));
 
     cobj->freefunc = stlarr_dealloc;
     cobj->savefunc = stlarr_save;
