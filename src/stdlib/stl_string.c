@@ -325,12 +325,12 @@ lky_object *stlstr_cinit(char *str)
     
     lobj_set_class(obj, stlstr_class());
     lobj_set_member(obj, "length", lobjb_build_int(strlen(copied)));
-    lobj_set_member(obj, "op_add_", lobjb_build_func_ex(obj, 2, (lky_function_ptr)stlstr_add));
     lobj_set_member(obj, "stringify_", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlstr_stringify));
     lobj_set_member(obj, "split", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlstr_split));
     lobj_set_member(obj, "op_get_index_", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlstr_get_index));
     lobj_set_member(obj, "op_set_index_", lobjb_build_func_ex(obj, 2, (lky_function_ptr)stlstr_set_index));
     lobj_set_member(obj, "op_equals_", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlstr_equals));
+    lobj_set_member(obj, "op_add_", lobjb_build_func_ex(obj, 2, (lky_function_ptr)stlstr_add));
     lobj_set_member(obj, "op_notequal_", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlstr_not_equals));
     lobj_set_member(obj, "op_gt_", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlstr_greater_than));
     lobj_set_member(obj, "op_lt_", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlstr_lesser_than));

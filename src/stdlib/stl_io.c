@@ -48,6 +48,45 @@ void stlio_file_dealloc(lky_object_custom *obj)
     free(obj->data);
 }
 
+lky_object *stlio_file_readall(lky_object_seq *args, lky_object_function *func)
+{
+    lky_object_custom *self = (lky_object_custom *)func->owner;
+    stlio_file_object_data *data = self->data;
+
+    FILE *f = data->f;
+
+    long ct = 100;
+    char *running = calloc(ct, sizeof(char));
+    char *line = NULL;
+    size_t sz = 0;
+    while(getline(&line, &sz, f) != -1)
+    {
+        size_t ls = strlen(line);
+        if(strlen(running) + ls + 1 > ct)
+        {
+            ct *= 2;
+            char *back = running;
+            running = calloc(ct, sizeof(char));
+            strcpy(running, back);
+            free(back);
+        }
+
+        strcat(running, line);
+        free(line);
+        line = NULL;
+        sz = 0;
+    }
+
+    lky_object *ret = stlstr_cinit(running);
+    free(running);
+    if(line)
+        free(line);
+
+    lobj_set_member((lky_object *)self, "EOF", lobjb_build_int(1));
+
+    return ret;
+}
+
 lky_object *stlio_file_readlines(lky_object_seq *args, lky_object_function *func)
 {
     lky_object_custom *self = (lky_object_custom *)func->owner;
@@ -170,6 +209,7 @@ lky_object *stlio_make_file_object(lky_object_seq *args, lky_object *func)
     lobj_set_member(gobj, "getln", lobjb_build_func_ex(gobj, 0, (lky_function_ptr)stlio_file_readline));
     lobj_set_member(gobj, "put", lobjb_build_func_ex(gobj, 1, (lky_function_ptr)stlio_file_write));
     lobj_set_member(gobj, "putln", lobjb_build_func_ex(gobj, 1, (lky_function_ptr)stlio_file_writeline));
+    lobj_set_member(gobj, "getall", lobjb_build_func_ex(gobj, 0, (lky_function_ptr)stlio_file_readall));
     lobj_set_member(gobj, "EOF", lobjb_build_int(0));
 
     return gobj;
