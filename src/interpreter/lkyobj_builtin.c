@@ -227,7 +227,7 @@ lky_object *lobjb_default_class_callable(lky_object_seq *args, lky_object *self)
         lobjb_default_callable(args, init);
     }
     
-    lobj_set_member(outobj, "class_", (lky_object *)cls);
+    lobj_set_class(outobj, (lky_object *)cls);
 
     return outobj;
 }

@@ -629,13 +629,16 @@ _opcode_whiplash_:
             lky_object *bk = NULL;
             arraylist ps = frame->parent_stack;
 
-            int i;
-            for(i = (int)ps.count - 1; i >= 0 && !bk; i--)
+            if(!lobj_get_member(frame->bucket, name))
             {
-                lky_object *n = arr_get(&ps, i);
-                if(lobj_get_member(n, name))
+                int i;
+                for(i = (int)ps.count - 1; i >= 0 && !bk; i--)
                 {
-                    bk = n;
+                    lky_object *n = arr_get(&ps, i);
+                    if(lobj_get_member(n, name))
+                    {
+                        bk = n;
+                    }
                 }
             }
 

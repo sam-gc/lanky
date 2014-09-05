@@ -7,6 +7,7 @@ typedef struct {
     struct _node **buckets;
     int hash_size;
     char copies_str;
+    int count;
 } Hashmap;
 
 typedef enum {

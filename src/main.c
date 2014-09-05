@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
         }
 
         // printf("%p ... %p ... %p\n", programBlock, programBlock->next, programBlock->next->next);
-        printf("\nProgram output:\n==============================\n\n");
+        // printf("\nProgram output:\n==============================\n\n");
         
 //        gc_add_root_object(func);
 
@@ -68,9 +68,9 @@ int main(int argc, char *argv[])
         // printf("%c\n", b->opt);
         // ast_free(programBlock);
         // ctx_clean_up();
-        printf("\n=============DEBUG============\n");
+        // printf("\n=============DEBUG============\n");
         // printf("Allocations: %d\tFrees: %d\n", get_malloc_count(), get_free_count());
-        print_alloced();
+        // print_alloced();
         return 0;
     }
     else

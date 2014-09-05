@@ -59,6 +59,9 @@ void rc_decr(lky_object *obj);
 void rc_incr(lky_object *obj);
 void lobj_dealloc(lky_object *obj);
 void print_alloced();
+void lobj_set_class(lky_object *obj, lky_object *cls);
+char lobj_is_of_class(lky_object *obj, void *cls);
+char lobj_have_same_class(lky_object *a, lky_object *b);
 
 extern lky_object lky_nil;
 

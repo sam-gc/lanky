@@ -35,6 +35,9 @@ lky_object *stlstr_equals(lky_object_seq *args, lky_object_function *func)
     
     lky_object_custom *obj = (lky_object_custom *)args->value;
     
+    if(obj->cls != (struct lky_object *)stlstr_class())
+        return &lky_nil;
+
     char *stra = self->data;
     char *strb = obj->data;
     
@@ -46,6 +49,9 @@ lky_object *stlstr_not_equals(lky_object_seq *args, lky_object_function *func)
     lky_object_custom *self = (lky_object_custom *)func->owner;
 
     lky_object_custom *obj = (lky_object_custom *)args->value;
+
+    if(obj->cls != (struct lky_object *)stlstr_class())
+        return &lky_nil;
 
     char *stra = self->data;
     char *strb = obj->data;
@@ -59,6 +65,9 @@ lky_object *stlstr_greater_than(lky_object_seq *args, lky_object_function *func)
 
     lky_object_custom *obj = (lky_object_custom *)args->value;
 
+    if(obj->cls != (struct lky_object *)stlstr_class())
+        return &lky_nil;
+
     char *stra = self->data;
     char *strb = obj->data;
 
@@ -71,11 +80,83 @@ lky_object *stlstr_lesser_than(lky_object_seq *args, lky_object_function *func)
 
     lky_object_custom *obj = (lky_object_custom *)args->value;
 
+    if(obj->cls != (struct lky_object *)stlstr_class())
+        return &lky_nil;
+
     char *stra = self->data;
     char *strb = obj->data;
 
     return lobjb_build_int(strcmp(stra, strb) < 0);
 }
+
+lky_object *stlstr_multiply(lky_object_seq *args, lky_object_function *func)
+{
+    lky_object_custom *self = (lky_object_custom *)func->owner;
+    lky_object_builtin *other = (lky_object_builtin *)args->value;
+
+    if(other->type != LBI_INTEGER)
+    {
+        // TODO: Type error
+        return &lky_nil;
+    }
+
+    char *str = self->data;
+    long ct = OBJ_NUM_UNWRAP(other);
+
+    int len = strlen(str);
+    int targ = len * ct;
+
+    char *nstr = malloc(len * ct + 1);
+    nstr[targ] = 0;
+
+    strcpy(nstr, str);
+
+    long done = len;
+    while(done < targ)
+    {
+        long n = (done <= targ - done ? done : targ - done);
+        memcpy(nstr + done, nstr, n);
+        done += n;
+    }
+
+    lky_object *ret = stlstr_cinit(nstr);
+    free(nstr);
+
+    return ret;
+}
+
+//    if(ab->type == LBI_STRING || bb->type == LBI_STRING)
+//    {
+//        if(ab->type == LBI_STRING && bb->type == LBI_STRING)
+//            return &lky_nil;
+//
+//        lky_object_builtin *strobj = ab->type == LBI_STRING ? ab : bb;
+//        lky_object_builtin *oobj = strobj == ab ? bb : ab;
+//
+//        if(oobj->type != LBI_INTEGER)
+//            return &lky_nil;
+//
+//        char *str = strobj->value.s;
+//        long ct = oobj->value.i;
+//
+//        int len = strlen(str);
+//        int targ = len * ct;
+//
+//        char *nstr = malloc(len * ct + 1);
+//        nstr[targ] = 0;
+//        strcpy(nstr, str);
+//
+//        long done = len;
+//        while(done < targ)
+//        {
+//            long n = (done <= targ - done ? done : targ - done);
+//            memcpy(nstr + done, nstr, n);
+//            done += n;
+//        }
+//
+//        v.s = nstr;
+//        t = LBI_STRING;
+//
 
 lky_object *stlstr_set_index(lky_object_seq *args, lky_object_function *func)
 {
@@ -107,6 +188,10 @@ lky_object *stlstr_split(lky_object_seq *args, lky_object_function *func)
     }
     
     lky_object *ostr = (lky_object *)(strf->callable.function)(NULL, (struct lky_object *)strf);
+
+    if(ostr->cls != stlstr_class())
+        return &lky_nil;
+
     char *delim = ((lky_object_custom *)ostr)->data;
     
     char *loc = self->data;
@@ -174,6 +259,9 @@ lky_object *stlstr_add(lky_object_seq *args, lky_object_function *func)
             break;
     }
     
+    if(ostr->cls != stlstr_class())
+        return &lky_nil;
+
     char *chr = ((lky_object_custom *)ostr)->data;
     
     size_t len = strlen(chr) + strlen(mestr) + 1;
@@ -235,6 +323,7 @@ lky_object *stlstr_cinit(char *str)
     
     lky_object *obj = (lky_object *)cobj;
     
+    lobj_set_class(obj, stlstr_class());
     lobj_set_member(obj, "length", lobjb_build_int(strlen(copied)));
     lobj_set_member(obj, "op_add_", lobjb_build_func_ex(obj, 2, (lky_function_ptr)stlstr_add));
     lobj_set_member(obj, "stringify_", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlstr_stringify));
@@ -245,10 +334,19 @@ lky_object *stlstr_cinit(char *str)
     lobj_set_member(obj, "op_notequal_", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlstr_not_equals));
     lobj_set_member(obj, "op_gt_", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlstr_greater_than));
     lobj_set_member(obj, "op_lt_", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlstr_lesser_than));
+    lobj_set_member(obj, "op_multiply_", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlstr_multiply));
     
     cobj->freefunc = stlstr_free;
     
     return (lky_object *)obj;
+}
+
+static lky_object *_stlstr_class = NULL;
+lky_object *stlstr_class()
+{
+    if(!_stlstr_class)
+        _stlstr_class = lobjb_build_int((long)&stlstr_cinit);
+    return _stlstr_class;
 }
 
 //lky_object *stlstr_get_class()

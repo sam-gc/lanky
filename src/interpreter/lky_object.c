@@ -40,6 +40,22 @@ lky_object *lobj_get_member(lky_object *obj, char *member)
     return val;
 }
 
+void lobj_set_class(lky_object *obj, lky_object *cls)
+{
+    obj->cls = (struct lky_object *)cls;
+    lobj_set_member(obj, "class_", cls);
+}
+
+char lobj_is_of_class(lky_object *obj, void *cls)
+{
+    return ((void *)obj->cls) == cls;
+}
+
+char lobj_have_same_class(lky_object *a, lky_object *b)
+{
+    return lobj_is_of_class(b, (void *)a->cls);
+}
+
 void rc_decr(lky_object *obj)
 {
     return;
