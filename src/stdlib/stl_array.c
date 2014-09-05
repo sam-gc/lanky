@@ -9,6 +9,8 @@
 
 #define FAIL_CHECK(check, name, text) do { if(check) { mach_halt_with_err(lobjb_build_error(name, text)); return &lky_nil; } }while(0);
 
+static lky_object *stlarr_class = NULL;
+
 typedef struct {
     arraylist container;
 } stlarr_data;
@@ -262,6 +264,23 @@ lky_object *stlarr_joined(lky_object_seq *args, lky_object_function *func)
     return ret;
 }
 
+lky_object *stlarr_reverse(lky_object_seq *args, lky_object_function *func)
+{
+    lky_object_custom *self = (lky_object_custom *)func->owner;
+    stlarr_data *data = self->data;
+    arraylist list = data->container;
+
+    arraylist nlist = arr_create(list.count + 1);
+
+    long i;
+    for(i = list.count - 1; i >= 0; i--)
+    {
+        arr_append(&nlist, arr_get(&list, i));
+    }
+
+    return stlarr_cinit(nlist);
+}
+
 lky_object *stlarr_stringify(lky_object_seq *args, lky_object_function *func)
 {
     lky_object_custom *self = (lky_object_custom *)func->owner;
@@ -331,6 +350,7 @@ lky_object *stlarr_cinit(arraylist inlist)
     cobj->data = data;
     
     lky_object *obj = (lky_object *)cobj;
+    lobj_set_class(obj, stlarr_get_class());
 
     lky_object *getter = lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlarr_get);
     lky_object *setter = lobjb_build_func_ex(obj, 2, (lky_function_ptr)stlarr_set);
@@ -347,6 +367,7 @@ lky_object *stlarr_cinit(arraylist inlist)
     lobj_set_member(obj, "stringify_", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlarr_stringify));
     lobj_set_member(obj, "removeAt", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlarr_remove_at));
     lobj_set_member(obj, "joined", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlarr_joined));
+    lobj_set_member(obj, "reverse", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlarr_reverse));
 
     cobj->freefunc = stlarr_dealloc;
     cobj->savefunc = stlarr_save;
@@ -361,11 +382,15 @@ lky_object *stlarr_build(lky_object_seq *args, lky_object *func)
 
 lky_object *stlarr_get_class()
 {
+    if(stlarr_class)
+        return stlarr_class;
+
     lky_object *clsobj = lobj_alloc();
     lky_callable c;
     c.argc = 0;
     c.function = (lky_function_ptr)stlarr_build;
     clsobj->callable = c;
 
+    stlarr_class = clsobj;
     return clsobj;
 }
