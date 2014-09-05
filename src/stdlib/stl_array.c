@@ -333,7 +333,8 @@ lky_object *stlarr_stringify(lky_object_seq *args, lky_object_function *func)
         strcat(str, ", ");
     }
     
-    strcat(str, innards[i]);
+    if(list.count)
+        strcat(str, innards[i]);
     strcat(str, " ]");
     
     lky_object *ret = stlstr_cinit(str);

@@ -52,6 +52,7 @@ int stack_effect_for(lky_instruction op, int *skip)
         case LI_LOAD_CLOSE:
         case LI_PUSH_NIL:
         case LI_LOAD_INDEX:
+        case LI_MAKE_ARRAY:
             *skip = 1;
             return 1;
         case LI_JUMP:
@@ -63,7 +64,6 @@ int stack_effect_for(lky_instruction op, int *skip)
         case LI_CALL_FUNC:
         case LI_MAKE_FUNCTION:
         case LI_MAKE_CLASS:
-        case LI_MAKE_ARRAY:
         case LI_SAVE_INDEX:
         case LI_UNARY_NOT:
             
