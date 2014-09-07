@@ -35,6 +35,7 @@ int stack_effect_for(lky_instruction op, int *skip)
         case LI_BINARY_MULTIPLY:
         case LI_BINARY_DIVIDE:
         case LI_BINARY_MODULO:
+        case LI_BINARY_POWER:
         case LI_BINARY_LT:
         case LI_BINARY_GT:
         case LI_BINARY_EQUAL:

@@ -255,6 +255,9 @@ void compile_binary(compiler_wrapper *cw, ast_node *root)
     case '%':
         istr = LI_BINARY_MODULO;
         break;
+    case '^':
+        istr = LI_BINARY_POWER;
+        break;
     case 'l':
         istr = LI_BINARY_LT;
         break;

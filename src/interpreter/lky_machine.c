@@ -300,6 +300,16 @@ _opcode_whiplash_:
             goto _opcode_whiplash_;
         }
         break;
+        case LI_BINARY_POWER:
+        {
+            POP_TWO();
+            lky_object *obj = lobjb_binary_power(b, a);
+            RC_TWO();
+
+            PUSH_RC(obj);
+            goto _opcode_whiplash_;
+        }
+        break;
         case LI_BINARY_LT:
         {
             POP_TWO();

@@ -198,6 +198,32 @@ lky_object *lobjb_binary_modulo(lky_object *a, lky_object *b)
     return lobjb_alloc(t, v);
 }
 
+lky_object *lobjb_binary_power(lky_object *a, lky_object *b)
+{
+    CHECK_EXEC_CUSTOM_IMPL(a, b, "op_power_");
+    BI_CAST(a, ab);
+    BI_CAST(b, bb);
+
+    if(a == &lky_nil || b == &lky_nil)
+        return &lky_nil;
+
+    lky_builtin_value v;
+    lky_builtin_type t = OBJ_NUM_PROMO(ab, bb);
+    switch(t)
+    {
+        case LBI_FLOAT:
+            v.d = pow(OBJ_NUM_UNWRAP(ab), OBJ_NUM_UNWRAP(bb));
+            break;
+        case LBI_INTEGER:
+            v.i = (long)pow(ab->value.i, bb->value.i);
+            break;
+        default:
+            break;
+    }
+
+    return lobjb_alloc(t, v);
+}
+
 lky_object *lobjb_binary_lessthan(lky_object *a, lky_object *b)
 {
     CHECK_EXEC_CUSTOM_IMPL(a, b, "op_lt_");
