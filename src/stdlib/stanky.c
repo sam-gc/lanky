@@ -5,6 +5,7 @@
 #include "stl_convert.h"
 #include "stl_trie.h"
 #include "stl_requisitions.h"
+#include "stl_object.h"
 
 Trie_t get_stdlib_objects()
 {
@@ -15,5 +16,6 @@ Trie_t get_stdlib_objects()
     trie_add(&t, "Convert", stlcon_get_class());
     trie_add(&t, "Trie", stltrie_get_class());
     trie_add(&t, "C", stlreq_get_class());
+    trie_add(&t, "Object", stlobj_get_class());
     return t;
 }
