@@ -24,6 +24,33 @@ lky_object *stlarr_append(lky_object_seq *args, lky_object_function *func)
     return &lky_nil;
 }
 
+lky_object *stlarr_add(lky_object_seq *args, lky_object_function *func)
+{
+    lky_object_custom *self = (lky_object_custom *)func->owner;
+    stlarr_data *data = self->data;
+    arraylist list = data->container;
+
+    lky_object *obj = args->value;
+    if(obj->type != LBI_FLOAT && obj->type != LBI_INTEGER)
+        return &lky_nil;
+
+    long offset = OBJ_NUM_UNWRAP(obj);
+    
+    if(offset >= list.count)
+    {
+        // TODO: Array indexing error
+    }
+
+    arraylist nlist = arr_create(list.count - offset + 1);
+    int i;
+    for(i = offset; i < list.count; i++)
+    {
+        arr_append(&nlist, arr_get(&list, i));
+    }
+
+    return stlarr_cinit(nlist);
+}
+
 lky_object *stlarr_set(lky_object_seq *args, lky_object_function *func)
 {
     lky_object_custom *self = (lky_object_custom *)func->owner;
@@ -369,6 +396,7 @@ lky_object *stlarr_cinit(arraylist inlist)
     lobj_set_member(obj, "removeAt", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlarr_remove_at));
     lobj_set_member(obj, "joined", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlarr_joined));
     lobj_set_member(obj, "reverse", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlarr_reverse));
+    lobj_set_member(obj, "op_add_", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlarr_add));
 
     cobj->freefunc = stlarr_dealloc;
     cobj->savefunc = stlarr_save;
