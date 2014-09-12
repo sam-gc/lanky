@@ -23,7 +23,7 @@
 %token <token> TCEQ TCNE TCLT TCLE TCGT TCGE TEQUAL TAND TOR TNOT
 %token <token> TLPAREN TRPAREN TLBRACE TRBRACE TLBRACKET TRBRACKET TCOMMA TDOT
 %token <token> TPLUS TMINUS TMUL TDIV TMOD TPOW
-%token <token> TIF TELIF TELSE TPRT TCOMMENT TLOOP TCOLON TFUNC TSEMI TRET TQUESTION TARROW TCLASS TNIL
+%token <token> TIF TELIF TELSE TPRT TCOMMENT TLOOP TCOLON TFUNC TSEMI TRET TQUESTION TARROW TCLASS TNIL TCONTINUE TBREAK
 
 /* Define the type of node our nonterminal symbols represent.
    The types refer to the %union declaration above. Ex: when
@@ -106,6 +106,8 @@ expression :
     | TFLOAT { $$ = create_value_node(VDOUBLE, (void *)$1); }
     | TSTRING { $$ = create_value_node(VSTRING, (void *)$1); }
     | TIDENTIFIER { $$ = create_value_node(VVAR, (void *)$1); }
+    | TBREAK { $$ = create_one_off_node('b'); }
+    | TCONTINUE { $$ = create_one_off_node('c'); }
     | expression TPLUS expression { $$ = create_binary_node($1, $3, '+'); }
     | expression TMINUS expression { $$ = create_binary_node($1, $3, '-'); }
     | expression TMUL expression { $$ = create_binary_node($1, $3, '*'); }

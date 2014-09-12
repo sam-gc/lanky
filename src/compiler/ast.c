@@ -252,6 +252,19 @@ ast_node *create_member_access_node(ast_node *object, char *ident)
     return (ast_node *)node;
 }
 
+ast_node *create_one_off_node(char opt)
+{
+    ast_one_off_node *node = MALLOC(sizeof(ast_one_off_node));
+    pool_add(&ast_memory_pool, node);
+
+    node->type = AONEOFF;
+    node->next = NULL;
+
+    node->opt = opt;
+    
+    return (ast_node *)node;
+}
+
 void ast_add_if_node(ast_node *curr, ast_node *next)
 {
     ast_if_node *node = (ast_if_node *)curr;

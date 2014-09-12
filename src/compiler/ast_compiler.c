@@ -36,6 +36,8 @@ typedef struct {
     arraylist rops; // The arraylist for the instructions (think RunningOPerationS)
     arraylist rcon; // The arraylist for the constants (think RunningCONstants)
     arraylist rnames; // The arraylist for the names (think RunningNAMES)
+    arraylist loop_start_stack; // A stack for continue/jump directives
+    arraylist loop_end_stack; // A stack for break directives
     Hashmap saved_locals; // A set of locals (not currently used)
     char save_val; // Used to determine if we want to save the result of an operation or pop it.
     int local_idx; // Current local slot (not currently used)
@@ -339,6 +341,7 @@ int next_if_tag(compiler_wrapper *cw)
 void compile_loop(compiler_wrapper *cw, ast_node *root)
 {
     int tagOut = next_if_tag(cw); // Prepare the exit tag
+    int tagLoop = next_if_tag(cw); // Prepare the continue tag
 
     ast_loop_node *node = (ast_loop_node *)root;
 
@@ -360,8 +363,16 @@ void compile_loop(compiler_wrapper *cw, ast_node *root)
     append_op(cw, -1); // Note that we use for bytes to represent jump locations.
     append_op(cw, -1); // This allows us to index locations beyond 255 in the
     append_op(cw, -1); // interpreter.
+    
+    arr_append(&cw->loop_start_stack, (void *)tagLoop);
+    arr_append(&cw->loop_end_stack, (void *)tagOut);
 
     compile_compound(cw, node->payload->next);
+
+    arr_remove(&cw->loop_start_stack, NULL, cw->loop_start_stack.count - 1);
+    arr_remove(&cw->loop_end_stack, NULL, cw->loop_end_stack.count - 1);
+
+    append_op(cw, tagLoop);
 
     if(node->onloop) // If a for loop, compile the onloop.
     {
@@ -384,6 +395,29 @@ void compile_loop(compiler_wrapper *cw, ast_node *root)
     append_op(cw, tagOut);
 
     cw->save_val = 1;
+}
+
+// Generic break/continue compilation
+void compile_one_off(compiler_wrapper *cw, ast_node *root)
+{
+    ast_one_off_node *node = (ast_one_off_node *)root;
+    long jix = -1;
+
+    switch(node->opt)
+    {
+        case 'c':
+            jix = arr_get(&cw->loop_start_stack, cw->loop_start_stack.count - 1);
+            break;
+        case 'b':
+            jix = arr_get(&cw->loop_end_stack, cw->loop_end_stack.count - 1);
+            break;
+    }
+
+    append_op(cw, LI_JUMP);
+    append_op(cw, jix);
+    append_op(cw, -1);
+    append_op(cw, -1);
+    append_op(cw, -1);
 }
 
 // Generic if compilation with special cases handled in helper
@@ -822,6 +856,9 @@ void compile(compiler_wrapper *cw, ast_node *root)
         case AINDEX:
             compile_indx(cw, root);
         break;
+        case AONEOFF:
+            compile_one_off(cw, root);
+        break;
         default:
         break;
     }
@@ -938,6 +975,8 @@ lky_object_code *compile_ast_ext(ast_node *root, compiler_wrapper *incw)
     compiler_wrapper cw;
     cw.rops = arr_create(50);
     cw.rcon = arr_create(10);
+    cw.loop_start_stack = arr_create(10);
+    cw.loop_end_stack = arr_create(10);
     cw.ifTag = 1000;
     cw.save_val = 0;
     cw.name_idx = 0;

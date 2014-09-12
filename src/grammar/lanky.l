@@ -36,6 +36,8 @@ comment (\#|(\-\-)).*(\n)
 "else"                  return TOKEN(TELSE);
 "_prt"                  return TOKEN(TPRT);
 "loop"                  return TOKEN(TLOOP);
+"continue"              return TOKEN(TCONTINUE);
+"break"                 return TOKEN(TBREAK);
 "func"                  return TOKEN(TFUNC);
 "ret"                   return TOKEN(TRET);
 "->"                   return TOKEN(TARROW);

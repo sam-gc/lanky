@@ -593,7 +593,7 @@ _opcode_whiplash_:
             int idx = frame->ops[++frame->pc];
             char *name = frame->names[idx];
 
-            lky_object *cls = lobjb_build_class(func, name);
+            lky_object *cls = lobjb_build_class(func, name, NULL);
 
             PUSH_RC(cls);
             goto _opcode_whiplash_;

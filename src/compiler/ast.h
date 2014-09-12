@@ -23,7 +23,8 @@ typedef enum {
     ATERNARY,
     AMEMBER_ACCESS,
     AARRAY,
-    AINDEX
+    AINDEX,
+    AONEOFF
 } ast_type;
 
 // The different value types...
@@ -219,6 +220,15 @@ typedef struct {
     char *ident;
 } ast_member_access_node;
 
+// A node that represents one-off
+// statements (i.e. continue)
+typedef struct {
+    ast_type type;
+    struct ast_node *next;
+
+    char opt;
+} ast_one_off_node;
+
 void ast_init();
 ast_node *create_root_node();
 void ast_add_node(ast_node *curr, ast_node *next);
@@ -242,6 +252,7 @@ ast_node *create_ternary_node(ast_node *condition, ast_node *first, ast_node *se
 ast_node *create_array_node(ast_node *payload);
 ast_node *create_index_node(ast_node *target, ast_node *indexer);
 ast_node *create_member_access_node(ast_node *object, char *ident);
+ast_node *create_one_off_node(char opt);
 void ast_add_if_node(ast_node *curr, ast_node *next);
 
 void ast_free(ast_node *node);

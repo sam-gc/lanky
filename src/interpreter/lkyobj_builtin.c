@@ -2,6 +2,7 @@
 #include "lky_machine.h"
 #include "lky_gc.h"
 #include "stl_string.h"
+#include "stl_object.h"
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
@@ -128,7 +129,7 @@ lky_object *lobjb_build_func_ex(lky_object *owner, int argc, lky_function_ptr pt
     return (lky_object *)func;
 }
 
-lky_object *lobjb_build_class(lky_object_function *builder, char *refname)
+lky_object *lobjb_build_class(lky_object_function *builder, char *refname, lky_object *parent_class)
 {
     lky_object_class *cls = malloc(sizeof(lky_object_class));
     cls->type = LBI_CLASS;
@@ -140,6 +141,7 @@ lky_object *lobjb_build_class(lky_object_function *builder, char *refname)
 
     cls->builder = builder;
     cls->refname = refname;
+    cls->parent_cls = parent_class ? parent_class : stlobj_get_class();
     gc_add_object((lky_object *)cls);
 
     lky_callable c;
@@ -207,6 +209,11 @@ lky_object *lobjb_default_class_callable(lky_object_seq *args, lky_object *self)
     lky_object *outobj = lobj_alloc();
     outobj->cls = (struct lky_object *)cls;
     rc_incr(outobj);
+
+    lky_object *parent_cls = cls->parent_cls;
+    lky_callable pc = parent_cls->callable;
+    lky_object *interm = (lky_object *)(pc.function(NULL, parent_cls));
+    outobj->members = interm->members;
 
     lobj_set_member(func->bucket, cls->refname, outobj);
 

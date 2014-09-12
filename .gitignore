@@ -6,6 +6,7 @@ machine
 parser.c
 parser.h
 tokens.c
+ospd.txt
 test
 parser.output
 *.swp

@@ -101,6 +101,8 @@ typedef struct {
 
     lky_callable callable;
 
+    lky_object *parent_cls;
+    lky_object *parent_obj;
     lky_object_function *builder;
     char *refname;
 } lky_object_class;
@@ -122,7 +124,7 @@ lky_object *lobjb_build_error(char *name, char *text);
 lky_object_custom *lobjb_build_custom(size_t extra_size);
 lky_object *lobjb_build_func(lky_object_code *code, int argc, arraylist inherited, mach_interp *interp);
 lky_object *lobjb_build_func_ex(lky_object *owner, int argc, lky_function_ptr ptr);
-lky_object *lobjb_build_class(lky_object_function *builder, char *refname);
+lky_object *lobjb_build_class(lky_object_function *builder, char *refname, lky_object *parent_class);
 lky_object *lobjb_alloc(lky_builtin_type t, lky_builtin_value v);
 lky_object *lobjb_default_callable(lky_object_seq *args, lky_object *self);
 lky_object *lobjb_default_class_callable(lky_object_seq *args, lky_object *self);

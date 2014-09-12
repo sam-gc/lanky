@@ -15,6 +15,8 @@ lky_object *stlobj_stringify(lky_object_seq *args, lky_object_function *func)
 
 lky_object *stlobj_equals(lky_object_seq *args, lky_object_function *func)
 {
+    // TODO: Using func->owner for self is problematic
+    // for subclassing.
     lky_object *self = func->owner;
     lky_object *other = args->value;
 
@@ -37,13 +39,19 @@ lky_object *stlobj_build(lky_object_seq *args, lky_object_function *function)
     return stlobj_cinit();
 }
 
+static lky_object *_stlobj_class = NULL;
 lky_object *stlobj_get_class()
 {
+    if(_stlobj_class)
+        return _stlobj_class;
+
     lky_object *cls = lobj_alloc();
     lky_callable c;
     c.argc = 0;
     c.function = (lky_function_ptr)stlobj_build;
     cls->callable = c;
+
+    _stlobj_class = cls;
 
     return cls;
 }
