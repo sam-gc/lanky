@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
         // ctx_init();
            
         yyparse();
-        lky_object_code *code = compile_ast(programBlock->next);
+        lky_object_code *code = compile_ast_repl(programBlock->next);
         write_to_file("test", code);
         ast_free(programBlock);
         

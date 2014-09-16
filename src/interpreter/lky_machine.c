@@ -638,7 +638,7 @@ _opcode_whiplash_:
             int idx = frame->ops[++frame->pc];
             char *name = frame->names[idx];
 
-            printf("----> %s\n", name);
+            //printf("----> %s\n", name);
 
             lky_object *bk = NULL;
             arraylist ps = frame->parent_stack;

@@ -1,4 +1,7 @@
+
+Io.putln("here");
 f = Io.fopen("ospd.txt", "r");
+
 words = Trie();
 
 Io.putln("Loading dictionary...");

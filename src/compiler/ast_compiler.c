@@ -953,6 +953,7 @@ void compile_class_decl(compiler_wrapper *cw, ast_node *root)
     nw.local_idx = 0;
     nw.saved_locals = hm_create(100, 1);
     nw.rnames = arr_create(10);
+    nw.used_names = copy_arraylist(cw->used_names);
 
     long idx = find_prev_name(cw, node->refname);
 
