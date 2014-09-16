@@ -66,7 +66,7 @@ lky_object *compile_and_exec(char *str, mach_interp *interp)
     }
     
     gc_pause();
-    lky_object_code *code = compile_ast(programBlock->next);
+    lky_object_code *code = compile_ast_repl(programBlock->next);
     ast_free(programBlock);
     gc_resume();
     
@@ -281,7 +281,8 @@ void stlmeta_print_dissassembly(lky_object_code *code)
             case LI_SAVE_CLOSE:
             case LI_LOAD_MEMBER:
             case LI_SAVE_MEMBER:
-                printf("\t%d\t(\"%s\")", code->ops[++i], code->names[code->ops[i]]);
+                printf("\t%d\t", code->ops[++i]);
+                //printf("\t%d\t(\"%s\")", code->ops[++i], code->names[code->ops[i]]);
                 break;
             case LI_JUMP:
             case LI_JUMP_FALSE:

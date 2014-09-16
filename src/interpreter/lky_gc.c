@@ -226,6 +226,7 @@ void gc_mark_function_stack(stackframe *frame)
     {
         gc_mark_object(frame->bucket);
         gc_mark_stack(frame->data_stack, (int)frame->stack_size);
+        gc_mark_stack(frame->locals, frame->locals_count);
         
         int i;
         for(i = 0; i < frame->parent_stack.count; i++)

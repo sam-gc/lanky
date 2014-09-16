@@ -28,6 +28,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+
 // A compiler wrapper to reduce global state.
 // This struct allows us to compile in
 // different contexts (for example a nested
@@ -44,7 +45,15 @@ typedef struct {
     int ifTag; // The index of the tagging system described above 
     int name_idx; // The index of the current name
     int classargc; // The number of arguments for class instantiation.
+    arraylist used_names; // A list of used names (to distinguish between LI_LOAD_CLOSE and LI_LOAD_LOCAL
+    int repl;
 } compiler_wrapper;
+
+typedef struct {
+    compiler_wrapper *owner;
+    char *name;
+    long idx;
+} name_wrapper;
 
 // Forward declarations of necessary functions.
 void compile(compiler_wrapper *cw, ast_node *root);
@@ -123,6 +132,161 @@ int get_next_local(compiler_wrapper *cw)
     return cw->local_idx++;
 }
 
+// Holy actual crap..... This function is ridicilus... I'm not even going
+// to try to explain it this evening. But it seems to work!!!
+lky_instruction append_var_info(compiler_wrapper *cw, char *ch, char load)
+{
+    lky_instruction ret = 0;
+
+    int i = 0;
+    for(i = 0; i < cw->used_names.count; i++)
+    {
+        //printf("..........\n");
+        name_wrapper *w = arr_get(&cw->used_names, i);
+        //printf("%p\n", w);
+        char *o = w->name;
+        if(strcmp(o, ch))
+            continue;
+        
+        if(w->owner == cw)
+        {
+            ret = load ? LI_LOAD_LOCAL : LI_SAVE_LOCAL;
+            break;
+        }
+
+        ret = load ? LI_LOAD_CLOSE : LI_SAVE_CLOSE;
+
+        // Alright, we have to make this a closure.
+        int loc = w->idx;
+        compiler_wrapper *owner = w->owner;
+
+        if(OBJ_NUM_UNWRAP(owner->rops.items[loc]) == LI_SAVE_CLOSE)
+            break;
+
+        owner->rops.items[loc] = lobjb_build_int(LI_SAVE_CLOSE);
+        //printf("HEREE\n");
+        
+        char *sid = ch;
+        char *nsid = malloc(strlen(sid) + 1);
+        strcpy(nsid, sid);
+
+        int idx = find_prev_name(owner, nsid);
+        if(idx < 0)
+        {
+            idx = (int)owner->rnames.count;
+            arr_append(&owner->rnames, nsid);
+        }
+
+        owner->rops.items[loc + 1] = lobjb_build_int(idx);
+
+    }
+
+    if(!ret && load)
+        ret = LI_LOAD_CLOSE;
+    else if(!load && !ret && cw->repl)
+        ret = LI_SAVE_CLOSE;
+    
+    if(!ret)
+    {
+        // If we didn't find anything, we must need to set... We will make it local.
+        append_op(cw, LI_SAVE_LOCAL);
+        char *sid = ch;
+        hm_error_t err;
+        int idx = get_next_local(cw);
+        lky_object *obj = lobjb_build_int(idx);
+        pool_add(&ast_memory_pool, obj);
+        hm_put(&cw->saved_locals, sid, obj);
+        
+        append_op(cw, idx);
+
+        name_wrapper *wrap = malloc(sizeof(name_wrapper));
+        pool_add(&ast_memory_pool, wrap);
+        wrap->idx = cw->rops.count - 2;
+        wrap->name = ch;
+        wrap->owner = cw;
+
+        arr_append(&cw->used_names, wrap);
+        //printf("HERE\n");
+    }
+
+    if(ret == LI_SAVE_LOCAL)
+    {
+        int idx;
+        hm_error_t err;
+        lky_object_builtin *o = hm_get(&cw->saved_locals, ch, &err);
+        idx = o->value.i;
+        append_op(cw, LI_SAVE_LOCAL);
+        append_op(cw, idx);
+
+    }
+
+    if(ret == LI_LOAD_LOCAL)
+    {
+        int idx;
+        hm_error_t err;
+        lky_object_builtin *o = hm_get(&cw->saved_locals, ch, &err);
+        idx = o->value.i;
+        append_op(cw, LI_LOAD_LOCAL);
+        append_op(cw, idx);
+    }
+
+    if(ret == LI_LOAD_CLOSE)
+    {
+
+        int idx = find_prev_name(cw, ch);
+
+        if(idx < 0)
+        {
+            idx = (int)cw->rnames.count;
+            char *ns = malloc(strlen(ch) + 1);
+            strcpy(ns, ch);
+            arr_append(&cw->rnames, ns);
+        }
+
+        append_op(cw, LI_LOAD_CLOSE);
+        append_op(cw, idx);
+    }
+
+    if(ret == LI_SAVE_CLOSE)
+    {
+        append_op(cw, LI_SAVE_CLOSE);
+        char *sid = ch;
+        char *nsid = malloc(strlen(sid) + 1);
+        strcpy(nsid, sid);
+
+        int idx = find_prev_name(cw, nsid);
+        if(idx < 0)
+        {
+            idx = (int)cw->rnames.count;
+            arr_append(&cw->rnames, nsid);
+        }
+
+        append_op(cw, idx);
+    }
+}
+
+//             append_op(cw, (char)LI_SAVE_LOCAL);
+//             char *sid = ((ast_value_node *)(node->left))->value.s;
+//             hm_error_t err;
+//             int idx;
+//             lky_object_builtin *o = hm_get(&cw->saved_locals, sid, &err);
+//             if(err == HM_KEY_NOT_FOUND)
+//             {
+//                 idx = get_next_local(cw);
+//                 lky_object *obj = lobjb_build_int(idx);
+//                 pool_add(&ast_memory_pool, obj);
+//                 hm_put(&cw->saved_locals, sid, obj);
+//             }
+//             else
+//                 idx = o->value.i;
+// 
+//             // printf("==> %s %d\n", sid, idx);
+// 
+//             append_op(cw, idx);
+//             // save_val = 1;
+//             return;
+
+
 // Makes a lky_object from the value wrapper described
 // in 'ast.h'
 lky_object *wrapper_to_obj(ast_value_wrapper wrap)
@@ -190,6 +354,14 @@ void append_op(compiler_wrapper *cw, long ins)
     lky_object *obj = lobjb_build_int(ins);
     pool_add(&ast_memory_pool, obj);
     arr_append(&cw->rops, obj);
+}
+
+arraylist copy_arraylist(arraylist in)
+{
+    arraylist nlist = arr_create(in.count + 10);
+    memcpy(nlist.items, in.items, in.count * sizeof(void *));
+    nlist.count = in.count;
+    return nlist;
 }
 
 void compile_binary(compiler_wrapper *cw, ast_node *root)
@@ -287,6 +459,9 @@ void compile_binary(compiler_wrapper *cw, ast_node *root)
     case '=':
         {
             // Deal with the weirdness of the '=' case.
+            append_var_info(cw, ((ast_value_node *)(node->left))->value.s, 0);
+            return;
+
             append_op(cw, LI_SAVE_CLOSE);
             char *sid = ((ast_value_node *)(node->left))->value.s;
             char *nsid = malloc(strlen(sid) + 1);
@@ -673,6 +848,9 @@ long find_prev_const(compiler_wrapper *cw, lky_object *obj)
 
 void compile_var(compiler_wrapper *cw, ast_value_node *node)
 {
+    append_var_info(cw, node->value.s, 1); 
+    return;
+
     int idx = find_prev_name(cw, node->value.s);
 
     if(idx < 0)
@@ -730,6 +908,9 @@ void compile_function(compiler_wrapper *cw, ast_node *root)
     nw.local_idx = 0;
     nw.saved_locals = hm_create(100, 1);
     nw.rnames = arr_create(10);
+    //printf("-> %d\n", cw->used_names.count);
+    nw.used_names = copy_arraylist(cw->used_names);
+    nw.repl = 0;
     
     // Deal with parameters
     int argc = 0;
@@ -795,7 +976,7 @@ void compile_class_decl(compiler_wrapper *cw, ast_node *root)
     append_op(cw, cidx);
     append_op(cw, LI_MAKE_FUNCTION);
     append_op(cw, nw.classargc);
-    printf("%d --- \n", nw.classargc);
+    //printf("%d --- \n", nw.classargc);
     append_op(cw, LI_MAKE_CLASS);
     append_op(cw, idx);
 }
@@ -967,6 +1148,18 @@ char **make_names_array(compiler_wrapper *cw)
     return names;
 }
 
+lky_object_code *compile_ast_repl(ast_node *root)
+{
+    compiler_wrapper cw;
+    cw.saved_locals = hm_create(10, 1);
+    cw.local_idx = 0;
+    cw.rnames = arr_create(10);
+    cw.used_names = arr_create(10);
+    cw.repl = 1;
+
+    return compile_ast_ext(root, &cw);
+}
+
 // The brain of the operation; compiles an AST from its root. Sometimes we want
 // to set some initial settings, so we pass in a compiler wrapper. That argument
 // is optional.
@@ -987,14 +1180,17 @@ lky_object_code *compile_ast_ext(ast_node *root, compiler_wrapper *incw)
         cw.saved_locals = incw->saved_locals;
         cw.local_idx = incw->local_idx;
         cw.rnames = incw->rnames;
+        cw.used_names = incw->used_names;
+        cw.repl = incw->repl;
     }
     else
     {
         cw.saved_locals = hm_create(100, 1);
         cw.local_idx = 0;
         cw.rnames = arr_create(50);
+        cw.used_names = arr_create(20);
+        cw.repl = 0;
     }
-
 
     compile_compound(&cw, root);
     replace_tags(&cw);
@@ -1070,3 +1266,4 @@ void write_to_file(char *name, lky_object_code *code)
 
     fclose(f);
 }
+

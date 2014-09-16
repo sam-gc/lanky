@@ -24,6 +24,7 @@ typedef struct stackframe {
     
     long stack_pointer;
     long stack_size;
+    long locals_count;
     lky_object *ret;
 } stackframe;
 

@@ -92,6 +92,7 @@ lky_object *mach_interrupt_exec(lky_object_function *func)
     frame->names = code->names;
     frame->ret = NULL;
     frame->interp = interp;
+    frame->locals_count = code->num_locals;
     
     frame->prev = interp->stack ? interp->stack : NULL;
     frame->next = NULL;
@@ -161,6 +162,7 @@ lky_object *mach_execute(lky_object_function *func)
     frame->ret = NULL;
     
     frame->interp = interp;
+    frame->locals_count = code->num_locals;
     
     // Setup stackframe with the previous stack
     frame->prev = interp->stack ? interp->stack : NULL;
@@ -635,6 +637,8 @@ _opcode_whiplash_:
         {
             int idx = frame->ops[++frame->pc];
             char *name = frame->names[idx];
+
+            printf("----> %s\n", name);
 
             lky_object *bk = NULL;
             arraylist ps = frame->parent_stack;
