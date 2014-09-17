@@ -296,7 +296,7 @@ void stlmeta_print_dissassembly(lky_object_code *code)
             }
             case LI_LOAD_LOCAL:
             case LI_SAVE_LOCAL:
-                printf("\tUnimplemented");
+                printf("\t%d\t[local index]", *(code->ops + (++i)));
                 break;
             case LI_MAKE_ARRAY:
             {
@@ -348,6 +348,8 @@ lky_object *stlmeta_examine(lky_object_seq *args, lky_object_function *func)
     }
     
     printf("]\n\n");
+
+    printf("Number of local slots: %d\n", code->num_locals);
     stlmeta_print_dissassembly(code);
     
     return &lky_nil;

@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
@@ -239,6 +240,7 @@ _opcode_whiplash_:
     gc_gc();
 
     op = frame->ops[++frame->pc];
+    // (77)printf(" . %d\n", frame->pc);
 
     switch(op)
     {
@@ -624,10 +626,6 @@ _opcode_whiplash_:
             if(!bk)
                 bk = frame->bucket;
 
-            if(!strcmp(name, "curr"))
-            {
-                printf("");
-            }
             lobj_set_member(bk, name, obj);
             
             goto _opcode_whiplash_;

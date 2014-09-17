@@ -1,0 +1,10 @@
+test = func() {
+    a = 3;
+    func() {
+        a = 4;
+    }();
+    ret a;
+};
+
+Meta.examine(test);
+Io.putln("\t" + test());

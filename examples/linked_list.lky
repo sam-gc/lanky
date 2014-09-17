@@ -1,6 +1,7 @@
 List = class() -> self {
     self.build_ = func(value) {
         self.value = value;
+        self.next = nil;
     };
 
     self.add = func(value) {

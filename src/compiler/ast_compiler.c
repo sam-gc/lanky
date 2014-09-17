@@ -132,9 +132,136 @@ int get_next_local(compiler_wrapper *cw)
     return cw->local_idx++;
 }
 
+        //// Alright, we have to make this a closure.
+        //int loc = w->idx;
+        //compiler_wrapper *owner = w->owner;
+
+        //if(OBJ_NUM_UNWRAP(owner->rops.items[loc]) == LI_SAVE_CLOSE)
+        //    break;
+
+        //owner->rops.items[loc] = lobjb_build_int(LI_SAVE_CLOSE);
+        ////printf("HEREE\n");
+        //
+        //char *sid = ch;
+        //char *nsid = malloc(strlen(sid) + 1);
+        //strcpy(nsid, sid);
+
+        //int idx = find_prev_name(owner, nsid);
+        //if(idx < 0)
+        //{
+        //    idx = (int)owner->rnames.count;
+        //    arr_append(&owner->rnames, nsid);
+        //}
+
+char switch_to_close(compiler_wrapper *cw, char *sid, int idx)
+{
+    lky_object *o = arr_get(&cw->rops, idx);
+    lky_instruction istr = OBJ_NUM_UNWRAP(o);
+
+    if(istr == LI_LOAD_CLOSE || istr == LI_SAVE_CLOSE)
+        return 0;
+
+    istr = istr == LI_LOAD_LOCAL ? LI_LOAD_CLOSE : LI_SAVE_CLOSE;
+
+    cw->rops.items[idx] = lobjb_build_int(istr);
+    char *nsid = malloc(strlen(sid) + 1);
+    strcpy(nsid, sid);
+
+    int i = find_prev_name(cw, nsid);
+    if(i < 0)
+    {
+        i = (int)cw->rnames.count;
+        arr_append(&cw->rnames, nsid);
+    }
+
+    cw->rops.items[idx + 1] = lobjb_build_int(i);
+    return 1;
+}
+
+char is_close(compiler_wrapper *cw, int idx)
+{
+    lky_object *o = arr_get(&cw->rops, idx);
+    lky_instruction istr = OBJ_NUM_UNWRAP(o);
+
+    return istr == LI_LOAD_CLOSE || istr == LI_SAVE_CLOSE;
+}
+
+void append_var_info(compiler_wrapper *cw, char *ch, char load)
+{
+    char needs_close = cw->repl;
+    char already_defined = 0;
+    arraylist list = cw->used_names;
+    int i;
+    for(i = 0; i < list.count; i++)
+    {
+        name_wrapper *w = arr_get(&cw->used_names, i);
+        
+        if(strcmp(w->name, ch))
+            continue;   
+
+        if(w->owner != cw)
+        {
+            switch_to_close(w->owner, ch, w->idx);
+            needs_close = 1;
+        }
+        else
+        {
+            needs_close = is_close(cw, w->idx);
+            already_defined = 1;
+        }
+    }
+
+    if(!needs_close && !already_defined && load)
+        needs_close = 1;
+
+    if(needs_close)
+    {
+        lky_instruction istr = load ? LI_LOAD_CLOSE : LI_SAVE_CLOSE;
+        char *nsid = malloc(strlen(ch) + 1);
+        strcpy(nsid, ch);
+
+        int i = find_prev_name(cw, nsid);
+        if(i < 0)
+        {
+            i = (int)cw->rnames.count;
+            arr_append(&cw->rnames, nsid);
+        }
+
+        append_op(cw, istr);
+        append_op(cw, i);
+
+        return;
+    }
+
+    lky_instruction istr = load ? LI_LOAD_LOCAL : LI_SAVE_LOCAL;
+    hm_error_t err;
+    
+    int idx = 0;
+    lky_object_builtin *o = hm_get(&cw->saved_locals, ch, &err);
+    if(err == HM_KEY_NOT_FOUND)
+    {
+        idx = get_next_local(cw);
+        lky_object *obj = lobjb_build_int(idx);
+        pool_add(&ast_memory_pool, obj);
+        hm_put(&cw->saved_locals, ch, obj);
+    }
+    else
+        idx = o->value.i;
+
+    append_op(cw, istr);
+    append_op(cw, idx);
+
+    name_wrapper *wrap = malloc(sizeof(name_wrapper));
+    pool_add(&ast_memory_pool, wrap);
+    wrap->idx = cw->rops.count - 2;
+    wrap->name = ch;
+    wrap->owner = cw;
+    arr_append(&cw->used_names, wrap);
+}
+
 // Holy actual crap..... This function is ridicilus... I'm not even going
 // to try to explain it this evening. But it seems to work!!!
-lky_instruction append_var_info(compiler_wrapper *cw, char *ch, char load)
+/*lky_instruction append_var_info(compiler_wrapper *cw, char *ch, char load)
 {
     lky_instruction ret = 0;
 
@@ -263,7 +390,7 @@ lky_instruction append_var_info(compiler_wrapper *cw, char *ch, char load)
 
         append_op(cw, idx);
     }
-}
+} */
 
 //             append_op(cw, (char)LI_SAVE_LOCAL);
 //             char *sid = ((ast_value_node *)(node->left))->value.s;
