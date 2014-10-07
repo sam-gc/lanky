@@ -1,5 +1,6 @@
 #include <string.h>
 #include "stl_convert.h"
+#include "stl_units.h"
 
 lky_object *stlcon_to_int(lky_object_seq *args, lky_object *func)
 {
@@ -48,6 +49,7 @@ lky_object *stlcon_get_class()
 
     lobj_set_member(obj, "toInt", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlcon_to_int));
     lobj_set_member(obj, "toString", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlcon_to_string));
+    lobj_set_member(obj, "Unit", stlun_get_class());
 
     return obj;
 }

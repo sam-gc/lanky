@@ -141,8 +141,6 @@ lky_object *stlun_build(lky_object_seq *args, lky_object_function *caller)
 
 lky_object *stlun_get_class()
 {
-    lky_object *obj = lobj_alloc();
-    lobj_set_member(obj, "Unit", lobjb_build_func_ex(obj, 2, (lky_function_ptr)stlun_build));
-
-    return obj;
+    lky_object *me = lobj_alloc();
+    return lobjb_build_func_ex(me, 2, (lky_function_ptr)stlun_build);
 }
