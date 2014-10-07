@@ -65,6 +65,7 @@ void compile_set_member(compiler_wrapper *cw, ast_node *root);
 void compile_set_index(compiler_wrapper *cw, ast_node *root);
 int find_prev_name(compiler_wrapper *cw, char *name);
 void int_to_byte_array(unsigned char *buffer, int val);
+void append_op(compiler_wrapper *cw, long ins);
 
 // A struct used to represent 'tags' in the
 // intermediate code; we use this struct to
