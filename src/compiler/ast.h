@@ -14,6 +14,7 @@ typedef enum {
     ABINARY_EXPRESSION,
     AUNARY_EXPRESSION,
     AVALUE,
+    AUNIT,
     ABLOCK,
     AIF,
     AFUNC_DECL,
@@ -105,6 +106,16 @@ typedef struct ast_value_node {
     ast_value_type value_type;
     ast_value_union value;
 } ast_value_node;
+
+// A special variation of the value
+// node that wraps units
+typedef struct ast_unit_value_node {
+    ast_type type;
+    struct ast_node *next;
+
+    double val;
+    char *fmt;
+} ast_unit_value_node;
 
 // A collection of statements/nodes;
 // this struct is used for conditions,
@@ -239,6 +250,7 @@ void ast_add_node(ast_node *curr, ast_node *next);
 // type 'ast_node' even though under the hood they are
 // creating specific instances of the structs defined above.
 ast_node *create_value_node(ast_value_type type, void *data);
+ast_node *create_unit_value_node(char *valstr, char *fmt);
 ast_node *create_binary_node(ast_node *left, ast_node *right, char opt);
 ast_node *create_unary_node(ast_node *target, char opt);
 ast_node *create_assignment_node(char *left, ast_node *right);

@@ -74,6 +74,25 @@ ast_node *create_value_node(ast_value_type type, void *data)
     return (ast_node *)node;
 }
 
+ast_node *create_unit_value_node(char *valstr, char *fmt)
+{
+    ast_unit_value_node *node = MALLOC(sizeof(ast_unit_value_node));
+    pool_add(&ast_memory_pool, node);
+    node->type = AUNIT;
+    node->next = NULL;
+
+    char *raw = (char *)fmt;
+    char *str = MALLOC(strlen(raw) - 1);
+    pool_add(&ast_memory_pool, str);
+    memset(str, 0, strlen(raw) - 1);
+    memcpy(str, raw + 1, strlen(raw) - 2);
+
+    node->val = atof(valstr);
+    node->fmt = str;
+
+    return (ast_node *)node;
+}
+
 ast_node *create_binary_node(ast_node *left, ast_node *right, char opt)
 {
     ast_binary_node *node = MALLOC(sizeof(ast_binary_node));

@@ -104,6 +104,8 @@ arrdecl : TLBRACKET TRBRACKET { $$ = create_array_node(NULL); }
 expression : 
     TINTEGER { $$ = create_value_node(VINT, (void *)$1); }
     | TFLOAT { $$ = create_value_node(VDOUBLE, (void *)$1); }
+    | TINTEGER TSTRING { $$ = create_unit_value_node($1, $2); }
+    | TFLOAT TSTRING { $$ = create_unit_value_node($1, $2); }
     | TSTRING { $$ = create_value_node(VSTRING, (void *)$1); }
     | TIDENTIFIER { $$ = create_value_node(VVAR, (void *)$1); }
     | TBREAK { $$ = create_one_off_node('b'); }

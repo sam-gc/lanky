@@ -24,6 +24,7 @@
 #include "hashmap.h"
 #include "bytecode_analyzer.h"
 #include "stl_string.h"
+#include "stl_units.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -1024,6 +1025,18 @@ void compile_value(compiler_wrapper *cw, ast_node *root)
     append_op(cw, (char)idx);
 }
 
+// Compile special unit syntax
+void compile_unit_value(compiler_wrapper *cw, ast_node *root)
+{
+    ast_unit_value_node *node = (ast_unit_value_node *)root;
+
+    long idx = cw->rcon.count;
+    arr_append(&cw->rcon, stlun_cinit(node->val, node->fmt));
+
+    append_op(cw, LI_LOAD_CONST);
+    append_op(cw, (char)idx);
+}
+
 // Compiles a function declaration
 void compile_function(compiler_wrapper *cw, ast_node *root)
 {
@@ -1137,6 +1150,9 @@ void compile(compiler_wrapper *cw, ast_node *root)
         break;
         case AVALUE:
             compile_value(cw, root);
+        break;
+        case AUNIT:
+            compile_unit_value(cw, root);
         break;
         case AIF:
             compile_if(cw, root);

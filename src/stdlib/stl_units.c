@@ -1,10 +1,6 @@
 #include "stl_units.h"
 #include "stl_string.h"
 
-typedef struct {
-    un_unit u;
-} stlun_data;
-
 lky_object *stlun_stringify(lky_object_seq *args, lky_object_function *caller)
 {
     lky_object_custom *self = (lky_object_custom *)caller->owner;
