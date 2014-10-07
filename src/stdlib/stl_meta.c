@@ -319,6 +319,14 @@ void stlmeta_print_dissassembly(lky_object_code *code)
 lky_object *stlmeta_examine(lky_object_seq *args, lky_object_function *func)
 {
     lky_object_function *obj = (lky_object_function *)args->value;
+
+    if(obj->type != LBI_FUNCTION)
+    {
+        printf("Lanky object.\n");
+
+        return &lky_nil;
+    }
+
     lky_object_code *code = obj->code;
     
     if(!code)

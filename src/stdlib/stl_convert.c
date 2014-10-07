@@ -64,7 +64,7 @@ lky_object *stlcon_get_class()
     lobj_set_member(obj, "toInt", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlcon_to_int));
     lobj_set_member(obj, "toString", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlcon_to_string));
     lobj_set_member(obj, "Unit", stlun_get_class());
-    lobj_set_member(obj, "unit", lobjb_build_func_ex(obj, 2, (lky_function_ptr)stlcon_unit));
+    lobj_set_member(obj, "units", lobjb_build_func_ex(obj, 2, (lky_function_ptr)stlcon_unit));
 
     return obj;
 }

@@ -3,6 +3,7 @@
 #include <math.h>
 #include "stl_math.h"
 #include "stl_array.h"
+#include "stl_units.h"
 
 #define TOKENPASTE(x, y) x ## y
 #define IS_NUMBER(obj) (obj->type == LBI_FLOAT || obj->type == LBI_INTEGER)
@@ -105,10 +106,39 @@ STLMATH_WRAP_FUNC(ceil)
 STLMATH_WRAP_FUNC(floor)
 STLMATH_WRAP_FUNC(round)
 
+lky_object *stlmath_get_astro_class()
+{
+    lky_object *obj = lobj_alloc();    
+
+    lobj_set_member(obj, "gravEarth", stlun_cinit(9.8, "m/s^2"));
+    lobj_set_member(obj, "massEarth", stlun_cinit(5.975e24, "kg"));
+    lobj_set_member(obj, "radiusEarth", stlun_cinit(6378, "km"));
+    lobj_set_member(obj, "massSun", stlun_cinit(1.989e30, "kg"));
+    lobj_set_member(obj, "radiusSun", stlun_cinit(6.96e8, "m"));
+    lobj_set_member(obj, "lumSun", stlun_cinit(3.847e26, "kg*m^2/s^3"));
+
+    return obj;
+}
+
+lky_object *stlmath_get_phys_class()
+{
+    lky_object *obj = lobj_alloc();
+
+    lobj_set_member(obj, "c", stlun_cinit(2.9979e8, "m/s"));
+    lobj_set_member(obj, "G", stlun_cinit(6.6726e-11, "m^3/kg*s^2"));
+    lobj_set_member(obj, "h", stlun_cinit(6.6261e-34, "kg*m^2/s"));
+    lobj_set_member(obj, "me", stlun_cinit(9.1094e-31, "g"));
+    lobj_set_member(obj, "mH", stlun_cinit(1.6735e-24, "g"));
+
+    return obj;
+}
+
 lky_object *stlmath_get_class()
 {
     srand((unsigned int)time(NULL));
     lky_object *obj = lobj_alloc();
+    lobj_set_member(obj, "Astro", stlmath_get_astro_class());
+    lobj_set_member(obj, "Phys", stlmath_get_phys_class());
     lobj_set_member(obj, "rand", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlmath_wrap_rand));
     lobj_set_member(obj, "randInt", lobjb_build_func_ex(obj, 2, (lky_function_ptr)stlmath_rand_int));
     lobj_set_member(obj, "quad", lobjb_build_func_ex(obj, 3, (lky_function_ptr)stlmath_quad));
