@@ -132,3 +132,8 @@ void arr_free(arraylist *list)
 {
     free(list->items);
 }
+
+void arr_sort(arraylist *list, arr_sort_function sf)
+{
+}
+

@@ -21,11 +21,33 @@ lky_object *stlcon_to_int(lky_object_seq *args, lky_object *func)
     return lobjb_build_int(val);
 }
 
+/*
+lky_object *stlcon_to_float(lky_object_seq *args, lky_object *func)
+{
+    lky_object *from = (lky_object *)args->value;
+
+    if(from->type == LBI_FLOAT)
+        return from;
+
+    if(from->type == LBI_INTEGER)
+        return lobjb_build_int
+*/
+
+lky_object *stlcon_to_string(lky_object_seq *args, lky_object *func)
+{
+    lky_object *from = (lky_object *)args->value;
+    char *str = lobjb_stringify(from);
+    lky_object *ret = stlstr_cinit(str);
+    free(str);
+    return ret;
+}
+
 lky_object *stlcon_get_class()
 {
     lky_object *obj = lobj_alloc();
 
     lobj_set_member(obj, "toInt", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlcon_to_int));
+    lobj_set_member(obj, "toString", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlcon_to_string));
 
     return obj;
 }

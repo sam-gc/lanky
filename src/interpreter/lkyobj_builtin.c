@@ -152,12 +152,65 @@ lky_object *lobjb_build_class(lky_object_function *builder, char *refname, lky_o
     return (lky_object *)cls;
 }
 
+char *lobjb_stringify(lky_object *a)
+{
+    char *ret = NULL;
+
+    lky_object_builtin *b = (lky_object_builtin *)a;
+
+    switch(b->type)
+    {
+        case LBI_FLOAT:
+            ret = malloc(100);
+            if(b->value.d < 0.0001 && b->value.d != 0)
+                sprintf(ret, "%e", b->value.d);
+            else
+                sprintf(ret, "%lf", b->value.d);
+        break;
+        case LBI_INTEGER:
+            ret = malloc(100);
+            sprintf(ret, "%ld", b->value.i);
+        break;
+        case LBI_STRING:
+            printf("%s", b->value.s);
+        break;
+        case LBI_NIL:
+            ret = malloc(6);
+            strcpy(ret, "(nil)");
+        break;
+        case LBI_CUSTOM:
+        case LBI_CUSTOM_EX:
+        {
+            lky_object_function *func = (lky_object_function *)lobj_get_member(a, "stringify_");
+            
+            if(!func)
+            {
+                ret = malloc(100);
+                sprintf(ret, "%p", b);
+                break;
+            }
+            lky_object_custom *s = (lky_object_custom *)(func->callable.function)(NULL, (struct lky_object *)func);
+
+            ret = malloc(strlen(s->data) + 1);
+            strcpy(ret, s->data);
+            break;
+        }
+        default:
+            ret = malloc(100);
+            sprintf(ret, "%p", b);
+            break;
+
+    }
+    
+    return ret;
+}
+
 void str_print(lky_builtin_type t, lky_builtin_value v, char *buf)
 {
     switch(t)
     {
         case LBI_FLOAT:
-            sprintf(buf, "%lf", v.d);
+            sprintf(buf, "%.40lf", v.d);
         break;
         case LBI_INTEGER:
             sprintf(buf, "%ld", v.i);
@@ -325,41 +378,12 @@ char lobjb_quick_compare(lky_object *a, lky_object *b)
 
 void lobjb_print_object(lky_object *a)
 {
+    
+    char *txt = lobjb_stringify(a);
+    printf("%s", txt);
+    free(txt);
+
     lky_object_builtin *b = (lky_object_builtin *)a;
-
-    switch(b->type)
-    {
-        case LBI_FLOAT:
-            printf("%lf", b->value.d);
-        break;
-        case LBI_INTEGER:
-            printf("%ld", b->value.i);
-        break;
-        case LBI_STRING:
-            printf("%s", b->value.s);
-        break;
-        case LBI_NIL:
-            printf("(nil)");
-        break;
-        case LBI_CUSTOM:
-        case LBI_CUSTOM_EX:
-        {
-            lky_object_function *func = (lky_object_function *)lobj_get_member(a, "stringify_");
-            
-            if(!func)
-            {
-                printf("%p", b);
-                break;
-            }
-            lky_object_custom *s = (lky_object_custom *)(func->callable.function)(NULL, (struct lky_object *)func);
-            printf("%s", s->data);
-            break;
-        }
-        default:
-            printf("%p", b);
-            break;
-
-    }
 }
 
 void lobjb_print(lky_object *a)

@@ -24,6 +24,24 @@ lky_object *stlarr_append(lky_object_seq *args, lky_object_function *func)
     return &lky_nil;
 }
 
+lky_object *stlarr_insert(lky_object_seq *args, lky_object_function *func)
+{
+    lky_object_custom *self = (lky_object_custom *)func->owner;
+
+    int idx = OBJ_NUM_UNWRAP(args->next->value);
+    stlarr_data *data = self->data;
+    arr_insert(&data->container, args->value, idx);
+    lobj_set_member((lky_object *)self, "count", lobjb_build_int(data->container.count));
+    return &lky_nil;
+}
+
+arraylist stlarr_unwrap(lky_object *obj)
+{
+    lky_object_custom *self = (lky_object_custom *)obj;
+    stlarr_data *data = self->data;
+    return data->container;
+}
+
 lky_object *stlarr_add(lky_object_seq *args, lky_object_function *func)
 {
     lky_object_custom *self = (lky_object_custom *)func->owner;
@@ -396,6 +414,7 @@ lky_object *stlarr_cinit(arraylist inlist)
     lobj_set_member(obj, "removeAt", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlarr_remove_at));
     lobj_set_member(obj, "joined", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlarr_joined));
     lobj_set_member(obj, "reverse", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlarr_reverse));
+    lobj_set_member(obj, "insert", lobjb_build_func_ex(obj, 2, (lky_function_ptr)stlarr_insert));
     lobj_set_member(obj, "op_add_", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlarr_add));
 
     cobj->freefunc = stlarr_dealloc;

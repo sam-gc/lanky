@@ -26,6 +26,8 @@ typedef struct {
     int mem_count;
     size_t size;
     Trie_t members;
+    lky_object *parent;
+    
     lky_object *cls;
 
     lky_callable callable;
@@ -38,6 +40,7 @@ typedef struct {
     int mem_count;
     size_t size;
     Trie_t members;
+    lky_object *parent;
     lky_object *cls;
 
     lky_callable callable;
@@ -52,6 +55,7 @@ typedef struct {
     int mem_count;
     size_t size;
     Trie_t members;
+    lky_object *parent;
     lky_object *cls;
 
     lky_callable callable;
@@ -79,6 +83,7 @@ struct lky_object_function {
     int mem_count;
     size_t size;
     Trie_t members;
+    lky_object *parent;
     lky_object *cls;
 
     lky_callable callable;
@@ -97,6 +102,7 @@ typedef struct {
     int mem_count;
     size_t size;
     Trie_t members;
+    lky_object *parent;
     lky_object *cls;
 
     lky_callable callable;
@@ -112,6 +118,7 @@ typedef struct {
     int mem_count;
     size_t size;
     Trie_t members;
+    lky_object *parent;
     lky_object *cls;
 
     char *name;
@@ -128,6 +135,8 @@ lky_object *lobjb_build_class(lky_object_function *builder, char *refname, lky_o
 lky_object *lobjb_alloc(lky_builtin_type t, lky_builtin_value v);
 lky_object *lobjb_default_callable(lky_object_seq *args, lky_object *self);
 lky_object *lobjb_default_class_callable(lky_object_seq *args, lky_object *self);
+
+char *lobjb_stringify(lky_object *a);
 
 lky_object *lobjb_unary_load_index(lky_object *obj, lky_object *indexer);
 lky_object *lobjb_unary_save_index(lky_object *obj, lky_object *indexer, lky_object *newobj);

@@ -11,6 +11,7 @@
 #include "stanky.h"
 #include "stl_meta.h"
 #include "stl_requisitions.h"
+#include "units.h"
 
 extern ast_node *programBlock;
 extern int yyparse();
@@ -18,6 +19,7 @@ extern FILE *yyin;
 
 int main(int argc, char *argv[])
 {
+    un_setup();   
     if(argc > 1)
     {
         yyin = fopen(argv[1], "r");
@@ -103,4 +105,5 @@ int main(int argc, char *argv[])
         run_repl(&interp);
     }
     pool_drain(&dlmempool);
+    un_clean();
 }

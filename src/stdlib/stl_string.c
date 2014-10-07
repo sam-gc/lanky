@@ -44,6 +44,24 @@ lky_object *stlstr_equals(lky_object_seq *args, lky_object_function *func)
     return lobjb_build_int(!strcmp(stra, strb));
 }
 
+lky_object *stlstr_reverse(lky_object_seq *args, lky_object_function *func)
+{
+    lky_object_custom *self = (lky_object_custom *)func->owner;
+    char *str = self->data;
+    size_t len = strlen(str);
+
+    char nstr[len + 1];
+    int i = 0;
+    for(i = 0; i < len; i++)
+    {
+        nstr[i] = str[len - i - 1];
+    }
+
+    nstr[i] = 0;
+
+    return stlstr_cinit(nstr);
+}
+
 lky_object *stlstr_not_equals(lky_object_seq *args, lky_object_function *func)
 {
     lky_object_custom *self = (lky_object_custom *)func->owner;
@@ -224,6 +242,67 @@ lky_object *stlstr_split(lky_object_seq *args, lky_object_function *func)
     return stlarr_cinit(list);
 }
 
+lky_object *stlstr_fmt(lky_object_seq *args, lky_object_function *func)
+{
+    lky_object_custom *self = (lky_object_custom *)func->owner;
+    char *mestr = self->data;
+
+    lky_object_custom *arg = (lky_object_custom *)args->value;
+    arraylist list = stlarr_unwrap(arg);
+
+    char *buf = malloc(100);
+    size_t buf_size = 100;
+    size_t buf_len = 0;
+    strcpy(buf, "");
+
+    int aidx = 0;
+    
+    int i;
+    for(i = 0; i < mestr[i]; i++)
+    {
+        if(mestr[i] != '@')
+        {
+            if(buf_len + 2 > buf_size)
+            {
+                buf_size *= 2;
+                char *nb = malloc(buf_size);
+                strcpy(nb, buf);
+                free(buf);
+                buf = nb;
+            }
+
+            char cc[2];
+            sprintf(cc, "%c", mestr[i]);
+
+            buf_len += 1;
+
+            strcat(buf, cc);
+            continue;
+        }
+
+        char *ostr = lobjb_stringify(arr_get(&list, aidx));
+        size_t len = strlen(ostr);
+        if(len + buf_len + 1 > buf_size)
+        {
+            buf_size *= 2;
+            char *nb = malloc(buf_size);
+            strcpy(nb, buf);
+            free(buf);
+            buf = nb;
+        }
+
+        aidx++;
+        strcat(buf, ostr);
+        free(ostr);
+        buf_len += len;
+    }
+
+    lky_object *toret = stlstr_cinit(buf);
+    free(buf);
+
+    return toret;
+}
+
 lky_object *stlstr_add(lky_object_seq *args, lky_object_function *func)
 {
     lky_object_custom *self = (lky_object_custom *)func->owner;
@@ -325,8 +404,10 @@ lky_object *stlstr_cinit(char *str)
     
     lobj_set_class(obj, stlstr_class());
     lobj_set_member(obj, "length", lobjb_build_int(strlen(copied)));
+    lobj_set_member(obj, "reverse", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlstr_reverse));
     lobj_set_member(obj, "stringify_", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlstr_stringify));
     lobj_set_member(obj, "split", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlstr_split));
+    lobj_set_member(obj, "fmt", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlstr_fmt));
     lobj_set_member(obj, "op_get_index_", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlstr_get_index));
     lobj_set_member(obj, "op_set_index_", lobjb_build_func_ex(obj, 2, (lky_function_ptr)stlstr_set_index));
     lobj_set_member(obj, "op_equals_", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlstr_equals));
@@ -335,6 +416,7 @@ lky_object *stlstr_cinit(char *str)
     lobj_set_member(obj, "op_gt_", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlstr_greater_than));
     lobj_set_member(obj, "op_lt_", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlstr_lesser_than));
     lobj_set_member(obj, "op_multiply_", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlstr_multiply));
+    lobj_set_member(obj, "op_modulo_", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlstr_fmt));
     
     cobj->freefunc = stlstr_free;
     
