@@ -5,8 +5,8 @@ f = Io.fopen("ospd.txt", "r");
 words = Trie();
 
 Io.putln("Loading dictionary...");
-loop(f.EOF != 1) {
-	if(word = f.getln()) {
+for f.EOF != 1 {
+	if word = f.getln() {
 		words.put(word);
 
 	}
@@ -72,8 +72,8 @@ Solver = class() -> self {
 	};
 
 	self.printRep = func() {
-		loop(x = 0; x < 4; x = x + 1) {
-			loop(y = 0; y < 4; y = y + 1) {
+		for x = 0; x < 4; x = x + 1 {
+			for y = 0; y < 4; y = y + 1 {
 				t = self.board[y][x];
 				Io.put(t.c + "(" + t.x + " " + t.y + "),");
 			}
@@ -86,12 +86,12 @@ Solver = class() -> self {
 		Io.putln("Starting from " + t.c);
 		work = [ [t] ];
 
-		loop(work.count) {
+		for work.count {
 			curr = work.removeAt(0);
 
 			tmpStr = combineArr(curr);
 
-			if(words.contains(tmpStr) & tmpStr.length > 2) {
+			if words.contains(tmpStr) & tmpStr.length > 2 {
 				self.found.append(tmpStr);
 			}
 
@@ -100,7 +100,7 @@ Solver = class() -> self {
 				nX = last.x + n[0];
 				nY = last.y + n[1];
 
-				if(nX < 0 | nX > 3 | nY < 0 | nY > 3) {
+				if nX < 0 | nX > 3 | nY < 0 | nY > 3 {
 					ret 0;
 				}
 
@@ -111,10 +111,10 @@ Solver = class() -> self {
 
 				nC = self.board[nX][nY];
 
-				if(tmp.contains(nC) == 0) {
+				if tmp.contains(nC) == 0 {
 					tmp.append(nC);
 
-					if(words.hasPath(combineArr(tmp))) {
+					if words.hasPath(combineArr(tmp)) {
 						work.append(tmp);
 					}
 				}
@@ -127,7 +127,7 @@ sol = Solver();
 Meta.examine(sol.solveFrom);
 Meta.examine(sol.solve);
 
-loop(i = 0; i < 16; i = i + 1) {
+for i = 0; i < 16; i = i + 1 {
 	sol.add(Io.prompt("Tile > "));
 }
 
