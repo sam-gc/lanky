@@ -23,6 +23,7 @@
 %token <token> TCEQ TCNE TCLT TCLE TCGT TCGE TEQUAL TAND TOR TNOT
 %token <token> TLPAREN TRPAREN TLBRACE TRBRACE TLBRACKET TRBRACKET TCOMMA TDOT
 %token <token> TPLUS TMINUS TMUL TDIV TMOD TPOW
+%token <token> TPLUSE TMINUSE TMULE TDIVE TMODE TPOWE TORE TANDE
 %token <token> TIF TELIF TELSE TPRT TCOMMENT TLOOP TCOLON TFUNC TSEMI TRET TQUESTION TARROW TCLASS TNIL TCONTINUE TBREAK
 
 /* Define the type of node our nonterminal symbols represent.
@@ -30,11 +31,12 @@
    we call an ident (defined by union type ident) we are really
    calling an (NIdentifier*). It makes the compiler happy.
  */
-%type <node> program stmts stmt expression ifblock block elifblock elifblocks elseblock loopblock funcdecl arg arglist call calllist memaccess classdecl arrdecl arraccess
+%type <node> program stmts stmt expression ifblock block elifblock elifblocks elseblock loopblock funcdecl arg arglist call calllist memaccess classdecl arrdecl arraccess opapply
 
 /* Operator precedence for mathematical operators */
 %nonassoc TPRT TRET TNIL
 %left TEQUAL
+%left TPLUSE TMINUSE TMULE TDIVE TMODE TPOWE TORE TANDE
 %left TQUESTION TCOLON
 %left TOR
 %left TAND
@@ -102,6 +104,16 @@ arrdecl : TLBRACKET TRBRACKET { $$ = create_array_node(NULL); }
     | TLBRACKET calllist TRBRACKET { $$ = create_array_node($2); }
     ;
 
+opapply : TIDENTIFIER TPLUSE expression { $$ = create_assignment_node($1, create_binary_node(create_value_node(VVAR, (void *)$1), $3, '+')); }
+    | TIDENTIFIER TMINUSE expression { $$ = create_assignment_node($1, create_binary_node(create_value_node(VVAR, (void *)$1), $3, '-'))    ; }
+    | TIDENTIFIER TMULE expression { $$ = create_assignment_node($1, create_binary_node(create_value_node(VVAR, (void *)$1), $3, '*'))    ; }
+    | TIDENTIFIER TDIVE expression { $$ = create_assignment_node($1, create_binary_node(create_value_node(VVAR, (void *)$1), $3, '/'))    ; }
+    | TIDENTIFIER TMODE expression { $$ = create_assignment_node($1, create_binary_node(create_value_node(VVAR, (void *)$1), $3, '%'))    ; }
+    | TIDENTIFIER TPOWE expression { $$ = create_assignment_node($1, create_binary_node(create_value_node(VVAR, (void *)$1), $3, '^'))    ; }
+    | TIDENTIFIER TORE expression { $$ = create_assignment_node($1, create_binary_node(create_value_node(VVAR, (void *)$1), $3, '|'))    ; }
+    | TIDENTIFIER TANDE expression { $$ = create_assignment_node($1, create_binary_node(create_value_node(VVAR, (void *)$1), $3, '&'))    ; }
+    ;
+
 expression : 
     TINTEGER { $$ = create_value_node(VINT, (void *)$1); }
     | TFLOAT { $$ = create_value_node(VDOUBLE, (void *)$1); }
@@ -111,6 +123,7 @@ expression :
     | TIDENTIFIER { $$ = create_value_node(VVAR, (void *)$1); }
     | TBREAK { $$ = create_one_off_node('b'); }
     | TCONTINUE { $$ = create_one_off_node('c'); }
+    | opapply
     | expression TPLUS expression { $$ = create_binary_node($1, $3, '+'); }
     | expression TMINUS expression { $$ = create_binary_node($1, $3, '-'); }
     | expression TMUL expression { $$ = create_binary_node($1, $3, '*'); }
