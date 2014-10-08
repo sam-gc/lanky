@@ -35,7 +35,7 @@ comment (\#|(\-\-)).*(\n)
 "elif"                  return TOKEN(TELIF);
 "else"                  return TOKEN(TELSE);
 "_prt"                  return TOKEN(TPRT);
-"loop"                  return TOKEN(TLOOP);
+"for"                  return TOKEN(TLOOP);
 "continue"              return TOKEN(TCONTINUE);
 "break"                 return TOKEN(TBREAK);
 "func"                  return TOKEN(TFUNC);

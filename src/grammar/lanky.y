@@ -58,21 +58,22 @@ stmts : stmt { $$ = create_root_node(); ast_add_node($$, $1); }
     | stmts stmt { ast_add_node($1, $2); }
     ;
 block : TLBRACE stmts TRBRACE { $$ = $2; }
+    | TLBRACE TRBRACE { $$ = create_root_node(); }
     ;
-ifblock : TIF TLPAREN expression TRPAREN block { $$ = create_if_node($3, $5); }
-    | TIF TLPAREN expression TRPAREN block elseblock { $$ = create_if_node($3, $5); ast_add_if_node($$, $6); }
-    | TIF TLPAREN expression TRPAREN block elifblocks elseblock { $$ = create_if_node($3, $5); ast_add_if_node($$, $6); ast_add_if_node($$, $7); }
-    | TIF TLPAREN expression TRPAREN block elifblocks { $$ = create_if_node($3, $5); ast_add_if_node($$, $6); }
+ifblock : TIF  expression  block { $$ = create_if_node($2, $3); }
+    | TIF expression  block elseblock { $$ = create_if_node($2, $3); ast_add_if_node($$, $4); }
+    | TIF expression  block elifblocks elseblock { $$ = create_if_node($2, $3); ast_add_if_node($$, $4); ast_add_if_node($$, $5); }
+    | TIF  expression  block elifblocks { $$ = create_if_node($2, $3); ast_add_if_node($$, $4); }
     ;
-elifblock : TELIF TLPAREN expression TRPAREN block { $$ = create_if_node($3, $5); }
+elifblock : TELIF  expression  block { $$ = create_if_node($2, $3); }
     ;
 elifblocks : elifblock
     | elifblocks elifblock { ast_add_if_node($1, $2); }
     ;
 elseblock : TELSE block { $$ = create_if_node(NULL, $2); }
     ;
-loopblock : TLOOP TLPAREN expression TRPAREN block { $$ = create_loop_node(NULL, $3, NULL, $5); }
-    | TLOOP TLPAREN stmt stmt expression TRPAREN block { $$ = create_loop_node($3, $4, $5, $7); }
+loopblock : TLOOP  expression  block { $$ = create_loop_node(NULL, $2, NULL, $3); }
+    | TLOOP  stmt stmt expression  block { $$ = create_loop_node($2, $3, $4, $5); }
     ;
 arg : TIDENTIFIER { $$ = create_value_node(VVAR, (void *)$1); }
     ;
