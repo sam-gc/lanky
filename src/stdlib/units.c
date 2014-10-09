@@ -153,6 +153,8 @@ int un_get_type_from_string(char *fmt, int *oor, int *idx)
     UN_TRANSLATE(fmt, rad, UN_ANGLE, UNM_ANGLE);
     UN_TRANSLATE(fmt, amin, UN_ANGLE, UNM_ANGLE);
     UN_TRANSLATE(fmt, asec, UN_ANGLE, UNM_ANGLE);
+
+    return -1;
 }
 
 char *un_get_string_from_type(int fmt, int type)
@@ -199,6 +201,8 @@ char *un_get_string_from_type(int fmt, int type)
             UN_RETRANSLATE(fmt, asec);
             UN_RETRANSLATE(fmt, amin);
     }
+
+    return "na";
 }
 
 un_unit un_create(double val, char *fmt)

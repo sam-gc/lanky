@@ -93,6 +93,7 @@ int main(int argc, char *argv[])
         frame.bucket->members = get_stdlib_objects();
         frame.parent_stack = list;
         frame.stack_size = 0;
+        frame.locals_count = 0;
         
         interp.stack = &frame;
         
