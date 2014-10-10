@@ -116,6 +116,7 @@ lky_object *stlmath_get_astro_class()
     lobj_set_member(obj, "massSun", stlun_cinit(1.989e30, "kg"));
     lobj_set_member(obj, "radiusSun", stlun_cinit(6.96e8, "m"));
     lobj_set_member(obj, "lumSun", stlun_cinit(3.847e26, "kg*m^2/s^3"));
+    lobj_set_member(obj, "sbc", stlun_cinit(5.6705, "kg"));
 
     return obj;
 }
