@@ -956,6 +956,9 @@ void compile_unary(compiler_wrapper *cw, ast_node *root)
     case '0':
         istr = LI_PUSH_NIL;
         break;
+    case '-':
+        istr = LI_UNARY_NEGATIVE;
+        break;
     }
 
     append_op(cw, (char)istr);

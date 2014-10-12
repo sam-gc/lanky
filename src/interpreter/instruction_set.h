@@ -17,6 +17,7 @@ typedef enum {
     LI_BINARY_AND,
     LI_BINARY_OR,
     LI_UNARY_NOT,
+    LI_UNARY_NEGATIVE,
     LI_LOAD_CONST,
     LI_PRINT,
     LI_POP,

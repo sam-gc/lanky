@@ -403,6 +403,15 @@ _opcode_whiplash_:
             goto _opcode_whiplash_;
         }
         break;
+        case LI_UNARY_NEGATIVE:
+        {
+            lky_object *a = POP();
+            lky_object *obj = lobjb_unary_negative(a);
+
+            PUSH(obj);
+            goto _opcode_whiplash_;
+        }
+        break;
         case LI_PRINT:
         {
             lky_object *a = POP();

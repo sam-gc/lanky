@@ -49,6 +49,7 @@
 %nonassoc TIF TELIF TELSE TLOOP TFUNC TCLASS
 %nonassoc TLPAREN TLBRACKET TRBRACKET
 %left TDOT
+%nonassoc TNEGATIVE
 
 %start program
 
@@ -154,6 +155,7 @@ expression :
     | TPRT expression { $$ = create_unary_node($2, 'p'); }
     | TNOT expression { $$ = create_unary_node($2, '!'); }
     | TRET expression { $$ = create_unary_node($2, 'r'); }
+    | TMINUS expression %prec TNEGATIVE { $$ = create_unary_node($2, '-'); }
     ;
 
 %%

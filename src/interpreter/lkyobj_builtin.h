@@ -140,6 +140,7 @@ char *lobjb_stringify(lky_object *a);
 
 lky_object *lobjb_unary_load_index(lky_object *obj, lky_object *indexer);
 lky_object *lobjb_unary_save_index(lky_object *obj, lky_object *indexer, lky_object *newobj);
+lky_object *lobjb_unary_negative(lky_object *obj);
 
 lky_object_seq *lobjb_make_seq_node(lky_object *value);
 void lobjb_free_seq(lky_object_seq *seq);

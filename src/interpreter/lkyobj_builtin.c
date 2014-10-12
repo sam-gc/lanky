@@ -333,6 +333,22 @@ lky_object *lobjb_unary_save_index(lky_object *obj, lky_object *indexer, lky_obj
     return ret;
 }
 
+lky_object *lobjb_unary_negative(lky_object *obj)
+{
+    if(obj->type != LBI_FLOAT && obj->type != LBI_INTEGER)
+        return &lky_nil;
+
+    switch(obj->type)
+    {
+        case LBI_FLOAT:
+            return lobjb_build_float(-OBJ_NUM_UNWRAP(obj));
+        case LBI_INTEGER:
+            return lobjb_build_int(-OBJ_NUM_UNWRAP(obj));
+    }
+
+    return NULL;
+}
+
 //lky_object *lobjb_default_class_callable(lky_object_seq *args, lky_object *self)
 //{
 //    lky_object_class *cls = (lky_object_class *)self;
