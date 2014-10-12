@@ -102,7 +102,7 @@ lky_object *stlarr_get(lky_object_seq *args, lky_object_function *func)
     lky_object_custom *self = (lky_object_custom *)func->owner;
     stlarr_data *data = self->data;
     lky_object_builtin *b = (lky_object_builtin *)args->value;
-    long idx = b->value.i;
+    long idx = OBJ_NUM_UNWRAP(b);
 
     return arr_get(&data->container, idx);
 }
