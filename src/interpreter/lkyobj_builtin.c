@@ -238,7 +238,7 @@ lky_object *lobjb_default_callable(lky_object_seq *args, lky_object *self)
 
 //    gc_add_root_object(func);
     long i;
-    for(i = 0; args; i++, args = args->next)
+    for(i = 0; args && i < func->callable.argc; i++, args = args->next)
     {
         char *name = code->names[i];
         lobj_set_member(func->bucket, name, (lky_object *)args->value);
@@ -250,6 +250,22 @@ lky_object *lobjb_default_callable(lky_object_seq *args, lky_object *self)
     {
         char *name = code->names[i];
         lobj_set_member(func->bucket, name, &lky_nil);
+    }
+
+    char needs_va_args = 0;
+    arraylist list = arr_create(10);
+    for(; args; args = args->next)
+    {
+        needs_va_args = 1;
+        arr_append(&list, args->value);
+    }
+
+    if(needs_va_args)
+        lobj_set_member(func->bucket, "_va_args", stlarr_cinit(list));
+    else
+    {
+        lobj_set_member(func->bucket, "_va_args", &lky_nil);
+        arr_free(&list);
     }
 
     lky_object *ret = mach_execute(func);
