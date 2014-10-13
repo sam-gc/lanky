@@ -1132,11 +1132,17 @@ void compile_function_call(compiler_wrapper *cw, ast_node *root)
 
     ast_node *arg = node->arguments;
 
+    int ct = 0;
+
     for(; arg; arg = arg->next)
+    {
         compile(cw, arg);
+        ct++;
+    }
 
     compile(cw, node->ident);
     append_op(cw, LI_CALL_FUNC);
+    append_op(cw, ct);
 
     // cw->save_val = 1;
 }

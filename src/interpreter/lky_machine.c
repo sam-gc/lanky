@@ -500,6 +500,7 @@ _opcode_whiplash_:
         break;
         case LI_CALL_FUNC:
         {
+            char ct = frame->ops[++frame->pc];
             lky_object *obj = POP();
 
             lky_object_function *func = (lky_object_function *)obj;
@@ -507,7 +508,7 @@ _opcode_whiplash_:
             lky_object_seq *seq = NULL;
             lky_object_seq *first = NULL;
             int i;
-            for(i = 0; i < c.argc; i++)
+            for(i = 0; i < ct; i++)
             {
                 lky_object *arg = POP();
                 lky_object_seq *ns = lobjb_make_seq_node(arg);

@@ -246,6 +246,12 @@ lky_object *lobjb_default_callable(lky_object_seq *args, lky_object *self)
         // code->locals[i] = args->value;
     }
 
+    for(; i < func->callable.argc; i++)
+    {
+        char *name = code->names[i];
+        lobj_set_member(func->bucket, name, &lky_nil);
+    }
+
     lky_object *ret = mach_execute(func);
 //    gc_remove_root_object(func);
     return ret;
