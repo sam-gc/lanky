@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-lky_object lky_nil = {LBI_NIL, 0, sizeof(lky_object), {NULL}};
+lky_object lky_nil = {LBI_NIL, 0, sizeof(lky_object), {NULL}, NULL, NULL, {NULL, 0}};
 
 int alloced = 0;
 lky_object *lobj_alloc()

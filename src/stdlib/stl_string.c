@@ -3,6 +3,8 @@
 #include "stl_string.h"
 #include "stl_array.h"
 
+lky_object *stlstr_fmt_ext(char *mestr, arraylist list);
+
 lky_object *stlstr_stringify(lky_object_seq *args, lky_object_function *func)
 {
     return func->owner;
@@ -242,7 +244,23 @@ lky_object *stlstr_split(lky_object_seq *args, lky_object_function *func)
     return stlarr_cinit(list);
 }
 
-lky_object *stlstr_fmt(lky_object_seq *args, lky_object_function *func)
+lky_object *stlstr_fmt_func(lky_object_seq *args, lky_object_function *func)
+{
+    lky_object_custom *self = (lky_object_custom *)func->owner;
+    char *mestr = self->data;
+
+    arraylist list = arr_create(10);
+
+    for(; args; args = args->next)
+        arr_append(&list, args->value);
+
+    lky_object *ret = stlstr_fmt_ext(mestr, list);
+
+    arr_free(&list);
+    return ret;
+}
+
+lky_object *stlstr_fmt_modulo(lky_object_seq *args, lky_object_function *func)
 {
     lky_object_custom *self = (lky_object_custom *)func->owner;
     char *mestr = self->data;
@@ -250,6 +268,11 @@ lky_object *stlstr_fmt(lky_object_seq *args, lky_object_function *func)
     lky_object_custom *arg = (lky_object_custom *)args->value;
     arraylist list = stlarr_unwrap(arg);
 
+    return stlstr_fmt_ext(mestr, list);
+}
+
+lky_object *stlstr_fmt_ext(char *mestr, arraylist list)
+{
     char *buf = malloc(100);
     size_t buf_size = 100;
     size_t buf_len = 0;
@@ -311,37 +334,7 @@ lky_object *stlstr_add(lky_object_seq *args, lky_object_function *func)
     lky_object *other = (lky_object *)args->value;
     char sbf = ((lky_object_builtin *)args->next->value)->value.i;
     
-    lky_object *ostr = NULL;
-    
-    switch(other->type)
-    {
-        case LBI_CUSTOM:
-        case LBI_CUSTOM_EX:
-        {
-            lky_object_function *strf = (lky_object_function *)lobj_get_member(other, "stringify_");
-            if(!strf)
-            {
-                // TODO: Error
-            }
-            
-            ostr = (lky_object *)(strf->callable.function)(NULL, (struct lky_object *)strf);
-//            ostr = ((lky_object_custom *)nstr)->data;
-        }
-        break;
-        case LBI_FLOAT:
-        case LBI_INTEGER:
-        {
-            ostr = lobjb_num_to_string(other);
-        }
-        break;
-        default:
-            break;
-    }
-    
-    if(ostr->cls != stlstr_class())
-        return &lky_nil;
-
-    char *chr = ((lky_object_custom *)ostr)->data;
+    char *chr = lobjb_stringify(other);
     
     size_t len = strlen(chr) + strlen(mestr) + 1;
     char *newstr = malloc(len);
@@ -354,6 +347,7 @@ lky_object *stlstr_add(lky_object_seq *args, lky_object_function *func)
     
     lky_object *ret = stlstr_cinit(newstr);
     free(newstr);
+    free(chr);
     
     return ret;
 }
@@ -407,7 +401,7 @@ lky_object *stlstr_cinit(char *str)
     lobj_set_member(obj, "reverse", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlstr_reverse));
     lobj_set_member(obj, "stringify_", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlstr_stringify));
     lobj_set_member(obj, "split", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlstr_split));
-    lobj_set_member(obj, "fmt", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlstr_fmt));
+    lobj_set_member(obj, "fmt", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlstr_fmt_func));
     lobj_set_member(obj, "op_get_index_", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlstr_get_index));
     lobj_set_member(obj, "op_set_index_", lobjb_build_func_ex(obj, 2, (lky_function_ptr)stlstr_set_index));
     lobj_set_member(obj, "op_equals_", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlstr_equals));
@@ -416,7 +410,7 @@ lky_object *stlstr_cinit(char *str)
     lobj_set_member(obj, "op_gt_", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlstr_greater_than));
     lobj_set_member(obj, "op_lt_", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlstr_lesser_than));
     lobj_set_member(obj, "op_multiply_", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlstr_multiply));
-    lobj_set_member(obj, "op_modulo_", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlstr_fmt));
+    lobj_set_member(obj, "op_modulo_", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlstr_fmt_modulo));
     
     cobj->freefunc = stlstr_free;
     

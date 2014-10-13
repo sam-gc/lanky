@@ -4,6 +4,7 @@
 #define OBJ_NUM_UNWRAP(obj) (((lky_object_builtin *)obj)->type == LBI_FLOAT ? ((lky_object_builtin *)obj)->value.d : ((lky_object_builtin *)obj)->value.i)
 #define BIN_ARGS lky_object *a, lky_object *b
 #define BI_CAST(o, n) lky_object_builtin * n = (lky_object_builtin *) o
+#define GET_VA_ARGS(func) (lobj_get_member((lky_object *)func->bucket, "_va_args"))
 
 #include "lky_object.h"
 #include "arraylist.h"
