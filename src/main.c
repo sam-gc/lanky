@@ -11,6 +11,7 @@
 #include "stanky.h"
 #include "stl_meta.h"
 #include "stl_requisitions.h"
+#include "stl_os.h"
 #include "units.h"
 
 extern ast_node *programBlock;
@@ -20,6 +21,7 @@ extern FILE *yyin;
 int main(int argc, char *argv[])
 {
     un_setup();   
+    stlos_init(argc - 1, argv + 1);
     if(argc > 1)
     {
         yyin = fopen(argv[1], "r");
