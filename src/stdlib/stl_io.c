@@ -43,6 +43,15 @@ lky_object *stlio_putln(lky_object_seq *args, lky_object *func)
     return &lky_nil;
 }
 
+lky_object *stlio_printf(lky_object_seq *args, lky_object *func)
+{
+    arraylist list = arr_create(10);
+    MAKE_VA_ARGS(args, list, 1);
+    lobjb_print(stlstr_fmt_ext(((lky_object_custom *)args->value)->data, list));
+
+    return &lky_nil;
+}
+
 void stlio_file_dealloc(lky_object_custom *obj)
 {
     free(obj->data);
@@ -222,6 +231,7 @@ lky_object *stlio_get_class()
     lobj_set_member(obj, "prompt", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlio_input));
     lobj_set_member(obj, "put", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlio_put));
     lobj_set_member(obj, "putln", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlio_putln));
+    lobj_set_member(obj, "printf", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlio_printf));
     lobj_set_member(obj, "fopen", lobjb_build_func_ex(obj, 2, (lky_function_ptr)stlio_make_file_object));
     return obj;
 }

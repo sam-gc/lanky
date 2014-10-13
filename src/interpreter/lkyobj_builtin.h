@@ -5,6 +5,7 @@
 #define BIN_ARGS lky_object *a, lky_object *b
 #define BI_CAST(o, n) lky_object_builtin * n = (lky_object_builtin *) o
 #define GET_VA_ARGS(func) (lobj_get_member((lky_object *)func->bucket, "_va_args"))
+#define MAKE_VA_ARGS(args, list, ct) do { lky_object_seq *ab = args; int i = 0; for(; args; i++, args = args->next) { if(i < ct) continue; arr_append(&list, args->value);} args = ab; } while(0)
 
 #include "lky_object.h"
 #include "arraylist.h"

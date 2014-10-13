@@ -3,7 +3,6 @@
 #include "stl_string.h"
 #include "stl_array.h"
 
-lky_object *stlstr_fmt_ext(char *mestr, arraylist list);
 
 lky_object *stlstr_stringify(lky_object_seq *args, lky_object_function *func)
 {
