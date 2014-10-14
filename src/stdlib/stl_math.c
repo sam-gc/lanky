@@ -5,6 +5,9 @@
 #include "stl_array.h"
 #include "stl_units.h"
 
+#define M_PI 3.14159265358979323846
+#define M_E  2.71828182845904523536
+
 #define TOKENPASTE(x, y) x ## y
 #define IS_NUMBER(obj) (obj->type == LBI_FLOAT || obj->type == LBI_INTEGER)
 

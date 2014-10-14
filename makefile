@@ -6,7 +6,8 @@ COMP_OBJ_FILES=$(addprefix obj/compiler/,$(notdir $(COMPILER_SOURCES:.c=.o)))
 INT_OBJ_FILES=$(addprefix obj/interpreter/,$(notdir $(INTERPRETER_SOURCES:.c=.o)))
 STD_OBJ_FILES=$(addprefix obj/stdlib/,$(notdir $(STD_SOURCES:.c=.o)))
 
-CFLAGS=-g -Isrc/interpreter -Isrc/compiler -Isrc/grammar -Isrc/stdlib -rdynamic
+CFLAGS=-g -Isrc/interpreter -Isrc/compiler -Isrc/grammar -Isrc/stdlib -rdynamic -fdiagnostics-color=auto -std=c99
+#CFLAGS=-Isrc/interpreter -Isrc/compiler -Isrc/grammar -Isrc/stdlib -rdynamic -O3 -fdiagnostics-color=auto -std=c99
 LDFLAGS=-lm -lreadline -ldl
 COLOR=-fdiagnostics-color=always
 CC=gcc

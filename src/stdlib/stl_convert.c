@@ -1,6 +1,7 @@
 #include <string.h>
 #include "stl_convert.h"
 #include "stl_units.h"
+#include "stl_string.h"
 
 lky_object *stlcon_to_int(lky_object_seq *args, lky_object *func)
 {
@@ -52,8 +53,8 @@ lky_object *stlcon_to_string(lky_object_seq *args, lky_object *func)
 
 lky_object *stlcon_unit(lky_object_seq *args, lky_object *func)
 {
-    lky_object_custom *c = args->value;
-    lky_object *to = args->next->value;
+    lky_object_custom *c = (lky_object_custom *)args->value;
+    lky_object *to = (lky_object *)args->next->value;
 
     char *str = lobjb_stringify(to);
     un_unit t = un_create(0, str);

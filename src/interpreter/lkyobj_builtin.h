@@ -29,6 +29,7 @@ typedef struct {
     size_t size;
     Trie_t members;
     lky_object *parent;
+    lky_object *child;
     
     lky_object *cls;
 
@@ -43,6 +44,7 @@ typedef struct {
     size_t size;
     Trie_t members;
     lky_object *parent;
+    lky_object *child;
     lky_object *cls;
 
     lky_callable callable;
@@ -58,6 +60,7 @@ typedef struct {
     size_t size;
     Trie_t members;
     lky_object *parent;
+    lky_object *child;
     lky_object *cls;
 
     lky_callable callable;
@@ -86,6 +89,7 @@ struct lky_object_function {
     size_t size;
     Trie_t members;
     lky_object *parent;
+    lky_object *child;
     lky_object *cls;
 
     lky_callable callable;
@@ -105,6 +109,7 @@ typedef struct {
     size_t size;
     Trie_t members;
     lky_object *parent;
+    lky_object *child;
     lky_object *cls;
 
     lky_callable callable;
@@ -121,6 +126,7 @@ typedef struct {
     size_t size;
     Trie_t members;
     lky_object *parent;
+    lky_object *child;
     lky_object *cls;
 
     char *name;

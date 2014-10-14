@@ -48,7 +48,7 @@ lky_object *stlarr_add(lky_object_seq *args, lky_object_function *func)
     stlarr_data *data = self->data;
     arraylist list = data->container;
 
-    lky_object *obj = args->value;
+    lky_object *obj = (lky_object *)args->value;
     if(obj->type != LBI_FLOAT && obj->type != LBI_INTEGER)
         return &lky_nil;
 
@@ -246,7 +246,7 @@ lky_object *stlarr_joined(lky_object_seq *args, lky_object_function *func)
     stlarr_data *data = self->data;
     arraylist list = data->container;
 
-    char *joiner = lobj_stringify(args->value);
+    char *joiner = lobj_stringify((lky_object *)args->value);
 
     if(!joiner)
         return &lky_nil;

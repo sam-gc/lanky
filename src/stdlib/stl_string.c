@@ -36,7 +36,7 @@ lky_object *stlstr_equals(lky_object_seq *args, lky_object_function *func)
     
     lky_object_custom *obj = (lky_object_custom *)args->value;
     
-    if(obj->cls != (struct lky_object *)stlstr_class())
+    if((void *)obj->cls != (void *)stlstr_class())
         return &lky_nil;
 
     char *stra = self->data;
@@ -69,7 +69,7 @@ lky_object *stlstr_not_equals(lky_object_seq *args, lky_object_function *func)
 
     lky_object_custom *obj = (lky_object_custom *)args->value;
 
-    if(obj->cls != (struct lky_object *)stlstr_class())
+    if((void *)obj->cls != (void *)stlstr_class())
         return &lky_nil;
 
     char *stra = self->data;
@@ -84,7 +84,7 @@ lky_object *stlstr_greater_than(lky_object_seq *args, lky_object_function *func)
 
     lky_object_custom *obj = (lky_object_custom *)args->value;
 
-    if(obj->cls != (struct lky_object *)stlstr_class())
+    if((void *)obj->cls != (void *)stlstr_class())
         return &lky_nil;
 
     char *stra = self->data;
@@ -99,7 +99,7 @@ lky_object *stlstr_lesser_than(lky_object_seq *args, lky_object_function *func)
 
     lky_object_custom *obj = (lky_object_custom *)args->value;
 
-    if(obj->cls != (struct lky_object *)stlstr_class())
+    if((void *)obj->cls != (void *)stlstr_class())
         return &lky_nil;
 
     char *stra = self->data;
@@ -208,7 +208,7 @@ lky_object *stlstr_split(lky_object_seq *args, lky_object_function *func)
     
     lky_object *ostr = (lky_object *)(strf->callable.function)(NULL, (struct lky_object *)strf);
 
-    if(ostr->cls != stlstr_class())
+    if((void *)ostr->cls != (void *)stlstr_class())
         return &lky_nil;
 
     char *delim = ((lky_object_custom *)ostr)->data;
@@ -265,7 +265,7 @@ lky_object *stlstr_fmt_modulo(lky_object_seq *args, lky_object_function *func)
     char *mestr = self->data;
 
     lky_object_custom *arg = (lky_object_custom *)args->value;
-    arraylist list = stlarr_unwrap(arg);
+    arraylist list = stlarr_unwrap((lky_object *)arg);
 
     return stlstr_fmt_ext(mestr, list);
 }

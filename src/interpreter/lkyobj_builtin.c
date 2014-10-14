@@ -3,6 +3,7 @@
 #include "lky_gc.h"
 #include "stl_string.h"
 #include "stl_object.h"
+#include "stl_array.h"
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
@@ -63,6 +64,8 @@ lky_object_custom *lobjb_build_custom(size_t extra_size)
     obj->freefunc = NULL;
     obj->savefunc = NULL;
     obj->cls = NULL;
+    obj->parent = NULL;
+    obj->child = NULL;
 
     gc_add_object((lky_object *)obj);
 
@@ -287,8 +290,9 @@ lky_object *lobjb_default_class_callable(lky_object_seq *args, lky_object *self)
 
     lky_object *parent_cls = cls->parent_cls;
     lky_callable pc = parent_cls->callable;
-    lky_object *interm = (lky_object *)(pc.function(NULL, parent_cls));
-    outobj->members = interm->members;
+    lky_object *interm = (lky_object *)(pc.function(NULL, (struct lky_object *)parent_cls));
+    outobj->parent = (struct lky_object *)interm;
+    interm->child = (struct lky_object *)outobj;
 
     lobj_set_member(func->bucket, cls->refname, outobj);
 

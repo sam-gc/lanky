@@ -35,6 +35,7 @@ typedef struct lky_object_seq {
     size_t size;
     Trie_t members;
     struct lky_object *parent;
+    struct lky_object *child;
     struct lky_object *cls;
 
     lky_callable callable;
@@ -49,6 +50,7 @@ typedef struct {
     size_t size;
     Trie_t members;
     struct lky_object *parent;
+    struct lky_object *child;
     struct lky_object *cls;
 
     lky_callable callable;

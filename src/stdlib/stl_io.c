@@ -1,6 +1,8 @@
+#define _GNU_SOURCE
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <readline/readline.h>
 #include "stl_io.h"
 #include "stl_array.h"
 #include "stl_string.h"

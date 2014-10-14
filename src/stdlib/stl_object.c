@@ -18,9 +18,14 @@ lky_object *stlobj_equals(lky_object_seq *args, lky_object_function *func)
     // TODO: Using func->owner for self is problematic
     // for subclassing.
     lky_object *self = func->owner;
-    lky_object *other = args->value;
+    lky_object *other = (lky_object *)args->value;
 
-    return lobjb_build_int(self == other);
+    char is_equal = 0;
+    for(; other; other = (lky_object *)other->parent)
+        if(other == self)
+            is_equal = 1;
+
+    return lobjb_build_int(is_equal);
 }
 
 lky_object *stlobj_cinit()

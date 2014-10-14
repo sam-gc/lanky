@@ -113,7 +113,7 @@ lky_object *stlun_cinit_ex(un_unit u)
     lobj_set_member(obj, "op_divide_", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlun_divide));
     lobj_set_member(obj, "val", lobjb_build_float(u.val));
 
-    self->freefunc = stlun_dealloc;
+    self->freefunc = (lobjb_custom_ex_dealloc_function)stlun_dealloc;
 
     return (lky_object *)self;
 }

@@ -4,7 +4,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-lky_mempool dlmempool = {NULL, &dlclose};
+void stlreq_wrap_dlclose(void *obj)
+{
+    dlclose(obj);
+}
+
+lky_mempool dlmempool = {NULL, &stlreq_wrap_dlclose};
 
 lky_object *stlreq_import(lky_object_seq *args, lky_object_function *func)
 {

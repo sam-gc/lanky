@@ -6,6 +6,7 @@
     ast_node *programBlock; /* the top level root node of our final AST */
 
     extern int yylex();
+    extern int yyerror(char *);
 %}
 
 /* Represents the many different ways we can access our data */

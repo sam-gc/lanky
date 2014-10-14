@@ -668,8 +668,12 @@ void compile_loop(compiler_wrapper *cw, ast_node *root)
     append_op(cw, -1); // This allows us to index locations beyond 255 in the
     append_op(cw, -1); // interpreter.
     
-    arr_append(&cw->loop_start_stack, (void *)tagLoop);
-    arr_append(&cw->loop_end_stack, (void *)tagOut);
+    lky_object *wrapLoop = lobjb_build_int(tagLoop);
+    lky_object *wrapOut = lobjb_build_int(tagOut);
+    pool_add(&ast_memory_pool, wrapLoop);
+    pool_add(&ast_memory_pool, wrapOut);
+    arr_append(&cw->loop_start_stack, wrapLoop);
+    arr_append(&cw->loop_end_stack, wrapOut);
 
     compile_compound(cw, node->payload->next);
 
@@ -710,10 +714,10 @@ void compile_one_off(compiler_wrapper *cw, ast_node *root)
     switch(node->opt)
     {
         case 'c':
-            jix = arr_get(&cw->loop_start_stack, cw->loop_start_stack.count - 1);
+            jix = OBJ_NUM_UNWRAP(arr_get(&cw->loop_start_stack, cw->loop_start_stack.count - 1));
             break;
         case 'b':
-            jix = arr_get(&cw->loop_end_stack, cw->loop_end_stack.count - 1);
+            jix = OBJ_NUM_UNWRAP(arr_get(&cw->loop_end_stack, cw->loop_end_stack.count - 1));
             break;
     }
 

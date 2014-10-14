@@ -5,11 +5,13 @@
 #define SAVE_TOKEN (yylval.string = alloc_str(yytext))
 #define TOKEN(t) (yylval.token = t)
 char yyyhad_error = 0;
-void yyerror(char *s)
+int yyerror(char *s)
     {
           printf("%d: %s at %s\n", yylineno, s, yytext);
           yyyhad_error = 1;
     }
+
+int fileno(FILE *stream);
 %}
 
 %option noyywrap
