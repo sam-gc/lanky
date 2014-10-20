@@ -264,10 +264,10 @@ lky_object *lobjb_default_callable(lky_object_seq *args, lky_object *self)
     }
 
     if(needs_va_args)
-        lobj_set_member(func->bucket, "_va_args", stlarr_cinit(list));
+        lobj_set_member(func->bucket, "va_args_", stlarr_cinit(list));
     else
     {
-        lobj_set_member(func->bucket, "_va_args", &lky_nil);
+        lobj_set_member(func->bucket, "va_args_", &lky_nil);
         arr_free(&list);
     }
 
