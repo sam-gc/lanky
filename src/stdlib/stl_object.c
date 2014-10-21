@@ -39,6 +39,12 @@ lky_object *stlobj_cinit()
     return obj;
 }
 
+void stlobj_seed(lky_object *obj)
+{
+    lobj_set_member(obj, "stringify_", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlobj_stringify));
+    lobj_set_member(obj, "op_equals_", lobjb_build_func_ex(obj, 2, (lky_function_ptr)stlobj_equals));
+}
+
 lky_object *stlobj_build(lky_object_seq *args, lky_object_function *function)
 {
     return stlobj_cinit();

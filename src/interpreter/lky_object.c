@@ -22,6 +22,7 @@ lky_object *lobj_alloc()
     obj->parent = NULL;
     obj->child = NULL;
 
+    //stlobj_seed(obj);
     // obj->value = value;
     // alloced++;
     return obj;

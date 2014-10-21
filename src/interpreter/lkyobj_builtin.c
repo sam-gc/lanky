@@ -67,6 +67,8 @@ lky_object_custom *lobjb_build_custom(size_t extra_size)
     obj->parent = NULL;
     obj->child = NULL;
 
+    stlobj_seed((lky_object *)obj);
+
     gc_add_object((lky_object *)obj);
 
     return obj;
@@ -85,7 +87,7 @@ lky_object *lobjb_build_func(lky_object_code *code, int argc, arraylist inherite
     func->bucket = NULL;
     func->owner = NULL;
     func->cls = NULL;
-    
+
     func->interp = interp;
 
     func->parent_stack = inherited;
@@ -144,7 +146,7 @@ lky_object *lobjb_build_class(lky_object_function *builder, char *refname, lky_o
 
     cls->builder = builder;
     cls->refname = refname;
-    cls->parent_cls = parent_class ? parent_class : stlobj_get_class();
+    //cls->parent_cls = parent_class ? parent_class : stlobj_get_class();
     gc_add_object((lky_object *)cls);
 
     lky_callable c;
@@ -198,6 +200,20 @@ char *lobjb_stringify(lky_object *a)
             strcpy(ret, s->data);
             break;
         }
+        case LBI_CLASS:
+            ret = malloc(100);
+            sprintf(ret, "(lky_object_class | %p)", a);
+            break;
+        case LBI_FUNCTION:
+            if(((lky_object_function *)a)->code == NULL) // We are dealing with a native function
+            {
+                ret = malloc(150);
+                sprintf(ret, "(lky_object_function::native | %p)", a);
+                break;
+            }
+            ret = malloc(100);
+            sprintf(ret, "(lky_object_function | %p)", a);
+            break;
         default:
             ret = malloc(100);
             sprintf(ret, "%p", b);
@@ -288,12 +304,13 @@ lky_object *lobjb_default_class_callable(lky_object_seq *args, lky_object *self)
     outobj->cls = (struct lky_object *)cls;
     rc_incr(outobj);
 
-    lky_object *parent_cls = cls->parent_cls;
-    lky_callable pc = parent_cls->callable;
-    lky_object *interm = (lky_object *)(pc.function(NULL, (struct lky_object *)parent_cls));
-    outobj->parent = (struct lky_object *)interm;
-    interm->child = (struct lky_object *)outobj;
+    //lky_object *parent_cls = cls->parent_cls;
+    //lky_callable pc = parent_cls->callable;
+    //lky_object *interm = (lky_object *)(pc.function(NULL, (struct lky_object *)parent_cls));
+    //utobj->parent = (struct lky_object *)interm;
+    //interm->child = (struct lky_object *)outobj;
 
+    stlobj_seed(outobj);
     lobj_set_member(func->bucket, cls->refname, outobj);
 
     gc_add_root_object((lky_object *)args);
