@@ -503,8 +503,6 @@ _opcode_whiplash_:
             char ct = frame->ops[++frame->pc];
             lky_object *obj = POP();
 
-            lky_object_function *func = (lky_object_function *)obj;
-            lky_callable c = func->callable;
             lky_object_seq *seq = NULL;
             lky_object_seq *first = NULL;
             int i;
@@ -526,8 +524,7 @@ _opcode_whiplash_:
                 }
             }
 
-            lky_function_ptr ptr = c.function;
-            lky_object *ret = (lky_object *)(*ptr)(seq, (struct lky_object *)func);
+            lky_object *ret = lobjb_call(obj, seq);
 
 //            lobjb_free_seq(seq);
             if(seq)
@@ -609,7 +606,7 @@ _opcode_whiplash_:
 
             lky_object *cls = lobjb_build_class(func, name, NULL);
 
-            PUSH_RC(cls);
+            PUSH(cls);
             goto _opcode_whiplash_;
         }
         break;

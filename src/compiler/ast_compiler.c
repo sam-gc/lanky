@@ -1374,12 +1374,12 @@ lky_object_code *compile_ast_ext(ast_node *root, compiler_wrapper *incw)
     code->mem_count = 0;
     code->type = LBI_CODE;
     code->num_names = cw.rnames.count;
-    code->members = trie_new();
+    //code->members = trie_new();
     code->ops = finalize_ops(&cw);
     code->op_len = cw.rops.count;
     code->locals = malloc(sizeof(void *) * cw.local_idx);
     code->names = make_names_array(&cw);
-    code->cls = NULL;
+    //code->cls = NULL;
     code->stack_size = calculate_max_stack_depth(code->ops, (int)code->op_len);
 
     int i;

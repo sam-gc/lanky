@@ -162,7 +162,8 @@ lky_object *stlarr_for_each(lky_object_seq *args, lky_object_function *func)
         if(useidx)
             seq->next = lobjb_make_seq_node(lobjb_build_int(i));
 
-        callback->callable.function(seq, (struct lky_object *)callback);
+        //callback->callable.function(seq, (struct lky_object *)callback);
+        lobjb_call((lky_object *)callback, seq);
     }
 
 //    gc_remove_root_object(self);

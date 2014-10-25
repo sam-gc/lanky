@@ -27,14 +27,7 @@ typedef struct {
     lky_builtin_type type;
     int mem_count;
     size_t size;
-    Trie_t members;
-    lky_object *parent;
-    lky_object *child;
     
-    lky_object *cls;
-
-    lky_callable callable;
-
     lky_builtin_value value;
 } lky_object_builtin;
 
@@ -58,12 +51,6 @@ typedef struct {
     lky_builtin_type type;
     int mem_count;
     size_t size;
-    Trie_t members;
-    lky_object *parent;
-    lky_object *child;
-    lky_object *cls;
-
-    lky_callable callable;
 
     long num_constants;
     long num_locals;
@@ -88,9 +75,6 @@ struct lky_object_function {
     int mem_count;
     size_t size;
     Trie_t members;
-    lky_object *parent;
-    lky_object *child;
-    lky_object *cls;
 
     lky_callable callable;
 
@@ -108,9 +92,6 @@ typedef struct {
     int mem_count;
     size_t size;
     Trie_t members;
-    lky_object *parent;
-    lky_object *child;
-    lky_object *cls;
 
     lky_callable callable;
 
@@ -133,6 +114,7 @@ typedef struct {
     char *text;
 } lky_object_error;
 
+lky_object *lobjb_call(lky_object *func, lky_object_seq *args);
 lky_object *lobjb_build_int(long value);
 lky_object *lobjb_build_float(double value);
 lky_object *lobjb_build_error(char *name, char *text);

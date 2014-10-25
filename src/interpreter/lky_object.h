@@ -33,12 +33,6 @@ typedef struct lky_object_seq {
     lky_builtin_type type;
     int mem_count;
     size_t size;
-    Trie_t members;
-    struct lky_object *parent;
-    struct lky_object *child;
-    struct lky_object *cls;
-
-    lky_callable callable;
 
     struct lky_object *value;
     struct lky_object_seq *next;

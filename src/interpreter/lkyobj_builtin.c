@@ -14,10 +14,10 @@ lky_object *lobjb_alloc(lky_builtin_type t, lky_builtin_value v)
     obj->type = t;
     obj->size = sizeof(lky_object_builtin);
     obj->mem_count = 0;
-    obj->members = trie_new();
-    obj->members.free_func = (trie_pointer_function)(&rc_decr);
+    //obj->members = trie_new();
+    //obj->members.free_func = (trie_pointer_function)(&rc_decr);
     obj->value = v;
-    obj->cls = NULL;
+    //obj->cls = NULL;
     gc_add_object((lky_object *)obj);
 
     return (lky_object *)obj;
@@ -86,7 +86,7 @@ lky_object *lobjb_build_func(lky_object_code *code, int argc, arraylist inherite
     func->code = code;
     func->bucket = NULL;
     func->owner = NULL;
-    func->cls = NULL;
+    //func->cls = NULL;
 
     func->interp = interp;
 
@@ -116,7 +116,7 @@ lky_object *lobjb_build_func_ex(lky_object *owner, int argc, lky_function_ptr pt
     
     func->code = NULL;
     func->bucket = NULL;
-    func->cls = NULL;
+    //func->cls = NULL;
 
     func->parent_stack = arr_create(1);
 
@@ -140,9 +140,9 @@ lky_object *lobjb_build_class(lky_object_function *builder, char *refname, lky_o
     cls->type = LBI_CLASS;
     cls->mem_count = 0;
     cls->size = sizeof(lky_object_class);
-    cls->members = trie_new();
-    cls->members.free_func = (trie_pointer_function)(&rc_decr);
-    cls->cls = NULL;
+    //cls->members = trie_new();
+    //cls->members.free_func = (trie_pointer_function)(&rc_decr);
+    //cls->cls = NULL;
 
     cls->builder = builder;
     cls->refname = refname;
@@ -246,6 +246,15 @@ lky_object *lobjb_num_to_string(lky_object *a)
     str_print(b->type, b->value, str);
     
     return stlstr_cinit(str);
+}
+
+lky_object *lobjb_call(lky_object *func, lky_object_seq *args)
+{
+    if(func->type != LBI_FUNCTION)
+        return NULL;
+
+    lky_callable c = ((lky_object_function *)func)->callable;
+    return (lky_object *)c.function(args, (struct lky_object *)func);
 }
 
 lky_object *lobjb_default_callable(lky_object_seq *args, lky_object *self)
@@ -456,9 +465,7 @@ lky_object_seq *lobjb_make_seq_node(lky_object *value)
     lky_object_seq *seq = malloc(sizeof(lky_object_seq));
     seq->type = LBI_SEQUENCE;
     seq->mem_count = 0;
-    seq->members = trie_new();
     seq->size = sizeof(lky_object_seq);
-    seq->cls = NULL;
     gc_add_object((lky_object *)seq);
 
     seq->value = (struct lky_object *)value;
@@ -595,7 +602,7 @@ lky_object *lobjb_deserialize_code(FILE *f)
     lky_object_code *obj = malloc(sizeof(lky_object_code));
     obj->constants = con;
     obj->type = LBI_CODE;
-    obj->members = trie_new();
+    //obj->members = trie_new();
     obj->type = LBI_CODE;
     obj->size = sizeof(lky_object_code);
     obj->mem_count = 0;
@@ -606,7 +613,7 @@ lky_object *lobjb_deserialize_code(FILE *f)
     obj->ops = ops;
     obj->op_len = oplen;
     obj->names = names;
-    obj->cls = NULL;
+    //obj->cls = NULL;
     obj->stack_size = (int)stack_size;
 
     gc_add_object((lky_object *)obj);
@@ -706,14 +713,14 @@ lky_object_code *lobjb_load_file(char *name)
     obj->size = sizeof(lky_object_code);
     obj->num_constants = len;
     obj->num_locals = locals;
-    obj->members = trie_new();
+    //obj->members = trie_new();
     obj->mem_count = 0;
     obj->num_names = num_names;
     obj->locals = malloc(sizeof(void *) * locals);
     obj->ops = ops;
     obj->op_len = oplen;
     obj->names = names;
-    obj->cls = NULL;
+    //obj->cls = NULL;
     obj->stack_size = (int)stack_size;
 
     gc_add_object((lky_object *)obj);

@@ -150,8 +150,10 @@ void gc_mark_object(lky_object *o)
         return;
     
     o->mem_count = 1;
-    
-    trie_for_each(&o->members, (trie_pointer_function)&gc_mark_object);
+
+    if(o->type != LBI_INTEGER && o->type != LBI_FLOAT &&
+            o->type != LBI_SEQUENCE && o->type != LBI_CODE)
+        trie_for_each(&o->members, (trie_pointer_function)&gc_mark_object);
     //gc_mark_object(&o->parent);
     
     switch(o->type)

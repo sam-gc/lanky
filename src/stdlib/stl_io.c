@@ -49,7 +49,7 @@ lky_object *stlio_printf(lky_object_seq *args, lky_object *func)
 {
     arraylist list = arr_create(10);
     MAKE_VA_ARGS(args, list, 1);
-    lobjb_print(stlstr_fmt_ext(((lky_object_custom *)args->value)->data, list));
+    lobjb_print_object(stlstr_fmt_ext(((lky_object_custom *)args->value)->data, list));
 
     return &lky_nil;
 }

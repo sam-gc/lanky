@@ -9,6 +9,7 @@
 #include "lkyobj_builtin.h"
 #include "lky_gc.h"
 #include "stanky.h"
+#include "tools.h"
 #include "stl_meta.h"
 #include "stl_requisitions.h"
 #include "stl_os.h"

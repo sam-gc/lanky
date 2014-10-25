@@ -30,6 +30,9 @@ lky_object *lobj_alloc()
 
 void lobj_set_member(lky_object *obj, char *member, lky_object *val)
 {
+    if(obj->type == LBI_FLOAT || obj->type == LBI_INTEGER)
+        return;
+
     lky_object *old = trie_get(&obj->members, member);
     if(old)
         rc_decr(old);
@@ -40,7 +43,7 @@ void lobj_set_member(lky_object *obj, char *member, lky_object *val)
 
 lky_object *lobj_get_member(lky_object *obj, char *member)
 {
-    if(!obj)
+    if(!obj || obj->type == LBI_FLOAT || obj->type == LBI_INTEGER)
         return NULL;
 
     lky_object *val = trie_get(&obj->members, member);
@@ -109,6 +112,8 @@ void lobj_dealloc(lky_object *obj)
             cu->freefunc(obj);
     }
 
+    if(obj->type != LBI_INTEGER && obj->type != LBI_FLOAT &&
+            obj->type != LBI_SEQUENCE && obj->type != LBI_CODE)
     trie_free(obj->members);
     free(obj);
     // alloced--;
