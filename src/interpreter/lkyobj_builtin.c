@@ -250,10 +250,22 @@ lky_object *lobjb_num_to_string(lky_object *a)
 
 lky_object *lobjb_call(lky_object *func, lky_object_seq *args)
 {
-    if(func->type != LBI_FUNCTION)
+    if(func->type != LBI_FUNCTION && func->type != LBI_CLASS && func->type != LBI_CUSTOM_EX && func->type != LBI_CUSTOM)
         return NULL;
 
-    lky_callable c = ((lky_object_function *)func)->callable;
+    lky_callable c;
+    switch(func->type)
+    {
+        case LBI_FUNCTION:
+        case LBI_CLASS:
+            c = ((lky_object_function *)func)->callable;
+            break;
+        case LBI_CUSTOM:
+        case LBI_CUSTOM_EX:
+            c = func->callable;
+            break;
+    }
+    
     return (lky_object *)c.function(args, (struct lky_object *)func);
 }
 
