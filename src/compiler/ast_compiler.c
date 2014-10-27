@@ -1359,7 +1359,7 @@ lky_object_code *compile_ast_ext(ast_node *root, compiler_wrapper *incw)
     if(incw)
         incw->classargc = cw.classargc;
     
-    if(OBJ_NUM_UNWRAP(arr_get(&cw.rops, cw.rops.count - 1)) != LI_RETURN)
+    if(cw.rops.count == 0 || OBJ_NUM_UNWRAP(arr_get(&cw.rops, cw.rops.count - 1)) != LI_RETURN)
     {
         append_op(&cw, LI_PUSH_NIL);
         append_op(&cw, LI_RETURN);

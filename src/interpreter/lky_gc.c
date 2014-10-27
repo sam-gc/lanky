@@ -70,6 +70,7 @@ void gc_add_root_object(lky_object *obj)
     if(bundle.roots)
         list->next = bundle.roots;
     bundle.roots = list;
+
     //    gchs_add(&bundle.pool, obj);
 }
 

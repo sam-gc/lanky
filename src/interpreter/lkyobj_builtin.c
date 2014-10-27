@@ -334,9 +334,12 @@ lky_object *lobjb_default_class_callable(lky_object_seq *args, lky_object *self)
     stlobj_seed(outobj);
     lobj_set_member(func->bucket, cls->refname, outobj);
 
-    gc_add_root_object((lky_object *)args);
+    if(args)
+        gc_add_root_object((lky_object *)args);
     lky_object *returned = mach_execute(func);
-    gc_remove_root_object((lky_object *)args);
+
+    if(args)
+        gc_remove_root_object((lky_object *)args);
     //printf("...%d\n", func->bucket->mem_count);
 
     if(returned)
