@@ -4,6 +4,7 @@
 #include "stl_string.h"
 #include "stl_object.h"
 #include "stl_array.h"
+#include "tools.h"
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
@@ -99,8 +100,9 @@ lky_object *lobjb_build_func(lky_object_code *code, int argc, arraylist inherite
     c.argc = argc;
     func->callable = c;
 
-    // Add argc member (this should probably be done somewhere else.
+    // Add some members to the function argument
     lobj_set_member((lky_object *)func, "argc", (lky_object *)lobjb_build_int(argc)); 
+    lobj_set_member((lky_object *)func, "code_", (lky_object *)code);
     
     return (lky_object *)func;
 }
@@ -214,6 +216,21 @@ char *lobjb_stringify(lky_object *a)
             ret = malloc(100);
             sprintf(ret, "(lky_object_function | %p)", a);
             break;
+        case LBI_CODE:
+        {
+            lky_object_code *code = (lky_object_code *)a;
+            ret = NULL;
+
+            int i;
+            char ch[100];
+            for(i = 0; i < code->op_len; i++)
+            {
+                sprintf(ch, "\\0x%X", code->ops[i]);
+                auto_cat(&ret, ch);
+            }
+
+            break;           
+        }
         default:
             ret = malloc(100);
             sprintf(ret, "%p", b);
