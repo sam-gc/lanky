@@ -1,3 +1,18 @@
+// lky_machine.c
+// ===================================
+//
+// The guts of the virtual machine are kept in this file. In the end, the lanky
+// interpreter boils down to a giant switch statement below. Each of the
+// opcodes is covered in this switch (the list of instructions can be seen in
+// the "instruction_set.h" header file). The virtual machine is stack-based (as
+// opposed to the register-based machine on which you are probably reading this
+// document) and as such has one data stack that the machine uses to keep track
+// of state. The machine reads the tap character by character and decides what
+// to do. A C stack frame is pushed every time a function is called, allowing
+// "native code" (i.e. the C api) to interact with lanky code as a standard
+// object. The interpretation unit has reached a rough stage of completion and
+// should be relatively stable.
+
 #include <stdio.h>
 #include <assert.h>
 #include <stdlib.h>
@@ -14,10 +29,16 @@
 #include "stl_array.h"
 #include "hashmap.h"
 
+// Macros to abstract the notion of "pushing"
+// and "popping" from the state machine
 #define PUSH(data) (push_node(frame, data))
 #define POP() (pop_node(frame))
 #define TOP() (top_node(frame))
 
+// Macros that use the above but increment/
+// decrement the reference count of the objects
+// (Note that this is obsolete; rc_incr/decr()
+// return immediately)
 #define PUSH_RC(data) do{ push_node(frame, data); rc_incr(data); }while(0)
 #define POP_RC() rc_decr(POP())
 
