@@ -8,6 +8,7 @@
 #include "stl_object.h"
 #include "stl_time.h"
 #include "stl_os.h"
+#include "stl_table.h"
 
 Trie_t get_stdlib_objects()
 {
@@ -21,5 +22,6 @@ Trie_t get_stdlib_objects()
     trie_add(&t, "C", stlreq_get_class());
     trie_add(&t, "Object", stlobj_get_class());
     trie_add(&t, "OS", stlos_get_class());
+    trie_add(&t, "Table", stltab_get_class());
     return t;
 }
