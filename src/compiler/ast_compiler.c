@@ -821,6 +821,32 @@ void compile_array(compiler_wrapper *cw, ast_node *n)
     append_op(cw, buf[3]);
 }
 
+// Compiles table literals
+void compile_table(compiler_wrapper *cw, ast_node *n)
+{
+    ast_table_node *node = (ast_table_node *)n;
+
+    int ct = 0;
+    ast_node *list = node->list;
+    for(; list; list = list->next)
+    {
+        compile(cw, list);
+        list = list->next;
+        compile(cw, list);
+        ct++;
+    }
+
+    append_op(cw, LI_MAKE_TABLE);
+
+    unsigned char buf[4];
+    int_to_byte_array(buf, ct);
+
+    append_op(cw, buf[0]);
+    append_op(cw, buf[1]);
+    append_op(cw, buf[2]);
+    append_op(cw, buf[3]);
+}
+
 // Array indexing
 void compile_indx(compiler_wrapper *cw, ast_node *n)
 {
@@ -1191,6 +1217,9 @@ void compile(compiler_wrapper *cw, ast_node *root)
         break;
         case AARRAY:
             compile_array(cw, root);
+        break;
+        case ATABLE:
+            compile_table(cw, root);
         break;
         case AINDEX:
             compile_indx(cw, root);

@@ -27,6 +27,7 @@
 #include "lky_object.h"
 #include "lky_gc.h"
 #include "stl_array.h"
+#include "stl_table.h"
 #include "hashmap.h"
 
 // Macros to abstract the notion of "pushing"
@@ -712,6 +713,37 @@ _opcode_whiplash_:
             frame->stack_pointer -= ct;
 
             lky_object *outobj = stlarr_cinit(arr);
+            PUSH(outobj);
+
+            goto _opcode_whiplash_;
+        }
+        break;
+        case LI_MAKE_TABLE:
+        {
+            unsigned int ct = *(unsigned int *)(frame->ops + (++frame->pc));
+            frame->pc += 3;
+
+            arraylist keys = arr_create(ct + 1);
+            arraylist vals = arr_create(ct + 1);
+
+            int i;
+            for(i = 2 * (ct - 1); i >= 0; i -= 2)
+            {
+                lky_object *v = frame->data_stack[frame->stack_pointer - i];
+                lky_object *k = frame->data_stack[frame->stack_pointer - i - 1];
+                frame->data_stack[frame->stack_pointer - i] = NULL;
+                frame->data_stack[frame->stack_pointer - i - 1] = NULL;
+
+                arr_append(&keys, k);
+                arr_append(&vals, v);
+            }
+
+            frame->stack_pointer -= 2 * ct;
+
+            lky_object *outobj = stltab_cinit(&keys, &vals);
+            arr_free(&keys);
+            arr_free(&vals);
+
             PUSH(outobj);
 
             goto _opcode_whiplash_;

@@ -89,7 +89,7 @@ void stltab_save(lky_object *obj)
     return clsobj;
 }*/
 
-lky_object *stltab_cinit()
+lky_object *stltab_cinit(arraylist *keys, arraylist *vals)
 {
     lky_object_custom *tab = lobjb_build_custom(sizeof(stltab_data));
     lky_object *obj = (lky_object *)tab;
@@ -102,23 +102,42 @@ lky_object *stltab_cinit()
     lobj_set_member(obj, "op_get_index_", getter);
     lobj_set_member(obj, "op_set_index_", setter);
 
-    lobj_set_member(obj, "count", lobjb_build_int(0));
-    lobj_set_member(obj, "size_", lobjb_build_int(8));
-
     tab->freefunc = stltab_dealloc;
     tab->savefunc = stltab_save;
 
     stltab_data *data = malloc(sizeof(stltab_data));
-    data->ht = hst_create();
+    hashtable ht = hst_create();
+
+    if(!keys)
+    {
+        lobj_set_member(obj, "count", lobjb_build_int(0));
+        lobj_set_member(obj, "size_", lobjb_build_int(8));
+        tab->data = data;
+        data->ht = ht;
+        return obj;
+    }
+
+    int i;
+    for(i = 0; i < keys->count; i++)
+    {
+        lky_object *k = keys->items[i];
+        lky_object *v = vals->items[i];
+
+        hst_put(&ht, k, v, stltab_autohash, stltab_autoequ);
+    }
 
     tab->data = data;
+    data->ht = ht;
+
+    lobj_set_member(obj, "count", lobjb_build_int(ht.count));
+    lobj_set_member(obj, "size_", lobjb_build_int(ht.size));
 
     return obj;
 }
 
 lky_object *stltab_build(lky_object_seq *args, lky_object *caller)
 {
-    return stltab_cinit();
+    return stltab_cinit(NULL, NULL);
 }
 
 static lky_object *stltab_class = NULL;

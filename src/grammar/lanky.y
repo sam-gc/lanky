@@ -32,7 +32,7 @@
    we call an ident (defined by union type ident) we are really
    calling an (NIdentifier*). It makes the compiler happy.
  */
-%type <node> program stmts stmt expression ifblock block elifblock elifblocks elseblock loopblock funcdecl arg arglist call calllist memaccess classdecl arrdecl arraccess opapply
+%type <node> program stmts stmt expression ifblock block elifblock elifblocks elseblock loopblock funcdecl arg arglist call calllist memaccess classdecl arrdecl arraccess opapply tabset tabsetlist tabdecl
 
 /* Operator precedence for mathematical operators */
 %nonassoc TPRT TRET TNIL
@@ -84,6 +84,10 @@ arg : TIDENTIFIER { $$ = create_value_node(VVAR, (void *)$1); }
 arglist : arg
     | arglist TCOMMA arg { ast_add_node($$, $3); }
     ;
+tabset : expression TCOLON expression { ast_add_node($1, $3); }
+    ;
+tabsetlist : tabset
+    | tabsetlist TCOMMA tabset { ast_add_node($$, $3); }
 call : expression 
     ;
 calllist : call
@@ -104,6 +108,9 @@ arraccess : expression TLBRACKET expression TRBRACKET { $$ = create_index_node($
     ;
 arrdecl : TLBRACKET TRBRACKET { $$ = create_array_node(NULL); }
     | TLBRACKET calllist TRBRACKET { $$ = create_array_node($2); }
+    ;
+tabdecl : TLBRACKET TCOLON TRBRACKET { $$ = create_table_node(NULL); }
+    | TLBRACKET tabsetlist TRBRACKET { $$ = create_table_node($2); }
     ;
 
 opapply : TIDENTIFIER TPLUSE expression { $$ = create_assignment_node($1, create_binary_node(create_value_node(VVAR, (void *)$1), $3, '+')); }
@@ -152,6 +159,7 @@ expression :
     | memaccess
     | classdecl
     | arrdecl
+    | tabdecl
     | TNIL { $$ = create_unary_node(NULL, '0'); }
     | TPRT expression { $$ = create_unary_node($2, 'p'); }
     | TNOT expression { $$ = create_unary_node($2, '!'); }

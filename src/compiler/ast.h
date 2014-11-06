@@ -24,6 +24,7 @@ typedef enum {
     ATERNARY,
     AMEMBER_ACCESS,
     AARRAY,
+    ATABLE,
     AINDEX,
     AONEOFF
 } ast_type;
@@ -135,6 +136,15 @@ typedef struct ast_array_node {
 
     struct ast_node *list;
 } ast_array_node;
+
+// An ast_node that can represent a
+// table literal
+typedef struct ast_table_node {
+    ast_type type;
+    struct ast_node *next;
+
+    struct ast_node *list;
+} ast_table_node;
 
 // The index operator, i.e. arr[2]
 typedef struct ast_index_node {
@@ -262,6 +272,7 @@ ast_node *create_class_decl_node(char *refname, ast_node *payload);
 ast_node *create_func_call_node(ast_node *ident, ast_node *arguments);
 ast_node *create_ternary_node(ast_node *condition, ast_node *first, ast_node *second);
 ast_node *create_array_node(ast_node *payload);
+ast_node *create_table_node(ast_node *payload);
 ast_node *create_index_node(ast_node *target, ast_node *indexer);
 ast_node *create_member_access_node(ast_node *object, char *ident);
 ast_node *create_one_off_node(char opt);

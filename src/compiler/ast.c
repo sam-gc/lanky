@@ -157,6 +157,17 @@ ast_node *create_array_node(ast_node *payload)
     return (ast_node *)node;
 }
 
+ast_node *create_table_node(ast_node *payload)
+{
+    ast_table_node *node = MALLOC(sizeof(ast_table_node));
+    pool_add(&ast_memory_pool, node);
+    node->type = ATABLE;
+    node->next = NULL;
+
+    node->list = payload;
+    return (ast_node *)node;
+}
+
 ast_node *create_index_node(ast_node *target, ast_node *indexer)
 {
     ast_index_node *node = MALLOC(sizeof(ast_index_node));
