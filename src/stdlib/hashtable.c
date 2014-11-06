@@ -178,12 +178,12 @@ void hst_free(hashtable *ht)
     free(ht->buckets);
 }
 
-void hst_for_each(hashtable *ht, hst_each_function func)
+void hst_for_each(hashtable *ht, hst_each_function func, void *data)
 {
     int i;
     hst_node *n;
     for(i = 0; i < ht->size; i++)
         for(n = ht->buckets[i]; n; n = n->next)
-            func(n->key, n->val);
+            func(n->key, n->val, data);
 }
 

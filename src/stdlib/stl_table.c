@@ -2,6 +2,8 @@
 #include "lky_gc.h"
 #include "hashtable.h"
 #include "mach_binary_ops.h"
+#include "tools.h"
+#include "stl_string.h"
 
 typedef struct stltab_data_s {
     hashtable ht;
@@ -18,6 +20,43 @@ long stltab_autohash(void *key, void *data)
 int stltab_autoequ(void *a, void *b)
 {
     return (int)OBJ_NUM_UNWRAP(lobjb_binary_equals((lky_object *)a, (lky_object *)b));
+}
+
+void stltab_cat_each(void *key, void *val, void *data)
+{
+    char **buf = (char **)data;
+    lky_object *k = (lky_object *)key;
+    lky_object *v = (lky_object *)val;
+
+    char *sk = lobjb_stringify(k);
+    char *sv = lobjb_stringify(v);
+
+    auto_cat(buf, "\t");
+    auto_cat(buf, sk);
+    auto_cat(buf, " : ");
+    auto_cat(buf, sv);
+    auto_cat(buf, "\n");
+
+    free(sk);
+    free(sv);
+}
+
+lky_object *stltab_stringify(lky_object_seq *args, lky_object_function *func)
+{
+    lky_object_custom *tab = (lky_object_custom *)func->owner;
+    stltab_data *d = tab->data;
+
+    char *buf = NULL;
+    auto_cat(&buf, "[\n");   
+
+    hst_for_each(&d->ht, stltab_cat_each, &buf);
+
+    auto_cat(&buf, "]");
+
+    lky_object *ret = stlstr_cinit(buf);
+    free(buf);
+
+    return ret;
 }
 
 lky_object *stltab_put(lky_object_seq *args, lky_object_function *func)
@@ -48,7 +87,7 @@ lky_object *stltab_get(lky_object_seq *args, lky_object_function *func)
     return ret ? ret : &lky_nil;
 }
 
-void stltab_mark(void *key, void *val)
+void stltab_mark(void *key, void *val, void *data)
 {
     lky_object *k = (lky_object *)key;
     lky_object *v = (lky_object *)val;
@@ -71,7 +110,7 @@ void stltab_save(lky_object *obj)
     lky_object_custom *c = (lky_object_custom *)obj;
     stltab_data *data = c->data;
 
-    hst_for_each(&data->ht, stltab_mark);
+    hst_for_each(&data->ht, stltab_mark, NULL);
 }
 
 /*lky_object *stlarr_get_class()
@@ -101,6 +140,7 @@ lky_object *stltab_cinit(arraylist *keys, arraylist *vals)
     lobj_set_member(obj, "get", getter);
     lobj_set_member(obj, "op_get_index_", getter);
     lobj_set_member(obj, "op_set_index_", setter);
+    lobj_set_member(obj, "stringify_", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stltab_stringify));
 
     tab->freefunc = stltab_dealloc;
     tab->savefunc = stltab_save;

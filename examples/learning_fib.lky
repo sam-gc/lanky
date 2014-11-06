@@ -1,0 +1,38 @@
+fib_brute_force = func(n) {
+    if n == 0 | n == 1 {
+        ret n;
+    }
+
+    ret fib_brute_force(n - 1) + fib_brute_force(n - 2);
+};
+
+a = [:];
+fib_smart = func(n) {
+    -- Check to see if we've already calculated for n
+    val = a[n];
+    if val {
+        ret val;
+    }
+
+    -- Otherwise, calculate it and add it to the table
+    if n == 0 | n == 1 {
+        val = n;
+    }
+    else {
+        val = fib_smart(n - 1) + fib_smart(n - 2);
+    }
+
+    a[n] = val;
+    ret val;
+};
+
+Io.putln('');
+
+now = Time.millis();
+Io.printf("@\nTook @ms\n", fib_brute_force(30), Time.millis() - now);
+Io.putln('');
+
+now = Time.millis();
+Io.printf("\n@\nTook @ms\n", fib_smart(30), Time.millis() - now);
+Io.putln('');
+Io.putln(a.size_);

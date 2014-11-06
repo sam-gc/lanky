@@ -3,7 +3,7 @@
 
 typedef long (*hst_hash_function)(void *key, void *data);
 typedef int  (*hst_equa_function)(void *key, void *data);
-typedef void (*hst_each_function)(void *key, void *val);
+typedef void (*hst_each_function)(void *key, void *val, void *data);
 
 typedef struct hst_node_s {
     long hash;
@@ -26,7 +26,7 @@ int hst_contains_value(hashtable *ht, void *val);
 void hst_remove_key(hashtable *ht, void *key, hst_hash_function hashfunc, hst_equa_function equfunc);
 void hst_remove_val(hashtable *ht, void *val);
 void hst_free(hashtable *ht);
-void hst_for_each(hashtable *ht, hst_each_function func);
+void hst_for_each(hashtable *ht, hst_each_function func, void *data);
 
 long hst_djb2(void *val, void *data);
 
