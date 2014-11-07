@@ -15,6 +15,7 @@ typedef struct hst_node_s {
 typedef struct hashtable_s {
     int count;
     int size;
+    char duplicate_keys;
     hst_node **buckets;
 } hashtable;
 

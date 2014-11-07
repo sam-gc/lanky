@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
 
         func->bucket = lobj_alloc();
         func->bucket->members = get_stdlib_objects();
-        trie_add(&func->bucket->members, "Meta", stlmeta_get_class(&interp));
+        hst_put(&func->bucket->members, "Meta", stlmeta_get_class(&interp), NULL, NULL);
         mach_execute((lky_object_function *)func);
 
         // eval(programBlock);
@@ -104,7 +104,7 @@ int main(int argc, char *argv[])
         
 //        gc_add_root_object(frame.bucket);
         
-        trie_add(&frame.bucket->members, "Meta", stlmeta_get_class(&interp));
+        hst_put(&frame.bucket->members, "Meta", stlmeta_get_class(&interp), NULL, NULL);
         
         run_repl(&interp);
     }

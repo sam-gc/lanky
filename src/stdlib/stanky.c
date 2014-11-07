@@ -10,18 +10,19 @@
 #include "stl_os.h"
 #include "stl_table.h"
 
-Trie_t get_stdlib_objects()
+hashtable get_stdlib_objects()
 {
-    Trie_t t = trie_new();
-    trie_add(&t, "Array", stlarr_get_class());
-    trie_add(&t, "Time", stltime_get_class());
-    trie_add(&t, "Math", stlmath_get_class());
-    trie_add(&t, "Io", stlio_get_class());
-    trie_add(&t, "Convert", stlcon_get_class());
-    trie_add(&t, "Trie", stltrie_get_class());
-    trie_add(&t, "C", stlreq_get_class());
-    trie_add(&t, "Object", stlobj_get_class());
-    trie_add(&t, "OS", stlos_get_class());
-    trie_add(&t, "Table", stltab_get_class());
+    hashtable t = hst_create();
+    t.duplicate_keys = 1;
+    hst_put(&t, "Array", stlarr_get_class(), NULL, NULL);
+    hst_put(&t, "Time", stltime_get_class(), NULL, NULL);
+    hst_put(&t, "Math", stlmath_get_class(), NULL, NULL);
+    hst_put(&t, "Io", stlio_get_class(), NULL, NULL);
+    hst_put(&t, "Convert", stlcon_get_class(), NULL, NULL);
+    hst_put(&t, "Trie", stltrie_get_class(), NULL, NULL);
+    hst_put(&t, "C", stlreq_get_class(), NULL, NULL);
+    hst_put(&t, "Object", stlobj_get_class(), NULL, NULL);
+    hst_put(&t, "OS", stlos_get_class(), NULL, NULL);
+    hst_put(&t, "Table", stltab_get_class(), NULL, NULL);
     return t;
 }

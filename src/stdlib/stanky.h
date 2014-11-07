@@ -1,8 +1,8 @@
 #ifndef STANKY_H
 #define STANKY_H
 
-#include "trie.h"
+#include "hashtable.h"
 
-Trie_t get_stdlib_objects();
+hashtable get_stdlib_objects();
 
 #endif

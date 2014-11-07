@@ -44,7 +44,8 @@ lky_object *lobjb_build_error(char *name, char *text)
     err->type = LBI_ERROR;
     err->size = sizeof(lky_object_error);
     err->mem_count = 0;
-    err->members = trie_new();
+    err->members = hst_create();
+    err->members.duplicate_keys = 1;
     err->name = name;
     err->text = text;
     err->cls = NULL;
@@ -60,7 +61,8 @@ lky_object_custom *lobjb_build_custom(size_t extra_size)
     obj->type = LBI_CUSTOM_EX;
     obj->size = sizeof(lky_object_custom) + extra_size;
     obj->mem_count = 0;
-    obj->members = trie_new();
+    obj->members = hst_create();
+    obj->members.duplicate_keys = 1;
     obj->data = NULL;
     obj->freefunc = NULL;
     obj->savefunc = NULL;
@@ -81,8 +83,8 @@ lky_object *lobjb_build_func(lky_object_code *code, int argc, arraylist inherite
     func->type = LBI_FUNCTION;
     func->mem_count = 0;
     func->size = sizeof(lky_object_function);
-    func->members = trie_new();
-    func->members.free_func = (trie_pointer_function)(&rc_decr);
+    func->members = hst_create();
+    func->members.duplicate_keys = 1;
     
     func->code = code;
     func->bucket = NULL;
@@ -113,7 +115,8 @@ lky_object *lobjb_build_func_ex(lky_object *owner, int argc, lky_function_ptr pt
     func->type = LBI_FUNCTION;
     func->mem_count = 0;
     func->size = sizeof(lky_object_function);
-    func->members = trie_new();
+    func->members = hst_create();
+    func->members.duplicate_keys = 1;
     func->owner = NULL;
     
     func->code = NULL;

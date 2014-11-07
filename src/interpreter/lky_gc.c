@@ -143,6 +143,11 @@ void gc_collect()
     free(objs);
 }
 
+void gc_mark_for_each(void *key, void *val, void *data)
+{
+    gc_mark_object((lky_object *)val);
+}
+
 void gc_mark_object(lky_object *o)
 {
     if(o->mem_count)
@@ -152,7 +157,7 @@ void gc_mark_object(lky_object *o)
 
     if(o->type != LBI_INTEGER && o->type != LBI_FLOAT &&
             o->type != LBI_SEQUENCE && o->type != LBI_CODE)
-        trie_for_each(&o->members, (trie_pointer_function)&gc_mark_object);
+        hst_for_each(&o->members, gc_mark_for_each, NULL);
     //gc_mark_object(&o->parent);
     
     switch(o->type)

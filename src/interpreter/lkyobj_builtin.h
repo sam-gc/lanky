@@ -35,7 +35,7 @@ typedef struct {
     lky_builtin_type type;
     int mem_count;
     size_t size;
-    Trie_t members;
+    hashtable members;
     lky_object *parent;
     lky_object *child;
     lky_object *cls;
@@ -74,7 +74,7 @@ struct lky_object_function {
     lky_builtin_type type;
     int mem_count;
     size_t size;
-    Trie_t members;
+    hashtable members;
 
     lky_callable callable;
 
@@ -91,7 +91,7 @@ typedef struct {
     lky_builtin_type type;
     int mem_count;
     size_t size;
-    Trie_t members;
+    hashtable members;
 
     lky_callable callable;
 
@@ -105,7 +105,7 @@ typedef struct {
     lky_builtin_type type;
     int mem_count;
     size_t size;
-    Trie_t members;
+    hashtable members;
     lky_object *parent;
     lky_object *child;
     lky_object *cls;

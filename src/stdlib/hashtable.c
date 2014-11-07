@@ -1,8 +1,9 @@
 #include <stdlib.h>
+#include <string.h>
 #include "hashtable.h"
 
 // If we have an equals function, use it; otherwise use pointer equality
-#define EQU_CHECK(a, b, f) (f ? (f(a, b)) : (a == b))
+#define EQU_CHECK(a, b, f) (f ? (f(a, b)) : (!strcmp(a, b)))
 
 long hst_djb2(void *val, void *data)
 {
@@ -20,15 +21,23 @@ hashtable hst_create()
 {
     hst_node **buckets = calloc(8, sizeof(hst_node *));
 
-    hashtable ht = {0, 8, buckets};
+    hashtable ht = {0, 8, 0, buckets};
 
     return ht;
 }
 
-hst_node *hst_make_node(long hash, void *key, void *val)
+hst_node *hst_make_node(long hash, void *key, void *val, char dup)
 {
     hst_node *n = malloc(sizeof(hst_node));
-    n->key = key;
+
+    if(dup)
+    {
+        char *k = (char *)key;
+        n->key = malloc(strlen(k) + 1);
+        strcpy(n->key, k);
+    }
+    else
+        n->key = key;
     n->hash = hash;
     n->val = val;
     n->next = NULL;
@@ -84,7 +93,7 @@ void hst_put(hashtable *ht, void *key, void *val, hst_hash_function hashfunc, hs
 
     if(!ht->buckets[mod])
     {
-        ht->buckets[mod] = hst_make_node(hash, key, val);
+        ht->buckets[mod] = hst_make_node(hash, key, val, ht->duplicate_keys);
         ht->count++;
         return;
     }
@@ -103,7 +112,7 @@ void hst_put(hashtable *ht, void *key, void *val, hst_hash_function hashfunc, hs
     }
 
     ht->count++;
-    prev->next = hst_make_node(hash, key, val);
+    prev->next = hst_make_node(hash, key, val, ht->duplicate_keys);
 } 
 
 void *hst_get(hashtable *ht, void *key, hst_hash_function hashfunc, hst_equa_function equfunc)
@@ -161,6 +170,8 @@ void *hst_remove_key(hashtable *ht, void *key, hst_hash_function hashfunc, hst_e
             else
                 ht->buckets[mod] = n->next;
 
+            if(ht->duplicate_keys)
+                free(n->key);
             free(n);
             ht->count--;
             break;
@@ -188,6 +199,8 @@ void hst_remove_val(hashtable *ht, void *val, hst_equa_function equfunc)
                 else
                     ht->buckets[i] = n->next;
 
+                if(ht->duplicate_keys)
+                    free(n->key);
                 free(n);
                 ht->count--;
             }
@@ -206,6 +219,8 @@ void hst_free(hashtable *ht)
         while(n)
         {
             hst_node *next = n->next;
+            if(ht->duplicate_keys)
+                free(n->key);
             free(n);
             n = next;
         }

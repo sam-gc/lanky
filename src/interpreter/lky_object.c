@@ -3,10 +3,11 @@
 #include "lky_gc.h"
 #include "stl_string.h"
 #include "stl_object.h"
+#include "stl_table.h"
 #include <stdio.h>
 #include <stdlib.h>
 
-lky_object lky_nil = {LBI_NIL, 0, sizeof(lky_object), {NULL, NULL, 0}, NULL, NULL, NULL, {0, NULL}};
+lky_object lky_nil = {LBI_NIL, 0, sizeof(lky_object), {0, 0, 0, NULL}, NULL, NULL, NULL, {0, NULL}};
 
 int alloced = 0;
 lky_object *lobj_alloc()
@@ -15,8 +16,8 @@ lky_object *lobj_alloc()
     obj->type = LBI_CUSTOM;
     obj->mem_count = 0;
     obj->size = sizeof(lky_object);
-    obj->members = trie_new();
-    obj->members.free_func = (trie_pointer_function)(&rc_decr);
+    obj->members = hst_create();
+    obj->members.duplicate_keys = 1;
     gc_add_object(obj);
 
     obj->parent = NULL;
@@ -33,11 +34,7 @@ void lobj_set_member(lky_object *obj, char *member, lky_object *val)
     if(obj->type == LBI_FLOAT || obj->type == LBI_INTEGER)
         return;
 
-    lky_object *old = trie_get(&obj->members, member);
-    if(old)
-        rc_decr(old);
-
-    trie_add(&obj->members, member, val);
+    hst_put(&obj->members, member, val, NULL, NULL);
     rc_incr(val);
 }
 
@@ -46,7 +43,7 @@ lky_object *lobj_get_member(lky_object *obj, char *member)
     if(!obj || obj->type == LBI_FLOAT || obj->type == LBI_INTEGER)
         return NULL;
 
-    lky_object *val = trie_get(&obj->members, member);
+    lky_object *val = hst_get(&obj->members, member, NULL, NULL);
     if(!val)
         return lobj_get_member((lky_object *)obj->parent, member);
 
@@ -114,7 +111,7 @@ void lobj_dealloc(lky_object *obj)
 
     if(obj->type != LBI_INTEGER && obj->type != LBI_FLOAT &&
             obj->type != LBI_SEQUENCE && obj->type != LBI_CODE)
-    trie_free(obj->members);
+    hst_free(&obj->members);
     free(obj);
     // alloced--;
 }

@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include "trie.h"
+#include "hashtable.h"
 
 // #define INCREF(obj) (rc_decr(obj))
 struct lky_object_seq;
@@ -42,7 +43,8 @@ typedef struct {
     lky_builtin_type type;
     int mem_count;
     size_t size;
-    Trie_t members;
+    hashtable members;
+    //Trie_t members;
     struct lky_object *parent;
     struct lky_object *child;
     struct lky_object *cls;
