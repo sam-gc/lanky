@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include "hashtable.h"
 
+// If we have an equals function, use it; otherwise use pointer equality
 #define EQU_CHECK(a, b, f) (f ? (f(a, b)) : (a == b))
 
 long hst_djb2(void *val, void *data)
