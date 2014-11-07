@@ -3,20 +3,6 @@
 
 #define EQU_CHECK(a, b, f) (f ? (f(a, b)) : (a == b))
 
-/*typedef struct hst_node_s {
-    long hash;
-    void *key;
-    void *val;
-    struct hst_node_s *next;
-} hst_node;
-
-typedef struct hashtable_s {
-    int count;
-    int size;
-    hst_node *buckets;
-} hashtable;
-gg*/
-
 long hst_djb2(void *val, void *data)
 {
     char *str = (char *)val;
@@ -151,9 +137,36 @@ int hst_contains_value(hashtable *ht, void *val, hst_equa_function equfunc)
     return 0;
 }
 
-void hst_remove_key(hashtable *ht, void *key, hst_hash_function hashfunc, hst_equa_function equfunc)
+void *hst_remove_key(hashtable *ht, void *key, hst_hash_function hashfunc, hst_equa_function equfunc)
 {
+    void *ret = NULL;
 
+    if(!hashfunc)
+        hashfunc = hst_djb2;
+
+    long hash = hashfunc(key, NULL);
+    long mod = (unsigned long)hash % ht->size;
+
+    hst_node *n = ht->buckets[mod];
+    hst_node *p = NULL;
+
+    for(; n; n = n->next)
+    {
+        if(EQU_CHECK(n->key, key, equfunc))
+        {
+            ret = n->val;
+            if(p)
+                p->next = n->next;
+            else
+                ht->buckets[mod] = n->next;
+
+            free(n);
+            ht->count--;
+            break;
+        }
+    }
+
+    return ret;
 }
 
 void hst_remove_val(hashtable *ht, void *val, hst_equa_function equfunc)

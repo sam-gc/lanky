@@ -109,8 +109,8 @@ arraccess : expression TLBRACKET expression TRBRACKET { $$ = create_index_node($
 arrdecl : TLBRACKET TRBRACKET { $$ = create_array_node(NULL); }
     | TLBRACKET calllist TRBRACKET { $$ = create_array_node($2); }
     ;
-tabdecl : TLBRACKET TCOLON TRBRACKET { $$ = create_table_node(NULL); }
-    | TLBRACKET tabsetlist TRBRACKET { $$ = create_table_node($2); }
+tabdecl : TLBRACE TCOLON TRBRACE { $$ = create_table_node(NULL); }
+    | TLBRACE tabsetlist TRBRACE { $$ = create_table_node($2); }
     ;
 
 opapply : TIDENTIFIER TPLUSE expression { $$ = create_assignment_node($1, create_binary_node(create_value_node(VVAR, (void *)$1), $3, '+')); }

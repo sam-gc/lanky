@@ -25,7 +25,7 @@ long stltab_autohash(void *key, void *data)
         return hst_djb2(((lky_object_custom *)k)->data, NULL);
 
     // If we are dealing with numbers, we can just use
-    // the numbers themselves as the has. (True, this
+    // the numbers themselves as the hash. (True, this
     // can be problematic, but for simplicity we'll
     // just hope the user is not hashing a bunch of
     // very small floating point numbers
@@ -155,6 +155,19 @@ lky_object *stltab_get(lky_object_seq *args, lky_object_function *func)
     return ret ? ret : &lky_nil;
 }
 
+lky_object *stltab_remove(lky_object_seq *args, lky_object_function *func)
+{
+    lky_object_custom *tab = (lky_object_custom *)func->owner;
+    stltab_data *d = tab->data;
+
+    lky_object *k = (lky_object *)args->value;
+
+    lky_object *ret = hst_remove_key(&d->ht, k, stltab_autohash, stltab_autoequ);
+    lobj_set_member((lky_object *)tab, "count", lobjb_build_int(d->ht.count));
+
+    return ret ? ret : &lky_nil;
+}
+
 lky_object *stltab_has_key(lky_object_seq *args, lky_object_function *func)
 {
     lky_object_custom *tab = (lky_object_custom *)func->owner;
@@ -226,6 +239,7 @@ lky_object *stltab_cinit(arraylist *keys, arraylist *vals)
     lobj_set_member(obj, "hasValue", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stltab_has_value));
     lobj_set_member(obj, "keys", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stltab_keys));
     lobj_set_member(obj, "values", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stltab_values));
+    lobj_set_member(obj, "remove", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stltab_remove));
     lobj_set_member(obj, "op_get_index_", getter);
     lobj_set_member(obj, "op_set_index_", setter);
     //lobj_set_member(obj, "stringify_", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stltab_stringify));

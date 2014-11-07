@@ -16,7 +16,7 @@ lky_object *stltime_millis(lky_object_seq *args, lky_object *func)
 lky_object *stltime_get_class()
 {
     lky_object *obj = lobj_alloc();
-    lobj_set_member(obj, "millis", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stltime_millis));
+    lobj_set_member(obj, "unix", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stltime_millis));
 
     return obj;
 }
