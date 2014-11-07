@@ -164,6 +164,8 @@ void *hst_remove_key(hashtable *ht, void *key, hst_hash_function hashfunc, hst_e
             ht->count--;
             break;
         }
+
+        p = n;
     }
 
     return ret;
@@ -171,7 +173,27 @@ void *hst_remove_key(hashtable *ht, void *key, hst_hash_function hashfunc, hst_e
 
 void hst_remove_val(hashtable *ht, void *val, hst_equa_function equfunc)
 {
+    int i;
+    hst_node *n = NULL;
+    for(i = 0; i < ht->size; i++)
+    {
+        hst_node *p = NULL;
+        for(n = ht->buckets[i]; n; n = n->next)
+        {
+            if(EQU_CHECK(n->val, val, equfunc))
+            {
+                if(p)
+                    p->next = n->next;
+                else
+                    ht->buckets[i] = n->next;
 
+                free(n);
+                ht->count--;
+            }
+
+            p = n;
+        }
+    }
 }
 
 void hst_free(hashtable *ht)

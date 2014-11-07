@@ -168,6 +168,19 @@ lky_object *stltab_remove(lky_object_seq *args, lky_object_function *func)
     return ret ? ret : &lky_nil;
 }
 
+lky_object *stltab_remove_value(lky_object_seq *args, lky_object_function *func)
+{
+    lky_object_custom *tab = (lky_object_custom *)func->owner;
+    stltab_data *d = tab->data;
+
+    lky_object *v = (lky_object *)args->value;
+
+    hst_remove_val(&d->ht, v, stltab_autoequ);
+    lobj_set_member((lky_object *)tab, "count", lobjb_build_int(d->ht.count));
+
+    return &lky_nil;
+}
+
 lky_object *stltab_has_key(lky_object_seq *args, lky_object_function *func)
 {
     lky_object_custom *tab = (lky_object_custom *)func->owner;
@@ -240,6 +253,7 @@ lky_object *stltab_cinit(arraylist *keys, arraylist *vals)
     lobj_set_member(obj, "keys", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stltab_keys));
     lobj_set_member(obj, "values", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stltab_values));
     lobj_set_member(obj, "remove", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stltab_remove));
+    lobj_set_member(obj, "removeValue", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stltab_remove_value));
     lobj_set_member(obj, "op_get_index_", getter);
     lobj_set_member(obj, "op_set_index_", setter);
     //lobj_set_member(obj, "stringify_", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stltab_stringify));
