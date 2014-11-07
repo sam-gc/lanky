@@ -2,7 +2,6 @@
 #define LKY_OBJECT_H
 
 #include <stdlib.h>
-#include "trie.h"
 #include "hashtable.h"
 
 // #define INCREF(obj) (rc_decr(obj))

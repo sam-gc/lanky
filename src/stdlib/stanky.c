@@ -3,7 +3,6 @@
 #include "stl_math.h"
 #include "stl_io.h"
 #include "stl_convert.h"
-#include "stl_trie.h"
 #include "stl_requisitions.h"
 #include "stl_object.h"
 #include "stl_time.h"
@@ -19,7 +18,6 @@ hashtable get_stdlib_objects()
     hst_put(&t, "Math", stlmath_get_class(), NULL, NULL);
     hst_put(&t, "Io", stlio_get_class(), NULL, NULL);
     hst_put(&t, "Convert", stlcon_get_class(), NULL, NULL);
-    hst_put(&t, "Trie", stltrie_get_class(), NULL, NULL);
     hst_put(&t, "C", stlreq_get_class(), NULL, NULL);
     hst_put(&t, "Object", stlobj_get_class(), NULL, NULL);
     hst_put(&t, "OS", stlos_get_class(), NULL, NULL);
