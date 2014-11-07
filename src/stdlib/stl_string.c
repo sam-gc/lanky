@@ -2,7 +2,7 @@
 #include <string.h>
 #include "stl_string.h"
 #include "stl_array.h"
-
+#include "hashtable.h"
 
 lky_object *stlstr_stringify(lky_object_seq *args, lky_object_function *func)
 {
@@ -28,6 +28,13 @@ lky_object *stlstr_get_index(lky_object_seq *args, lky_object_function *func)
     sprintf(s, "%c", str[idx]);
     
     return stlstr_cinit(s);
+}
+
+lky_object *stlstr_hash(lky_object_seq *args, lky_object_function *func)
+{
+    lky_object_custom *self = (lky_object_custom *)func->owner;
+    
+    return lobjb_build_int(hst_djb2(self->data, NULL));
 }
 
 lky_object *stlstr_equals(lky_object_seq *args, lky_object_function *func)
@@ -410,6 +417,7 @@ lky_object *stlstr_cinit(char *str)
     lobj_set_member(obj, "op_lt_", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlstr_lesser_than));
     lobj_set_member(obj, "op_multiply_", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlstr_multiply));
     lobj_set_member(obj, "op_modulo_", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlstr_fmt_modulo));
+    lobj_set_member(obj, "hash_", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlstr_hash));
     
     cobj->freefunc = stlstr_free;
     

@@ -61,7 +61,7 @@ void hst_resize(hashtable *ht)
         for(n = ht->buckets[i]; n;)
         {
             p = n->next;
-            int mod = n->hash % ns;
+            int mod = (unsigned long)n->hash % ns;
             if(!buckets[mod])
             {
                 buckets[mod] = n;
@@ -93,7 +93,7 @@ void hst_put(hashtable *ht, void *key, void *val, hst_hash_function hashfunc, hs
         hashfunc = hst_djb2;    
 
     long hash = hashfunc(key, NULL);
-    long mod = hash % ht->size;
+    unsigned long mod = ((unsigned long)hash) % ht->size;
 
     if(!ht->buckets[mod])
     {
@@ -125,7 +125,7 @@ void *hst_get(hashtable *ht, void *key, hst_hash_function hashfunc, hst_equa_fun
         hashfunc = hst_djb2;
 
     long hash = hashfunc(key, NULL);
-    long mod = hash % ht->size;
+    long mod = (unsigned long)hash % ht->size;
 
     hst_node *n = ht->buckets[mod];
 
@@ -139,13 +139,13 @@ int hst_contains_key(hashtable *ht, void *key, hst_hash_function hashfunc, hst_e
     return !!hst_get(ht, key, hashfunc, equfunc);
 }
 
-int hst_contains_value(hashtable *ht, void *val)
+int hst_contains_value(hashtable *ht, void *val, hst_equa_function equfunc)
 {
     int i;
     hst_node *n = NULL;
     for(i = 0; i < ht->size; i++)
         for(n = ht->buckets[i]; n; n = n->next)
-            if(n->val == val)
+            if(EQU_CHECK(n->val, val, equfunc))
                 return 1;
 
     return 0;
@@ -156,7 +156,7 @@ void hst_remove_key(hashtable *ht, void *key, hst_hash_function hashfunc, hst_eq
 
 }
 
-void hst_remove_val(hashtable *ht, void *val)
+void hst_remove_val(hashtable *ht, void *val, hst_equa_function equfunc)
 {
 
 }

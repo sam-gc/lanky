@@ -4,17 +4,47 @@
 #include "mach_binary_ops.h"
 #include "tools.h"
 #include "stl_string.h"
+#include "stl_array.h"
 
 typedef struct stltab_data_s {
     hashtable ht;
 } stltab_data;
 
+struct list_info {
+    int use_keys;
+    arraylist *list;
+};
+
 long stltab_autohash(void *key, void *data)
 {
-    char *str = lobjb_stringify((lky_object *)key);
+    lky_object *k = (lky_object *)key;
+
+    // Even though string has a hash function, we want
+    // to quickly be able to perform this calculation
+    if((void *)k->cls == (void *)stlstr_class())
+        return hst_djb2(((lky_object_custom *)k)->data, NULL);
+
+    // If we are dealing with numbers, we can just use
+    // the numbers themselves as the has. (True, this
+    // can be problematic, but for simplicity we'll
+    // just hope the user is not hashing a bunch of
+    // very small floating point numbers
+    if(k->type == LBI_FLOAT || k->type == LBI_INTEGER)
+        return (long)OBJ_NUM_UNWRAP(k);
+
+    lky_object *hf = lobj_get_member((lky_object *)key, "hash_");
+    
+    if(!hf)
+        return (long)key; // Use the pointer as the hash; mirrors equals
+
+    lky_object *obj = lobjb_call(hf, NULL);
+
+    return (long)OBJ_NUM_UNWRAP(obj);
+
+    /*char *str = lobjb_stringify((lky_object *)key);
     long val = hst_djb2(str, NULL);
     free(str);
-    return val;
+    return val;*/
 }
 
 int stltab_autoequ(void *a, void *b)
@@ -31,7 +61,7 @@ void stltab_cat_each(void *key, void *val, void *data)
     char *sk = lobjb_stringify(k);
     char *sv = lobjb_stringify(v);
 
-    auto_cat(buf, "\t");
+    auto_cat(buf, "   ");
     auto_cat(buf, sk);
     auto_cat(buf, " : ");
     auto_cat(buf, sv);
@@ -39,6 +69,14 @@ void stltab_cat_each(void *key, void *val, void *data)
 
     free(sk);
     free(sv);
+}
+
+void stltab_append_array(void *key, void *val, void *data)
+{
+    struct list_info *lifo = (struct list_info *)data;
+    lky_object *touse = lifo->use_keys ? key : val;
+
+    arr_append(lifo->list, touse);
 }
 
 lky_object *stltab_stringify(lky_object_seq *args, lky_object_function *func)
@@ -57,6 +95,36 @@ lky_object *stltab_stringify(lky_object_seq *args, lky_object_function *func)
     free(buf);
 
     return ret;
+}
+
+lky_object *stltab_keys(lky_object_seq *args, lky_object_function *func)
+{
+    lky_object_custom *tab = (lky_object_custom *)func->owner;
+    stltab_data *d = tab->data;
+
+    arraylist list = arr_create(d->ht.count + 1);
+    struct list_info lifo;
+    lifo.use_keys = 1;
+    lifo.list = &list;
+
+    hst_for_each(&d->ht, stltab_append_array, &lifo);
+
+    return stlarr_cinit(list);
+}
+
+lky_object *stltab_values(lky_object_seq *args, lky_object_function *func)
+{
+    lky_object_custom *tab = (lky_object_custom *)func->owner;
+    stltab_data *d = tab->data;
+
+    arraylist list = arr_create(d->ht.count + 1);
+    struct list_info lifo;
+    lifo.use_keys = 0;
+    lifo.list = &list;
+
+    hst_for_each(&d->ht, stltab_append_array, &lifo);
+
+    return stlarr_cinit(list);
 }
 
 lky_object *stltab_put(lky_object_seq *args, lky_object_function *func)
@@ -85,6 +153,22 @@ lky_object *stltab_get(lky_object_seq *args, lky_object_function *func)
     lky_object *ret = hst_get(&d->ht, k, stltab_autohash, stltab_autoequ);
 
     return ret ? ret : &lky_nil;
+}
+
+lky_object *stltab_has_key(lky_object_seq *args, lky_object_function *func)
+{
+    lky_object_custom *tab = (lky_object_custom *)func->owner;
+    stltab_data *d = tab->data;
+
+    return lobjb_build_int(hst_contains_key(&d->ht, args->value, stltab_autohash, stltab_autoequ));
+}
+
+lky_object *stltab_has_value(lky_object_seq *args, lky_object_function *func)
+{
+    lky_object_custom *tab = (lky_object_custom *)func->owner;
+    stltab_data *d = tab->data;
+
+    return lobjb_build_int(hst_contains_value(&d->ht, args->value, stltab_autoequ));
 }
 
 void stltab_mark(void *key, void *val, void *data)
@@ -138,9 +222,13 @@ lky_object *stltab_cinit(arraylist *keys, arraylist *vals)
 
     lobj_set_member(obj, "put", setter);
     lobj_set_member(obj, "get", getter);
+    lobj_set_member(obj, "hasKey", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stltab_has_key));
+    lobj_set_member(obj, "hasValue", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stltab_has_value));
+    lobj_set_member(obj, "keys", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stltab_keys));
+    lobj_set_member(obj, "values", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stltab_values));
     lobj_set_member(obj, "op_get_index_", getter);
     lobj_set_member(obj, "op_set_index_", setter);
-    lobj_set_member(obj, "stringify_", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stltab_stringify));
+    //lobj_set_member(obj, "stringify_", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stltab_stringify));
 
     tab->freefunc = stltab_dealloc;
     tab->savefunc = stltab_save;

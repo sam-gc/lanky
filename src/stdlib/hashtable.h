@@ -22,9 +22,9 @@ hashtable hst_create();
 void hst_put(hashtable *ht, void *key, void *val, hst_hash_function hashfunc, hst_equa_function equfunc); 
 void *hst_get(hashtable *ht, void *key, hst_hash_function hashfunc, hst_equa_function equfunc);
 int hst_contains_key(hashtable *ht, void *key, hst_hash_function hashfunc, hst_equa_function equfunc);
-int hst_contains_value(hashtable *ht, void *val);
+int hst_contains_value(hashtable *ht, void *val, hst_equa_function equfunc);
 void hst_remove_key(hashtable *ht, void *key, hst_hash_function hashfunc, hst_equa_function equfunc);
-void hst_remove_val(hashtable *ht, void *val);
+void hst_remove_val(hashtable *ht, void *val, hst_equa_function equfunc);
 void hst_free(hashtable *ht);
 void hst_for_each(hashtable *ht, hst_each_function func, void *data);
 
