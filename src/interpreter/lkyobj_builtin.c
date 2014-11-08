@@ -460,12 +460,14 @@ char lobjb_quick_compare(lky_object *a, lky_object *b)
     BI_CAST(a, ab);
     BI_CAST(b, bb);
 
-    if(ab->type == LBI_STRING || bb->type == LBI_STRING)
+    if((void *)a->cls == (void *)stlstr_class() || (void *)b->cls == (void *)stlstr_class())
     {
-        if(ab->type != LBI_STRING || bb->type != LBI_STRING)
+        if((void *)a->cls != (void *)stlstr_class() || (void *)b->cls != (void *)stlstr_class())
             return 0;
 
-        return !strcmp(ab->value.s, bb->value.s);
+        lky_object_custom *ac = (lky_object_custom *)a;
+        lky_object_custom *bc = (lky_object_custom *)b;
+        return !strcmp((char *)bc->data, (char *)ac->data);
     }
 
     if(a == &lky_nil || b == &lky_nil)

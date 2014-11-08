@@ -2,6 +2,13 @@
 #include <string.h>
 #include "stl_object.h"
 #include "stl_string.h"
+#include "stl_table.h"
+#include "arraylist.h"
+
+struct stlobj_members {
+    arraylist keys;
+    arraylist vals;
+};
 
 lky_object *stlobj_stringify(lky_object_seq *args, lky_object_function *func)
 {
@@ -28,6 +35,63 @@ lky_object *stlobj_equals(lky_object_seq *args, lky_object_function *func)
     return lobjb_build_int(is_equal);
 }
 
+void stlobj_members_each(void *key, void *val, void *data)
+{
+    struct stlobj_members *m = (struct stlobj_members *)data;
+    arr_append(&m->keys, stlstr_cinit((char *)key));
+    arr_append(&m->vals, val);
+}
+
+void stlobj_members_set_each(void *key, void *val, void *data)
+{
+    lky_object *o = (lky_object *)data;
+    
+    char *ch = lobjb_stringify((lky_object *)key);
+    lobj_set_member(o, ch, (lky_object *)val);
+}
+
+lky_object *stlobj_set_members(lky_object_seq *args, lky_object_function *func)
+{
+    lky_object *self = func->owner;
+
+    lky_object *dict = (lky_object *)args->value;
+    int append = 0;
+    if(args->next)
+        append = OBJ_NUM_UNWRAP(args->next->value);
+
+    hashtable ht = stltab_unwrap(dict);
+
+    if(!append)
+    {
+        hst_free(&self->members);
+        self->members = hst_create();
+        stlobj_seed(self);
+    }
+
+    hst_for_each(&ht, stlobj_members_set_each, self);
+
+    return &lky_nil;
+}
+
+lky_object *stlobj_members(lky_object *args, lky_object_function *func)
+{
+    if(args)
+        return stlobj_set_members((lky_object_seq *)args, func);
+    lky_object *self = func->owner;
+    
+    struct stlobj_members m;
+    m.keys = arr_create(self->members.count + 1);
+    m.vals = arr_create(self->members.count + 1);
+
+    hst_for_each(&self->members, stlobj_members_each, &m);
+    lky_object *ret = stltab_cinit(&m.keys, &m.vals);
+
+    arr_free(&m.keys);
+    arr_free(&m.vals);
+
+    return ret;
+}
+
 lky_object *stlobj_cinit()
 {
     lky_object_custom *self = lobjb_build_custom(0);
@@ -43,6 +107,7 @@ void stlobj_seed(lky_object *obj)
 {
     lobj_set_member(obj, "stringify_", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlobj_stringify));
     lobj_set_member(obj, "op_equals_", lobjb_build_func_ex(obj, 2, (lky_function_ptr)stlobj_equals));
+    lobj_set_member(obj, "members_", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlobj_members));
 }
 
 lky_object *stlobj_build(lky_object_seq *args, lky_object_function *function)

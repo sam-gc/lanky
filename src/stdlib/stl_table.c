@@ -296,6 +296,11 @@ lky_object *stltab_build(lky_object_seq *args, lky_object *caller)
     return stltab_cinit(NULL, NULL);
 }
 
+hashtable stltab_unwrap(lky_object *obj)
+{
+    return ((stltab_data *)((lky_object_custom *)obj)->data)->ht;
+}
+
 static lky_object *stltab_class = NULL;
 lky_object *stltab_get_class()
 {   
