@@ -23,7 +23,7 @@ lky_object *lobj_alloc()
     obj->parent = NULL;
     obj->child = NULL;
 
-    //stlobj_seed(obj);
+    stlobj_seed(obj);
     // obj->value = value;
     // alloced++;
     return obj;
@@ -44,7 +44,7 @@ lky_object *lobj_get_member(lky_object *obj, char *member)
         return NULL;
 
     lky_object *val = hst_get(&obj->members, member, NULL, NULL);
-    if(!val)
+    if(!val && obj->type != LBI_FUNCTION && obj->type != LBI_CLASS)
         return lobj_get_member((lky_object *)obj->parent, member);
 
     return val;

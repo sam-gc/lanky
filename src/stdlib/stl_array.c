@@ -339,6 +339,7 @@ lky_object *stlarr_stringify(lky_object_seq *args, lky_object_function *func)
     int i;
     for(i = 0; i < list.count; i++)
     {
+        /*
         lky_object_custom *strobj = NULL;
         lky_object *obj = arr_get(&list, i);
         lky_object_function *f = (lky_object_function *)lobj_get_member(obj, "stringify_");
@@ -358,9 +359,10 @@ lky_object *stlarr_stringify(lky_object_seq *args, lky_object_function *func)
         else
         {
             strobj = (lky_object_custom *)(f->callable.function)(NULL, (struct lky_object *)f);
-        }
+        }*/
         
-        char *str = strobj->data;
+        lky_object *obj = arr_get(&list, i);
+        char *str = lobjb_stringify(obj);
         
         innards[i] = str;
         tlen += strlen(str);
@@ -377,11 +379,14 @@ lky_object *stlarr_stringify(lky_object_seq *args, lky_object_function *func)
     {
         strcat(str, innards[i]);
         strcat(str, ", ");
+        free(innards[i]);
     }
     
     if(list.count)
         strcat(str, innards[i]);
     strcat(str, " ]");
+
+    free(innards[i]);
     
     lky_object *ret = stlstr_cinit(str);
     free(str);
