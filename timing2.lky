@@ -1,0 +1,17 @@
+then = Time.unix();
+
+for i = 0; i < 1000000; i += 1 {
+}
+
+Io.putln("Took: " + (Time.unix() - then) + "ms.");
+
+then = Time.unix();
+
+-- Inside a closure, i is treated as a local variable
+-- and is stored inside a convenient array
+func() {
+    for i = 0; i < 1000000; i += 1 {
+    }
+}();
+
+Io.putln("Took: " + (Time.unix() - then) + "ms.");

@@ -120,6 +120,24 @@ ast_node *create_unary_node(ast_node *target, char opt)
     return (ast_node *)node;
 }
 
+ast_node *create_load_node(void *data)
+{
+    ast_load_node *node = MALLOC(sizeof(ast_load_node));
+    node->type = ALOAD;
+    pool_add(&ast_memory_pool, node);
+
+    char *raw = (char *)data;
+    char *str = MALLOC(strlen(raw) - 1);
+    pool_add(&ast_memory_pool, str);
+    memset(str, 0, strlen(raw) - 1);
+    memcpy(str, raw + 1, strlen(raw) - 2);
+
+    node->name = str;
+    node->next = NULL;
+
+    return (ast_node *)node;
+}
+
 ast_node *create_assignment_node(char *left, ast_node *right)
 {
     ast_binary_node *node = MALLOC(sizeof(ast_binary_node));

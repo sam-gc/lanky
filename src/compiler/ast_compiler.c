@@ -905,6 +905,24 @@ int find_prev_name(compiler_wrapper *cw, char *name)
     return -1;
 }
 
+void compile_load(compiler_wrapper *cw, ast_node *n)
+{
+    ast_load_node *node = (ast_load_node *)n;
+
+    char *f = node->name;
+
+    int idx = find_prev_name(cw, f);
+
+    if(idx < 0)
+    {
+        idx = (int)cw->rnames.count;
+        arr_append(&cw->rnames, f);
+    }
+
+    append_op(cw, LI_LOAD_MODULE);
+    append_op(cw, idx);
+}
+
 void compile_member_access(compiler_wrapper *cw, ast_node *n)
 {
     ast_member_access_node *node = (ast_member_access_node *)n;
@@ -1226,6 +1244,9 @@ void compile(compiler_wrapper *cw, ast_node *root)
         break;
         case AONEOFF:
             compile_one_off(cw, root);
+        break;
+        case ALOAD:
+            compile_load(cw, root);
         break;
         default:
         break;

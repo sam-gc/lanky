@@ -143,6 +143,24 @@ lky_object *stltab_put(lky_object_seq *args, lky_object_function *func)
     return &lky_nil;
 }
 
+lky_object *stltab_add_all(lky_object_seq *args, lky_object_function *func)
+{
+    lky_object_custom *tab = (lky_object_custom *)func->owner;
+    stltab_data *d = tab->data;
+
+    lky_object *other = (lky_object *)args->value;
+    if((void *)other->cls != (void *)tab->cls)
+        return &lky_nil;
+
+    stltab_data *o = ((lky_object_custom *)other)->data;
+
+    hst_add_all_from(&d->ht, &o->ht, stltab_autohash, stltab_autoequ);
+    lobj_set_member((lky_object *)tab, "count", lobjb_build_int(d->ht.count));
+    lobj_set_member((lky_object *)tab, "size_", lobjb_build_int(d->ht.size));
+
+    return &lky_nil;
+}
+
 lky_object *stltab_get(lky_object_seq *args, lky_object_function *func)
 {
     lky_object_custom *tab = (lky_object_custom *)func->owner;
@@ -254,6 +272,7 @@ lky_object *stltab_cinit(arraylist *keys, arraylist *vals)
     lobj_set_member(obj, "values", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stltab_values));
     lobj_set_member(obj, "remove", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stltab_remove));
     lobj_set_member(obj, "removeValue", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stltab_remove_value));
+    lobj_set_member(obj, "addAll", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stltab_add_all));
     lobj_set_member(obj, "op_get_index_", getter);
     lobj_set_member(obj, "op_set_index_", setter);
     //lobj_set_member(obj, "stringify_", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stltab_stringify));
@@ -287,6 +306,8 @@ lky_object *stltab_cinit(arraylist *keys, arraylist *vals)
 
     lobj_set_member(obj, "count", lobjb_build_int(ht.count));
     lobj_set_member(obj, "size_", lobjb_build_int(ht.size));
+
+    lobj_set_class(obj, stltab_get_class());
 
     return obj;
 }

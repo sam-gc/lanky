@@ -55,6 +55,7 @@ int stack_effect_for(lky_instruction op, int *skip)
         case LI_LOAD_INDEX:
         case LI_MAKE_ARRAY:
         case LI_MAKE_TABLE:
+        case LI_LOAD_MODULE:
             *skip = 1;
             return 1;
         case LI_JUMP:

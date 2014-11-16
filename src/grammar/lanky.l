@@ -45,6 +45,7 @@ comment (\#|(\-\-)).*(\n)
 "->"                   return TOKEN(TARROW);
 "class"                 return TOKEN(TCLASS);
 "nil"                   return TOKEN(TNIL);
+"load"                  return TOKEN(TLOAD);
 {nvar}      {SAVE_TOKEN; return TIDENTIFIER;}
 {real}      {SAVE_TOKEN; return TFLOAT;}
 {integer}   {SAVE_TOKEN; return TINTEGER;}

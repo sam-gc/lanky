@@ -1,0 +1,52 @@
+print = Io.putln;
+
+prtShift = func(st) {
+    keys = st.keys();
+    keys.forEach(func(k) {
+        Io.putln(k + "\t" + st[k]);
+    });
+};
+
+horspool = func(text, s) {
+    st = {:};
+    ls = s.length;
+
+    i = 0;
+    for i + ls - 1 < text.length {
+        last = ls - 1;
+        print(text);
+        print(' ' * i + s);
+        for last > -1 {
+            idx = last + i;
+            if s[last] != text[idx] {
+                print(' ' * (i + last) + '^   No Match!');
+                break;
+            }
+
+            print(' ' * (i + last) + '^   Match!');
+            last -= 1;
+        }
+
+        if last < 0 {
+            ret 1;
+        }
+
+        ct = text[ls + i - 1];
+        if st.hasKey(ct) {
+            i += st[ct];
+        } else {
+            i += ls;
+        }
+    }
+
+    ret 0;
+};
+
+if(OS.argc != 3) {
+    print(horspool("the quick brown fox jumps over the lazy dog", "fox"));
+} else {
+    print(horspool(OS.argv[1], OS.argv[2]));
+}
+
+-- Meta.examine(horspool);
+

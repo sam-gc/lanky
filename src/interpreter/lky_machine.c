@@ -29,6 +29,7 @@
 #include "stl_array.h"
 #include "stl_table.h"
 #include "hashmap.h"
+#include "module.h"
 
 // Macros to abstract the notion of "pushing"
 // and "popping" from the state machine
@@ -668,30 +669,29 @@ _opcode_whiplash_:
             //printf("----> %s\n", name);
 
             lky_object *bk = NULL;
+            lky_object *obj = NULL;
             arraylist ps = frame->parent_stack;
 
-            if(!lobj_get_member(frame->bucket, name))
+            if(!(obj = lobj_get_member(frame->bucket, name)))
             {
                 int i;
                 for(i = (int)ps.count - 1; i >= 0 && !bk; i--)
                 {
                     lky_object *n = arr_get(&ps, i);
-                    if(lobj_get_member(n, name))
+                    if((obj = lobj_get_member(n, name)))
                     {
                         bk = n;
                     }
                 }
             }
 
-            if(!bk)
-                bk = frame->bucket;
-
-            lky_object *obj = lobj_get_member(bk, name);
-
             if(obj)
                 PUSH_RC(obj);
             else
+            {
+                printf("%s\n", name);
                 mach_halt_with_err(lobjb_build_error("UndeclaredIdentifier", "A bad name was used..."));
+            }
             goto _opcode_whiplash_;
         }
         break;
@@ -765,6 +765,20 @@ _opcode_whiplash_:
             lky_object *nobj = TOP();
 
             lobjb_unary_save_index(targ, idx, nobj);
+
+            goto _opcode_whiplash_;
+        }
+        break;
+        case LI_LOAD_MODULE:
+        {
+            int idx = (frame->ops[++frame->pc]);
+            char *name = frame->names[idx];
+
+            lky_object *obj = md_load(name, frame->interp);
+            if(!obj)
+                obj = &lky_nil;
+
+            PUSH(obj);
 
             goto _opcode_whiplash_;
         }

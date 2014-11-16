@@ -129,6 +129,11 @@ lky_object *stlstr_multiply(lky_object_seq *args, lky_object_function *func)
     char *str = self->data;
     long ct = OBJ_NUM_UNWRAP(other);
 
+    // If the count is 0, we should just
+    // return the empty string.
+    if(!ct)
+        return stlstr_cinit("");
+
     int len = strlen(str);
     int targ = len * ct;
 

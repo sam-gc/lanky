@@ -26,7 +26,8 @@ typedef enum {
     AARRAY,
     ATABLE,
     AINDEX,
-    AONEOFF
+    AONEOFF,
+    ALOAD
 } ast_type;
 
 // The different value types...
@@ -97,6 +98,15 @@ typedef struct {
     struct ast_node *target;
     char opt;
 } ast_unary_node;
+
+// A load node, used to load
+// other files and modules
+typedef struct {
+    ast_type type;
+    struct ast_node *next;
+
+    char *name;
+} ast_load_node;
 
 // A value node that wraps constants
 // and variables
@@ -264,6 +274,7 @@ ast_node *create_unit_value_node(char *valstr, char *fmt);
 ast_node *create_binary_node(ast_node *left, ast_node *right, char opt);
 ast_node *create_unary_node(ast_node *target, char opt);
 ast_node *create_assignment_node(char *left, ast_node *right);
+ast_node *create_load_node(void *data);
 ast_node *create_block_node(ast_node *payload);
 ast_node *create_if_node(ast_node *condition, ast_node *payload);
 ast_node *create_loop_node(ast_node *init, ast_node *condition, ast_node *onloop, ast_node *payload);

@@ -130,6 +130,20 @@ void *hst_get(hashtable *ht, void *key, hst_hash_function hashfunc, hst_equa_fun
     return NULL;
 }
 
+void hst_add_all_from(hashtable *ht, hashtable *ot, hst_hash_function hashfunc, hst_equa_function equfunc)
+{
+    if(!hashfunc)
+        hashfunc = hst_djb2;
+
+    int i;
+    for(i = 0; i < ot->size; i++)
+    {
+        hst_node *n;
+        for(n = ot->buckets[i]; n; n = n->next)
+            hst_put(ht, n->key, n->val, hashfunc, equfunc);
+    }
+}
+
 int hst_contains_key(hashtable *ht, void *key, hst_hash_function hashfunc, hst_equa_function equfunc)
 {
     return !!hst_get(ht, key, hashfunc, equfunc);

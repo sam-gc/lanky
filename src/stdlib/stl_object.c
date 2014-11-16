@@ -37,6 +37,7 @@ lky_object *stlobj_equals(lky_object_seq *args, lky_object_function *func)
 
 void stlobj_members_each(void *key, void *val, void *data)
 {
+    printf("%s\n", key);
     struct stlobj_members *m = (struct stlobj_members *)data;
     arr_append(&m->keys, stlstr_cinit((char *)key));
     arr_append(&m->vals, val);

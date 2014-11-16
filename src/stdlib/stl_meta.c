@@ -231,6 +231,8 @@ char *stlmeta_string_for_instruction(lky_instruction instr)
             return "LOAD_CLOSE";
         case LI_MAKE_ARRAY:
             return "MAKE_ARRAY";
+        case LI_MAKE_TABLE:
+            return "MAKE_TABLE";
         case LI_LOAD_INDEX:
             return "LOAD_INDEX";
         case LI_SAVE_INDEX:
@@ -271,7 +273,6 @@ void stlmeta_print_dissassembly(lky_object_code *code)
             case LI_POP:
             case LI_IGNORE:
             case LI_PUSH_NIL:
-            case LI_CALL_FUNC:
             case LI_RETURN:
             case LI_LOAD_INDEX:
             case LI_SAVE_INDEX:
@@ -287,6 +288,9 @@ void stlmeta_print_dissassembly(lky_object_code *code)
             case LI_SAVE_MEMBER:
                 printf("\t%d\t", code->ops[++i]);
                 //printf("\t%d\t(\"%s\")", code->ops[++i], code->names[code->ops[i]]);
+                break;
+            case LI_CALL_FUNC:
+                printf("\t%d\t[argc]", code->ops[++i]);
                 break;
             case LI_JUMP:
             case LI_JUMP_FALSE:
@@ -308,6 +312,14 @@ void stlmeta_print_dissassembly(lky_object_code *code)
                 printf("\t%u\t[item count]", idx);
                 i += 3;
                 
+                break;
+            }
+            case LI_MAKE_TABLE:
+            {
+                unsigned int idx = *(unsigned int *)(code->ops + (++i));
+                printf("\t%u\t[item count]", idx);
+                i += 3;
+
                 break;
             }
             case LI_MAKE_CLASS:

@@ -39,7 +39,8 @@ typedef enum {
     LI_MAKE_ARRAY,
     LI_MAKE_TABLE,
     LI_LOAD_INDEX,
-    LI_SAVE_INDEX
+    LI_SAVE_INDEX,
+    LI_LOAD_MODULE
 } lky_instruction;
 
 typedef enum {
