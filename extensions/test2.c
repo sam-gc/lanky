@@ -2,9 +2,10 @@
 
 lky_object *test2_print_message(lky_object_seq *args, lky_object *func)
 {
-    lky_object_custom *c = (lky_object_custom *)args->value;
+    lky_object *o = (lky_object *)args->value;
 
-    printf("Hello, %s\n", c->data);
+    lobjb_print_object(o);
+    printf("%lf\n", OBJ_NUM_UNWRAP(o));
 
     return lobjb_build_int(1);
 }

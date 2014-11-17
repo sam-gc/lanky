@@ -107,6 +107,14 @@ lky_object *stlarr_get(lky_object_seq *args, lky_object_function *func)
     return arr_get(&data->container, idx);
 }
 
+lky_object *stlarr_last(lky_object_seq *args, lky_object_function *func)
+{
+    lky_object_custom *self = (lky_object_custom *)func->owner;
+    stlarr_data *data = self->data;
+
+    return arr_get(&data->container, data->container.count - 1);
+}
+
 lky_object *stlarr_contains(lky_object_seq *args, lky_object_function *func)
 {
     lky_object_custom *self = (lky_object_custom *)func->owner;
@@ -422,6 +430,7 @@ lky_object *stlarr_cinit(arraylist inlist)
     lobj_set_member(obj, "reverse", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlarr_reverse));
     lobj_set_member(obj, "insert", lobjb_build_func_ex(obj, 2, (lky_function_ptr)stlarr_insert));
     lobj_set_member(obj, "op_add_", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlarr_add));
+    lobj_set_member(obj, "last", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlarr_last));
 
     cobj->freefunc = stlarr_dealloc;
     cobj->savefunc = stlarr_save;

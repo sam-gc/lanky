@@ -14,7 +14,8 @@ lky_object *popen_big_loop(lky_object_seq *args, lky_object *func)
 lky_object *popen_call(lky_object_seq *args, lky_object *func)
 {
     lky_object_custom *c = LKY_CUST(LKY_FIRST_ARG(args));
-    char *name = c->data;
+    char *name = lobjb_stringify(c);
+    printf("%s\n", name);
     FILE *fp;
 
     char buf[3000];

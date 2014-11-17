@@ -59,6 +59,33 @@ void stlio_file_dealloc(lky_object_custom *obj)
     free(obj->data);
 }
 
+lky_object *stlio_file_read_raw(lky_object_seq *args, lky_object_function *func)
+{
+    lky_object_custom *self = (lky_object_custom *)func->owner;
+    stlio_file_object_data *data = self->data;
+
+    FILE *f = data->f;
+
+    char *buffer;
+    long filelen;
+
+    fseek(f, 0, SEEK_END);
+    filelen = ftell(f);
+    rewind(f);
+
+    buffer = malloc((filelen + 1) * sizeof(char));
+    fread(buffer, filelen, 1, f);
+
+    lky_object_custom *str = (lky_object_custom *)stlstr_cinit("");
+    free(str->data);
+    str->data = buffer;
+
+    lobj_set_member((lky_object *)self, "EOF", lobjb_build_int(1));
+    lobj_set_member((lky_object *)str, "length", lobjb_build_int(filelen));
+
+    return (lky_object *)str;
+}
+
 lky_object *stlio_file_readall(lky_object_seq *args, lky_object_function *func)
 {
     lky_object_custom *self = (lky_object_custom *)func->owner;
@@ -202,11 +229,11 @@ lky_object *stlio_make_file_object(lky_object_seq *args, lky_object *func)
         // TODO: Error
     }
 
-    lky_object_builtin *nb = (lky_object_builtin *)name;
-    lky_object_builtin *nt = (lky_object_builtin *)type;
+    lky_object_custom *nb = (lky_object_custom *)name;
+    lky_object_custom *nt = (lky_object_custom *)type;
 
-    FILE *f = fopen(nb->value.s, nt->value.s);
-    
+    FILE *f = fopen(nb->data, nt->data);
+
     stlio_file_object_data *data = malloc(sizeof(stlio_file_object_data));
     data->f = f;
 
@@ -221,7 +248,8 @@ lky_object *stlio_make_file_object(lky_object_seq *args, lky_object *func)
     lobj_set_member(gobj, "put", lobjb_build_func_ex(gobj, 1, (lky_function_ptr)stlio_file_write));
     lobj_set_member(gobj, "putln", lobjb_build_func_ex(gobj, 1, (lky_function_ptr)stlio_file_writeline));
     lobj_set_member(gobj, "getall", lobjb_build_func_ex(gobj, 0, (lky_function_ptr)stlio_file_readall));
-    lobj_set_member(gobj, "EOF", lobjb_build_int(0));
+    lobj_set_member(gobj, "readBytes", lobjb_build_func_ex(gobj, 0, (lky_function_ptr)stlio_file_read_raw));
+    lobj_set_member(gobj, "EOF", lobjb_build_int(f ? 0 : 1));
 
     return gobj;
 }
@@ -236,4 +264,9 @@ lky_object *stlio_get_class()
     lobj_set_member(obj, "printf", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlio_printf));
     lobj_set_member(obj, "fopen", lobjb_build_func_ex(obj, 2, (lky_function_ptr)stlio_make_file_object));
     return obj;
+}
+
+lky_object *stl_io_init()
+{
+    return stlio_get_class();
 }

@@ -586,7 +586,6 @@ void lobjb_serialize(lky_object *o, FILE *f)
             unsigned long sz = 0;
             fwrite(&sz, sizeof(unsigned long), 1, f);
             lobjb_serialize_code(o, f);
-            printf("Serializing function...\n");
         }
         break;
         default:

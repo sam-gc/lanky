@@ -73,6 +73,10 @@ lky_object *stlreq_import(lky_object_seq *args, lky_object_function *func)
 lky_object *stlreq_compile(lky_object_seq *args, lky_object *func)
 {
     lky_object_custom *fileobj = (lky_object_custom *)args->value;
+    lky_object_custom *argobj = args->next ? (lky_object_custom *)args->next->value : NULL;
+
+    printf("%s\n", argobj->data);
+
     char *filename = fileobj->data;
 
     unsigned long lastnum = strlen(filename) - 1;
@@ -87,15 +91,15 @@ lky_object *stlreq_compile(lky_object_seq *args, lky_object *func)
     soname[lastnum + 1] = 'o';
 
 #ifdef __APPLE__
-    char *compilefrmt = "gcc -shared -undefined dynamic_lookup -o %s %s";
+    char *compilefrmt = "gcc -shared -undefined dynamic_lookup -o %s %s %s";
 #else
-    char *compilefrmt = "gcc -shared -o %s %s";
+    char *compilefrmt = "gcc -shared -o %s %s %s -g";
 #endif
 
     char *compcmd = calloc(1000, sizeof(char));
-    sprintf(compcmd, "gcc -fPIC -c %s -o %s", filename, objname);
+    sprintf(compcmd, "gcc -fPIC -c %s -o %s -g", filename, objname);
     system(compcmd);
-    sprintf(compcmd, compilefrmt, soname, objname);
+    sprintf(compcmd, compilefrmt, soname, objname, argobj ? argobj->data : "");
     system(compcmd);
 
     free(soname);
@@ -111,7 +115,7 @@ lky_object *stlreq_get_class()
 #ifdef __APPLE__
     char *compcmd = "gcc -fPIC -c *.o\ngcc -shared -undefined dynamic_lookup -o <module name> *.o";
 #else
-    char *compcmd = "gcc -fPIC -c *.o\ngcc -shared -o <module name> *.o";
+    char *compcmd = "gcc -fPIC -c *.o\ngcc -shared -d -o <module name> *.o";
 #endif
     
     lobj_set_member(obj, "import", lobjb_build_func_ex(obj, 1, (lky_function_ptr)&stlreq_import));
