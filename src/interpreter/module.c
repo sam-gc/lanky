@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include "module.h"
 #include "ast.h"
 #include "parser.h"
@@ -9,6 +10,7 @@
 #include "stanky.h"
 #include "ast.h"
 #include "lky_gc.h"
+#include "hashtable.h"
 
 #define YY_BUF_SIZE 16384
 extern ast_node *programBlock;
@@ -16,51 +18,91 @@ typedef struct yy_buffer_state * YY_BUFFER_STATE;
 extern int yyparse();
 extern YY_BUFFER_STATE yy_scan_string(char * str);
 extern void yy_delete_buffer(YY_BUFFER_STATE buffer);
+extern YY_BUFFER_STATE yy_create_buffer(FILE *, size_t);
+extern void yypush_buffer_state(YY_BUFFER_STATE);
+extern void yypop_buffer_state();
 extern char yyyhad_error;
-/*
-        yyin = fopen(argv[1], "r");
-        if(!yyin)
-        {
-            printf("Error loading file %s\n", argv[1]);
-            return 0;
-        }
+static hashtable interpreters;
 
-        // ctx_init();
-           
-        yyparse();
-        lky_object_code *code = compile_ast_repl(programBlock->next);
-        write_to_file("test", code);
-        ast_free(programBlock);
-        
-        arraylist list = arr_create(1);
-        mach_interp interp = {NULL};
-        
-        gc_init();
-        lky_object_function *func = (lky_object_function *)lobjb_build_func(code, 0, list, &interp);
+long md_hash_interp(void *key, void *data)
+{
+    return (long)key;
+}
 
-        int i;
-        for(i = 0; i < argc; i++)
-        {
-            if(!strcmp(argv[i], "-S"))
-            {
-                stlmeta_examine(lobjb_make_seq_node((lky_object *)func), NULL);
-                return 0;
-            }
-        }
+int md_equ_interp(void *key, void *data)
+{
+    return key == data;
+}
 
-        // printf("%p ... %p ... %p\n", programBlock, programBlock->next, programBlock->next->next);
-        // printf("\nProgram output:\n==============================\n\n");
-        
-//        gc_add_root_object(func);
+void md_free_subtable(void *key, void *val, void *data)
+{
+    hashtable *hst = (hashtable *)val;
+    hst_free(hst);
+    free(hst);
+}
 
-        func->bucket = lobj_alloc();
-        func->bucket->members = get_stdlib_objects();
-        hst_put(&func->bucket->members, "Meta", stlmeta_get_class(&interp), NULL, NULL);
-        mach_execute((lky_object_function *)func);*/
+void md_mark_objects(void *key, void *val, void *data)
+{
+    gc_mark_object((lky_object *)val);
+}
 
+void md_mark_things_in_table(void *key, void *val, void *data)
+{
+    hashtable *hst = (hashtable *)val;
+    hst_for_each(hst, md_mark_objects, NULL);
+}
+
+void md_init()
+{
+    interpreters = hst_create();
+}
+
+void md_unload()
+{
+    hst_for_each(&interpreters, md_free_subtable, NULL);
+    hst_free(&interpreters);
+}
+
+void md_gc_cycle()
+{
+    hst_for_each(&interpreters, md_mark_things_in_table, NULL);
+}
+
+hashtable *md_active_modules_for_interp(mach_interp *ip)
+{
+    hashtable *hst = hst_get(&interpreters, ip, md_hash_interp, md_equ_interp);
+    if(!hst)
+    {
+        hashtable temp = hst_create();
+        temp.duplicate_keys = 1;
+
+        hst = malloc(sizeof(hashtable));
+        memcpy(hst, &temp, sizeof(hashtable));
+        hst_put(&interpreters, ip, hst, md_hash_interp, md_equ_interp);
+    }
+
+    return hst;
+}
+
+char *md_get_full_filename(char *filename, char *buf)
+{
+    // TODO: Actually implement this function
+    strcpy(buf, filename);
+    return buf;
+}
 
 lky_object *md_load(char *filename, mach_interp *ip)
 {   
+    hashtable *hst = md_active_modules_for_interp(ip);
+    char fullname[1000];
+
+    md_get_full_filename(filename, fullname);
+
+    lky_object *ret = hst_get(hst, fullname, NULL, NULL);
+
+    if(ret)
+        return ret;
+
     FILE *yyin = fopen(filename, "r");
     if(!yyin)
     {
@@ -87,11 +129,11 @@ lky_object *md_load(char *filename, mach_interp *ip)
     func->bucket->members = get_stdlib_objects();
     hst_put(&func->bucket->members, "Meta", stlmeta_get_class(ip), NULL, NULL);
 
-    gc_add_root_object(func);
-    lky_object *ret = mach_execute((lky_object_function *)func);
-    gc_remove_root_object(func);
+    ret = mach_execute((lky_object_function *)func);
 
     fclose(yyin);
+
+    hst_put(hst, fullname, ret, NULL, NULL);
 
     return ret;
 }

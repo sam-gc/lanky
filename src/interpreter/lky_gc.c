@@ -2,6 +2,7 @@
 #include "lky_machine.h"
 #include "arraylist.h"
 #include "gc_hashset.h"
+#include "module.h"
 
 void gc_mark();
 void gc_collect();
@@ -255,6 +256,8 @@ void gc_mark()
     
     //    arr_for_each(&bundle.root_stacks, (arr_pointer_function)&gc_mark_stack);
     gc_mark_function_stack(bundle.function_stacks);
+
+    md_gc_cycle();
     
     // arr_for_each(&bundle.pool, (arr_pointer_function)&gc_reset_mark);
     // arr_for_each(&bundle.roots, (arr_pointer_function)&gc_mark_object_with_return);

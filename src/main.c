@@ -14,6 +14,7 @@
 #include "stl_requisitions.h"
 #include "stl_os.h"
 #include "units.h"
+#include "module.h"
 
 extern ast_node *programBlock;
 extern int yyparse();
@@ -22,12 +23,15 @@ extern FILE *yyin;
 int main(int argc, char *argv[])
 {
     un_setup();   
+    md_init();
     stlos_init(argc - 1, argv + 1);
     if(argc > 1)
     {
         yyin = fopen(argv[1], "r");
         if(!yyin)
         {
+            md_unload();
+            un_clean();
             printf("Error loading file %s\n", argv[1]);
             return 0;
         }
@@ -76,6 +80,8 @@ int main(int argc, char *argv[])
         // printf("\n=============DEBUG============\n");
         // printf("Allocations: %d\tFrees: %d\n", get_malloc_count(), get_free_count());
         // print_alloced();
+        un_clean();
+        md_unload();
         return 0;
     }
     else
@@ -110,4 +116,5 @@ int main(int argc, char *argv[])
     }
     pool_drain(&dlmempool);
     un_clean();
+    md_unload();
 }
