@@ -72,7 +72,10 @@ lky_object *md_load(char *filename, mach_interp *ip)
 
     yyparse();
 
+    gc_pause();
     lky_object_code *code = compile_ast_repl(programBlock->next);
+    ast_free(programBlock);
+    gc_resume();
 
     yypop_buffer_state();
 

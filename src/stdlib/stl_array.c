@@ -303,6 +303,7 @@ lky_object *stlarr_joined(lky_object_seq *args, lky_object_function *func)
     tlen += jlen * (list.count ? list.count - 1 : 0) + 1;
     
     char *str = malloc(tlen);
+    strcpy(str, "");
     
     for(i = 0; i < list.count - 1; i++)
     {
