@@ -94,7 +94,7 @@ char *md_get_full_filename(char *filename, char *buf)
 lky_object *md_load(char *filename, mach_interp *ip)
 {   
     hashtable *hst = md_active_modules_for_interp(ip);
-    char fullname[1000];
+    char fullname[1000]; // TODO: Use the defined max-path constant
 
     md_get_full_filename(filename, fullname);
 
@@ -105,9 +105,7 @@ lky_object *md_load(char *filename, mach_interp *ip)
 
     FILE *yyin = fopen(filename, "r");
     if(!yyin)
-    {
         return NULL;
-    }
 
     YY_BUFFER_STATE buffer = yy_create_buffer(yyin, YY_BUF_SIZE);
     yypush_buffer_state(buffer);
