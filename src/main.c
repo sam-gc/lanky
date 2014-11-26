@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 #include "ast.h"
 #include "parser.h"
 #include "tools.h"
@@ -8,9 +9,11 @@
 #include "lky_object.h"
 #include "lkyobj_builtin.h"
 #include "lky_gc.h"
+#include "lky_object.h"
 #include "stanky.h"
 #include "tools.h"
 #include "stl_meta.h"
+#include "stl_string.h"
 #include "stl_requisitions.h"
 #include "stl_os.h"
 #include "units.h"
@@ -109,8 +112,11 @@ int main(int argc, char *argv[])
         gc_add_func_stack(&frame);
         
 //        gc_add_root_object(frame.bucket);
-        
+        char path[1000];
+        getcwd(path, 1000);
+
         hst_put(&frame.bucket->members, "Meta", stlmeta_get_class(&interp), NULL, NULL);
+        lobj_set_member(frame.bucket, "dirname_", stlstr_cinit(path));
         
         run_repl(&interp);
     }

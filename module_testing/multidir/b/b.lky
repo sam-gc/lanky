@@ -1,0 +1,7 @@
+e = Object();
+
+e.b = func() {
+    Io.putln("...B");
+};
+
+ret e;

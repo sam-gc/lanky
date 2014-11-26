@@ -1,0 +1,12 @@
+e = Object();
+
+b = load "../b/b.lky";
+
+e.a = func() {
+    b.b();
+    Io.putln("Inside a!");
+};
+
+e.b = b;
+
+ret e;

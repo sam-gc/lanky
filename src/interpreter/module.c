@@ -1,6 +1,10 @@
-#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <limits.h>
+#include <stdlib.h>
+#include <libgen.h>
+#include "stl_string.h"
+#include "lky_object.h"
 #include "module.h"
 #include "ast.h"
 #include "parser.h"
@@ -11,6 +15,12 @@
 #include "ast.h"
 #include "lky_gc.h"
 #include "hashtable.h"
+
+#ifdef __APPLE__
+#include <sys/syslimits.h>
+#else
+#include <linux/limits.h>
+#endif
 
 #define YY_BUF_SIZE 16384
 extern ast_node *programBlock;
@@ -84,26 +94,31 @@ hashtable *md_active_modules_for_interp(mach_interp *ip)
     return hst;
 }
 
-char *md_get_full_filename(char *filename, char *buf)
+void md_get_full_filename(char *filename, char *buf)
 {
-    // TODO: Actually implement this function
-    strcpy(buf, filename);
-    return buf;
+    realpath(filename, buf);
 }
 
-lky_object *md_load(char *filename, mach_interp *ip)
+lky_object *md_load(char *filename, char *codedir, mach_interp *ip)
 {   
-    hashtable *hst = md_active_modules_for_interp(ip);
-    char fullname[1000]; // TODO: Use the defined max-path constant
+    char sympath[strlen(filename) + strlen(codedir) + 1];
+    strcpy(sympath, codedir);
+    strcat(sympath, "/");
+    strcat(sympath, filename);
 
-    md_get_full_filename(filename, fullname);
+    free(codedir);
+
+    hashtable *hst = md_active_modules_for_interp(ip);
+    char fullname[PATH_MAX];
+
+    md_get_full_filename(sympath, fullname);
 
     lky_object *ret = hst_get(hst, fullname, NULL, NULL);
 
     if(ret)
         return ret;
 
-    FILE *yyin = fopen(filename, "r");
+    FILE *yyin = fopen(fullname, "r");
     if(!yyin)
         return NULL;
 
@@ -126,6 +141,11 @@ lky_object *md_load(char *filename, mach_interp *ip)
     func->bucket = lobj_alloc();
     func->bucket->members = get_stdlib_objects();
     hst_put(&func->bucket->members, "Meta", stlmeta_get_class(ip), NULL, NULL);
+
+    char pathtemp[strlen(fullname) + 1];
+    strcpy(pathtemp, fullname);
+
+    lobj_set_member(func->bucket, "dirname_", stlstr_cinit(dirname(pathtemp)));
 
     ret = mach_execute((lky_object_function *)func);
 

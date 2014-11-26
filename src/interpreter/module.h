@@ -12,6 +12,6 @@ typedef struct {
 void md_init();
 void md_unload();
 void md_gc_cycle();
-lky_object *md_load(char *filename, mach_interp *ip);
+lky_object *md_load(char *filename, char *codedir, mach_interp *ip);
 
 #endif

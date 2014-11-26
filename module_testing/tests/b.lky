@@ -1,0 +1,7 @@
+exp = Object();
+
+exp.b = func() {
+    Io.putln("Inside B!");
+};
+
+ret exp;

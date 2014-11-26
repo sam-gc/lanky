@@ -1,0 +1,12 @@
+b = load "b.lky";
+
+exp = Object();
+
+exp.a = func() {
+    b.b();
+    Io.putln('a');
+};
+
+exp.b = b;
+
+ret exp;

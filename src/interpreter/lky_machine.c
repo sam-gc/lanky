@@ -774,11 +774,28 @@ _opcode_whiplash_:
             int idx = (frame->ops[++frame->pc]);
             char *name = frame->names[idx];
 
-            lky_object *obj = md_load(name, frame->interp);
-            if(!obj)
-                obj = &lky_nil;
+            lky_object *bk = NULL;
+            lky_object *obj = NULL;
+            arraylist ps = frame->parent_stack;
 
-            PUSH(obj);
+            if(!(obj = lobj_get_member(frame->bucket, "dirname_")))
+            {
+                int i;
+                for(i = (int)ps.count - 1; i >= 0 && !bk; i--)
+                {
+                    lky_object *n = arr_get(&ps, i);
+                    if((obj = lobj_get_member(n, "dirname_")))
+                    {
+                        bk = n;
+                    }
+                }
+            }
+
+            lky_object *loaded = md_load(name, lobjb_stringify(obj), frame->interp);
+            if(!loaded)
+                loaded = &lky_nil;
+
+            PUSH(loaded);
 
             goto _opcode_whiplash_;
         }

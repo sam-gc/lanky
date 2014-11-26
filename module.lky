@@ -2,6 +2,7 @@ exports = Object();
 
 exports.sayHello = func(name) {
     Io.putln("Hello, " + name + "!");
+    Io.putln(dirname_);
 };
 
 ret exports;
