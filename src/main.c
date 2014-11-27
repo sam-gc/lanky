@@ -60,6 +60,9 @@ int main(int argc, char *argv[])
             }
         }
 
+        char path[2000];
+        realpath(argv[1], path);
+
         // printf("%p ... %p ... %p\n", programBlock, programBlock->next, programBlock->next->next);
         // printf("\nProgram output:\n==============================\n\n");
         
@@ -68,6 +71,7 @@ int main(int argc, char *argv[])
         func->bucket = lobj_alloc();
         func->bucket->members = get_stdlib_objects();
         hst_put(&func->bucket->members, "Meta", stlmeta_get_class(&interp), NULL, NULL);
+        lobj_set_member(func->bucket, "dirname_", stlstr_cinit(path));
         mach_execute((lky_object_function *)func);
 
         // eval(programBlock);

@@ -1,5 +1,8 @@
-C.compile('extensions/http.c', '-lmicrohttpd');
-http = C.import('extensions/http');
+-- Old code (still works, but "load" command replaces it)
+-- C.compile('extensions/http.c', '-lmicrohttpd');
+-- http = C.import('extensions/http');
+
+http = load 'http';
 
 getMime = func(url) {
     ext = url.split('/').last().split('.').last();
