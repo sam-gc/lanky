@@ -3,6 +3,8 @@
 #include <limits.h>
 #include <stdlib.h>
 #include <libgen.h>
+#include <unistd.h>
+#include <dlfcn.h>
 #include "stl_string.h"
 #include "lky_object.h"
 #include "module.h"
@@ -15,6 +17,7 @@
 #include "ast.h"
 #include "lky_gc.h"
 #include "hashtable.h"
+#include "mempool.h"
 
 #ifdef __APPLE__
 #include <sys/syslimits.h>
@@ -23,6 +26,7 @@
 #endif
 
 #define YY_BUF_SIZE 16384
+#define EXISTS_READ(n) (access(n, R_OK) != -1)
 extern ast_node *programBlock;
 typedef struct yy_buffer_state * YY_BUFFER_STATE;
 extern int yyparse();
@@ -33,6 +37,13 @@ extern void yypush_buffer_state(YY_BUFFER_STATE);
 extern void yypop_buffer_state();
 extern char yyyhad_error;
 static hashtable interpreters;
+
+void md_wrap_dlclose(void *obj)
+{
+    dlclose(obj);
+}
+
+static lky_mempool mdsopool = {NULL, &md_wrap_dlclose};
 
 long md_hash_interp(void *key, void *data)
 {
@@ -78,6 +89,91 @@ void md_gc_cycle()
     hst_for_each(&interpreters, md_mark_things_in_table, NULL);
 }
 
+void md_get_full_filename(char *filename, char *buf)
+{
+    realpath(filename, buf);
+}
+
+void md_make_path(char *file, char *dir, char *extra, char *buf)
+{
+    strcpy(buf, dir);
+    strcat(buf, extra);
+    strcat(buf, "/");
+    strcat(buf, file);
+}
+
+char *md_alloc_and_copy(char *text)
+{
+    char *nw = malloc(strlen(text) + 1);
+    strcpy(nw, text);
+    return nw;
+}
+
+char *md_lookup_text_code(char *file)
+{
+    char interm[1000];
+    strcpy(interm, file);
+    size_t len = strlen(file);
+    if(len < 4 || !!strcmp(".lky", file + (len - 4)))
+    {
+        strcat(interm, ".lky");   
+    }
+
+    if(EXISTS_READ(interm))
+        return md_alloc_and_copy(interm);
+
+    return NULL;
+}
+
+char *md_lookup_lib(char *file, char *dir)
+{   
+    char interm[1000];
+    strcpy(interm, file);
+    size_t len = strlen(file);
+    if(len < 3 || !!strcmp(".so", file + (len - 3)))
+        strcat(interm, ".so");
+
+    char tpath[2056];   
+    md_make_path(interm, dir, "/modules_", tpath);
+
+    if(EXISTS_READ(tpath)) 
+        return md_alloc_and_copy(tpath);
+    
+    md_make_path(interm, "/usr/lib/lanky", "", tpath);
+
+    if(EXISTS_READ(tpath))
+        return md_alloc_and_copy(tpath);
+
+    return NULL;
+}
+
+char *md_lookup_module(char *filename, char *codedir, int *lib)
+{
+    char sympath[strlen(filename) + strlen(codedir) + 1];
+    strcpy(sympath, codedir);
+    strcat(sympath, "/");
+    strcat(sympath, filename);
+
+    char fullname[PATH_MAX];
+    md_get_full_filename(sympath, fullname);
+
+    char *code = md_lookup_text_code(fullname);
+    if(code)
+    {
+        *lib = 0;
+        return code;
+    }
+
+    code = md_lookup_lib(filename, codedir);
+    if(code)
+    {
+        *lib = 1;
+        return code;
+    }
+
+    return NULL;       
+}
+
 hashtable *md_active_modules_for_interp(mach_interp *ip)
 {
     hashtable *hst = hst_get(&interpreters, ip, md_hash_interp, md_equ_interp);
@@ -94,30 +190,8 @@ hashtable *md_active_modules_for_interp(mach_interp *ip)
     return hst;
 }
 
-void md_get_full_filename(char *filename, char *buf)
+lky_object *md_load_text_code(char *fullname, mach_interp *ip)
 {
-    realpath(filename, buf);
-}
-
-lky_object *md_load(char *filename, char *codedir, mach_interp *ip)
-{   
-    char sympath[strlen(filename) + strlen(codedir) + 1];
-    strcpy(sympath, codedir);
-    strcat(sympath, "/");
-    strcat(sympath, filename);
-
-    free(codedir);
-
-    hashtable *hst = md_active_modules_for_interp(ip);
-    char fullname[PATH_MAX];
-
-    md_get_full_filename(sympath, fullname);
-
-    lky_object *ret = hst_get(hst, fullname, NULL, NULL);
-
-    if(ret)
-        return ret;
-
     FILE *yyin = fopen(fullname, "r");
     if(!yyin)
         return NULL;
@@ -147,9 +221,68 @@ lky_object *md_load(char *filename, char *codedir, mach_interp *ip)
 
     lobj_set_member(func->bucket, "dirname_", stlstr_cinit(dirname(pathtemp)));
 
-    ret = mach_execute((lky_object_function *)func);
+    lky_object *ret = mach_execute((lky_object_function *)func);
 
     fclose(yyin);
+    return ret;
+}
+
+lky_object *md_load_lib(char *fullname, char *file)
+{
+    char *shtemp;
+    char shortname[1000];
+    int i;
+    for(i = strlen(fullname); i > 0; i--)
+    {
+        if(fullname[i - 1] != '/')
+            continue;
+        shtemp = fullname + i;
+        break;
+    }
+
+    strcpy(shortname, shtemp);
+    for(i = strlen(shtemp); i >= 0; i--)
+        if(shortname[i] == '.')
+            shortname[i] = '\0';
+
+    char initname[strlen(shortname) + 6];
+    sprintf(initname, "%s_init", shortname);
+
+    void *lib_handle;
+    lky_object *(*init_func)();
+
+    lib_handle = dlopen(fullname, RTLD_LAZY);
+    if(!lib_handle)
+        printf("Couldn't load library.\n");
+
+    init_func = dlsym(lib_handle, initname); 
+
+    lky_object *obj = (*init_func)();
+    pool_add(&mdsopool, lib_handle);
+
+    return obj;
+}
+
+lky_object *md_load(char *filename, char *codedir, mach_interp *ip)
+{   
+    hashtable *hst = md_active_modules_for_interp(ip);
+
+    int lib = 0;
+
+    char *allocdname = md_lookup_module(filename, codedir, &lib);
+    char fullname[PATH_MAX];
+    strcpy(fullname, allocdname);
+    free(allocdname);
+
+    free(codedir);
+
+    lky_object *ret = hst_get(hst, fullname, NULL, NULL);
+
+    if(ret)
+        return ret;
+
+    if(lib) ret = md_load_lib(fullname, filename);
+    else ret = md_load_text_code(fullname, ip);
 
     hst_put(hst, fullname, ret, NULL, NULL);
 

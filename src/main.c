@@ -39,8 +39,6 @@ int main(int argc, char *argv[])
             return 0;
         }
 
-        // ctx_init();
-           
         yyparse();
         lky_object_code *code = compile_ast_repl(programBlock->next);
         write_to_file("test", code);
@@ -120,6 +118,7 @@ int main(int argc, char *argv[])
         
         run_repl(&interp);
     }
+
     pool_drain(&dlmempool);
     un_clean();
     md_unload();
