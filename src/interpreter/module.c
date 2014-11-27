@@ -82,6 +82,9 @@ void md_unload()
 {
     hst_for_each(&interpreters, md_free_subtable, NULL);
     hst_free(&interpreters);
+
+    // Free the dll resources...
+    pool_drain(&mdsopool);
 }
 
 void md_gc_cycle()
