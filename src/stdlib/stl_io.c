@@ -185,10 +185,12 @@ lky_object *stlio_file_write(lky_object_seq *args, lky_object_function *func)
 
     FILE *f = data->f;
 
-    lky_object_builtin *b = (lky_object_builtin *)args->value;
-    char *line = b->value.s;
+    lky_object *b = (lky_object *)args->value;
+    char *line = lobjb_stringify(b);
 
     fprintf(f, "%s", line);
+
+    free(line);
 
     return &lky_nil;
 }
@@ -200,10 +202,12 @@ lky_object *stlio_file_writeline(lky_object_seq *args, lky_object_function *func
 
     FILE *f = data->f;
 
-    lky_object_builtin *b = (lky_object_builtin *)args->value;
-    char *line = b->value.s;
+    lky_object *b = (lky_object *)args->value;
+    char *line = lobjb_stringify(b);
     
     fprintf(f, "%s\n", line);
+
+    free(line);
 
     return &lky_nil;
 }

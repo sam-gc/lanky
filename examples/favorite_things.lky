@@ -1,12 +1,12 @@
 Io.putln("These are a few of my favorite things:");
 
-things = Array();
+things = [];
 
 line = "...";
 
-loop(line != "") {
+for line != "" {
     line = Io.prompt("> ");
-    if(line != "") {
+    if line != "" {
         things.append(line);
     }
 }

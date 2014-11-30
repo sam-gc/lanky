@@ -1,5 +1,3 @@
-#!/home/sam-arch/bin/lanky
-
 OS.argv.forEach(func(arg, i) {
-    Io.putln("Arg @: @".fmt([i, arg]));
+    Io.putln("Arg @: @".fmt(i, arg));
 });

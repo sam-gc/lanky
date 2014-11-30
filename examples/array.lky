@@ -8,7 +8,7 @@ _prt arr.get(1);
 
 arr = Array();
 
-loop(i = 0; i < 100; i = i + 1) {
+for i = 0; i < 100; i = i + 1 {
     arr.append((i % 5 + 1) * "a");
 }
 
@@ -60,7 +60,7 @@ group = Array();
 group.append(moki);
 group.append(Dog("Joe"));
 
-if(group.contains(Dog("Moki"))) {
+if group.contains(Dog("Moki")) {
     moki.bark();
 }
 

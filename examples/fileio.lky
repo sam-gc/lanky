@@ -1,5 +1,5 @@
-f = Io.fopen("makefile", "r");
-lines = f.readlines();
+f = Io.fopen("../makefile", "r");
+lines = f.getlns();
 
 lines.forEach(func(val) {
     Io.putln(val);

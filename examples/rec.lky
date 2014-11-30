@@ -1,11 +1,11 @@
 test = func(x) {
-    if(x == 0) {
+    if x == 0 {
         ret 0;
     }
     
     ret x + test(x - 1);
 };
 
-loop(i = 0; i < 1000000; i = i + 1) {
+for i = 0; i < 1000; i = i + 1 {
     Io.putln(test(10));
 }

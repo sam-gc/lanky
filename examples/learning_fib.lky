@@ -6,7 +6,7 @@ fib_brute_force = func(n) {
     ret fib_brute_force(n - 1) + fib_brute_force(n - 2);
 };
 
-a = [:];
+a = {:};
 fib_smart = func(n) {
     -- Check to see if we've already calculated for n
     val = a[n];
@@ -28,11 +28,11 @@ fib_smart = func(n) {
 
 Io.putln('');
 
-now = Time.millis();
-Io.printf("@\nTook @ms\n", fib_brute_force(30), Time.millis() - now);
+now = Time.unix();
+Io.printf("@\nTook @ms\n", fib_brute_force(30), Time.unix() - now);
 Io.putln('');
 
-now = Time.millis();
-Io.printf("\n@\nTook @ms\n", fib_smart(30), Time.millis() - now);
+now = Time.unix();
+Io.printf("\n@\nTook @ms\n", fib_smart(30), Time.unix() - now);
 Io.putln('');
 Io.putln(a.size_);

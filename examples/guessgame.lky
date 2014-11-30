@@ -3,10 +3,10 @@ guess = 0;
 
 Io.putln("Guess the number between 1 and 100:");
 
-loop(i = 0; guess != target; i = i + 1) {
+for i = 0; guess != target; i = i + 1 {
     guess = Convert.toInt(Io.prompt("> "));
 
-    if(guess == target) {
+    if guess == target {
         Io.putln("You win!");
         Io.putln("You took " + (i + 1) + " guesses.");
     } else {

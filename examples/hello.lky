@@ -1,1 +1,3 @@
-_prt "Hello, world!";
+-- Simplest program of all: prints "Hello, world!"
+
+Io.putln("Hello, world!");

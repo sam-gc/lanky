@@ -1,5 +1,4 @@
-
-loop(1) {
+for 1 {
     str = Io.prompt("==$ ");
     result = Meta.exec(str);
     Io.putln(result);

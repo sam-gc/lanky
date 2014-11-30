@@ -1,8 +1,6 @@
-loop(z = 0; z < 100000000; z = z + 1){
-
 make_adder = func() {
     count = 0;
-    obj = 0 + 1;
+    obj = Object();
     obj.add = func() {
         count = count + 1;
     };
@@ -21,13 +19,12 @@ ad2 = make_adder();
 adder.add();
 _prt adder.get_count();
 
-loop(i = 0; i < 1000000; i = i + 1) {
+for i = 0; i < 100; i = i + 1 {
     adder.add();
-    if(i % 2 == 0) {
+    if i % 2 == 0 {
         ad2.add();
     }
 }
 
 _prt adder.get_count();
 _prt ad2.get_count();
-}
