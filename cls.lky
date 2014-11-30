@@ -1,1 +1,0 @@
-Io.putln(Test = class() -> self { 0; }());
