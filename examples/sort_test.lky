@@ -1,0 +1,34 @@
+make_unordered = func(count) {
+    count += 1;
+    arr = [];
+    for count -= 1 > 0 {
+        arr.append(count);
+    }
+
+    ret arr;
+};
+
+make_ordered = func(count) {
+    arr = [];
+    for i = 1; i <= count; i += 1 {
+        arr.append(i);
+    }
+
+    ret arr;
+};
+
+func() {
+    for i = 1; i < 100; i += 1 {
+        Io.putln('.' + i);
+        unordered = make_unordered(i);
+        ordered = make_ordered(i);
+
+        unordered.sort();
+        if unordered.joined(' ') != ordered.joined(' ') {
+            Io.putln('');
+            Io.putln(i + ' failed. ' + unordered);
+        }
+
+    }
+}();
+

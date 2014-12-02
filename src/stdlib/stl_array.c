@@ -336,6 +336,24 @@ lky_object *stlarr_reverse(lky_object_seq *args, lky_object_function *func)
     return stlarr_cinit(nlist);
 }
 
+arr_sort_result stlarr_wrap_sort(void *left, void *right, void *data)
+{
+    lky_object *ret = lobjb_binary_lessequal(left, right);
+    
+    return OBJ_NUM_UNWRAP(ret) == 1 ? SORT_RESULT_SORTED : SORT_RESULT_REVERSE;
+}
+
+lky_object *stlarr_sort(lky_object_seq *args, lky_object_function *func)
+{
+    lky_object_custom *self = (lky_object_custom *)func->owner;
+    stlarr_data *data = self->data;
+    arraylist list = data->container;
+
+    arr_sort(&list, stlarr_wrap_sort, NULL);
+
+    return &lky_nil;
+}
+
 lky_object *stlarr_stringify(lky_object_seq *args, lky_object_function *func)
 {
     lky_object_custom *self = (lky_object_custom *)func->owner;
@@ -432,6 +450,7 @@ lky_object *stlarr_cinit(arraylist inlist)
     lobj_set_member(obj, "insert", lobjb_build_func_ex(obj, 2, (lky_function_ptr)stlarr_insert));
     lobj_set_member(obj, "op_add_", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlarr_add));
     lobj_set_member(obj, "last", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlarr_last));
+    lobj_set_member(obj, "sort", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlarr_sort));
 
     cobj->freefunc = stlarr_dealloc;
     cobj->savefunc = stlarr_save;

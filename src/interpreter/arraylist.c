@@ -133,7 +133,81 @@ void arr_free(arraylist *list)
     free(list->items);
 }
 
-void arr_sort(arraylist *list, arr_sort_function sf)
+void arr_sort_merge(void *data[], int count, arr_sort_function sf, void *misc, int offset)
 {
+    int i, j, k;
+    i = j = k = 0;
+
+    int p, q;
+
+    if(offset)
+    {
+        p = offset;
+        q = count - offset;
+    }
+    else
+    {
+        p = count / 2;
+        q = count % 2 ? p + 1 : p;
+    }
+
+    void **B = data;
+    void **C = data + p;
+    void *A[count];
+
+    for(; i < p && j < q; k++)
+    {
+        arr_sort_result r = sf(B[i], C[j], misc);
+        if(r == SORT_RESULT_EQUAL || r == SORT_RESULT_SORTED)
+            A[k] = B[i++];
+        else
+            A[k] = C[j++];
+    }
+
+    int rest;
+    int rem;
+    void **rar;
+    if(i == p)
+    {
+        rar = C;
+        rest = j;
+        rem = q;
+    }
+    else
+    {
+        rar = B;
+        rest = i;
+        rem = p;
+    }
+
+    for(i = rest; i < rem; i++)
+        A[k++] = rar[i]; 
+
+    for(i = 0; i < count; i++)
+        data[i] = A[i];
+}
+
+void arr_sort(arraylist *list, arr_sort_function sf, void *data)
+{
+    // This is a mergesort implementation
+
+    void **items = list->items;
+
+    // We need to pre sort the last two numbers to ensure everything
+    // works okay if the list is uneven.
+    //if(list->count % 2 && list->count > 2)
+    //    arr_sort_merge(items + (list->count - 2), 2, sf, data, 0);
+
+    int i, j;
+    for(i = 2; i < list->count; i *= 2)
+    {
+        for(j = 0; j < list->count - 1; j += i)
+        {
+            void **section = items + j;
+            arr_sort_merge(section, j + i < list->count - 1 ? i : list->count - j, sf, data, 0);
+        }
+    }
+
+    arr_sort_merge(items, list->count, sf, data, i / 2);
 }
 
