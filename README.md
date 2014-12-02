@@ -6,6 +6,9 @@ A new interpreted language implemented in C.
 ## Background
 The interpreter uses Flex and Bison to do tokenization and parsing. The grammar is hopefully relatively simple. I borrowed some of the Bison and Flex code from [this tutorial](http://gnuu.org/2009/09/18/writing-your-own-toy-compiler/4/); that project uses C++ with LLVM. My goal is to learn about interpreters and create a marginally useful language with which to play around.
 
+## Standard Library
+There is a consistently growing standard library (largely made up of C native functions). I haven't had time to create a proper wiki page or website to document the standard library (and it is constantly changing) but if you type in the REPL "Meta.helpStdlib();" you will get a readout of a more-or-less up to date layout of the standard library.
+
 ## Compilation
 There are two main parts: the `guts` (Flex and Bison) and the `glory` (the AST builder/compiler and bytecode interpreter). Each can be built from the makefile, and both can be built with `all` or `lanky`. Finally, a `clean` option is included to remove the auto-generated files from Bison and Flex (these should not be in the repo itself) and the object files.
 
