@@ -379,6 +379,81 @@ lky_object *stlmeta_examine(lky_object_seq *args, lky_object_function *func)
     return &lky_nil;
 }
 
+lky_object *stlmeta_help_stdlib(lky_object_seq *args, lky_object_function *func)
+{
+    printf("LANKY STANDARD LIBRARY\n"
+           "======================\n\n"
+           "+ Object (stl_object.c)\n"
+           "\t- stringify_()\n"
+           "\t- op_equals_()\n"
+           "\t- members_()\n\n"
+           "+ Array (stl_array.c)\n"
+           "\t- reverse()\n"
+           "\t- contains(obj)\n"
+           "\t- removeAt(index)\n"
+           "\t- count\n"
+           "\t- indexOf(obj)\n"
+           "\t- last()\n"
+           "\t- insert(obj, index)\n"
+           "\t- append(obj)\n"
+           "\t- forEach(callback)\n"
+           "\t- joined(str)\n\n"
+           "+ Convert (stl_convert.c)\n"
+           "\t- toInt(obj)\n"
+           "\t- Unit(value, str)\n"
+           "\t- units(unit, str)\n"
+           "\t- toFloat(obj)\n"
+           "\t- toString(obj)\n\n"
+           "+ Io (stl_io.c)\n"
+           "\t- prompt(string)\n"
+           "\t- putln(string)\n"
+           "\t- put(string)\n"
+           "\t- printf(format, args)\n"
+           "\t- fopen(filename, mode)\n\n"
+           "+ Math (stl_math.c)\n"
+           "\t- All standard C -lm functions\n"
+           "\t- Phys\n"
+           "\t- Astro\n"
+           "\t- randInt(upper, lower)\n"
+           "\t- rand()\n"
+           "\t- pi\n"
+           "\t- e\n\n"
+           "+ Meta (stl_meta.c)\n"
+           "\t- repl()\n"
+           "\t- exec(string)\n"
+           "\t- examine(obj)\n"
+           "\t- helpStdlib()\n\n"
+           "+ OS (stl_os.c)\n"
+           "\t- argc\n"
+           "\t- argv\n\n"
+           "+ C (stl_requisitions.c)\n"
+           "\t- import(filename) \tReplaced by 'load'\n"
+           "\t- buildCmd\n"
+           "\t- compile(filename, flags)\n\n"
+           "+ String (stl_string.c)\n"
+           "\t- reverse()\n"
+           "\t- length\n"
+           "\t- fmt(args)\n"
+           "\t- split(delim)\n\n"
+           "+ Hash Table (stl_hashtable.c)\n"
+           "\t- keys()\n"
+           "\t- addAll(other)\n"
+           "\t- hasKey(key)\n"
+           "\t- count\n"
+           "\t- removeValue(val)\n"
+           "\t- remove(key)\n"
+           "\t- values()\n"
+           "\t- hasValue(val)\n"
+           "\t- size_\n\n"
+           "+ Time (stl_time.c)\n"
+           "\t- unix()\n\n"
+           ".\n"
+           ".\n"
+           ".\n");
+
+    return &lky_nil;
+}
+
 lky_object *stlmeta_get_class(mach_interp *interp)
 {
     lky_object_custom *custom = lobjb_build_custom(sizeof(mach_interp));
@@ -391,6 +466,7 @@ lky_object *stlmeta_get_class(mach_interp *interp)
     lobj_set_member(obj, "exec", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlmeta_exec));
     lobj_set_member(obj, "repl", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlmeta_repl));
     lobj_set_member(obj, "examine", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlmeta_examine));
+    lobj_set_member(obj, "helpStdlib", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlmeta_help_stdlib));
     
     return obj;
 }
