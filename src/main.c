@@ -67,9 +67,11 @@ int main(int argc, char *argv[])
         // printf("\nProgram output:\n==============================\n\n");
         
 //        gc_add_root_object(func);
+//
+        interp.stdlib = get_stdlib_objects();
 
         func->bucket = lobj_alloc();
-        func->bucket->members = get_stdlib_objects();
+        hst_add_all_from(&func->bucket->members, &interp.stdlib, NULL, NULL);
         hst_put(&func->bucket->members, "Meta", stlmeta_get_class(&interp), NULL, NULL);
         lobj_set_member(func->bucket, "dirname_", stlstr_cinit(path));
         mach_execute((lky_object_function *)func);
@@ -93,7 +95,8 @@ int main(int argc, char *argv[])
     {
         gc_init();
         arraylist list = arr_create(1);
-        mach_interp interp = {NULL};
+
+        mach_interp interp = {NULL, get_stdlib_objects()};
         
         gc_init();
 //        lky_object_function *func = (lky_object_function *)lobjb_build_func(NULL, 0, list, &interp);
@@ -104,7 +107,8 @@ int main(int argc, char *argv[])
         
         stackframe frame;
         frame.bucket = lobj_alloc();
-        frame.bucket->members = get_stdlib_objects();
+        hst_add_all_from(&frame.bucket->members, &interp.stdlib, NULL, NULL);
+        //frame.bucket->members = get_stdlib_objects();
         frame.parent_stack = list;
         frame.stack_size = 0;
         frame.locals_count = 0;

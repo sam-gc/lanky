@@ -1,0 +1,8 @@
+mod = load 'module';
+
+if Io == mod.io {
+    Io.putln("Using older version of lanky!");
+}
+else {
+    Io.putln("You seem to be up-to-date.");
+}

@@ -474,25 +474,25 @@ lky_object *stlarr_cinit(arraylist inlist)
     lky_object *getter = lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlarr_get);
     lky_object *setter = lobjb_build_func_ex(obj, 2, (lky_function_ptr)stlarr_set);
 
-    lobj_set_member(obj, "append", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlarr_append));
-    lobj_set_member(obj, "get", getter); // We want to let people directly call get
-    lobj_set_member(obj, "op_get_index_", getter); // For the builtin getting syntax
-    lobj_set_member(obj, "set", setter); // Direct call
-    lobj_set_member(obj, "op_set_index_", setter); // For the builtin setting syntax
-    lobj_set_member(obj, "forEach", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlarr_for_each));
-    lobj_set_member(obj, "count", lobjb_build_int(inlist.count));
-    lobj_set_member(obj, "contains", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlarr_contains));
-    lobj_set_member(obj, "indexOf", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlarr_index_of));
-    lobj_set_member(obj, "stringify_", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlarr_stringify));
-    lobj_set_member(obj, "removeAt", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlarr_remove_at));
-    lobj_set_member(obj, "joined", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlarr_joined));
-    lobj_set_member(obj, "reverse", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlarr_reverse));
-    lobj_set_member(obj, "insert", lobjb_build_func_ex(obj, 2, (lky_function_ptr)stlarr_insert));
-    lobj_set_member(obj, "op_add_", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlarr_add));
-    lobj_set_member(obj, "last", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlarr_last));
-    lobj_set_member(obj, "sort", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlarr_sort));
-    lobj_set_member(obj, "sorted", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlarr_sorted));
-    lobj_set_member(obj, "copy", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlarr_copy));
+    lobj_set_member(obj, "append",          lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlarr_append));
+    lobj_set_member(obj, "get",             getter); // We want to let people directly call get
+    lobj_set_member(obj, "op_get_index_",   getter); // For the builtin getting syntax
+    lobj_set_member(obj, "set",             setter); // Direct call
+    lobj_set_member(obj, "op_set_index_",   setter); // For the builtin setting syntax
+    lobj_set_member(obj, "forEach",         lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlarr_for_each));
+    lobj_set_member(obj, "count",           lobjb_build_int(inlist.count));
+    lobj_set_member(obj, "contains",        lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlarr_contains));
+    lobj_set_member(obj, "indexOf",         lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlarr_index_of));
+    lobj_set_member(obj, "stringify_",      lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlarr_stringify));
+    lobj_set_member(obj, "removeAt",        lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlarr_remove_at));
+    lobj_set_member(obj, "joined",          lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlarr_joined));
+    lobj_set_member(obj, "reverse",         lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlarr_reverse));
+    lobj_set_member(obj, "insert",          lobjb_build_func_ex(obj, 2, (lky_function_ptr)stlarr_insert));
+    lobj_set_member(obj, "op_add_",         lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlarr_add));
+    lobj_set_member(obj, "last",            lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlarr_last));
+    lobj_set_member(obj, "sort",            lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlarr_sort));
+    lobj_set_member(obj, "sorted",          lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlarr_sorted));
+    lobj_set_member(obj, "copy",            lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlarr_copy));
 
     cobj->freefunc = stlarr_dealloc;
     cobj->savefunc = stlarr_save;

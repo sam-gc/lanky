@@ -30,7 +30,7 @@ typedef struct stackframe {
 
 typedef struct interp {
     stackframe *stack;
-    
+    hashtable stdlib;
 } mach_interp;
 
 typedef struct lky_object_function lky_object_function;

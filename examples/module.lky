@@ -5,4 +5,6 @@ exports.sayHello = func(name) {
     Io.putln(dirname_);
 };
 
+exports.io = Io;
+
 ret exports;
