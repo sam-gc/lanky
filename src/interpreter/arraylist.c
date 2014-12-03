@@ -133,81 +133,61 @@ void arr_free(arraylist *list)
     free(list->items);
 }
 
-void arr_sort_merge(void *data[], int count, arr_sort_function sf, void *misc, int offset)
+// Sifting code implementation of Wikipedia's heapsort pseudocode: http://en.wikipedia.org/wiki/Heapsort
+void arr_siftdown(void *arr[], int start, int end, arr_sort_function sf, void *data)
 {
-    int i, j, k;
-    i = j = k = 0;
+    int root = start;
 
-    int p, q;
-
-    if(offset)
+    while(root * 2 + 1 <= end)
     {
-        p = offset;
-        q = count - offset;
+        int child = root * 2 + 1;
+        int swap = root;
+
+        arr_sort_result ra = sf(arr[swap], arr[child], data);
+        if(ra == SORT_RESULT_SORTED)
+            swap = child;
+        if(child + 1 <= end)
+        {
+            arr_sort_result rb = sf(arr[swap], arr[child + 1], data);
+            if(rb == SORT_RESULT_EQUAL || rb == SORT_RESULT_SORTED)
+                swap = child + 1;
+        }
+
+        if(swap == root)
+            return;
+
+        void *tmp = arr[root];
+        arr[root] = arr[swap];
+        arr[swap] = tmp;
+
+        root = swap;
     }
-    else
+}
+
+void arr_heapify(void *arr[], int length, arr_sort_function sf, void *data)
+{
+    int start = (length - 2) / 2;
+
+    while(start --> 0) // lol
+        arr_siftdown(arr, start, length - 1, sf, data);
+}
+
+void arr_heapsort(void *arr[], int length, arr_sort_function sf, void *data)
+{
+    arr_heapify(arr, length, sf, data);
+
+    int end = length - 1;
+    while(end >= 0)
     {
-        p = count / 2;
-        q = count % 2 ? p + 1 : p;
+        void *tmp = arr[0];
+        arr[0] = arr[end];
+        arr[end] = tmp;
+        arr_siftdown(arr, 0, --end, sf, data);
     }
-
-    void **B = data;
-    void **C = data + p;
-    void *A[count];
-
-    for(; i < p && j < q; k++)
-    {
-        arr_sort_result r = sf(B[i], C[j], misc);
-        if(r == SORT_RESULT_EQUAL || r == SORT_RESULT_SORTED)
-            A[k] = B[i++];
-        else
-            A[k] = C[j++];
-    }
-
-    int rest;
-    int rem;
-    void **rar;
-    if(i == p)
-    {
-        rar = C;
-        rest = j;
-        rem = q;
-    }
-    else
-    {
-        rar = B;
-        rest = i;
-        rem = p;
-    }
-
-    for(i = rest; i < rem; i++)
-        A[k++] = rar[i]; 
-
-    for(i = 0; i < count; i++)
-        data[i] = A[i];
 }
 
 void arr_sort(arraylist *list, arr_sort_function sf, void *data)
 {
-    // This is a mergesort implementation
-
-    void **items = list->items;
-
-    // We need to pre sort the last two numbers to ensure everything
-    // works okay if the list is uneven.
-    //if(list->count % 2 && list->count > 2)
-    //    arr_sort_merge(items + (list->count - 2), 2, sf, data, 0);
-
-    int i, j;
-    for(i = 2; i < list->count; i *= 2)
-    {
-        for(j = 0; j < list->count - 1; j += i)
-        {
-            void **section = items + j;
-            arr_sort_merge(section, j + i < list->count - 1 ? i : list->count - j, sf, data, 0);
-        }
-    }
-
-    arr_sort_merge(items, list->count, sf, data, i / 2);
+    arr_heapsort(list->items, list->count, sf, data);
 }
 

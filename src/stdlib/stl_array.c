@@ -338,9 +338,15 @@ lky_object *stlarr_reverse(lky_object_seq *args, lky_object_function *func)
 
 arr_sort_result stlarr_wrap_sort(void *left, void *right, void *data)
 {
-    lky_object *ret = lobjb_binary_lessequal(left, right);
-    
-    return OBJ_NUM_UNWRAP(ret) == 1 ? SORT_RESULT_SORTED : SORT_RESULT_REVERSE;
+    lky_object *lto = lobjb_binary_lessthan(left, right);
+    lky_object *eqo = lobjb_binary_equals(left, right);
+
+    int lt = (int)OBJ_NUM_UNWRAP(lto);
+    int eq = (int)OBJ_NUM_UNWRAP(eqo);
+
+    if(eq)
+        return SORT_RESULT_EQUAL;
+    return lt ? SORT_RESULT_SORTED : SORT_RESULT_REVERSE;
 }
 
 lky_object *stlarr_sort(lky_object_seq *args, lky_object_function *func)

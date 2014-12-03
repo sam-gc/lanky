@@ -28,7 +28,6 @@ func() {
             Io.putln('');
             Io.putln(i + ' failed. ' + unordered);
         }
-
     }
 }();
 
