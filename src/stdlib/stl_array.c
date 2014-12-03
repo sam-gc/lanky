@@ -357,7 +357,41 @@ lky_object *stlarr_sort(lky_object_seq *args, lky_object_function *func)
 
     arr_sort(&list, stlarr_wrap_sort, NULL);
 
-    return &lky_nil;
+    return (lky_object *)self;
+}
+
+lky_object *stlarr_copy(lky_object_seq *args, lky_object_function *func)
+{
+    lky_object_custom *self = (lky_object_custom *)func->owner;
+    stlarr_data *data = self->data;
+    arraylist list = data->container;
+
+    arraylist nw;
+    nw.items = malloc(list.allocated * sizeof(void *));
+    nw.count = list.count;
+    nw.allocated = list.allocated;
+
+    memcpy(nw.items, list.items, list.count * sizeof(void *));
+
+    return stlarr_cinit(nw);
+}
+
+lky_object *stlarr_sorted(lky_object_seq *args, lky_object_function *func)
+{
+    lky_object_custom *self = (lky_object_custom *)func->owner;
+    stlarr_data *data = self->data;
+    arraylist list = data->container;
+    
+    arraylist nw;
+    nw.items = malloc(list.allocated * sizeof(void *));
+    nw.count = list.count;
+    nw.allocated = list.allocated;
+
+    memcpy(nw.items, list.items, list.count * sizeof(void *));
+
+    arr_sort(&nw, stlarr_wrap_sort, NULL);
+
+    return stlarr_cinit(nw);
 }
 
 lky_object *stlarr_stringify(lky_object_seq *args, lky_object_function *func)
@@ -457,6 +491,8 @@ lky_object *stlarr_cinit(arraylist inlist)
     lobj_set_member(obj, "op_add_", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlarr_add));
     lobj_set_member(obj, "last", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlarr_last));
     lobj_set_member(obj, "sort", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlarr_sort));
+    lobj_set_member(obj, "sorted", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlarr_sorted));
+    lobj_set_member(obj, "copy", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlarr_copy));
 
     cobj->freefunc = stlarr_dealloc;
     cobj->savefunc = stlarr_save;
