@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <libgen.h>
 #include "ast.h"
 #include "parser.h"
 #include "tools.h"
@@ -60,8 +61,10 @@ int main(int argc, char *argv[])
             }
         }
 
-        char path[2000];
-        realpath(argv[1], path);
+        char codeloc[2000];
+        realpath(argv[1], codeloc);
+
+        char *path = dirname(codeloc);
 
         // printf("%p ... %p ... %p\n", programBlock, programBlock->next, programBlock->next->next);
         // printf("\nProgram output:\n==============================\n\n");

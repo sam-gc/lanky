@@ -1,0 +1,10 @@
+Io.putln('test');
+
+a = load 'examples/module';
+
+Io.putln(a.io == Io);
+a.sayHello('World');
+Io.putln("Hello");
+
+
+
