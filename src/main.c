@@ -19,10 +19,22 @@
 #include "stl_os.h"
 #include "units.h"
 #include "module.h"
+#include "serialize.h"
 
 extern ast_node *programBlock;
 extern int yyparse();
 extern FILE *yyin;
+
+void export_to_file(char *data, size_t len, char *filename)
+{
+    FILE *f = fopen(filename, "wb");
+    if(!f)
+        return;
+
+    fwrite(data, 1, len, f);
+
+    fclose(f);
+}
 
 int main(int argc, char *argv[])
 {
@@ -42,9 +54,14 @@ int main(int argc, char *argv[])
 
         yyparse();
         lky_object_code *code = compile_ast_repl(programBlock->next);
-        write_to_file("test", code);
+        //write_to_file("test", code);
         ast_free(programBlock);
-        
+ 
+        size_t len;
+        char *rendered = srl_serialize_object((lky_object *)code, &len);
+        export_to_file(rendered, len, "a.out");
+        free(rendered);
+
         arraylist list = arr_create(1);
         mach_interp interp = {NULL};
         
