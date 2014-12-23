@@ -42,10 +42,11 @@ int64_t srl_bytes_to_int64(unsigned char *buf, size_t offset)
 {
     int64_t bd = 0;
     int i;
-    for(i = 0; i < 4; i++)
+    for(i = 0; i < 8; i++)
     {
         int64_t c = buf[i + offset];
         c <<= 56 - i * 8;
+        bd |= c;
     }
 
     return bd;
@@ -81,7 +82,7 @@ char *srl_serialize_number(lky_object *obj, size_t *len)
 {
     char *data = malloc(13);
     char buf[8];
-    *len = 14;
+    *len = 13;
 
     srl_render_shared_info(obj, data, *len);
 
@@ -228,84 +229,15 @@ lky_object *srl_deserialize_number(char *bytes)
 
 lky_object *srl_deserialize_string(char *bytes)
 {
-    int len = srl_bytes_to_int32(bytes, 1);
+    int len = srl_bytes_to_int32(bytes, 1) - 5;
     char tex[len + 1];
     memcpy(tex, bytes + 5, len);
     tex[len] = 0;
 
     return stlstr_cinit(tex);
 }
-    /*size_t accum = 21;
 
-    lky_object_code *code = (lky_object_code *)obj;
-    char *rendered_constants[code->num_constants];
-    size_t rendered_lengths[code->num_constants];
-
-    int i;
-    for(i = 0; i < code->num_constants; i++)
-    {
-        size_t tmp;
-        rendered_constants[i] = srl_serialize_object(code->constants[i], &tmp);
-        rendered_lengths[i] = tmp;
-
-        accum += tmp;
-    }
-
-    for(i = 0; i < code->num_names; i++)
-        accum += strlen(code->names[i]) + 4;
-
-    accum += code->op_len;
-    char *data = malloc(accum);
-    srl_copy_int32_to_index(data, code->num_constants, 5);
-    srl_copy_int32_to_index(data, code->num_locals, 9);
-    srl_copy_int32_to_index(data, code->num_names, 13);
-    srl_copy_int32_to_index(data, code->op_len, 17);
-
-    size_t idx = 21;
-    for(i = 0; i < code->num_constants; i++)
-    {
-        char *cons = rendered_constants[i];
-        size_t ln = rendered_lengths[i];
-        srl_copy_bytes_to_index(data, cons, idx, ln);
-        idx += ln;
-        free(cons);
-    }
-
-    for(i = 0; i < code->num_names; i++)
-    {
-        char *cur = code->names[i];
-        size_t ln = strlen(cur);
-        srl_copy_int32_to_index(data, ln, idx);
-        idx += 4;
-        srl_copy_bytes_to_index(data, cur, idx, ln);
-        idx += ln;
-    }
-
-    srl_copy_bytes_to_index(data, code->ops, idx, code->op_len);
-
-    *len = accum;
-    srl_render_shared_info(obj, data, accum);
-
-    return data;
-
-typedef struct {
-    lky_builtin_type type;
-    int mem_count;
-    size_t size;
-
-    long num_constants;
-    long num_locals;
-    long num_names;
-
-    void **constants;
-    void **locals;
-    char **names;
-    unsigned char *ops;
-    long op_len;
-    int stack_size;
-} lky_object_code;*/
-
-lky_object *srl_deserialize_code(char *bytes)
+lky_object *srl_deserialize_code(unsigned char *bytes)
 {   
     long ncs = srl_bytes_to_int32(bytes, 5);
     long nlc = srl_bytes_to_int32(bytes, 9);
