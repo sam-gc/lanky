@@ -36,6 +36,17 @@ void export_to_file(char *data, size_t len, char *filename)
     fclose(f);
 }
 
+void read_from_file(char *filename)
+{
+    FILE *f = fopen(filename, "rb");
+    if(!f)
+        return;
+
+    srl_deserialize_from_file(f);
+
+    fclose(f);
+}
+
 int main(int argc, char *argv[])
 {
     un_setup();   
@@ -43,24 +54,33 @@ int main(int argc, char *argv[])
     stlos_init(argc - 1, argv + 1);
     if(argc > 1)
     {
-        yyin = fopen(argv[1], "r");
-        if(!yyin)
+        lky_object_code *code = NULL;
+        if(argc == 2)
         {
-            md_unload();
-            un_clean();
-            printf("Error loading file %s\n", argv[1]);
-            return 0;
-        }
+            yyin = fopen(argv[1], "r");
+            if(!yyin)
+            {
+                md_unload();
+                un_clean();
+                printf("Error loading file %s\n", argv[1]);
+                return 0;
+            }
 
-        yyparse();
-        lky_object_code *code = compile_ast_repl(programBlock->next);
+            yyparse();
+            code = compile_ast_repl(programBlock->next);
+            ast_free(programBlock);
+            size_t len;
+            char *rendered = srl_serialize_object((lky_object *)code, &len);
+            export_to_file(rendered, len, "a.out");
+            free(rendered);
+        }
+        else
+        {
+            FILE *f = fopen(argv[1], "rb");
+            code = (lky_object_code *)srl_deserialize_from_file(f);
+            fclose(f);
+        }
         //write_to_file("test", code);
-        ast_free(programBlock);
- 
-        size_t len;
-        char *rendered = srl_serialize_object((lky_object *)code, &len);
-        export_to_file(rendered, len, "a.out");
-        free(rendered);
 
         arraylist list = arr_create(1);
         mach_interp interp = {NULL};

@@ -29,10 +29,10 @@ fib_smart = func(n) {
 Io.putln('');
 
 now = Time.unix();
-Io.printf("@\nTook @ms\n", fib_brute_force(30), Time.unix() - now);
+Io.printf("@\nTook @ms\n", fib_brute_force(20), Time.unix() - now);
 Io.putln('');
 
 now = Time.unix();
-Io.printf("\n@\nTook @ms\n", fib_smart(30), Time.unix() - now);
+Io.printf("\n@\nTook @ms\n", fib_smart(20), Time.unix() - now);
 Io.putln('');
 Io.putln(a.size_);

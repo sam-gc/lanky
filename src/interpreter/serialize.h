@@ -6,5 +6,6 @@
 
 char *srl_serialize_object(lky_object *obj, size_t *len);
 lky_object *srl_deserialize_object(char *bytes);
+lky_object *srl_deserialize_from_file(FILE *f);
 
 #endif
