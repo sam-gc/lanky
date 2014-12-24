@@ -1,3 +1,21 @@
+/* Lanky -- Scripting Language and Virtual Machine
+ * Copyright (C) 2014  Sam Olsen
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
@@ -25,6 +43,23 @@ extern ast_node *programBlock;
 extern int yyparse();
 extern FILE *yyin;
 
+hashtable parse_args(int argc, char *argv[])
+{
+    hashtable tab = hst_create();
+    hst_put(&tab, "-o", "a.out", NULL, NULL);
+
+    int i;
+    for(i = 0; i < argc; i++)
+    {
+        if(strcmp(argv[i], "-o") == 0 && i < argc - 1)
+            hst_put(&tab, "-o", argv[++i], NULL, NULL);
+        else if(strcmp(argv[i], "-c") == 0)
+            hst_put(&tab, "-c", (void *)1, NULL, NULL);
+    }
+
+    return tab;
+}
+
 void export_to_file(char *data, size_t len, char *filename)
 {
     FILE *f = fopen(filename, "wb");
@@ -45,6 +80,63 @@ void read_from_file(char *filename)
     srl_deserialize_from_file(f);
 
     fclose(f);
+}
+
+void exec_in_repl()
+{
+    char *start;
+#ifdef __clang__
+    start = "Lanky, version 0.1; compiled " __DATE__ " for "
+#ifdef __APPLE__
+       "Mac OS X"
+#else
+       "GNU/Linux"
+#endif 
+       " by Clang [" __clang_version__ "].";
+#elif defined __GNUC__
+    start = "Lanky, version 0.1; compiled " __DATE__ " for "
+#ifdef __APPLE__
+      "Mac OS X"
+#else
+      "GNU/Linux"
+#endif
+      " by GCC [" __VERSION__ "].";
+#else
+    start = "Lanky, version 0.1; compiled " __DATE__ " for unknown platform with unknown compiler."
+#endif
+    printf("%s\nCopyright (C) 2014 Sam Olsen\n", start);
+    gc_init();
+    arraylist list = arr_create(1);
+
+    mach_interp interp = {NULL, get_stdlib_objects()};
+    
+    gc_init();
+//    lky_object_function *func = (lky_object_function *)lobjb_build_func(NULL, 0, list, &interp);
+//    gc_add_root_object(func);
+//    
+//    func->bucket = lobj_alloc();
+//    func->bucket->members = get_stdlib_objects();
+    
+    stackframe frame;
+    frame.bucket = lobj_alloc();
+    hst_add_all_from(&frame.bucket->members, &interp.stdlib, NULL, NULL);
+    //frame.bucket->members = get_stdlib_objects();
+    frame.parent_stack = list;
+    frame.stack_size = 0;
+    frame.locals_count = 0;
+    
+    interp.stack = &frame;
+    
+    gc_add_func_stack(&frame);
+    
+//    gc_add_root_object(frame.bucket);
+    char path[1000];
+    getcwd(path, 1000);
+
+    hst_put(&frame.bucket->members, "Meta", stlmeta_get_class(&interp), NULL, NULL);
+    lobj_set_member(frame.bucket, "dirname_", stlstr_cinit(path));
+    
+    run_repl(&interp);
 }
 
 int main(int argc, char *argv[])
@@ -133,38 +225,7 @@ int main(int argc, char *argv[])
     }
     else
     {
-        gc_init();
-        arraylist list = arr_create(1);
-
-        mach_interp interp = {NULL, get_stdlib_objects()};
-        
-        gc_init();
-//        lky_object_function *func = (lky_object_function *)lobjb_build_func(NULL, 0, list, &interp);
-//        gc_add_root_object(func);
-//        
-//        func->bucket = lobj_alloc();
-//        func->bucket->members = get_stdlib_objects();
-        
-        stackframe frame;
-        frame.bucket = lobj_alloc();
-        hst_add_all_from(&frame.bucket->members, &interp.stdlib, NULL, NULL);
-        //frame.bucket->members = get_stdlib_objects();
-        frame.parent_stack = list;
-        frame.stack_size = 0;
-        frame.locals_count = 0;
-        
-        interp.stack = &frame;
-        
-        gc_add_func_stack(&frame);
-        
-//        gc_add_root_object(frame.bucket);
-        char path[1000];
-        getcwd(path, 1000);
-
-        hst_put(&frame.bucket->members, "Meta", stlmeta_get_class(&interp), NULL, NULL);
-        lobj_set_member(frame.bucket, "dirname_", stlstr_cinit(path));
-        
-        run_repl(&interp);
+        exec_in_repl();
     }
 
     pool_drain(&dlmempool);
