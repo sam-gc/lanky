@@ -24,7 +24,8 @@ horspool = func(search, text) {
 
         shift = shifts[text[j]];
 
-        i += shift ? shift : slen;
+        -- The next line replaces: i += shift ? shift : slen;
+        i += shift ?: slen;
     }
 
     ret -1;
