@@ -1,0 +1,39 @@
+build_shift_table = func(str) {
+    tab = {:};
+    len = str.length;
+    for i = 0; i < len; i += 1 {
+        tab[str[i]] = len - i - 1;
+    }
+
+    ret tab;
+};
+
+horspool = func(search, text) {
+    slen = search.length;
+    tlen = text.length;
+
+    shifts = build_shift_table(search);
+
+    i = 0;
+    for i <= tlen - slen {
+        for j = i + slen - 1; search[j - i] == text[j]; j -= 1 {
+            if(j == i) {
+                ret j;
+            }
+        }
+
+        shift = shifts[text[j]];
+
+        i += shift ? shift : slen;
+    }
+
+    ret -1;
+};
+
+text = "the quick brown fox jumps over the lazy dog.";
+search = "jump";
+idx = horspool(search, text);
+Io.putln(idx + ":");
+Io.putln(text);
+Io.putln((" " * idx) + search);
+
