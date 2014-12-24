@@ -55,6 +55,10 @@ hashtable parse_args(int argc, char *argv[])
             hst_put(&tab, "-o", argv[++i], NULL, NULL);
         else if(strcmp(argv[i], "-c") == 0)
             hst_put(&tab, "-c", (void *)1, NULL, NULL);
+        else if(strcmp(argv[i], "-S") == 0)
+            hst_put(&tab, "-S", (void *)1, NULL, NULL);
+        else if(strcmp(argv[i], "-e") == 0)
+            hst_put(&tab, "-e", (void *)1, NULL, NULL);
     }
 
     return tab;
@@ -139,6 +143,53 @@ void exec_in_repl()
     run_repl(&interp);
 }
 
+lky_object_code *compile_from_file(char *file)
+{
+    yyin = fopen(file, "r");
+    if(!yyin)
+        return NULL;
+
+    yyparse();
+    lky_object_code *code = compile_ast_repl(programBlock->next);
+    ast_free(programBlock);
+    
+    return code;
+}
+
+lky_object_code *render_from_file(char *file)
+{
+    FILE *f = fopen(file, "rb");
+    lky_object_code *code = (lky_object_code *)srl_deserialize_from_file(f);
+    fclose(f);
+    return code;
+}
+
+void exec_from_code(lky_object_code *code, char *file, int exec)
+{
+    arraylist list = arr_create(1);
+    mach_interp interp = {NULL};
+    
+    gc_init();
+    lky_object_function *func = (lky_object_function *)lobjb_build_func(code, 0, list, &interp);
+
+    char codeloc[2000];
+    realpath(file, codeloc);
+
+    char *path = dirname(codeloc);
+
+    interp.stdlib = get_stdlib_objects();
+
+    func->bucket = lobj_alloc();
+    hst_add_all_from(&func->bucket->members, &interp.stdlib, NULL, NULL);
+    hst_put(&func->bucket->members, "Meta", stlmeta_get_class(&interp), NULL, NULL);
+    lobj_set_member(func->bucket, "dirname_", stlstr_cinit(path));
+
+    if(exec)
+        mach_execute((lky_object_function *)func);
+    else
+        stlmeta_examine(lobjb_make_seq_node((lky_object *)func), NULL);
+}
+
 int main(int argc, char *argv[])
 {
     un_setup();   
@@ -147,87 +198,35 @@ int main(int argc, char *argv[])
     if(argc > 1)
     {
         lky_object_code *code = NULL;
-        if(argc == 2)
+        hashtable args = parse_args(argc, argv);
+        if(hst_contains_key(&args, "-e", NULL, NULL))
         {
-            yyin = fopen(argv[1], "r");
-            if(!yyin)
-            {
-                md_unload();
-                un_clean();
-                printf("Error loading file %s\n", argv[1]);
-                return 0;
-            }
-
-            yyparse();
-            code = compile_ast_repl(programBlock->next);
-            ast_free(programBlock);
-            size_t len;
-            char *rendered = srl_serialize_object((lky_object *)code, &len);
-            export_to_file(rendered, len, "a.out");
-            free(rendered);
+            code = render_from_file(argv[1]);
         }
         else
         {
-            FILE *f = fopen(argv[1], "rb");
-            code = (lky_object_code *)srl_deserialize_from_file(f);
-            fclose(f);
-        }
-        //write_to_file("test", code);
-
-        arraylist list = arr_create(1);
-        mach_interp interp = {NULL};
-        
-        gc_init();
-        lky_object_function *func = (lky_object_function *)lobjb_build_func(code, 0, list, &interp);
-
-        int i;
-        for(i = 0; i < argc; i++)
-        {
-            if(!strcmp(argv[i], "-S"))
+            code = compile_from_file(argv[1]);
+            if(hst_contains_key(&args, "-c", NULL, NULL))
             {
-                stlmeta_examine(lobjb_make_seq_node((lky_object *)func), NULL);
-                return 0;
+                size_t len;
+                char *rendered = srl_serialize_object((lky_object *)code, &len);
+                export_to_file(rendered, len, hst_get(&args, "-o", NULL, NULL));
+                free(rendered);
+                goto cleanup;
             }
         }
 
-        char codeloc[2000];
-        realpath(argv[1], codeloc);
-
-        char *path = dirname(codeloc);
-
-        // printf("%p ... %p ... %p\n", programBlock, programBlock->next, programBlock->next->next);
-        // printf("\nProgram output:\n==============================\n\n");
-        
-//        gc_add_root_object(func);
-//
-        interp.stdlib = get_stdlib_objects();
-
-        func->bucket = lobj_alloc();
-        hst_add_all_from(&func->bucket->members, &interp.stdlib, NULL, NULL);
-        hst_put(&func->bucket->members, "Meta", stlmeta_get_class(&interp), NULL, NULL);
-        lobj_set_member(func->bucket, "dirname_", stlstr_cinit(path));
-        mach_execute((lky_object_function *)func);
-
-        // eval(programBlock);
-        // ast_node *n = ((ast_block_node *)programBlock)->payload;
-        // ast_print(programBlock);
-
-        // ast_binary_node *b = (ast_binary_node *)n;
-        // printf("%c\n", b->opt);
-        // ast_free(programBlock);
-        // ctx_clean_up();
-        // printf("\n=============DEBUG============\n");
-        // printf("Allocations: %d\tFrees: %d\n", get_malloc_count(), get_free_count());
-        // print_alloced();
-        un_clean();
-        md_unload();
-        return 0;
+        if(hst_contains_key(&args, "-S", NULL, NULL))
+            exec_from_code(code, argv[1], 0);
+        else
+            exec_from_code(code, argv[1], 1);
     }
     else
     {
         exec_in_repl();
     }
 
+cleanup:
     pool_drain(&dlmempool);
     un_clean();
     md_unload();
