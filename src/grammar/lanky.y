@@ -25,7 +25,7 @@
 %token <token> TLPAREN TRPAREN TLBRACE TRBRACE TLBRACKET TRBRACKET TCOMMA TDOT
 %token <token> TPLUS TMINUS TMUL TDIV TMOD TPOW
 %token <token> TPLUSE TMINUSE TMULE TDIVE TMODE TPOWE TORE TANDE
-%token <token> TIF TELIF TELSE TPRT TCOMMENT TLOOP TCOLON TFUNC TSEMI TRET TQUESTION TARROW TCLASS TNIL TCONTINUE TBREAK TLOAD
+%token <token> TIF TELIF TELSE TPRT TCOMMENT TLOOP TCOLON TFUNC TSEMI TRET TQUESTION TARROW TCLASS TNIL TCONTINUE TBREAK TLOAD TNILOR
 
 /* Define the type of node our nonterminal symbols represent.
    The types refer to the %union declaration above. Ex: when
@@ -38,7 +38,7 @@
 %nonassoc TPRT TRET TNIL
 %left TEQUAL
 %left TPLUSE TMINUSE TMULE TDIVE TMODE TPOWE TORE TANDE
-%left TQUESTION TCOLON
+%left TQUESTION TCOLON TNILOR
 %left TOR
 %left TAND
 %nonassoc TCEQ TCNE TCLT TCLE TCGT TCGE
@@ -150,6 +150,7 @@ expression :
     | TLPAREN expression TRPAREN { $$ = $2; }
     | TLOAD TSTRING { $$ = create_load_node((void *)$2); }
     | expression TQUESTION expression TCOLON expression { $$ = create_ternary_node($1, $3, $5); }
+    | expression TNILOR expression { $$ = create_ternary_node($1, $1, $3); }
     | TIDENTIFIER TEQUAL expression { $$ = create_assignment_node($1, $3); }
     | memaccess TEQUAL expression { $$ = create_binary_node($1, $3, '='); }
     | arraccess TEQUAL expression { $$ = create_binary_node($1, $3, '='); }
