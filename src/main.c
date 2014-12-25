@@ -141,6 +141,7 @@ void exec_in_repl()
     lobj_set_member(frame.bucket, "dirname_", stlstr_cinit(path));
     
     run_repl(&interp);
+    printf("\nGoodbye!\n");
 }
 
 lky_object_code *compile_from_file(char *file)
