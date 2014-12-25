@@ -166,6 +166,8 @@ lky_object *lobjb_build_class(lky_object_function *builder, char *refname, lky_o
     //cls->members = trie_new();
     //cls->members.free_func = (trie_pointer_function)(&rc_decr);
     //cls->cls = NULL;
+    cls->members = hst_create();
+    cls->members.duplicate_keys = 1;
 
     cls->builder = builder;
     cls->refname = refname;

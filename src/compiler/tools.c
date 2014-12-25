@@ -86,3 +86,25 @@ void auto_cat(char **buf, char *cat)
     strcat(*buf, cat);
 }
 
+int file_is_binary(char *filename)
+{
+    FILE *f = fopen(filename, "rb");
+    if(!f)
+        return 0;
+    
+    int c = fgetc(f);
+    if(c == EOF)
+    {
+        fclose(f);
+        return 0;
+    }
+
+    // The first byte of a valid serialized code
+    // file will always be 7, as that is the value
+    // of LBI_CODE; A code object must always be
+    // the first item serialized.
+    int ret = c == 7;   
+    fclose(f);
+    return ret;
+}
+

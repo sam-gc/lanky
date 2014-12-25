@@ -5,6 +5,22 @@ Point = class() -> self {
     };
 };
 
+Point.genList = func() {
+    ret [
+        Point(10, 0),
+        Point(11, 3),
+        Point(12, 6),
+        Point(134, 92),
+        Point(34, 12),
+        Point(14, 12),
+        Point(9, -3),
+        Point(0, 33),
+        Point(11, 5),
+        Point(17, 2),
+        Point(0, -30)
+    ];
+};
+
 maxPoints = func(points) {
     max = 0;
     points.forEach(func(p1) {
@@ -36,18 +52,5 @@ maxPoints = func(points) {
     ret max;
 };
 
-points = [
-    Point(10, 0),
-    Point(11, 3),
-    Point(12, 6),
-    Point(134, 92),
-    Point(34, 12),
-    Point(14, 12),
-    Point(9, -3),
-    Point(0, 33),
-    Point(11, 5),
-    Point(17, 2),
-    Point(0, -30)
-];
 
-Io.putln(maxPoints(points));
+Io.putln(maxPoints(Point.genList()));

@@ -199,7 +199,8 @@ int main(int argc, char *argv[])
     {
         lky_object_code *code = NULL;
         hashtable args = parse_args(argc, argv);
-        if(hst_contains_key(&args, "-e", NULL, NULL))
+        int bin = file_is_binary(argv[1]);
+        if(bin)
         {
             code = render_from_file(argv[1]);
         }
