@@ -186,8 +186,15 @@ lky_object *stlmeta_gc_pause(lky_object_seq *args, lky_object_function *func)
     return &lky_nil;
 }
 
+lky_object *stlmeta_gc_halt(lky_object_seq *args, lky_object_function *func)
+{
+    gc_pause();
+    return &lky_nil;
+}
+
 lky_object *stlmeta_gc_resume(lky_object_seq *args, lky_object_function *func)
 {
+    gc_resume();
     gc_resume_collection();
     return &lky_nil;
 }
@@ -520,6 +527,7 @@ lky_object *stlmeta_get_class(mach_interp *interp)
     lobj_set_member(obj, "gc_pass", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlmeta_gc_pass));
     lobj_set_member(obj, "gc_collect", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlmeta_gc_collect));
     lobj_set_member(obj, "gc_alloced", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlmeta_gc_alloced));
+    lobj_set_member(obj, "gc_halt", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlmeta_gc_halt));
     
     return obj;
 }

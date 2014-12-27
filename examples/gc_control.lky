@@ -31,10 +31,17 @@ printUsage();
 
 Io.putln('----------------------\n');
 
-Meta.gc_pause();
+Meta.gc_halt();
 then = Time.unix();
 tightLoop();
 Io.putln("Without GC:\n\t" + (Time.unix() - then) + "ms");
-printUsage();
+
+Io.putln('----------------------\n');
+
 Meta.gc_resume();
+Meta.gc_pause();
+then = Time.unix();
+tightLoop();
+Io.putln("Without GC tracking:\n\t" + (Time.unix() - then) + "ms");
+printUsage();
 
