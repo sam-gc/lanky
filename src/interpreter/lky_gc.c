@@ -48,15 +48,26 @@ typedef struct {
 
 gc_bundle bundle;
 char gc_started = 0;
+char gc_paused = 0;
 
 void gc_pause()
 {
     gc_started = 0;
 }
 
+void gc_pause_collection()
+{
+    gc_paused = 1;
+}
+
 void gc_resume()
 {
     gc_started = 1;
+}
+
+void gc_resume_collection()
+{
+    gc_paused = 0;
 }
 
 void gc_add_func_stack(stackframe *frame)
@@ -123,9 +134,17 @@ void gc_add_object(lky_object *obj)
     bundle.cur_size += obj->size;
 }
 
+size_t gc_alloced()
+{
+    return bundle.cur_size;
+}
+
 void gc_gc()
 {
     if(bundle.cur_size < bundle.max_size)
+        return;
+
+    if(gc_paused)
         return;
     
     gc_mark();

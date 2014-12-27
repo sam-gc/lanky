@@ -180,6 +180,36 @@ lky_object *stlmeta_repl(lky_object_seq *args, lky_object_function *func)
     return &lky_nil;
 }
 
+lky_object *stlmeta_gc_pause(lky_object_seq *args, lky_object_function *func)
+{
+    gc_pause_collection();
+    return &lky_nil;
+}
+
+lky_object *stlmeta_gc_resume(lky_object_seq *args, lky_object_function *func)
+{
+    gc_resume_collection();
+    return &lky_nil;
+}
+
+lky_object *stlmeta_gc_pass(lky_object_seq *args, lky_object_function *func)
+{
+    gc_gc();
+    return &lky_nil;
+}
+
+lky_object *stlmeta_gc_collect(lky_object_seq *args, lky_object_function *func)
+{
+    gc_mark();
+    gc_collect();
+    return &lky_nil;
+}
+
+lky_object *stlmeta_gc_alloced(lky_object_seq *args, lky_object_function *func)
+{
+    return lobjb_build_int((long)gc_alloced());
+}
+
 char *stlmeta_string_for_instruction(lky_instruction instr)
 {
     // Switch statement generated using "instrgen.lky".
@@ -485,6 +515,11 @@ lky_object *stlmeta_get_class(mach_interp *interp)
     lobj_set_member(obj, "repl", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlmeta_repl));
     lobj_set_member(obj, "examine", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlmeta_examine));
     lobj_set_member(obj, "helpStdlib", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlmeta_help_stdlib));
+    lobj_set_member(obj, "gc_pause", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlmeta_gc_pause));
+    lobj_set_member(obj, "gc_resume", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlmeta_gc_resume));
+    lobj_set_member(obj, "gc_pass", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlmeta_gc_pass));
+    lobj_set_member(obj, "gc_collect", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlmeta_gc_collect));
+    lobj_set_member(obj, "gc_alloced", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlmeta_gc_alloced));
     
     return obj;
 }

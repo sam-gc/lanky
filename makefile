@@ -13,7 +13,7 @@ COLOR=-fdiagnostics-color=always
 CC=gcc
 MKDIR=mkdir -p
 
-all: lanky machine
+all: lanky
 
 guts: src/grammar/lanky.l src/grammar/lanky.y
 	bison -d -o src/grammar/parser.c src/grammar/lanky.y -v
@@ -28,9 +28,6 @@ clean:
 	rm -f src/grammar/parser.* src/grammar/tokens.c
 	rm -f extensions/*.o
 	rm -f extensions/*.so
-
-machine: $(INT_OBJ_FILES) $(STD_OBJ_FILES) src/bin_main.c
-	$(CC) $(CFLAGS) -o machine $^ $(LDFLAGS)
 
 obj/compiler/%.o: src/compiler/%.c
 	$(MKDIR) obj/compiler/

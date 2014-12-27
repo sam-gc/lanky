@@ -1,0 +1,8 @@
+func(n) {
+    now = Time.unix();
+    for i = 0; i < n; i += 1 {
+        Io.putln(i);
+    }
+
+    Io.putln("Took: @ms." % [Time.unix() - now]);
+}(1000000);

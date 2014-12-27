@@ -129,7 +129,7 @@ void lobj_dealloc(lky_object *obj)
 
     if(obj->type != LBI_INTEGER && obj->type != LBI_FLOAT &&
             obj->type != LBI_SEQUENCE && obj->type != LBI_CODE)
-    hst_free(&obj->members);
+        hst_free(&obj->members);
     free(obj);
     // alloced--;
 }
