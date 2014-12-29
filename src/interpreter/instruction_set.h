@@ -43,6 +43,8 @@ typedef enum {
     LI_JUMP_FALSE,
     LI_JUMP_TRUE,
     LI_JUMP,
+    LI_JUMP_FALSE_ELSE_POP,
+    LI_JUMP_TRUE_ELSE_POP,
     LI_IGNORE,
     LI_SAVE_LOCAL,
     LI_LOAD_LOCAL,

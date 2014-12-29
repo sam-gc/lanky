@@ -260,6 +260,10 @@ char *stlmeta_string_for_instruction(lky_instruction instr)
             return "JUMP_TRUE";
         case LI_JUMP:
             return "JUMP";
+        case LI_JUMP_TRUE_ELSE_POP:
+            return "JUMP_TRUE_ELSE_POP";
+        case LI_JUMP_FALSE_ELSE_POP:
+            return "JUMP_FALSE_ELSE_POP";
         case LI_IGNORE:
             return "IGNORE";
         case LI_SAVE_LOCAL:
@@ -350,6 +354,8 @@ void stlmeta_print_dissassembly(lky_object_code *code)
             case LI_JUMP:
             case LI_JUMP_FALSE:
             case LI_JUMP_TRUE:
+            case LI_JUMP_TRUE_ELSE_POP:
+            case LI_JUMP_FALSE_ELSE_POP:
             {
                 unsigned int idx = *(unsigned int *)(code->ops + (++i));
                 printf("\t%u\t[jump location]", idx);

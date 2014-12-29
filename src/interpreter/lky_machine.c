@@ -518,6 +518,29 @@ _opcode_whiplash_:
             goto _opcode_whiplash_;
         }
         break;
+        case LI_JUMP_FALSE_ELSE_POP:
+        case LI_JUMP_TRUE_ELSE_POP:
+        {
+            lky_object *obj = TOP();
+
+            unsigned int idx = *(unsigned int *)(frame->ops + (++frame->pc));
+            frame->pc += 3;
+
+            char needs_jump = 0;
+            if(obj == &lky_nil)
+                needs_jump = 0;
+            else if(obj->type == LBI_FLOAT || obj->type == LBI_INTEGER)
+                needs_jump = !!(OBJ_NUM_UNWRAP(obj));
+
+            if(needs_jump && op == LI_JUMP_TRUE_ELSE_POP ||
+               !needs_jump && op == LI_JUMP_FALSE_ELSE_POP)
+                frame->pc = idx;
+            else
+                POP();
+
+            goto _opcode_whiplash_;
+        }
+        break;
         case LI_SAVE_LOCAL:
         {
             lky_object *obj = TOP();

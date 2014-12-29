@@ -230,6 +230,20 @@ ast_node *create_if_node(ast_node *condition, ast_node *payload)
     return (ast_node *)node;
 }
 
+ast_node *create_cond_node(ast_node *left, ast_node *right, char type)
+{
+    ast_cond_node *node = MALLOC(sizeof(ast_cond_node));
+    pool_add(&ast_memory_pool, node);
+    node->type = ACOND_CHAIN;
+    node->next = NULL;
+
+    node->left = left;
+    node->right = right;
+    node->opt = type;
+
+    return (ast_node *)node;
+}
+
 ast_node *create_loop_node(ast_node *init, ast_node *condition, ast_node *onloop, ast_node *payload)
 {
     ast_loop_node *node = MALLOC(sizeof(ast_loop_node));

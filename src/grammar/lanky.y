@@ -50,15 +50,15 @@
    we call an ident (defined by union type ident) we are really
    calling an (NIdentifier*). It makes the compiler happy.
  */
-%type <node> program stmts stmt expression ifblock block elifblock elifblocks elseblock loopblock funcdecl arg arglist call calllist memaccess classdecl arrdecl arraccess opapply tabset tabsetlist tabdecl
+%type <node> program stmts stmt expression ifblock block elifblock elifblocks elseblock loopblock funcdecl arg arglist call calllist memaccess classdecl arrdecl arraccess opapply tabset tabsetlist tabdecl binor binand
 
 /* Operator precedence for mathematical operators */
 %nonassoc TPRT TRET TNIL
 %left TEQUAL
 %left TPLUSE TMINUSE TMULE TDIVE TMODE TPOWE TORE TANDE
 %left TQUESTION TCOLON TNILOR TCON TCONE
-%left TOR
-%left TAND
+%right TOR
+%right TAND
 %nonassoc TCEQ TCNE TCLT TCLE TCGT TCGE
 %left TMINUS TPLUS
 %left TDIV TMUL TMOD
@@ -142,6 +142,14 @@ opapply : TIDENTIFIER TPLUSE expression { $$ = create_assignment_node($1, create
     | TIDENTIFIER TCONE expression { $$ = create_assignment_node($1, create_binary_node(create_value_node(VVAR, (void *)$1), $3, '?'))  ;}
     ;
 
+binor : expression TOR expression { $$ = create_cond_node($1, $3, '|'); }
+    | binor TOR expression { $$ = create_cond_node($1, $3, '|'); }
+    ;
+
+binand : expression TAND expression { $$ = create_cond_node($1, $3, '&'); }
+    | binand TAND expression { $$ = create_cond_node($1, $3, '&'); }
+    ;
+
 expression : 
     TINTEGER { $$ = create_value_node(VINT, (void *)$1); }
     | TFLOAT { $$ = create_value_node(VDOUBLE, (void *)$1); }
@@ -152,6 +160,8 @@ expression :
     | TBREAK { $$ = create_one_off_node('b'); }
     | TCONTINUE { $$ = create_one_off_node('c'); }
     | opapply
+    | binor
+    | binand
     | expression TPLUS expression { $$ = create_binary_node($1, $3, '+'); }
     | expression TMINUS expression { $$ = create_binary_node($1, $3, '-'); }
     | expression TMUL expression { $$ = create_binary_node($1, $3, '*'); }
@@ -164,8 +174,6 @@ expression :
     | expression TCLE expression { $$ = create_binary_node($1, $3, 'L'); }
     | expression TCGT expression { $$ = create_binary_node($1, $3, 'g'); }
     | expression TCGE expression { $$ = create_binary_node($1, $3, 'G'); }
-    | expression TOR expression { $$ = create_binary_node($1, $3, '|'); }
-    | expression TAND expression { $$ = create_binary_node($1, $3, '&'); }
     | expression TCON expression { $$ = create_binary_node($1, $3, '?'); }
     | TLPAREN expression TRPAREN { $$ = $2; }
     | TLOAD TSTRING { $$ = create_load_node((void *)$2); }

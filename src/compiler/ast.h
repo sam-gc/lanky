@@ -39,6 +39,7 @@ typedef enum {
     ACLASS_DECL,
     AFUNC_CALL,
     ALOOP,
+    ACOND_CHAIN,
     ATERNARY,
     AMEMBER_ACCESS,
     AARRAY,
@@ -193,6 +194,15 @@ typedef struct {
     struct ast_node *payload;
 } ast_if_node;
 
+typedef struct {
+    ast_type type;
+    struct ast_node *next;
+
+    char opt;
+    struct ast_node *left;
+    struct ast_node *right;
+} ast_cond_node;
+
 // A node to represent function
 // declarations
 typedef struct {
@@ -295,6 +305,7 @@ ast_node *create_assignment_node(char *left, ast_node *right);
 ast_node *create_load_node(void *data);
 ast_node *create_block_node(ast_node *payload);
 ast_node *create_if_node(ast_node *condition, ast_node *payload);
+ast_node *create_cond_node(ast_node *left, ast_node *right, char type);
 ast_node *create_loop_node(ast_node *init, ast_node *condition, ast_node *onloop, ast_node *payload);
 ast_node *create_func_decl_node(ast_node *params, ast_node *payload);
 ast_node *create_class_decl_node(char *refname, ast_node *payload); 

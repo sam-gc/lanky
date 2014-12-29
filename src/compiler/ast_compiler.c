@@ -749,6 +749,51 @@ void compile_one_off(compiler_wrapper *cw, ast_node *root)
     append_op(cw, -1);
 }
 
+void compile_cond_ex(compiler_wrapper *cw, ast_node *root, int tagOut)
+{
+    ast_cond_node *node = (ast_cond_node *)root;
+
+    compile(cw, node->left);
+
+    lky_instruction opt;
+    switch(node->opt)
+    {
+        case '|':
+            opt = LI_JUMP_TRUE_ELSE_POP;
+            break;
+        case '&':
+            opt = LI_JUMP_FALSE_ELSE_POP;
+            break;
+        default:
+            opt = LI_IGNORE;
+            break;
+    }
+
+    append_op(cw, opt);
+    append_op(cw, tagOut);
+    append_op(cw, -1);
+    append_op(cw, -1);
+    append_op(cw, -1);
+
+    if(node->right->type == ACOND_CHAIN)
+    {
+        compile_cond_ex(cw, node->right, tagOut);
+    }
+    else
+    {
+        compile(cw, node->right);
+        append_op(cw, tagOut);
+    }
+}
+
+void compile_cond(compiler_wrapper *cw, ast_node *root)
+{
+    int tagOut = next_if_tag(cw);
+
+    compile_cond_ex(cw, root, tagOut);
+}
+
+
 // Generic if compilation with special cases handled in helper
 // functions below.
 void compile_if(compiler_wrapper *cw, ast_node *root)
@@ -1232,6 +1277,9 @@ void compile(compiler_wrapper *cw, ast_node *root)
         break;
         case AUNIT:
             compile_unit_value(cw, root);
+        break;
+        case ACOND_CHAIN:
+            compile_cond(cw, root);
         break;
         case AIF:
             compile_if(cw, root);
