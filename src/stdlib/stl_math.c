@@ -85,6 +85,19 @@ lky_object *stlmath_shuffle(lky_object_seq *args, lky_object *func)
     return stlarr_cinit(list);
 }
 
+lky_object *stlmath_range(lky_object_seq *args, lky_object *func)
+{
+    lky_object *maxobj = (lky_object *)args->value;
+    int max = (int)OBJ_NUM_UNWRAP(maxobj);
+    printf("%d\n", max);
+    arraylist list = arr_create(max + 8);
+    int i;
+    for(i = 0; i < max; i++)
+        arr_append(&list, lobjb_build_int(i));
+
+    return stlarr_cinit(list);
+}
+
 lky_object *stlmath_rand_int(lky_object_seq *args, lky_object *func)
 {
     lky_object_builtin *first = (lky_object_builtin *)args->value;
@@ -195,6 +208,7 @@ lky_object *stlmath_get_class()
     lobj_set_member(obj, "randInt", lobjb_build_func_ex(obj, 2, (lky_function_ptr)stlmath_rand_int));
     lobj_set_member(obj, "quad", lobjb_build_func_ex(obj, 3, (lky_function_ptr)stlmath_quad));
     lobj_set_member(obj, "shuffle", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlmath_shuffle));
+    lobj_set_member(obj, "range", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlmath_range));
     STLMATH_WRAP_MEMBER(obj, sin);
     STLMATH_WRAP_MEMBER(obj, cos);
     STLMATH_WRAP_MEMBER(obj, tan);

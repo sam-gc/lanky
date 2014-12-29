@@ -428,3 +428,8 @@ lky_object *lobjb_binary_or(lky_object *a, lky_object *b)
 
     return lobjb_build_int(vala || valb);
 }
+
+lky_object *lobjb_binary_nc(lky_object *a, lky_object *b)
+{
+    return a == &lky_nil ? b : a;
+}

@@ -104,6 +104,9 @@ comment (\#|(\-\-)).*(\n)
 "!"                     return TOKEN(TNOT);
 "?"                     return TOKEN(TQUESTION);
 "?:"                    return TOKEN(TNILOR);
+"??"                    return TOKEN(TCON);
+"??="                   return TOKEN(TCONE);
+"or"                    return TOKEN(TBOR);
 ";"                     return TOKEN(TSEMI);
 .                       printf("Unknown token! %s\n", yytext); yyterminate();
 %%

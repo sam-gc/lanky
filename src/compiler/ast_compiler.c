@@ -603,6 +603,9 @@ void compile_binary(compiler_wrapper *cw, ast_node *root)
     case '|':
         istr = LI_BINARY_OR;
         break;
+    case '?':
+        istr = LI_BINARY_NC;
+        break;
     case '=':
         {
             // Deal with the weirdness of the '=' case.

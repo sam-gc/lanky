@@ -435,6 +435,16 @@ _opcode_whiplash_:
             goto _opcode_whiplash_;
         }
         break;
+        case LI_BINARY_NC:
+        {
+            POP_TWO();
+            lky_object *obj = lobjb_binary_nc(b, a);
+            RC_TWO();
+
+            PUSH_RC(obj);
+            goto _opcode_whiplash_;
+        }
+        break;
         case LI_UNARY_NOT:
         {
             lky_object *a = POP();

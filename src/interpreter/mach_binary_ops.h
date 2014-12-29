@@ -35,5 +35,6 @@ lky_object *lobjb_binary_greatequal(lky_object *a, lky_object *b);
 lky_object *lobjb_binary_notequal(lky_object *a, lky_object *b);
 lky_object *lobjb_binary_and(lky_object *a, lky_object *b);
 lky_object *lobjb_binary_or(lky_object *a, lky_object *b);
+lky_object *lobjb_binary_nc(lky_object *a, lky_object *b);
 
 #endif

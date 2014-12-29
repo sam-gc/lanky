@@ -34,6 +34,7 @@ typedef enum {
     LI_BINARY_NE,
     LI_BINARY_AND,
     LI_BINARY_OR,
+    LI_BINARY_NC,
     LI_UNARY_NOT,
     LI_UNARY_NEGATIVE,
     LI_LOAD_CONST,
