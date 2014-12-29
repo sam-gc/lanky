@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
+#include <string.h>
 #include "stl_math.h"
 #include "stl_array.h"
 #include "stl_units.h"
@@ -53,6 +54,35 @@ lky_object *TOKENPASTE(stlmath_wrap_, function) (lky_object_seq *args, lky_objec
 lky_object *stlmath_wrap_rand(lky_object_seq *args, lky_object *func)
 {
     return lobjb_build_int(rand());
+}
+
+lky_object *stlmath_shuffle(lky_object_seq *args, lky_object *func)
+{
+    lky_object *arrobj = (lky_object *)args->value;
+    arraylist arr = stlarr_unwrap(arrobj);
+
+    void *pts[arr.count];
+    void *npts[arr.count];
+    memcpy(pts, arr.items, sizeof(void *) * arr.count);
+    int i, tot;
+    for(i = 0, tot = arr.count; i < arr.count; i++)
+    {
+        int idx = rand() % tot;
+        void *obj = pts[idx];
+        npts[i] = obj;
+        int j;
+        for(j = idx; j < tot - 1; j++)
+            pts[j] = pts[j + 1];
+        tot--;
+    }
+
+    arraylist list;
+    list.count = arr.count;
+    list.allocated = arr.count + 8;
+    list.items = calloc(arr.count + 8, sizeof(void *));
+    memcpy(list.items, npts, sizeof(void *) * arr.count);
+
+    return stlarr_cinit(list);
 }
 
 lky_object *stlmath_rand_int(lky_object_seq *args, lky_object *func)
@@ -164,6 +194,7 @@ lky_object *stlmath_get_class()
     lobj_set_member(obj, "rand", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlmath_wrap_rand));
     lobj_set_member(obj, "randInt", lobjb_build_func_ex(obj, 2, (lky_function_ptr)stlmath_rand_int));
     lobj_set_member(obj, "quad", lobjb_build_func_ex(obj, 3, (lky_function_ptr)stlmath_quad));
+    lobj_set_member(obj, "shuffle", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlmath_shuffle));
     STLMATH_WRAP_MEMBER(obj, sin);
     STLMATH_WRAP_MEMBER(obj, cos);
     STLMATH_WRAP_MEMBER(obj, tan);
