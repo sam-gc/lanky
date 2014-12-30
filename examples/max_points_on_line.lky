@@ -159,6 +159,11 @@ if Io.prompt("\nView dissassembly? (y/n): ") == 'y' {
 
 -- Uses the stringify_ function of class Point.
 if Io.prompt("\nView point list? (y/n): ") == 'y' {
-    Io.putln("Points:\n" + plist);
+    -- Io.putln("Points:\n" + plist);
+    Io.putln('[');
+    plist.forEach(func(pt, i) {
+        Io.putln('    ' + pt + (i == plist.count - 1 ? '' : ','));
+    });
+    Io.putln(']');
 }
 
