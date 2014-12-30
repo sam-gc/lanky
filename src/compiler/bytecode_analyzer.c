@@ -47,7 +47,7 @@ int stack_effect_for(lky_instruction op, int *skip)
         case LI_JUMP_FALSE:
         case LI_JUMP_TRUE:
         case LI_SAVE_MEMBER:
-            *skip = 1;
+            *skip = 4;
         case LI_BINARY_ADD: 
         case LI_BINARY_SUBTRACT:
         case LI_BINARY_MULTIPLY:
@@ -77,6 +77,8 @@ int stack_effect_for(lky_instruction op, int *skip)
         case LI_LOAD_MODULE:
             *skip = 1;
             return 1;
+        case LI_JUMP_TRUE_ELSE_POP:
+        case LI_JUMP_FALSE_ELSE_POP:
         case LI_JUMP:
         case LI_SAVE_LOCAL:
         case LI_SAVE_CLOSE:
