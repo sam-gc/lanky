@@ -1,0 +1,12 @@
+-- Local/closure variable bug
+test = func(num) {
+
+    if 1 {
+        num = num / 2;
+        num = num / 2;
+    }
+
+    ret num;
+};
+
+Io.putln(test(8));

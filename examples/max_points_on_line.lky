@@ -1,26 +1,55 @@
+-- Convenient point class
 Point = class() -> self {
     self.build_ = func(x, y) {
         self.x = Convert.toFloat(x);
         self.y = Convert.toFloat(y);
     };
+
+    self.op_equals_ = func(o) {
+        ret self.x == o.x & self.y == o.y;
+    };
+
+    self.stringify_ = func() {
+        ret "(" + Convert.toInt(self.x) + ", " + Convert.toInt(self.y) + ")";
+    };
 };
 
+-- Generates a convenient test list
+-- (Not a representative of all cases)
 Point.genList = func() {
     ret [
-        Point(10, 0),
-        Point(11, 3),
-        Point(12, 6),
-        Point(134, 92),
-        Point(34, 12),
-        Point(14, 12),
-        Point(9, -3),
-        Point(0, 33),
-        Point(11, 5),
-        Point(17, 2),
-        Point(0, -30)
+        Point(10,   0),
+        Point(11,   3),
+        Point(12,   6),
+        Point(134,  92),
+        Point(34,   12),
+        Point(14,   12),
+        Point(9,    -3),
+        Point(0,    33),
+        Point(11,   5),
+        Point(17,   2),
+        Point(0,    -30)
     ];
 };
 
+-- Generates a random list of n points
+-- with x, y values between 0 and max
+Point.genRandomList = func(n, max) {
+    points = [];
+    for points.count < n {
+        x = Math.rand() % max;
+        y = Math.rand() % max;
+
+        p = Point(x, y);
+        if !points.contains(p) {
+            points.append(p);
+        } 
+    }
+
+    ret points;
+};
+
+-- Max points that runs in O(n^3) time
 maxPoints = func(points) {
     max = 0;
     points.forEach(func(p1) {
@@ -29,10 +58,14 @@ maxPoints = func(points) {
                 ret nil;
             }
 
+            -- Calculate the various parts of
+            -- the line equation
             cur = 2;
             m = (p2.y - p1.y) / (p2.x - p1.x);
             b = p1.y - p1.x * m;
 
+            -- Test if any given point is on
+            -- the computed line equation
             points.forEach(func(p3) {
                 if p3 == p1 | p3 == p2 {
                     ret nil;
@@ -52,5 +85,80 @@ maxPoints = func(points) {
     ret max;
 };
 
+-- Faster algorithm (should be roughly O(n^2)):
+maxPointsSq = func(points) {
+    max = 0;
+    points.forEach(func(p1) {
+        slopes = {:}; -- Accumulator for slopes
 
+        points.forEach(func(p2) {
+            if p1 == p2 {
+                ret nil;
+            }
+            
+            numerator = p2.y - p1.y;
+            denominator = p2.x - p1.x;
+
+            -- Handle the case where there is a vertical line
+            slope = denominator ? numerator / denominator : 99999999999;
+
+            -- Increment the slope count if it exists
+            -- or add it if it doesn't exist in the table
+            count = slopes[slope];
+            slopes[slope] = count ? count + 1 : 2;
+        });
+
+        -- Find the highest slope count (found
+        -- in the values of the table)
+        cur = 0;
+        slopes.values().forEach(func(ct) {
+            if ct > cur {
+                cur = ct;
+            }
+        });
+
+        if cur > max {
+            max = cur;
+        }
+    });
+
+    ret max;
+};
+
+-- Canned example
 Io.putln(maxPoints(Point.genList()));
+Io.putln(maxPointsSq(Point.genList()));
+
+-- Helper function to time a run
+-- with a given algorithm
+timeRun = func(pts, algo, name) {
+    then = Time.unix();
+    ct = algo(pts);
+    elapsed = Time.unix() - then;
+
+    Io.putln("--------------------------------------");
+    Io.putln("Algorithm: " + name);
+    Io.putln("Took: " + elapsed + "ms. (" + pts.count + " points; found " + ct + ")");
+    Io.putln("--------------------------------------");
+};
+
+-- Run random problem
+plist = Point.genRandomList(40, 20);
+timeRun(plist, maxPointsSq, "maxPointsSq");
+timeRun(plist, maxPoints, "maxPoints");
+
+-- Example of the Io.prompt function
+if Io.prompt("\nView dissassembly? (y/n): ") == 'y' {
+    Io.putln("\nmaxPoints:\n======================================");
+    Meta.examine(maxPoints);
+    Io.putln("\nmaxPointsSq:\n======================================");
+    Meta.examine(maxPointsSq);
+
+    Io.putln("\nNOTE: The dissassembly does not go beyond one level. The hex values in the constants fields above are other anonymous functions");
+}
+
+-- Uses the stringify_ function of class Point.
+if Io.prompt("\nView point list? (y/n): ") == 'y' {
+    Io.putln("Points:\n" + plist);
+}
+

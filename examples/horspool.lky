@@ -1,7 +1,8 @@
 build_shift_table = func(str) {
-    tab = {:};
+    tab = {:}; -- Create a new hashtable
     len = str.length;
     for i = 0; i < len; i += 1 {
+        -- Assign value in table to character
         tab[str[i]] = len - i - 1;
     }
 
@@ -9,19 +10,24 @@ build_shift_table = func(str) {
 };
 
 horspool = func(search, text) {
+    -- Cache lengths for future use (lanky isn't
+    -- clever enough; there are exactly 0 compiler
+    -- optimizations.
     slen = search.length;
     tlen = text.length;
 
+    -- Create the shift table
     shifts = build_shift_table(search);
 
     i = 0;
     for i <= tlen - slen {
         for j = i + slen - 1; search[j - i] == text[j]; j -= 1 {
-            if(j == i) {
+            if j == i {
                 ret j;
             }
         }
 
+        -- Get the shift value
         shift = shifts[text[j]];
 
         -- The next line replaces: i += shift ? shift : slen;
@@ -31,6 +37,7 @@ horspool = func(search, text) {
     ret -1;
 };
 
+-- An example
 text = "the quick brown fox jumps over the lazy dog.";
 search = "jump";
 idx = horspool(search, text);
