@@ -16,7 +16,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#define _POSIX_SOURCE
+#define _GNU_SOURCE
 #include "stl_time.h"
 #include "hashtable.h"
 #include "stl_string.h"
@@ -75,6 +75,13 @@ void stltime_copy_props_from_struct(lky_object *o)
     SET_INT_MEMBER(obj, "year", tm.tm_year + 1900);
     SET_INT_MEMBER(obj, "dayOfWeek", tm.tm_wday);
     SET_INT_MEMBER(obj, "dayOfYear", tm.tm_yday);
+#ifdef _GNU_SOURCE
+    lobj_set_member((lky_object *)obj, "timeZone", stlstr_cinit((char *)tm.tm_zone));
+    SET_INT_MEMBER((lky_object *)obj, "offset", tm.tm_gmtoff);
+#else
+    lobj_set_member((lky_object *)obj, "timeZone", &lky_nil);
+    lobj_set_member((lky_object *)obj, "offset", &lky_nil);
+#endif
 }
 
 lky_object *stltime_build_date_object(hashtable *ht)
@@ -95,6 +102,7 @@ lky_object *stltime_build_date_object(hashtable *ht)
     lky_object *obj = (lky_object *)cobj;
 
     lobj_set_member(obj, "stringify_", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stltime_date_stringify));
+
     cobj->freefunc = stltime_date_free;
 
     stltime_copy_props_from_struct(obj);
