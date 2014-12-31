@@ -31,6 +31,8 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 
+#define META_AUDIT(type) (printf(" -> %lu\t%s\n", sizeof(type), #type))
+
 extern ast_node *programBlock;
 typedef struct yy_buffer_state * YY_BUFFER_STATE;
 extern int yyparse();
@@ -170,6 +172,20 @@ lky_object *stlmeta_exec(lky_object_seq *args, lky_object_function *func)
     char *str = strobj->data;
     
     return compile_and_exec(str, self->data);
+}
+
+lky_object *stlmeta_audit(lky_object_seq *args, lky_object_function *func)
+{
+    META_AUDIT(lky_object);
+    META_AUDIT(lky_object_seq);
+    META_AUDIT(lky_object_function);
+    META_AUDIT(lky_object_custom);
+    META_AUDIT(lky_object_code);
+    META_AUDIT(lky_object_class);
+    META_AUDIT(lky_object_error);
+    META_AUDIT(lky_object_builtin);
+
+    return &lky_nil;
 }
 
 lky_object *stlmeta_repl(lky_object_seq *args, lky_object_function *func)
@@ -559,6 +575,7 @@ lky_object *stlmeta_get_class(mach_interp *interp)
     lobj_set_member(obj, "gc_halt", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlmeta_gc_halt));
     lobj_set_member(obj, "addressOf", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlmeta_address_of));
     lobj_set_member(obj, "allowIntTags", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlmeta_allow_int_tags));
+    lobj_set_member(obj, "audit", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlmeta_audit));
     
     return obj;
 }
