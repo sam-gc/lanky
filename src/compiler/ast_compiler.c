@@ -1061,6 +1061,8 @@ void compile_unary(compiler_wrapper *cw, ast_node *root)
         cw->save_val = 1;
         break;
     case 'r':
+        if(!node->target)
+            append_op(cw, LI_PUSH_NIL);
         istr = LI_RETURN;
         cw->save_val = 1;
         break;

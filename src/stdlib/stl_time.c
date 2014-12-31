@@ -25,6 +25,7 @@
 #include <time.h>
 
 #define SET_INT_MEMBER(obj, name, val) (lobj_set_member((lky_object *)obj, name, (lky_object *)lobjb_build_int(val)))
+#define APPLY_INT_MEMBER(obj, name, targ) (targ = (long)(OBJ_NUM_UNWRAP((lobj_get_member((lky_object *)obj, name)))))
 
 typedef struct {
     struct tm time;
@@ -84,24 +85,63 @@ void stltime_copy_props_from_struct(lky_object *o)
 #endif
 }
 
+void stltime_copy_props_to_struct(lky_object *o)
+{
+    lky_object_custom *obj = (lky_object_custom *)o;
+    time_data *data = obj->data;
+    struct tm tm = data->time;
+
+    APPLY_INT_MEMBER(obj, "second", tm.tm_sec);
+    APPLY_INT_MEMBER(obj, "minute", tm.tm_min);
+    APPLY_INT_MEMBER(obj, "hour", tm.tm_hour);
+    APPLY_INT_MEMBER(obj, "day", tm.tm_mday);
+    APPLY_INT_MEMBER(obj, "month", tm.tm_mon);
+    APPLY_INT_MEMBER(obj, "year", tm.tm_year);
+    APPLY_INT_MEMBER(obj, "dayOfWeek", tm.tm_wday);
+    APPLY_INT_MEMBER(obj, "dayOfYear", tm.tm_yday);
+    tm.tm_year -= 1900;
+
+    data->time = tm;
+}
+
+lky_object *stltime_date_format(lky_object_seq *args, lky_object_function *func)
+{
+    lky_object_custom *self = func->owner;
+    stltime_copy_props_to_struct((lky_object *)self);
+    char *str = lobjb_stringify((lky_object *)args->value);
+
+    char buf[1000];
+    time_data *data = self->data;
+    struct tm tm = data->time;
+    strftime(buf, 1000, str, &tm);
+
+    free(str);
+    return stlstr_cinit(buf);
+}
+
 lky_object *stltime_build_date_object(hashtable *ht)
 {
-    struct tm *td;
+    struct tm td;
     if(!ht)
     {
         time_t rt;
         time(&rt);
-        td = localtime(&rt);
+        td = *localtime(&rt);
+    }
+    else
+    {
+        
     }
 
     lky_object_custom *cobj = lobjb_build_custom(sizeof(time_data));
     time_data *data = malloc(sizeof(time_data));
-    data->time = *td;
+    data->time = td;
     cobj->data = data;
 
     lky_object *obj = (lky_object *)cobj;
 
     lobj_set_member(obj, "stringify_", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stltime_date_stringify));
+    lobj_set_member(obj, "format", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stltime_date_format));
 
     cobj->freefunc = stltime_date_free;
 

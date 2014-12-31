@@ -117,6 +117,7 @@ funcdecl : TFUNC TLPAREN arglist TRPAREN block { $$ = create_func_decl_node($3, 
 classdecl : TCLASS TLPAREN TRPAREN TARROW TIDENTIFIER block { $$ = create_class_decl_node($5, $6); }
     ;
 stmt : expression TSEMI
+    | TRET TSEMI { $$ = create_unary_node(NULL, 'r'); }
     | loopblock
     | ifblock
     ;

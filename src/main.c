@@ -39,6 +39,9 @@
 #include "module.h"
 #include "serialize.h"
 
+#define STRINGIFY_TOK(tok) #tok
+#define STRINGIFY_INT(i) STRINGIFY_TOK(i)
+
 extern ast_node *programBlock;
 extern int yyparse();
 extern FILE *yyin;
@@ -96,7 +99,7 @@ void exec_in_repl()
 #else
        "GNU/Linux"
 #endif 
-       " by Clang [" __clang_version__ "].";
+       " by Clang [" STRINGIFY_INT(__clang_major__) "." STRINGIFY_INT(__clang_minor__) "." STRINGIFY_INT(__clang_patchlevel__) "].";
 #elif defined __GNUC__
     start = "Lanky, version 0.1; compiled " __DATE__ " for "
 #ifdef __APPLE__
@@ -104,7 +107,7 @@ void exec_in_repl()
 #else
       "GNU/Linux"
 #endif
-      " by GCC [" __VERSION__ "].";
+      " by GCC [" STRINGIFY_INT(__GNUC__) "." STRINGIFY_INT(__GNUC_MINOR__) "." STRINGIFY_INT(__GNUC_PATCHLEVEL__) "].";
 #else
     start = "Lanky, version 0.1; compiled " __DATE__ " for unknown platform with unknown compiler."
 #endif
