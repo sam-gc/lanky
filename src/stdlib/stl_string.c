@@ -138,7 +138,7 @@ lky_object *stlstr_multiply(lky_object_seq *args, lky_object_function *func)
     lky_object_custom *self = (lky_object_custom *)func->owner;
     lky_object_builtin *other = (lky_object_builtin *)args->value;
 
-    if(other->type != LBI_INTEGER)
+    if(!((uintptr_t)(other) & 1) && other->type != LBI_INTEGER)
     {
         // TODO: Type error
         return &lky_nil;
@@ -361,7 +361,7 @@ lky_object *stlstr_add(lky_object_seq *args, lky_object_function *func)
     char *mestr = self->data;
     
     lky_object *other = (lky_object *)args->value;
-    char sbf = ((lky_object_builtin *)args->next->value)->value.i;
+    char sbf = OBJ_NUM_UNWRAP(((lky_object_builtin *)args->next->value));
     
     char *chr = lobjb_stringify(other);
     

@@ -37,18 +37,18 @@ long stltab_autohash(void *key, void *data)
 {
     lky_object *k = (lky_object *)key;
 
-    // Even though string has a hash function, we want
-    // to quickly be able to perform this calculation
-    if((void *)k->cls == (void *)stlstr_class())
-        return hst_djb2(((lky_object_custom *)k)->data, NULL);
-
     // If we are dealing with numbers, we can just use
     // the numbers themselves as the hash. (True, this
     // can be problematic, but for simplicity we'll
     // just hope the user is not hashing a bunch of
     // very small floating point numbers
-    if(k->type == LBI_FLOAT || k->type == LBI_INTEGER)
+    if(OBJ_IS_NUMBER(k))
         return (long)OBJ_NUM_UNWRAP(k);
+    
+    // Even though string has a hash function, we want
+    // to quickly be able to perform this calculation
+    if((void *)k->cls == (void *)stlstr_class())
+        return hst_djb2(((lky_object_custom *)k)->data, NULL);
 
     lky_object *hf = lobj_get_member((lky_object *)key, "hash_");
     

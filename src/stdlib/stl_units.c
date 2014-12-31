@@ -38,7 +38,7 @@ lky_object *stlun_add(lky_object_seq *args, lky_object_function *func)
     un_unit a = data->u;
 
     lky_object_custom *other = (lky_object_custom *)args->value;
-    if(other->type == LBI_FLOAT || other->type == LBI_INTEGER)
+    if(OBJ_IS_NUMBER(other))
     {
         a.val += OBJ_NUM_UNWRAP(other);
         return stlun_cinit_ex(a);
@@ -58,7 +58,7 @@ lky_object *stlun_subtract(lky_object_seq *args, lky_object_function *func)
     un_unit a = data->u;
 
     lky_object_custom *other = (lky_object_custom *)args->value;
-    if(other->type == LBI_FLOAT || other->type == LBI_INTEGER)
+    if(OBJ_IS_NUMBER(other))
     {
         a.val -= OBJ_NUM_UNWRAP(other);
         return stlun_cinit_ex(a);
@@ -78,7 +78,7 @@ lky_object *stlun_multiply(lky_object_seq *args, lky_object_function *func)
     un_unit a = data->u;
 
     lky_object_custom *other = (lky_object_custom *)args->value;
-    if(other->type == LBI_FLOAT || other->type == LBI_INTEGER)
+    if(OBJ_IS_NUMBER(other))
     {
         a.val *= OBJ_NUM_UNWRAP(other);
         return stlun_cinit_ex(a);
@@ -98,7 +98,7 @@ lky_object *stlun_divide(lky_object_seq *args, lky_object_function *func)
     un_unit a = data->u;
 
     lky_object_custom *other = (lky_object_custom *)args->value;
-    if(other->type == LBI_FLOAT || other->type == LBI_INTEGER)
+    if(OBJ_IS_NUMBER(other))
     {
         a.val /= OBJ_NUM_UNWRAP(other);
         return stlun_cinit_ex(a);

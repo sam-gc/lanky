@@ -266,7 +266,7 @@ void append_var_info(compiler_wrapper *cw, char *ch, char load)
         hm_put(&cw->saved_locals, ch, obj);
     }
     else
-        idx = o->value.i;
+        idx = OBJ_NUM_UNWRAP(o);
 
     append_op(cw, istr);
     append_op(cw, idx);
@@ -487,7 +487,7 @@ unsigned char *finalize_ops(compiler_wrapper *cw)
     for(i = 0; i < cw->rops.count; i++)
     {
         lky_object_builtin *obj = arr_get(&cw->rops, i);
-        ops[i] = (unsigned char)obj->value.i;
+        ops[i] = (unsigned char)(OBJ_NUM_UNWRAP(obj));
     }
 
     return ops;
@@ -1360,7 +1360,8 @@ void replace_tags(compiler_wrapper *cw)
     long i;
     for(i = cw->rops.count - 1; i >= 0; i--)
     {
-        long op = ((lky_object_builtin *)arr_get(&cw->rops, i))->value.i;
+        //long op = ((lky_object_builtin *)arr_get(&cw->rops, i))->value.i;
+        long op = OBJ_NUM_UNWRAP(arr_get(&cw->rops, i));
         if(op < 0) // This should *never* happen.
             continue;
 
@@ -1513,7 +1514,11 @@ lky_object_code *compile_ast_ext(ast_node *root, compiler_wrapper *incw)
 // Externally visible compilation function
 lky_object_code *compile_ast(ast_node *root)
 {
-    return compile_ast_ext(root, NULL);
+    int backup = lobjb_uses_pointer_tags_;
+    lobjb_uses_pointer_tags_ = 0;
+    lky_object_code *ret = compile_ast_ext(root, NULL);
+    lobjb_uses_pointer_tags_ = backup;
+    return ret;
 }
 
 // Writes the code to a file (now deprecated.)

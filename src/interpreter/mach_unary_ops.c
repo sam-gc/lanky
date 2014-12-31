@@ -18,9 +18,10 @@
 
 #include "mach_unary_ops.h"
 
+#define IS_TAGGED(a) ((uintptr_t)(a) & 1)
 #define CHECK_EXEC_CUSTOM_IMPL(a, name) \
     do { \
-        if(a->type == LBI_CUSTOM || a->type == LBI_CUSTOM_EX) {\
+        if(!(IS_TAGGED(a)) && a->type == LBI_CUSTOM || !(IS_TAGGED(a)) && a->type == LBI_CUSTOM_EX) {\
             lky_object *func = lobj_get_member(a, name); \
             if(!func || func->type != LBI_FUNCTION) \
                 break;\
@@ -42,6 +43,10 @@ lky_object *lobjb_unary_not(lky_object *a)
 {
     CHECK_EXEC_CUSTOM_IMPL(a, "op_not_");   
     lky_object_builtin *ac = (lky_object_builtin *)a;
+
+    if(IS_TAGGED(a))
+        return lobjb_build_int(!OBJ_NUM_UNWRAP(a));
+
     switch(a->type)
     {
         case LBI_FLOAT:

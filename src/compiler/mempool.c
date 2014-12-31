@@ -68,7 +68,7 @@ void pool_drain(lky_mempool *pool)
         void *data = node->data;
         if(pool->free_func)
             pool->free_func(data);
-        else
+        else if(!((uintptr_t)(data) & 1))
             FREE(data);
         struct poolnode *cur = node;
         node = node->next;

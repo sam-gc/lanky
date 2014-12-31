@@ -21,11 +21,13 @@
 #include "stl_units.h"
 #include "stl_string.h"
 
+#define IS_TAGGED(a) ((uintptr_t)(a) & 1)
+
 lky_object *stlcon_to_int(lky_object_seq *args, lky_object *func)
 {
     lky_object *from = (lky_object *)args->value;
 
-    if(from->type == LBI_INTEGER)
+    if(IS_TAGGED(from) || from->type == LBI_INTEGER)
         return from;
     if(from->type == LBI_FLOAT)
         return lobjb_build_int(OBJ_NUM_UNWRAP(from));
@@ -47,10 +49,11 @@ lky_object *stlcon_to_float(lky_object_seq *args, lky_object *func)
 {
     lky_object *from = (lky_object *)args->value;
 
+    if(IS_TAGGED(from) || from->type == LBI_INTEGER)
+        return lobjb_build_float(OBJ_NUM_UNWRAP(from));
+
     if(from->type == LBI_FLOAT)
         return from;
-    if(from->type == LBI_INTEGER)
-        return lobjb_build_float(OBJ_NUM_UNWRAP(from));
 
     lky_object_custom *b = (lky_object_custom *)from;
 

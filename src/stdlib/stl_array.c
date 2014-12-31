@@ -25,6 +25,7 @@
 #include "stl_string.h"
 #include "mach_binary_ops.h"
 
+#define IS_TAGGED(a) ((uintptr_t)(a) & 1)
 #define FAIL_CHECK(check, name, text) do { if(check) { mach_halt_with_err(lobjb_build_error(name, text)); return &lky_nil; } }while(0);
 
 static lky_object *stlarr_class = NULL;
@@ -67,7 +68,7 @@ lky_object *stlarr_add(lky_object_seq *args, lky_object_function *func)
     arraylist list = data->container;
 
     lky_object *obj = (lky_object *)args->value;
-    if(obj->type != LBI_FLOAT && obj->type != LBI_INTEGER)
+    if(!((uintptr_t)(obj) & 1) && obj->type != LBI_FLOAT && obj->type != LBI_INTEGER)
         return &lky_nil;
 
     long offset = OBJ_NUM_UNWRAP(obj);
@@ -96,7 +97,7 @@ lky_object *stlarr_set(lky_object_seq *args, lky_object_function *func)
     lky_object *indexer = (lky_object *)args->value;
     lky_object *newobj = (lky_object *)args->next->value;
 
-    if(indexer->type != LBI_FLOAT && indexer->type != LBI_INTEGER)
+    if(!OBJ_IS_NUMBER(indexer))
     {
         mach_halt_with_err(lobjb_build_error("MismatchedType", "You can only index an array with an int or a float!"));
         return &lky_nil;
@@ -147,7 +148,7 @@ lky_object *stlarr_contains(lky_object_seq *args, lky_object_function *func)
     {
         lky_object *b = arr_get(&list, i);
         lky_object *result = lobjb_binary_equals(a, b);
-        if(result->type == LBI_INTEGER || result->type == LBI_FLOAT)
+        if(IS_TAGGED(result) || result->type == LBI_INTEGER || result->type == LBI_FLOAT)
         {
             toret = !!OBJ_NUM_UNWRAP(result);
             if(toret)
@@ -174,7 +175,7 @@ lky_object *stlarr_for_each(lky_object_seq *args, lky_object_function *func)
     arraylist list = data->container;
 
     lky_object_function *callback = (lky_object_function *)args->value;
-    FAIL_CHECK(callback->type != LBI_FUNCTION, "MismatchedType", "Expected function type");
+    FAIL_CHECK(IS_TAGGED(callback) || callback->type != LBI_FUNCTION, "MismatchedType", "Expected function type");
     FAIL_CHECK(!callback->callable.argc || callback->callable.argc > 2, "MismatchedType", "Expected function with 1 or 2 arguments");
 
     char useidx = 0;
@@ -209,7 +210,7 @@ lky_object *stlarr_index_of(lky_object_seq *args, lky_object_function *func)
     {
         lky_object *b = arr_get(&list, i);
         lky_object *result = lobjb_binary_equals(a, b);
-        if(result->type == LBI_INTEGER || result->type == LBI_FLOAT)
+        if(IS_TAGGED(result) || result->type == LBI_INTEGER || result->type == LBI_FLOAT)
         {
             if(OBJ_NUM_UNWRAP(result))
                 return lobjb_build_int(i);
@@ -295,7 +296,7 @@ lky_object *stlarr_joined(lky_object_seq *args, lky_object_function *func)
         {
             char str[100];
             
-            if(obj->type == LBI_FLOAT || obj->type == LBI_INTEGER)
+            if(IS_TAGGED(obj) || obj->type == LBI_FLOAT || obj->type == LBI_INTEGER)
                 strobj = (lky_object_custom *)lobjb_num_to_string(obj);
             else
             {

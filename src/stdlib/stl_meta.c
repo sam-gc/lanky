@@ -17,6 +17,7 @@
  */
 
 #include "stl_meta.h"
+#include "stl_string.h"
 #include "ast.h"
 #include "parser.h"
 #include "tools.h"
@@ -177,6 +178,22 @@ lky_object *stlmeta_repl(lky_object_seq *args, lky_object_function *func)
     
     run_repl(self->data);
     
+    return &lky_nil;
+}
+
+lky_object *stlmeta_address_of(lky_object_seq *args, lky_object_function *func)
+{
+    void *p = (void *)args->value;
+    char str[20];
+    sprintf(str, "%p", p);
+    return stlstr_cinit(str);
+}
+
+lky_object *stlmeta_allow_int_tags(lky_object_seq *args, lky_object_function *func)
+{
+    lky_object *o = (lky_object *)args->value;
+    lobjb_uses_pointer_tags_ = OBJ_NUM_UNWRAP(o);
+
     return &lky_nil;
 }
 
@@ -397,6 +414,12 @@ lky_object *stlmeta_examine(lky_object_seq *args, lky_object_function *func)
 {
     lky_object_function *obj = (lky_object_function *)args->value;
 
+    if((uintptr_t)(obj) & 1)
+    {
+        printf("Lanky tagged pointer.\n");
+        return &lky_nil;
+    }
+
     if(obj->type != LBI_FUNCTION)
     {
         printf("Lanky object.\n");
@@ -534,6 +557,8 @@ lky_object *stlmeta_get_class(mach_interp *interp)
     lobj_set_member(obj, "gc_collect", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlmeta_gc_collect));
     lobj_set_member(obj, "gc_alloced", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlmeta_gc_alloced));
     lobj_set_member(obj, "gc_halt", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlmeta_gc_halt));
+    lobj_set_member(obj, "addressOf", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlmeta_address_of));
+    lobj_set_member(obj, "allowIntTags", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlmeta_allow_int_tags));
     
     return obj;
 }

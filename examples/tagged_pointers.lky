@@ -1,0 +1,22 @@
+speedTest = func() {
+    timer = func(callback) {
+        start = Time.unix();
+        callback();
+        ret Time.unix() - start;
+    };
+
+    code = func() {
+        for i = 0; i < 10000000; i += 1 {
+        }
+    };
+
+    Io.putln("Starting with (10,000,000 integers)");
+    with = timer(code);
+    Io.putln("Starting without");
+    Meta.allowIntTags(0);
+    without = timer(code);
+
+    Io.putln("With: " + with + "ms.\nWithout: " + without + "ms.");
+};
+
+speedTest();

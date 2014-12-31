@@ -28,7 +28,7 @@
 #define M_E  2.71828182845904523536
 
 #define TOKENPASTE(x, y) x ## y
-#define IS_NUMBER(obj) (obj->type == LBI_FLOAT || obj->type == LBI_INTEGER)
+#define IS_NUMBER(obj) (((uintptr_t)(obj) & 1) || obj->type == LBI_FLOAT || obj->type == LBI_INTEGER)
 
 // Here we are shooting for rough templating. Lots of the cmath functions
 // take one value as input and we want to wrap all of them. The below
@@ -39,7 +39,7 @@
 lky_object *TOKENPASTE(stlmath_wrap_, function) (lky_object_seq *args, lky_object *func) \
 {\
     lky_object_builtin *b = (lky_object_builtin *)args->value;\
-    if(b->type != LBI_INTEGER && b->type != LBI_FLOAT)\
+    if(!IS_NUMBER(b))\
     {\
         return &lky_nil;\
     }\

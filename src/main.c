@@ -62,6 +62,8 @@ hashtable parse_args(int argc, char *argv[])
             hst_put(&tab, "-S", (void *)1, NULL, NULL);
         else if(strcmp(argv[i], "-e") == 0)
             hst_put(&tab, "-e", (void *)1, NULL, NULL);
+        else if(strcmp(argv[i], "--no-tagged-ints") == 0)
+            hst_put(&tab, "-nt", (void *)1, NULL, NULL);
     }
 
     return tab;
@@ -203,6 +205,10 @@ int main(int argc, char *argv[])
     {
         lky_object_code *code = NULL;
         hashtable args = parse_args(argc, argv);
+
+        if(hst_contains_key(&args, "-nt", NULL, NULL))
+            lobjb_uses_pointer_tags_ = 0;
+
         int bin = file_is_binary(argv[1]);
         if(bin)
         {
@@ -210,15 +216,18 @@ int main(int argc, char *argv[])
         }
         else
         {
-            code = compile_from_file(argv[1]);
             if(hst_contains_key(&args, "-c", NULL, NULL))
             {
+                lobjb_uses_pointer_tags_ = 0;
+                code = compile_from_file(argv[1]);
                 size_t len;
                 char *rendered = srl_serialize_object((lky_object *)code, &len);
                 export_to_file(rendered, len, hst_get(&args, "-o", NULL, NULL));
                 free(rendered);
                 goto cleanup;
             }
+
+            code = compile_from_file(argv[1]);
         }
 
         if(hst_contains_key(&args, "-S", NULL, NULL))

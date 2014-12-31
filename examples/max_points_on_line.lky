@@ -125,6 +125,8 @@ maxPointsSq = func(points) {
     ret max;
 };
 
+-- Meta.allowIntTags(0);
+
 -- Canned example
 Io.putln(maxPoints(Point.genList()));
 Io.putln(maxPointsSq(Point.genList()));

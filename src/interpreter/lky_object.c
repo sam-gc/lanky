@@ -49,7 +49,7 @@ lky_object *lobj_alloc()
 
 void lobj_set_member(lky_object *obj, char *member, lky_object *val)
 {
-    if(obj->type == LBI_FLOAT || obj->type == LBI_INTEGER)
+    if(((uintptr_t)(obj) & 1) || obj->type == LBI_FLOAT || obj->type == LBI_INTEGER)
         return;
 
     hst_put(&obj->members, member, val, NULL, NULL);
@@ -58,7 +58,7 @@ void lobj_set_member(lky_object *obj, char *member, lky_object *val)
 
 lky_object *lobj_get_member(lky_object *obj, char *member)
 {
-    if(!obj || obj->type == LBI_FLOAT || obj->type == LBI_INTEGER)
+    if(!obj || ((uintptr_t)(obj) & 1) || obj->type == LBI_FLOAT || obj->type == LBI_INTEGER)
         return NULL;
 
     lky_object *val = hst_get(&obj->members, member, NULL, NULL);

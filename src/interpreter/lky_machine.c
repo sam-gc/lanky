@@ -503,7 +503,7 @@ _opcode_whiplash_:
 
             if(obj == &lky_nil)
                 needs_jump = 1;
-            else if(obj->type == LBI_FLOAT || obj->type == LBI_INTEGER)
+            else if(((uintptr_t)(obj) & 1) || obj->type == LBI_FLOAT || obj->type == LBI_INTEGER)
                 needs_jump = !OBJ_NUM_UNWRAP(obj);
 
             if(needs_jump)
@@ -529,7 +529,7 @@ _opcode_whiplash_:
             char needs_jump = 0;
             if(obj == &lky_nil)
                 needs_jump = 0;
-            else if(obj->type == LBI_FLOAT || obj->type == LBI_INTEGER)
+            else if(((uintptr_t)(obj) & 1) || obj->type == LBI_FLOAT || obj->type == LBI_INTEGER)
                 needs_jump = !!(OBJ_NUM_UNWRAP(obj));
 
             if(needs_jump && op == LI_JUMP_TRUE_ELSE_POP ||

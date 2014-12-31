@@ -22,11 +22,12 @@
 #include "mach_binary_ops.h"
 #include "lky_machine.h"
 
-#define OBJ_NUM_PROMO(a, b) (a->type == LBI_FLOAT || b->type == LBI_FLOAT ? LBI_FLOAT : LBI_INTEGER) 
+#define IS_TAGGED(a) ((uintptr_t)(a) & 1)
+#define OBJ_NUM_PROMO(a, b) ((!((uintptr_t)(a) & 1) && a->type == LBI_FLOAT) || (!((uintptr_t)(b) & 1) && b->type == LBI_FLOAT ) ? LBI_FLOAT : LBI_INTEGER) 
 #define CHECK_EXEC_CUSTOM_IMPL(a, b, name) \
     do { \
-        if(a->type == LBI_CUSTOM || a->type == LBI_CUSTOM_EX || b->type == LBI_CUSTOM || b->type == LBI_CUSTOM_EX) { \
-            lky_object *caller = a->type == LBI_CUSTOM || a->type == LBI_CUSTOM_EX ? a : b;\
+        if(!(IS_TAGGED(a)) && a->type == LBI_CUSTOM || !(IS_TAGGED(a)) && a->type == LBI_CUSTOM_EX || !(IS_TAGGED(b)) && b->type == LBI_CUSTOM || !(IS_TAGGED(b)) && b->type == LBI_CUSTOM_EX) { \
+            lky_object *caller = !(IS_TAGGED(a)) && (a->type == LBI_CUSTOM || a->type == LBI_CUSTOM_EX) ? a : b;\
             lky_object *other = caller == a ? b : a; \
             lky_object *func = lobj_get_member(caller, name); \
             if(!func || func->type != LBI_FUNCTION) \
@@ -207,7 +208,7 @@ lky_object *lobjb_binary_modulo(lky_object *a, lky_object *b)
             v.d = remainder(OBJ_NUM_UNWRAP(ab), OBJ_NUM_UNWRAP(bb));
             break;
         case LBI_INTEGER:
-            v.i = ab->value.i % bb->value.i;
+            v.i = (long)(OBJ_NUM_UNWRAP(a)) % (long)(OBJ_NUM_UNWRAP(b));
             break;
         default:
             break;
@@ -233,7 +234,7 @@ lky_object *lobjb_binary_power(lky_object *a, lky_object *b)
             v.d = pow(OBJ_NUM_UNWRAP(ab), OBJ_NUM_UNWRAP(bb));
             break;
         case LBI_INTEGER:
-            v.i = (long)pow(ab->value.i, bb->value.i);
+            v.i = (long)pow(OBJ_NUM_UNWRAP(a), OBJ_NUM_UNWRAP(b));
             break;
         default:
             break;
@@ -254,15 +255,7 @@ lky_object *lobjb_binary_lessthan(lky_object *a, lky_object *b)
     lky_builtin_value v;
     lky_builtin_type t = LBI_INTEGER;
 
-    if(ab->type == LBI_STRING || bb->type == LBI_STRING)
-    {
-        if(ab->type != LBI_STRING || bb->type != LBI_STRING)
-            v.i = 0;
-        else
-            v.i = strcmp(ab->value.s, bb->value.s) < 0;
-    }
-    else
-        v.i = (OBJ_NUM_UNWRAP(ab) < OBJ_NUM_UNWRAP(bb));
+    v.i = (OBJ_NUM_UNWRAP(ab) < OBJ_NUM_UNWRAP(bb));
 
     // printf("==> %d\n", v.i);
 
@@ -281,15 +274,7 @@ lky_object *lobjb_binary_greaterthan(lky_object *a, lky_object *b)
     lky_builtin_value v;
     lky_builtin_type t = LBI_INTEGER;
 
-    if(ab->type == LBI_STRING || bb->type == LBI_STRING)
-    {
-        if(ab->type != LBI_STRING || bb->type != LBI_STRING)
-            v.i = 0;
-        else
-            v.i = strcmp(ab->value.s, bb->value.s) > 0;
-    }
-    else
-        v.i = (OBJ_NUM_UNWRAP(ab) > OBJ_NUM_UNWRAP(bb));
+    v.i = (OBJ_NUM_UNWRAP(ab) > OBJ_NUM_UNWRAP(bb));
 
     return lobjb_alloc(t, v);
 }
@@ -307,17 +292,7 @@ lky_object *lobjb_binary_equals(lky_object *a, lky_object *b)
     lky_builtin_value v;
     lky_builtin_type t = LBI_INTEGER;
 
-    if(ab->type == LBI_STRING || bb->type == LBI_STRING)
-    {
-        if(ab->type != LBI_STRING || bb->type != LBI_STRING)
-            v.i = 0;
-        else
-            v.i = strcmp(ab->value.s, bb->value.s) == 0;
-    }
-    else if(a->type == LBI_CUSTOM || b->type == LBI_CUSTOM)
-        v.i = a == b;
-    else
-        v.i = (OBJ_NUM_UNWRAP(ab) == OBJ_NUM_UNWRAP(bb));
+    v.i = (OBJ_NUM_UNWRAP(ab) == OBJ_NUM_UNWRAP(bb));
 
     return lobjb_alloc(t, v);
 }
@@ -334,15 +309,7 @@ lky_object *lobjb_binary_lessequal(lky_object *a, lky_object *b)
     lky_builtin_value v;
     lky_builtin_type t = LBI_INTEGER;
 
-    if(ab->type == LBI_STRING || bb->type == LBI_STRING)
-    {
-        if(ab->type != LBI_STRING || bb->type != LBI_STRING)
-            v.i = 0;
-        else
-            v.i = strcmp(ab->value.s, bb->value.s) <= 0;
-    }
-    else
-        v.i = (OBJ_NUM_UNWRAP(ab) <= OBJ_NUM_UNWRAP(bb));
+    v.i = (OBJ_NUM_UNWRAP(ab) <= OBJ_NUM_UNWRAP(bb));
 
     return lobjb_alloc(t, v);
 }
@@ -359,15 +326,7 @@ lky_object *lobjb_binary_greatequal(lky_object *a, lky_object *b)
     lky_builtin_value v;
     lky_builtin_type t = LBI_INTEGER;
 
-    if(ab->type == LBI_STRING || bb->type == LBI_STRING)
-    {
-        if(ab->type != LBI_STRING || bb->type != LBI_STRING)
-            v.i = 0;
-        else
-            v.i = strcmp(ab->value.s, bb->value.s) >= 0;
-    }
-    else
-        v.i = (OBJ_NUM_UNWRAP(ab) >= OBJ_NUM_UNWRAP(bb));
+    v.i = (OBJ_NUM_UNWRAP(ab) >= OBJ_NUM_UNWRAP(bb));
 
     return lobjb_alloc(t, v);
 }
@@ -384,15 +343,7 @@ lky_object *lobjb_binary_notequal(lky_object *a, lky_object *b)
     lky_builtin_value v;
     lky_builtin_type t = LBI_INTEGER;
 
-    if(ab->type == LBI_STRING || bb->type == LBI_STRING)
-    {
-        if(ab->type != LBI_STRING || bb->type != LBI_STRING)
-            v.i = 0;
-        else
-            v.i = strcmp(ab->value.s, bb->value.s) != 0;
-    }
-    else
-        v.i = (OBJ_NUM_UNWRAP(ab) != OBJ_NUM_UNWRAP(bb));
+    v.i = (OBJ_NUM_UNWRAP(ab) != OBJ_NUM_UNWRAP(bb));
 
     return lobjb_alloc(t, v);
 }

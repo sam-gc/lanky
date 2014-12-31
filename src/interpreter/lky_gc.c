@@ -188,7 +188,7 @@ void gc_mark_for_each(void *key, void *val, void *data)
 
 void gc_mark_object(lky_object *o)
 {
-    if(o->mem_count)
+    if(((uintptr_t)(o) & 1) || o->mem_count)
         return;
     
     o->mem_count = 1;

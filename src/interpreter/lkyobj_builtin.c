@@ -27,8 +27,31 @@
 #include <string.h>
 #include <math.h>
 
+int lobjb_uses_pointer_tags_ = 1;
+
+lky_object *lobjb_try_render_tagged_pointer(long value)
+{
+    if(!lobjb_uses_pointer_tags_)
+        return NULL;
+
+    uintptr_t p = 0;
+    if(value < (long)0x00FFFFFF && value >= 0)
+    {
+        p = value << 8;
+        p |= 1;
+    }
+
+    return (lky_object *)p;
+}
+
 lky_object *lobjb_alloc(lky_builtin_type t, lky_builtin_value v)
 {
+    if(t == LBI_INTEGER && v.i < 0x0FFFFFFF && v.i >= 0)
+    {
+        lky_object *attempt = lobjb_try_render_tagged_pointer(v.i);
+        if(attempt) return attempt;
+    }
+
     lky_object_builtin *obj = malloc(sizeof(lky_object_builtin));
     obj->type = t;
     obj->size = sizeof(lky_object_builtin);
@@ -44,6 +67,9 @@ lky_object *lobjb_alloc(lky_builtin_type t, lky_builtin_value v)
 
 lky_object *lobjb_build_int(long value)
 {
+    lky_object *attempt = lobjb_try_render_tagged_pointer(value);
+    if(attempt) return attempt;
+
     lky_builtin_value v;
     v.i = value;
     return lobjb_alloc(LBI_INTEGER, v);
@@ -186,6 +212,14 @@ char *lobjb_stringify(lky_object *a)
 {
     char *ret = NULL;
 
+    if((uintptr_t)(a) & 1)
+    {
+        long val = OBJ_NUM_UNWRAP(a);
+        ret = malloc(100);
+        sprintf(ret, "%ld", val);
+        return ret;
+    }
+
     lky_object_builtin *b = (lky_object_builtin *)a;
 
     switch(b->type)
@@ -283,7 +317,11 @@ lky_object *lobjb_num_to_string(lky_object *a)
 {
     lky_object_builtin *b = (lky_object_builtin *)a;
     char str[100];
-    str_print(b->type, b->value, str);
+
+    if((uintptr_t)(a) & 1)
+        sprintf(str, "%ld", OBJ_NUM_UNWRAP(a));
+    else
+        str_print(b->type, b->value, str);
     
     return stlstr_cinit(str);
 }
@@ -442,6 +480,8 @@ lky_object *lobjb_unary_save_index(lky_object *obj, lky_object *indexer, lky_obj
 
 lky_object *lobjb_unary_negative(lky_object *obj)
 {
+    if((uintptr_t)(obj) & 1)
+        return lobjb_build_int(-(OBJ_NUM_UNWRAP(obj)));
     if(obj->type != LBI_FLOAT && obj->type != LBI_INTEGER)
         return &lky_nil;
 
@@ -477,6 +517,9 @@ lky_object *lobjb_unary_negative(lky_object *obj)
 
 char lobjb_quick_compare(lky_object *a, lky_object *b)
 {
+    if(((uintptr_t)(a) & 1) || ((uintptr_t)(b) & 1))
+        return a == b;
+
     BI_CAST(a, ab);
     BI_CAST(b, bb);
 
