@@ -63,6 +63,11 @@ int stack_effect_for(lky_instruction op, int *skip)
         case LI_BINARY_AND:
         case LI_BINARY_OR:
         case LI_BINARY_NC:
+        case LI_BINARY_BAND:
+        case LI_BINARY_BOR:
+        case LI_BINARY_BXOR:
+        case LI_BINARY_BLSHIFT:
+        case LI_BINARY_BRSHIFT:
         case LI_PRINT:
         case LI_POP:
         case LI_RETURN:

@@ -39,10 +39,10 @@
    they represent.
  */
 %token <string> TIDENTIFIER TINTEGER TFLOAT TSTRING
-%token <token> TCEQ TCNE TCLT TCLE TCGT TCGE TEQUAL TAND TOR TNOT
+%token <token> TCEQ TCNE TCLT TCLE TCGT TCGE TEQUAL TAND TOR TNOT TBAND TBOR TBXOR TBLSHIFT TBRSHIFT 
 %token <token> TLPAREN TRPAREN TLBRACE TRBRACE TLBRACKET TRBRACKET TCOMMA TDOT
-%token <token> TPLUS TMINUS TMUL TDIV TMOD TPOW TCON TBOR
-%token <token> TPLUSE TMINUSE TMULE TDIVE TMODE TPOWE TORE TANDE TCONE
+%token <token> TPLUS TMINUS TMUL TDIV TMOD TPOW TCON
+%token <token> TPLUSE TMINUSE TMULE TDIVE TMODE TPOWE TORE TANDE TCONE TBANDE TBORE TBXORE TBLSHIFTE TBRSHIFTE
 %token <token> TIF TELIF TELSE TPRT TCOMMENT TLOOP TCOLON TFUNC TSEMI TRET TQUESTION TARROW TCLASS TNIL TCONTINUE TBREAK TLOAD TNILOR
 
 /* Define the type of node our nonterminal symbols represent.
@@ -55,11 +55,15 @@
 /* Operator precedence for mathematical operators */
 %nonassoc TPRT TRET TNIL
 %left TEQUAL
-%left TPLUSE TMINUSE TMULE TDIVE TMODE TPOWE TORE TANDE
+%left TPLUSE TMINUSE TMULE TDIVE TMODE TPOWE TORE TANDE TBANDE TBORE TBXORE TBLSHIFTE TBRSHIFTE
 %left TQUESTION TCOLON TNILOR TCON TCONE
 %right TOR
 %right TAND
 %nonassoc TCEQ TCNE TCLT TCLE TCGT TCGE
+%left TBOR
+%left TBXOR
+%left TBAND
+%left TBLSHIFT TBRSHIFT
 %left TMINUS TPLUS
 %left TDIV TMUL TMOD
 %left NEG
@@ -141,6 +145,11 @@ opapply : TIDENTIFIER TPLUSE expression { $$ = create_assignment_node($1, create
     | TIDENTIFIER TORE expression { $$ = create_assignment_node($1, create_binary_node(create_value_node(VVAR, (void *)$1), $3, '|'))    ; }
     | TIDENTIFIER TANDE expression { $$ = create_assignment_node($1, create_binary_node(create_value_node(VVAR, (void *)$1), $3, '&'))    ; }
     | TIDENTIFIER TCONE expression { $$ = create_assignment_node($1, create_binary_node(create_value_node(VVAR, (void *)$1), $3, '?'))  ;}
+    | TIDENTIFIER TBANDE expression { $$ = create_assignment_node($1, create_binary_node(create_value_node(VVAR, (void *)$1), $3, 'a'))  ;}
+    | TIDENTIFIER TBORE expression { $$ = create_assignment_node($1, create_binary_node(create_value_node(VVAR, (void *)$1), $3, 'o'))  ;}
+    | TIDENTIFIER TBXORE expression { $$ = create_assignment_node($1, create_binary_node(create_value_node(VVAR, (void *)$1), $3, 'x'))  ;}
+    | TIDENTIFIER TBLSHIFTE expression { $$ = create_assignment_node($1, create_binary_node(create_value_node(VVAR, (void *)$1), $3, '<'))  ;}
+    | TIDENTIFIER TBRSHIFTE expression { $$ = create_assignment_node($1, create_binary_node(create_value_node(VVAR, (void *)$1), $3, '>'))  ;}
     ;
 
 binor : expression TOR expression { $$ = create_cond_node($1, $3, '|'); }
@@ -176,6 +185,11 @@ expression :
     | expression TCGT expression { $$ = create_binary_node($1, $3, 'g'); }
     | expression TCGE expression { $$ = create_binary_node($1, $3, 'G'); }
     | expression TCON expression { $$ = create_binary_node($1, $3, '?'); }
+    | expression TBAND expression { $$ = create_binary_node($1, $3, 'a'); }
+    | expression TBOR expression { $$ = create_binary_node($1, $3, 'o'); }
+    | expression TBXOR expression { $$ = create_binary_node($1, $3, 'x'); }
+    | expression TBLSHIFT expression { $$ = create_binary_node($1, $3, '<'); }
+    | expression TBRSHIFT expression { $$ = create_binary_node($1, $3, '>'); }
     | TLPAREN expression TRPAREN { $$ = $2; }
     | TLOAD TSTRING { $$ = create_load_node((void *)$2); }
     | expression TQUESTION expression TCOLON expression { $$ = create_ternary_node($1, $3, $5); }

@@ -37,4 +37,11 @@ lky_object *lobjb_binary_and(lky_object *a, lky_object *b);
 lky_object *lobjb_binary_or(lky_object *a, lky_object *b);
 lky_object *lobjb_binary_nc(lky_object *a, lky_object *b);
 
+// Bitwise operations
+lky_object *lobjb_binary_band(lky_object *a, lky_object *b);
+lky_object *lobjb_binary_bor(lky_object *a, lky_object *b);
+lky_object *lobjb_binary_bxor(lky_object *a, lky_object *b);
+lky_object *lobjb_binary_blshift(lky_object *a, lky_object *b);
+lky_object *lobjb_binary_brshift(lky_object *a, lky_object *b);
+
 #endif

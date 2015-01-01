@@ -106,7 +106,16 @@ comment (\#|(\-\-)).*(\n)
 "?:"                    return TOKEN(TNILOR);
 "??"                    return TOKEN(TCON);
 "??="                   return TOKEN(TCONE);
-"or"                    return TOKEN(TBOR);
+"&."                    return TOKEN(TBAND);
+"&.="                   return TOKEN(TBANDE);
+"|."                    return TOKEN(TBOR);
+"|.="                   return TOKEN(TBORE);
+"^."                    return TOKEN(TBXOR);
+"^.="                   return TOKEN(TBXORE);
+"<."                    return TOKEN(TBLSHIFT);
+">."                    return TOKEN(TBRSHIFT);
+"<.="                   return TOKEN(TBLSHIFTE);
+">.="                   return TOKEN(TBRSHIFTE);
 ";"                     return TOKEN(TSEMI);
 .                       printf("Unknown token! %s\n", yytext); yyterminate();
 %%

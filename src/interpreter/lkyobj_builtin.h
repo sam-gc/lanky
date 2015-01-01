@@ -21,6 +21,7 @@
 
 #define OBJ_NUM_UNWRAP(obj) (((uintptr_t)(obj) & 1) ? ((long)(obj) >> 8 & 0x00FFFFFFF) : (((lky_object_builtin *)obj)->type == LBI_FLOAT ? ((lky_object_builtin *)obj)->value.d : ((lky_object_builtin *)obj)->value.i))
 #define OBJ_IS_NUMBER(obj) (((uintptr_t)(obj) & 1) || obj->type == LBI_FLOAT || obj->type == LBI_INTEGER)
+#define OBJ_IS_INTEGER(obj) (((uintptr_t)(obj) & 1) || obj->type == LBI_INTEGER)
 #define BIN_ARGS lky_object *a, lky_object *b
 #define BI_CAST(o, n) lky_object_builtin * n = (lky_object_builtin *) o
 #define GET_VA_ARGS(func) (lobj_get_member((lky_object *)func->bucket, "_va_args"))

@@ -445,6 +445,56 @@ _opcode_whiplash_:
             goto _opcode_whiplash_;
         }
         break;
+        case LI_BINARY_BAND:
+        {
+            POP_TWO();
+            lky_object *obj = lobjb_binary_band(b, a);
+            RC_TWO();
+
+            PUSH_RC(obj);
+            goto _opcode_whiplash_;
+        }
+        break;
+        case LI_BINARY_BOR:
+        {
+            POP_TWO();
+            lky_object *obj = lobjb_binary_bor(b, a);
+            RC_TWO();
+
+            PUSH_RC(obj);
+            goto _opcode_whiplash_;
+        }
+        break;
+        case LI_BINARY_BXOR:
+        {
+            POP_TWO();
+            lky_object *obj = lobjb_binary_bxor(b, a);
+            RC_TWO();
+
+            PUSH_RC(obj);
+            goto _opcode_whiplash_;
+        }
+        break;
+        case LI_BINARY_BLSHIFT:
+        {
+            POP_TWO();
+            lky_object *obj = lobjb_binary_blshift(b, a);
+            RC_TWO();
+
+            PUSH_RC(obj);
+            goto _opcode_whiplash_;
+        }
+        break;
+        case LI_BINARY_BRSHIFT:
+        {
+            POP_TWO();
+            lky_object *obj = lobjb_binary_brshift(b, a);
+            RC_TWO();
+
+            PUSH_RC(obj);
+            goto _opcode_whiplash_;
+        }
+        break;
         case LI_UNARY_NOT:
         {
             lky_object *a = POP();

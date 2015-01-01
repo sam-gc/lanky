@@ -380,6 +380,71 @@ lky_object *lobjb_binary_or(lky_object *a, lky_object *b)
     return lobjb_build_int(vala || valb);
 }
 
+lky_object *lobjb_binary_band(lky_object *a, lky_object *b)
+{
+    CHECK_EXEC_CUSTOM_IMPL(a, b, "op_bit_and_");
+
+    if(!OBJ_IS_INTEGER(a) || !OBJ_IS_INTEGER(b))
+        return &lky_nil;
+
+    long vala = OBJ_NUM_UNWRAP(a);
+    long valb = OBJ_NUM_UNWRAP(b);
+
+    return lobjb_build_int(vala & valb);
+}
+
+lky_object *lobjb_binary_bor(lky_object *a, lky_object *b)
+{
+    CHECK_EXEC_CUSTOM_IMPL(a, b, "op_bit_or_");
+
+    if(!OBJ_IS_INTEGER(a) || !OBJ_IS_INTEGER(b))
+        return &lky_nil;
+
+    long vala = OBJ_NUM_UNWRAP(a);
+    long valb = OBJ_NUM_UNWRAP(b);
+
+    return lobjb_build_int(vala | valb);
+}
+
+lky_object *lobjb_binary_bxor(lky_object *a, lky_object *b)
+{
+    CHECK_EXEC_CUSTOM_IMPL(a, b, "op_bit_xor_");
+
+    if(!OBJ_IS_INTEGER(a) || !OBJ_IS_INTEGER(b))
+        return &lky_nil;
+
+    long vala = OBJ_NUM_UNWRAP(a);
+    long valb = OBJ_NUM_UNWRAP(b);
+
+    return lobjb_build_int(vala ^ valb);
+}
+
+lky_object *lobjb_binary_blshift(lky_object *a, lky_object *b)
+{
+    CHECK_EXEC_CUSTOM_IMPL(a, b, "op_bit_l_shift_");
+
+    if(!OBJ_IS_INTEGER(a) || !OBJ_IS_INTEGER(b))
+        return &lky_nil;
+
+    long vala = OBJ_NUM_UNWRAP(a);
+    long valb = OBJ_NUM_UNWRAP(b);
+
+    return lobjb_build_int(vala << valb);
+}
+
+lky_object *lobjb_binary_brshift(lky_object *a, lky_object *b)
+{
+    CHECK_EXEC_CUSTOM_IMPL(a, b, "op_bit_r_shift_");
+
+    if(!OBJ_IS_INTEGER(a) || !OBJ_IS_INTEGER(b))
+        return &lky_nil;
+
+    long vala = OBJ_NUM_UNWRAP(a);
+    long valb = OBJ_NUM_UNWRAP(b);
+
+    return lobjb_build_int(vala >> valb);
+}
+
 lky_object *lobjb_binary_nc(lky_object *a, lky_object *b)
 {
     return a == &lky_nil ? b : a;

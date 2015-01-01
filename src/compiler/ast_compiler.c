@@ -606,6 +606,21 @@ void compile_binary(compiler_wrapper *cw, ast_node *root)
     case '?':
         istr = LI_BINARY_NC;
         break;
+    case 'a':
+        istr = LI_BINARY_BAND;
+        break;
+    case 'o':
+        istr = LI_BINARY_BOR;
+        break;
+    case 'x':
+        istr = LI_BINARY_BXOR;
+        break;
+    case '<':
+        istr = LI_BINARY_BLSHIFT;
+        break;
+    case '>':
+        istr = LI_BINARY_BRSHIFT;
+        break;
     case '=':
         {
             // Deal with the weirdness of the '=' case.
