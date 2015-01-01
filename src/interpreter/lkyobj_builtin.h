@@ -30,6 +30,7 @@
 #include "arraylist.h"
 #include "lky_machine.h"
 #include <stdio.h>
+#include <stdint.h>
 
 //typedef struct interp mach_interp;
 

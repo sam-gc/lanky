@@ -28,6 +28,7 @@
 #include "lky_object.h"
 #include "lkyobj_builtin.h"
 #include "lky_gc.h"
+#include "aquarium.h"
 #include "lky_object.h"
 #include "stanky.h"
 #include "tools.h"
@@ -63,7 +64,9 @@ hashtable parse_args(int argc, char *argv[])
         else if(strcmp(argv[i], "-e") == 0)
             hst_put(&tab, "-e", (void *)1, NULL, NULL);
         else if(strcmp(argv[i], "--no-tagged-ints") == 0)
-            hst_put(&tab, "-nt", (void *)1, NULL, NULL);
+            hst_put(&tab, "--no-tagged-ints", (void *)1, NULL, NULL);
+        else if(strcmp(argv[i], "--use-system-malloc") == 0)
+            hst_put(&tab, "--use-system-malloc", (void *)1, NULL, NULL);
     }
 
     return tab;
@@ -198,16 +201,21 @@ void exec_from_code(lky_object_code *code, char *file, int exec)
 
 int main(int argc, char *argv[])
 {
+    hashtable args = parse_args(argc, argv);
+    if(hst_contains_key(&args, "--use-system-malloc", NULL, NULL))
+        aqua_use_system_malloc_free_ = 1;
+    else
+        aqua_init();
+
+    if(hst_contains_key(&args, "--no-tagged-ints", NULL, NULL))
+        lobjb_uses_pointer_tags_ = 0;
+
     un_setup();   
     md_init();
     stlos_init(argc - 1, argv + 1);
-    if(argc > 1)
+    if(argc > 1 && !hst_contains_key(&args, argv[1], NULL, NULL))
     {
         lky_object_code *code = NULL;
-        hashtable args = parse_args(argc, argv);
-
-        if(hst_contains_key(&args, "-nt", NULL, NULL))
-            lobjb_uses_pointer_tags_ = 0;
 
         int bin = file_is_binary(argv[1]);
         if(bin)
@@ -244,4 +252,5 @@ cleanup:
     pool_drain(&dlmempool);
     un_clean();
     md_unload();
+    aqua_teardown();
 }

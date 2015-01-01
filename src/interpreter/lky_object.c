@@ -22,6 +22,7 @@
 #include "stl_string.h"
 #include "stl_object.h"
 #include "stl_table.h"
+#include "aquarium.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -30,7 +31,8 @@ lky_object lky_nil = {LBI_NIL, 0, sizeof(lky_object), {0, 0, 0, NULL}, NULL, NUL
 int alloced = 0;
 lky_object *lobj_alloc()
 {
-    lky_object *obj = malloc(sizeof(lky_object));
+    //lky_object *obj = malloc(sizeof(lky_object));
+    lky_object *obj = aqua_request_next_block(sizeof(lky_object));
     obj->type = LBI_CUSTOM;
     obj->mem_count = 0;
     obj->size = sizeof(lky_object);
@@ -130,7 +132,8 @@ void lobj_dealloc(lky_object *obj)
     if(obj->type != LBI_INTEGER && obj->type != LBI_FLOAT &&
             obj->type != LBI_SEQUENCE && obj->type != LBI_CODE)
         hst_free(&obj->members);
-    free(obj);
+
+    aqua_release(obj);
     // alloced--;
 }
 

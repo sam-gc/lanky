@@ -18,8 +18,9 @@
 
 #include "mempool.h"
 #include "tools.h"
+#include "aquarium.h"
 #include <stdlib.h>
-
+#include <stdint.h>
 
 struct poolnode *gen_node(void *obj)
 {
@@ -68,7 +69,7 @@ void pool_drain(lky_mempool *pool)
         void *data = node->data;
         if(pool->free_func)
             pool->free_func(data);
-        else if(!((uintptr_t)(data) & 1))
+        else if(!((uintptr_t)(data) & 1) && !aqua_is_managed_pointer(data))
             FREE(data);
         struct poolnode *cur = node;
         node = node->next;
