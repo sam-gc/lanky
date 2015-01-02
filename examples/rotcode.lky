@@ -1,0 +1,125 @@
+make_rand = func(seed) {
+    val = seed; -- Right so this is a bug... We shouldn't need this step.
+    ret func() {
+        ret val = ((val * 1103515245) + 12345) &. 2147483647;
+    };
+};
+
+-- This will destroy the input array...
+shuffle = func(array, rand) {
+    new = [];
+    for array.count > 0 {
+        new.append(array.removeAt(rand() % array.count));
+    }
+
+    ret new;
+};
+
+Crypto = class () -> self {
+    self.build_ = func(key) {
+        self.key = key;
+        rand = make_rand(key);
+        shuffled_letters = shuffle('abcdefghijklmnopqrstuvwxyz'.split(''), rand);
+        
+        self.X = shuffled_letters[0];
+        self.P = shuffled_letters[1];
+        self.S = shuffled_letters[2];
+        self.wheel = shuffled_letters + 13;
+    };
+
+    self.encodeChar = func(char) {
+        idx = (Convert.toOrd(char) - 97) % 13; -- 97 is the ord' value of 'a'.
+        if idx > 12 | idx < 0 {
+            ret char;
+        }
+
+        ret self.wheel[idx];
+    };
+
+    self.levelFor = func(char) {
+        ret (Convert.toOrd(char) - 97) >= 13;
+    };
+
+    self.decodeChar = func(char, level) {
+        idx = self.wheel.indexOf(char);   
+        if idx < 0 {
+            ret char;
+        }
+
+        ret Convert.toChar(idx + 97 + (level ? 13 : 0));
+    };
+
+    self.encode = func(str) {
+        words = str.split(' ');
+        out = '';
+        words.forEach(func(word) {
+            if(!word.length) { ret; }
+            
+            lvl = self.levelFor(word[0]);
+            out += lvl == 0 ? self.P : self.X;
+            out += self.encodeChar(word[0]);
+
+            for i = 1; i < word.length; i += 1 {
+                char = word[i];
+                nlvl = self.levelFor(char);
+                if nlvl != lvl {
+                    lvl = nlvl;
+                    out += self.S;
+                }
+
+                out += self.encodeChar(char);
+            }
+        });
+
+        ret out;
+    };
+
+    self.decode = func(str) {
+        if !str.length {
+            ret '';
+        }
+
+        out = '';
+        level = str[0] == self.X;
+        for i = 1; i < str.length; i += 1 {
+            char = str[i];
+            if char == self.P | char == self.X {
+                level = char == self.X;
+                out += ' ';
+                continue;
+            }
+            elif char == self.S {
+                level = !level;
+                continue;
+            }
+            
+            out += self.decodeChar(char, level);
+        }
+
+        ret out;
+    };
+};
+
+then = Time.unix();
+
+crypt = Crypto(111);
+encoded = crypt.encode("the quick brown fox jumps over the lazy dog");
+decoded = crypt.decode(encoded);
+
+Io.putln("Encoded:\n------------>\n" + encoded + "\n------------>");
+Io.putln("\nDecoded:\n------------>\n" + decoded + "\n------------>");
+
+Io.putln("\nElapsed: " + (Time.unix() - then) + "ms");
+
+-- Io.putln("Wheel: @\n+: @; x: @; ': @".fmt(crypt.wheel, crypt.P, crypt.X, crypt.S));
+
+--       n
+--    u  a  o
+--     h | b           
+--      \|/
+--  t g--+--c p
+--      /|\
+--     f | d
+--    s  e  q
+--       r
+

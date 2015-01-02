@@ -20,6 +20,7 @@
 #include "stl_convert.h"
 #include "stl_units.h"
 #include "stl_string.h"
+#include "stl_array.h"
 
 #define IS_TAGGED(a) ((uintptr_t)(a) & 1)
 
@@ -72,6 +73,43 @@ lky_object *stlcon_to_string(lky_object_seq *args, lky_object *func)
     return ret;
 }
 
+lky_object *stlcon_ord(lky_object_seq *args, lky_object *func)
+{
+    lky_object *from = (lky_object *)args->value;
+    char *str = lobjb_stringify(from);
+    lky_object *ret = NULL;
+
+    size_t len = strlen(str);
+    if(len == 1)
+        ret = lobjb_build_int(str[0]);
+    else
+    {
+        arraylist list = arr_create(len + 1);
+        char *tmp = str;
+        while(*tmp)
+            arr_append(&list, lobjb_build_int(*tmp++));
+
+        ret = stlarr_cinit(list);
+    }
+
+    free(str);
+
+    return ret;
+}
+
+lky_object *stlcon_char(lky_object_seq *args, lky_object *func)
+{
+    lky_object *from = (lky_object *)args->value;
+    if(!OBJ_IS_INTEGER(from))
+        return &lky_nil;
+
+    char c[2];
+    c[0] = (char)OBJ_NUM_UNWRAP(from);
+    c[1] = '\0';
+
+    return stlstr_cinit(c);
+}
+
 lky_object *stlcon_unit(lky_object_seq *args, lky_object *func)
 {
     lky_object_custom *c = (lky_object_custom *)args->value;
@@ -93,6 +131,8 @@ lky_object *stlcon_get_class()
     lobj_set_member(obj, "toInt", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlcon_to_int));
     lobj_set_member(obj, "toFloat", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlcon_to_float));
     lobj_set_member(obj, "toString", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlcon_to_string));
+    lobj_set_member(obj, "toOrd", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlcon_ord));
+    lobj_set_member(obj, "toChar", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlcon_char));
     lobj_set_member(obj, "Unit", stlun_get_class());
     lobj_set_member(obj, "units", lobjb_build_func_ex(obj, 2, (lky_function_ptr)stlcon_unit));
 

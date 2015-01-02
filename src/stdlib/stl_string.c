@@ -242,11 +242,25 @@ lky_object *stlstr_split(lky_object_seq *args, lky_object_function *func)
         return &lky_nil;
 
     char *delim = ((lky_object_custom *)ostr)->data;
-    
+
     char *loc = self->data;
     size_t delen = strlen(delim);
     
     arraylist list = arr_create(10);
+
+    if(delen == 0)
+    {
+        while(*loc)
+        {
+            char nc[2];
+            nc[0] = *loc;
+            nc[1] = '\0';
+            arr_append(&list, stlstr_cinit(nc));
+            loc++;
+        }
+
+        return stlarr_cinit(list);
+    }
     
 //    // We want to capture the first instance.
 //    char *next = strstr(loc, delim);
