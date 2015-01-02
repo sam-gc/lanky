@@ -429,6 +429,27 @@ char *stlstr_copy_and_escape(char *str)
     return cop;
 }
 
+lky_object *stlstr_to_lower(lky_object_seq *args, lky_object_function *func)
+{
+    lky_object_custom *self = (lky_object_custom *)func->owner;
+    char *me = self->data;
+    size_t len = strlen(me);
+    char n[len + 1];
+    int i;
+    for(i = 0; i < len; i++)
+    {
+        char c = me[i];
+        if(c >= 'A' && c <= 'Z')
+            c = (c - 'A') + 'a';
+
+        n[i] = c;
+    }
+
+    n[i] = '\0';
+
+    return stlstr_cinit(n);
+}
+
 lky_object *stlstr_cinit(char *str)
 {
     lky_object_custom *cobj = lobjb_build_custom(0);
@@ -445,6 +466,7 @@ lky_object *stlstr_cinit(char *str)
     lobj_set_member(obj, "stringify_", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlstr_stringify));
     lobj_set_member(obj, "split", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlstr_split));
     lobj_set_member(obj, "fmt", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlstr_fmt_func));
+    lobj_set_member(obj, "toLower", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlstr_to_lower));
     lobj_set_member(obj, "op_get_index_", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlstr_get_index));
     lobj_set_member(obj, "op_set_index_", lobjb_build_func_ex(obj, 2, (lky_function_ptr)stlstr_set_index));
     lobj_set_member(obj, "op_equals_", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlstr_equals));

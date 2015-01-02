@@ -25,6 +25,8 @@ Crypto = class () -> self {
         self.P = shuffled_letters[1];
         self.S = shuffled_letters[2];
         self.wheel = shuffled_letters + 13;
+
+        self.verbose = 0;
     };
 
     self.encodeChar = func(char) {
@@ -40,6 +42,11 @@ Crypto = class () -> self {
         ret (Convert.toOrd(char) - 97) >= 13;
     };
 
+    self.isEncodable = func(char) {
+        ord = Convert.toOrd(char) - 97;
+        ret ord >= 0 & ord < 26;
+    };
+
     self.decodeChar = func(char, level) {
         idx = self.wheel.indexOf(char);   
         if idx < 0 {
@@ -52,8 +59,12 @@ Crypto = class () -> self {
     self.encode = func(str) {
         words = str.split(' ');
         out = '';
-        words.forEach(func(word) {
+        words.forEach(func(word, count) {
             if(!word.length) { ret; }
+
+            if self.verbose & count % 10 == 0 {
+                Io.putln(Convert.toFloat(count) / words.count);
+            }
             
             lvl = self.levelFor(word[0]);
             out += lvl == 0 ? self.P : self.X;
@@ -61,6 +72,12 @@ Crypto = class () -> self {
 
             for i = 1; i < word.length; i += 1 {
                 char = word[i];
+                
+                if !self.isEncodable(char) {
+                    out += char;
+                    continue;
+                }
+
                 nlvl = self.levelFor(char);
                 if nlvl != lvl {
                     lvl = nlvl;
@@ -81,11 +98,18 @@ Crypto = class () -> self {
 
         out = '';
         level = str[0] == self.X;
+        count = 0;
         for i = 1; i < str.length; i += 1 {
             char = str[i];
             if char == self.P | char == self.X {
+                count += 1;
                 level = char == self.X;
                 out += ' ';
+
+                if self.verbose & count % 10 == 0 {
+                    Io.putln(Convert.toFloat(i) / str.length);
+                }
+
                 continue;
             }
             elif char == self.S {
@@ -98,28 +122,80 @@ Crypto = class () -> self {
 
         ret out;
     };
+
+    self.encodeFromFile = func(fname) {
+        f = Io.fopen(fname, 'r');
+        text = f.getall();
+        f.close();
+
+        ret self.encode(text.toLower());
+    };
+
+    self.decodeFromFile = func(fname) {
+        f = Io.fopen(fname, 'r');
+        text = f.getall();
+        f.close();
+
+        ret self.decode(text);
+    };
 };
 
-then = Time.unix();
+build_arg_dict = func() {
+    args = {:};
+    for i = 0; i < OS.argc; i += 1 {
+        args[OS.argv[i]] = i < OS.argc - 1 ? OS.argv[i + 1] : nil;
+    }
 
+    ret args;
+};
+
+-- Io.putln("Wheel: @\n+: @; x: @; ': @".fmt(crypt.wheel, crypt.P, crypt.X, crypt.S));
+if OS.argc > 1 {
+    args = build_arg_dict();
+    key = 100;
+    text = '';
+
+    if args.hasKey('-k') {
+        key = Convert.toInt(args['-k']);
+    }
+
+    crypt = Crypto(key);
+
+    if args.hasKey('-v') {
+        crypt.verbose = 1;
+    }
+
+    usefile = args.hasKey('-f');
+    decode = args.hasKey('-d');
+
+    caller = nil;
+    if decode {
+        caller = usefile ? crypt.decodeFromFile : crypt.decode;
+    }
+    else {
+        caller = usefile ? crypt.encodeFromFile : crypt.encode;
+    }
+
+    text = caller(OS.argv[1]);
+    Io.putln(text);
+
+    ret;
+}
+
+then = Time.unix();
 crypt = Crypto(111);
-encoded = crypt.encode("the quick brown fox jumps over the lazy dog");
+encoded = crypt.encode("the quick brown fox jumps over-the lazy dog");
 decoded = crypt.decode(encoded);
+
 
 Io.putln("Encoded:\n------------>\n" + encoded + "\n------------>");
 Io.putln("\nDecoded:\n------------>\n" + decoded + "\n------------>");
 
 Io.putln("\nElapsed: " + (Time.unix() - then) + "ms");
 
--- Io.putln("Wheel: @\n+: @; x: @; ': @".fmt(crypt.wheel, crypt.P, crypt.X, crypt.S));
+if Io.prompt("Drop into REPL? (y/n): ") == "y" {
+    Meta.repl();
+}
 
---       n
---    u  a  o
---     h | b           
---      \|/
---  t g--+--c p
---      /|\
---     f | d
---    s  e  q
---       r
+-- Io.putln(crypt.decode(crypt.encodeFromFile('makefile')));
 
