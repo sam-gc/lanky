@@ -47,7 +47,7 @@ lky_object *stlarr_insert(lky_object_seq *args, lky_object_function *func)
 {
     lky_object_custom *self = (lky_object_custom *)func->owner;
 
-    int idx = OBJ_NUM_UNWRAP(args->next->value);
+    int idx = (int)OBJ_NUM_UNWRAP(args->next->value);
     stlarr_data *data = self->data;
     arr_insert(&data->container, args->value, idx);
     lobj_set_member((lky_object *)self, "count", lobjb_build_int(data->container.count));
@@ -80,7 +80,7 @@ lky_object *stlarr_add(lky_object_seq *args, lky_object_function *func)
 
     arraylist nlist = arr_create(list.count - offset + 1);
     int i;
-    for(i = offset; i < list.count; i++)
+    for(i = (int)offset; i < list.count; i++)
     {
         arr_append(&nlist, arr_get(&list, i));
     }

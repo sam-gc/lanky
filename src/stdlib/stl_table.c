@@ -145,6 +145,22 @@ lky_object *stltab_values(lky_object_seq *args, lky_object_function *func)
     return stlarr_cinit(list);
 }
 
+lky_object *stltab_cget(lky_object *table, lky_object *key)
+{
+    lky_object_custom *tab = (lky_object_custom *)table;
+    stltab_data *d = tab->data;
+    
+    return hst_get(&d->ht, key, stltab_autohash, stltab_autoequ);
+}
+
+void stltab_cput(lky_object *table, lky_object *key, lky_object *val)
+{
+    lky_object_custom *tab = (lky_object_custom *)table;
+    stltab_data *d = tab->data;
+    
+    hst_put(&d->ht, key, val, stltab_autohash, stltab_autoequ);
+}
+
 lky_object *stltab_put(lky_object_seq *args, lky_object_function *func)
 {
     lky_object_custom *tab = (lky_object_custom *)func->owner;

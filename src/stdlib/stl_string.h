@@ -23,7 +23,10 @@
 
 lky_object *stlstr_cinit(char *str);
 lky_object *stlstr_fmt_ext(char *mestr, arraylist list);
+lky_object *stltab_cget(lky_object *table, lky_object *key);
+void stltab_cput(lky_object *table, lky_object *key, lky_object *val);
 lky_object *stlstr_class();
+
 //lky_object *stlstr_get_class();
 
 #endif

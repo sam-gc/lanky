@@ -25,7 +25,12 @@
 #include <time.h>
 
 #define SET_INT_MEMBER(obj, name, val) (lobj_set_member((lky_object *)obj, name, (lky_object *)lobjb_build_int(val)))
-#define APPLY_INT_MEMBER(obj, name, targ) (targ = (long)(OBJ_NUM_UNWRAP((lobj_get_member((lky_object *)obj, name)))))
+#define APPLY_INT_MEMBER(obj, name, targ) (targ = (int)(OBJ_NUM_UNWRAP((lobj_get_member((lky_object *)obj, name)))))
+#define SET_FROM_DICT(dict, name, targ) do {\
+    lky_object *obj = stltab_cget(dict, stlstr_cinit(name));\
+    if(obj)\
+        targ = (int)(OBJ_NUM_UNWRAP(obj));\
+} while(0)
 
 typedef struct {
     struct tm time;
@@ -106,7 +111,7 @@ void stltime_copy_props_to_struct(lky_object *o)
 
 lky_object *stltime_date_format(lky_object_seq *args, lky_object_function *func)
 {
-    lky_object_custom *self = func->owner;
+    lky_object_custom *self = (lky_object_custom *)func->owner;
     stltime_copy_props_to_struct((lky_object *)self);
     char *str = lobjb_stringify((lky_object *)args->value);
 
@@ -119,18 +124,25 @@ lky_object *stltime_date_format(lky_object_seq *args, lky_object_function *func)
     return stlstr_cinit(buf);
 }
 
-lky_object *stltime_build_date_object(hashtable *ht)
+lky_object *stltime_build_date_object(lky_object *ht)
 {
     struct tm td;
-    if(!ht)
+    time_t rt;
+    time(&rt);
+    td = *localtime(&rt);
+    if(ht)
     {
-        time_t rt;
-        time(&rt);
-        td = *localtime(&rt);
-    }
-    else
-    {
+        SET_FROM_DICT(ht, "second", td.tm_sec);
+        SET_FROM_DICT(ht, "minute", td.tm_min);
+        SET_FROM_DICT(ht, "hour", td.tm_hour);
+        SET_FROM_DICT(ht, "day", td.tm_mday);
+        SET_FROM_DICT(ht, "month", td.tm_mon);
+        SET_FROM_DICT(ht, "dayOfWeek", td.tm_wday);
+        SET_FROM_DICT(ht, "dayOfYear", td.tm_yday);
         
+        lky_object *yobj = stltab_cget(ht, stlstr_cinit("year"));
+        if(yobj)
+            td.tm_year = (int)(OBJ_NUM_UNWRAP(yobj)) - 1900;
     }
 
     lky_object_custom *cobj = lobjb_build_custom(sizeof(time_data));
@@ -152,14 +164,15 @@ lky_object *stltime_build_date_object(hashtable *ht)
 
 lky_object *stltime_date_builder(lky_object_seq *args, lky_object *func)
 {
-    return stltime_build_date_object(NULL);
+    lky_object *indict = args ? (lky_object *)args->value : NULL;
+    return stltime_build_date_object(indict);
 }
 
 lky_object *stltime_get_class()
 {
     lky_object *obj = lobj_alloc();
     lobj_set_member(obj, "unix", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stltime_millis));
-    lobj_set_member(obj, "create", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stltime_date_builder));
+    lobj_set_member(obj, "create", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stltime_date_builder));
 
     return obj;
 }
