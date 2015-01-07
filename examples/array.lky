@@ -1,3 +1,5 @@
+Array = <"Array">;
+
 arr = Array();
 
 arr.append("Hello");

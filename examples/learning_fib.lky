@@ -1,3 +1,6 @@
+Io = <"Io">;
+Time = <"Time">;
+
 fib_brute_force = func(n) {
     if n == 0 | n == 1 {
         ret n;

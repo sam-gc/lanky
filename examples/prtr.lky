@@ -1,3 +1,5 @@
+Io = <"Io">;
+
 f = Io.fopen("things.txt", "r");
 f.getlns().forEach(func(val, idx) {
     Io.putln(idx + ": " + val);

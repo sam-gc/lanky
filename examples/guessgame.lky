@@ -1,3 +1,7 @@
+Math = <"Math">;
+Convert = <"Convert">;
+Io = <"Io">;
+
 target = Math.rand() % 100 + 1;
 guess = 0;
 

@@ -1,3 +1,9 @@
+Math    = <"Math">;
+Time    = <"Time">;
+Meta    = <"Meta">;
+Convert = <"Convert">;
+Io      = <"Io">;
+
 -- Convenient point class
 Point = class() -> self {
     self.build_ = func(x, y) {

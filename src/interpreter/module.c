@@ -235,8 +235,8 @@ lky_object *md_load_text_code(char *fullname, mach_interp *ip)
 
     func->bucket = lobj_alloc();
     //func->bucket->members = get_stdlib_objects();
-    hst_add_all_from(&func->bucket->members, &ip->stdlib, NULL, NULL);
-    hst_put(&func->bucket->members, "Meta", stlmeta_get_class(ip), NULL, NULL);
+//    hst_add_all_from(&func->bucket->members, &ip->stdlib, NULL, NULL);
+//    hst_put(&func->bucket->members, "Meta", stlmeta_get_class(ip), NULL, NULL);
 
     char pathtemp[strlen(fullname) + 1];
     strcpy(pathtemp, fullname);
@@ -286,7 +286,10 @@ lky_object *md_load_lib(char *fullname, char *file)
 }
 
 lky_object *md_load(char *filename, char *codedir, mach_interp *ip)
-{   
+{
+    if(hst_contains_key(&ip->stdlib, filename, NULL, NULL))
+        return hst_get(&ip->stdlib, filename, NULL, NULL);
+    
     hashtable *hst = md_active_modules_for_interp(ip);
 
     int lib = 0;

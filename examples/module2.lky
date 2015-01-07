@@ -1,4 +1,6 @@
-exports = Object();
+Io = <"Io">;
+
+exports = <"Object">();
 
 exports.countTo10000 = func() {
     for i = 0; i < 10000; i += 1 {

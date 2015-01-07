@@ -1,3 +1,7 @@
+Time    = <"Time">;
+Io      = <"Io">;
+Meta    = <"Meta">;
+
 speedTest = func() {
     timer = func(callback) {
         start = Time.unix();

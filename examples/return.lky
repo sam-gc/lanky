@@ -15,10 +15,10 @@ _prt "Nested => " + sq(5);
 _prt "Implicit => " + make_nested()(10);
 
 _prt (classify = func(x) {
-    if(x < 100) {
+    if x < 100 {
         ret "x is less than 100";
     }
-    elif(x < 1000) {
+    elif x < 1000 {
         ret "x is less than 1000";
     }
 

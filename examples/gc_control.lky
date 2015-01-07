@@ -1,3 +1,7 @@
+Io = <"Io">;
+Meta = <"Meta">;
+Time = <"Time">;
+
 makeReadable = func(fmem) {
     mem = fmem;
     suffixes = ['', 'kb', 'mb', 'gb'];

@@ -1,3 +1,5 @@
+Io = <"Io">;
+
 build_shift_table = func(str) {
     tab = {:}; -- Create a new hashtable
     len = str.length;

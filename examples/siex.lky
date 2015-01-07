@@ -6,5 +6,5 @@ test = func() {
     ret a;
 };
 
-Meta.examine(test);
-Io.putln("\t" + test());
+<"Meta">.examine(test);
+<"Io">.putln("\t" + test());

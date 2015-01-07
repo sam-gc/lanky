@@ -191,6 +191,7 @@ expression :
     | expression TBLSHIFT expression { $$ = create_binary_node($1, $3, '<'); }
     | expression TBRSHIFT expression { $$ = create_binary_node($1, $3, '>'); }
     | TLPAREN expression TRPAREN { $$ = $2; }
+    | TCLT TSTRING TCGT { $$ = create_load_node((void *)$2); }
     | TLOAD TSTRING { $$ = create_load_node((void *)$2); }
     | expression TQUESTION expression TCOLON expression { $$ = create_ternary_node($1, $3, $5); }
     | expression TNILOR expression { $$ = create_ternary_node($1, $1, $3); }

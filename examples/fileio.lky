@@ -1,3 +1,5 @@
+Io = <"Io">;
+
 f = Io.fopen("../makefile", "r");
 lines = f.getlns();
 

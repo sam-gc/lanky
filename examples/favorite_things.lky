@@ -1,3 +1,5 @@
+Io = <"Io">;
+
 Io.putln("These are a few of my favorite things:");
 
 things = [];

@@ -1,4 +1,6 @@
-exports = Object();
+Io = <"Io">;
+
+exports = <"Object">();
 
 exports.sayHello = func(name) {
     Io.putln("Hello, " + name + "!");

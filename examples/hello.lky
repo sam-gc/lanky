@@ -1,3 +1,4 @@
 -- Simplest program of all: prints "Hello, world!"
 
+Io = <"Io">;
 Io.putln("Hello, world!");

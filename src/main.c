@@ -121,6 +121,7 @@ void exec_in_repl()
     arraylist list = arr_create(1);
 
     mach_interp interp = {NULL, get_stdlib_objects()};
+    hst_put(&interp.stdlib, "Meta", stlmeta_get_class(&interp), NULL, NULL);
     
     gc_init();
 //    lky_object_function *func = (lky_object_function *)lobjb_build_func(NULL, 0, list, &interp);
@@ -131,7 +132,7 @@ void exec_in_repl()
     
     stackframe frame;
     frame.bucket = lobj_alloc();
-    hst_add_all_from(&frame.bucket->members, &interp.stdlib, NULL, NULL);
+//    hst_add_all_from(&frame.bucket->members, &interp.stdlib, NULL, NULL);
     //frame.bucket->members = get_stdlib_objects();
     frame.parent_stack = list;
     frame.stack_size = 0;
@@ -145,7 +146,7 @@ void exec_in_repl()
     char path[1000];
     getcwd(path, 1000);
 
-    hst_put(&frame.bucket->members, "Meta", stlmeta_get_class(&interp), NULL, NULL);
+//    hst_put(&frame.bucket->members, "Meta", stlmeta_get_class(&interp), NULL, NULL);
     lobj_set_member(frame.bucket, "dirname_", stlstr_cinit(path));
     
     run_repl(&interp);
@@ -178,7 +179,7 @@ void exec_from_code(lky_object_code *code, char *file, int exec)
     arraylist list = arr_create(1);
     mach_interp interp = {NULL};
     
-    gc_init();
+
     lky_object_function *func = (lky_object_function *)lobjb_build_func(code, 0, list, &interp);
 
     char codeloc[2000];
@@ -187,10 +188,13 @@ void exec_from_code(lky_object_code *code, char *file, int exec)
     char *path = dirname(codeloc);
 
     interp.stdlib = get_stdlib_objects();
+    hst_put(&interp.stdlib, "Meta", stlmeta_get_class(&interp), NULL, NULL);
+    
+    gc_init();
 
     func->bucket = lobj_alloc();
-    hst_add_all_from(&func->bucket->members, &interp.stdlib, NULL, NULL);
-    hst_put(&func->bucket->members, "Meta", stlmeta_get_class(&interp), NULL, NULL);
+//    hst_add_all_from(&func->bucket->members, &interp.stdlib, NULL, NULL);
+//    hst_put(&func->bucket->members, "Meta", stlmeta_get_class(&interp), NULL, NULL);
     lobj_set_member(func->bucket, "dirname_", stlstr_cinit(path));
 
     if(exec)
