@@ -1,0 +1,106 @@
+Io = <"Io">;
+Os = <"OS">;
+Conv = <"Convert">;
+
+if Os.argc < 2 {
+    Io.putln('Usage: ' + Os.argv[0] + ' <filename>');
+    ret;
+}
+
+init_tape = func() {
+    tape = [0];
+    tape.idx = 0;
+    
+    tape.incr = func() {
+        cur = tape[tape.idx];
+        tape[tape.idx] = cur < 255 ? cur + 1 : 0;
+    };
+    
+    tape.decr = func() {
+        cur = tape[tape.idx];
+        tape[tape.idx] = cur > 0 ? cur - 1 : 255;
+    };
+    
+    tape.next = func() {
+        if tape.idx == tape.count - 1 {
+            tape.append(0);
+        }
+    
+        tape.idx = tape.idx + 1;
+    };
+    
+    tape.prev = func() {
+        tape.idx = tape.idx - 1;
+    };
+    
+    tape.prt = func() {
+        Io.put(Conv.toChar(tape[tape.idx]));
+    };
+    
+    tape.isZero = func() {
+        ret tape[tape.idx] == 0;
+    };
+
+    ret tape;
+};
+
+preprocess = func(string) {
+    ops = [];
+    tokens = '+-><.[]'.split('');
+    for i = 0; i < string.length; i += 1 {
+        char = string[i];
+        if tokens.contains(char) {
+            ops.append(char);
+        }
+    }
+
+    ret ops;
+};
+
+-- Wrapping this in a function will leverage the
+-- high-speed local variable lookup; otherwise
+-- all variables are declared in a global context,
+-- which is assumed to be closure
+bfinterp = func() {
+    f = Io.fopen(Os.argv[1], 'r');
+    text = f.getall();
+    f.close();
+    
+    tape = init_tape();
+    ops = preprocess(text);
+
+    len = ops.count;
+    for i = 0; i < len; i += 1 {
+        ch = ops[i];
+    
+        if   ch == '+' { tape.incr(); }
+        elif ch == '-' { tape.decr(); }
+        elif ch == '>' { tape.next(); }
+        elif ch == '<' { tape.prev(); }
+        elif ch == '.' { tape.prt();  }
+        elif ch == '[' & tape.isZero() {
+            ctr = 0;
+            for nil; i < len & ctr & ops[i] != ']'; i += 1 {
+                o = ops[i];
+                if o == '[' { ctr += 1; }
+                elif o == ']' { ctr -= 1; }
+            }
+        }
+        elif ch == ']' & !tape.isZero() {
+            ctr = 0;
+            for i -= 1; i >= 0 & ops[i] != '[' | ctr; i -= 1 {
+                o = ops[i];
+                if o == ']' { ctr += 1; }
+                elif o == '[' { ctr -= 1; }
+            }
+        }
+    }
+    
+    Io.putln('');
+};
+
+bfinterp();
+
+if Io.prompt('View disassembly? (y/n) ') == 'y' {
+    <'Meta'>.examine(bfinterp);
+}
