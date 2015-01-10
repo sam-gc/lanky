@@ -54,6 +54,7 @@
 #define PUSH(data) (push_node(frame, data))
 #define POP() (pop_node(frame))
 #define TOP() (top_node(frame))
+#define SECOND_TOP() (frame->data_stack[frame->stack_pointer - 1])
 
 // Macros that use the above but increment/
 // decrement the reference count of the objects
@@ -858,7 +859,7 @@ _opcode_whiplash_:
             PUSH(lobjb_unary_load_index(targ, idx));
             goto _opcode_whiplash_;
         }
-        break; 
+        break;
         case LI_SAVE_INDEX:
         {
             lky_object *idx = POP();
@@ -867,6 +868,48 @@ _opcode_whiplash_:
 
             lobjb_unary_save_index(targ, idx, nobj);
 
+            goto _opcode_whiplash_;
+        }
+        break;
+        case LI_SDUPLICATE:
+        {
+            PUSH(TOP());
+            
+            goto _opcode_whiplash_;
+        }
+        break;
+        case LI_DDUPLICATE:
+        {
+            lky_object *topa = TOP();
+            lky_object *topb = SECOND_TOP();
+            
+            PUSH(topb);
+            PUSH(topa);
+            
+            goto _opcode_whiplash_;
+        }
+        break;
+        case LI_FLIP_TWO:
+        {
+            lky_object *topa = POP();
+            lky_object *topb = POP();
+            
+            PUSH(topa);
+            PUSH(topb);
+            
+            goto _opcode_whiplash_;
+        }
+        break;
+        case LI_SINK_FIRST:
+        {
+            lky_object *topa = POP();
+            lky_object *topb = POP();
+            lky_object *topc = POP();
+            
+            PUSH(topa);
+            PUSH(topc);
+            PUSH(topb);
+            
             goto _opcode_whiplash_;
         }
         break;

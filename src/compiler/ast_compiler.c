@@ -511,6 +511,35 @@ arraylist copy_arraylist(arraylist in)
     return nlist;
 }
 
+lky_instruction instr_for_char(char op)
+{
+    switch(op)
+    {
+        case '+': return LI_BINARY_ADD;
+        case '-': return LI_BINARY_SUBTRACT;
+        case '*': return LI_BINARY_MULTIPLY;
+        case '/': return LI_BINARY_DIVIDE;
+        case '%': return LI_BINARY_MODULO;
+        case '^': return LI_BINARY_POWER;
+        case 'l': return LI_BINARY_LT;
+        case 'g': return LI_BINARY_GT;
+        case 'L': return LI_BINARY_LTE;
+        case 'G': return LI_BINARY_GTE;
+        case 'E': return LI_BINARY_EQUAL;
+        case 'n': return LI_BINARY_NE;
+        case '&': return LI_BINARY_AND;
+        case '|': return LI_BINARY_OR;
+        case '?': return LI_BINARY_NC;
+        case 'a': return LI_BINARY_BAND;
+        case 'o': return LI_BINARY_BOR;
+        case 'x': return LI_BINARY_BXOR;
+        case '<': return LI_BINARY_BLSHIFT;
+        case '>': return LI_BINARY_BRSHIFT;
+    }
+    
+    return LI_IGNORE;
+}
+
 void compile_binary(compiler_wrapper *cw, ast_node *root)
 {
     ast_binary_node *node = (ast_binary_node *)root;
@@ -558,117 +587,29 @@ void compile_binary(compiler_wrapper *cw, ast_node *root)
     // The rest of the binary instructions are quite 
     // straightforward. We can just evaluate them in
     // a switch.
-    lky_instruction istr = LI_IGNORE;
-    switch(node->opt)
+    if(node->opt == '=')
     {
-    case '+':
-        istr = LI_BINARY_ADD;
-        break;
-    case '-':
-        istr = LI_BINARY_SUBTRACT;
-        break;
-    case '*':
-        istr = LI_BINARY_MULTIPLY;
-        break;
-    case '/':
-        istr = LI_BINARY_DIVIDE;
-        break;
-    case '%':
-        istr = LI_BINARY_MODULO;
-        break;
-    case '^':
-        istr = LI_BINARY_POWER;
-        break;
-    case 'l':
-        istr = LI_BINARY_LT;
-        break;
-    case 'g':
-        istr = LI_BINARY_GT;
-        break;
-    case 'L':
-        istr = LI_BINARY_LTE;
-        break;
-    case 'G':
-        istr = LI_BINARY_GTE;
-        break;
-    case 'E':
-        istr = LI_BINARY_EQUAL;
-        break;
-    case 'n':
-        istr = LI_BINARY_NE;
-        break;
-    case '&':
-        istr = LI_BINARY_AND;
-        break;
-    case '|':
-        istr = LI_BINARY_OR;
-        break;
-    case '?':
-        istr = LI_BINARY_NC;
-        break;
-    case 'a':
-        istr = LI_BINARY_BAND;
-        break;
-    case 'o':
-        istr = LI_BINARY_BOR;
-        break;
-    case 'x':
-        istr = LI_BINARY_BXOR;
-        break;
-    case '<':
-        istr = LI_BINARY_BLSHIFT;
-        break;
-    case '>':
-        istr = LI_BINARY_BRSHIFT;
-        break;
-    case '=':
-        {
             // Deal with the weirdness of the '=' case.
-            append_var_info(cw, ((ast_value_node *)(node->left))->value.s, 0);
-            return;
+        append_var_info(cw, ((ast_value_node *)(node->left))->value.s, 0);
+        return;
 
-            append_op(cw, LI_SAVE_CLOSE);
-            char *sid = ((ast_value_node *)(node->left))->value.s;
-            char *nsid = malloc(strlen(sid) + 1);
-            strcpy(nsid, sid);
-
-            int idx = find_prev_name(cw, nsid);
-            if(idx < 0)
-            {
-                idx = (int)cw->rnames.count;
-                arr_append(&cw->rnames, nsid);
-            }
-
-            append_op(cw, idx);
-            return;
-        }
-        break;
-//        {
-//             append_op(cw, (char)LI_SAVE_LOCAL);
-//             char *sid = ((ast_value_node *)(node->left))->value.s;
-//             hm_error_t err;
-//             int idx;
-//             lky_object_builtin *o = hm_get(&cw->saved_locals, sid, &err);
-//             if(err == HM_KEY_NOT_FOUND)
-//             {
-//                 idx = get_next_local(cw);
-//                 lky_object *obj = lobjb_build_int(idx);
-//                 pool_add(&ast_memory_pool, obj);
-//                 hm_put(&cw->saved_locals, sid, obj);
-//             }
-//             else
-//                 idx = o->value.i;
-// 
-//             // printf("==> %s %d\n", sid, idx);
-// 
-//             append_op(cw, idx);
-//             // save_val = 1;
-//             return;
-//         }
-//         break;
+//            append_op(cw, LI_SAVE_CLOSE);
+//            char *sid = ((ast_value_node *)(node->left))->value.s;
+//            char *nsid = malloc(strlen(sid) + 1);
+//            strcpy(nsid, sid);
+//
+//            int idx = find_prev_name(cw, nsid);
+//            if(idx < 0)
+//            {
+//                idx = (int)cw->rnames.count;
+//                arr_append(&cw->rnames, nsid);
+//            }
+//
+//            append_op(cw, idx);
+//            return;
     }
 
-    append_op(cw, (char)istr);
+    append_op(cw, instr_for_char(node->opt));
 }
 
 // Helper function to return the next tag for the
@@ -939,6 +880,65 @@ void compile_indx(compiler_wrapper *cw, ast_node *n)
     append_op(cw, LI_LOAD_INDEX);
 }
 
+// Used to lookup and reuse previous names/identifiers
+int find_prev_name(compiler_wrapper *cw, char *name)
+{
+    long i;
+    for(i = 0; i < cw->rnames.count; i++)
+    {
+        char *n = arr_get(&cw->rnames, i);
+        if(strcmp(name, n) == 0)
+            return (int)i;
+    }
+    
+    return -1;
+}
+
+void compile_triple_set(compiler_wrapper *cw, ast_node *n)
+{
+    ast_triple_set_node *node = (ast_triple_set_node *)n;
+    
+    if(node->index_node->type == AINDEX)
+    {
+        ast_index_node *idn = (ast_index_node *)node->index_node;
+    
+        compile(cw, idn->target);
+        compile(cw, idn->indexer);
+        append_op(cw, LI_DDUPLICATE);
+        append_op(cw, LI_LOAD_INDEX);
+    
+        compile(cw, node->new_val);
+        append_op(cw, instr_for_char(node->op));
+        append_op(cw, LI_SINK_FIRST);
+        append_op(cw, LI_SAVE_INDEX);
+    }
+    else
+    {
+        ast_member_access_node *man = (ast_member_access_node *)node->index_node;
+        
+        char *name = man->ident;
+        
+        int idx = find_prev_name(cw, name);
+        
+        if(idx < 0)
+        {
+            idx = (int)cw->rnames.count;
+            arr_append(&cw->rnames, name);
+        }
+        
+        compile(cw, man->object);
+        append_op(cw, LI_SDUPLICATE);
+        append_op(cw, LI_LOAD_MEMBER);
+        append_op(cw, idx);
+        compile(cw, node->new_val);
+        append_op(cw, instr_for_char(node->op));
+        
+        append_op(cw, LI_FLIP_TWO);
+        append_op(cw, LI_SAVE_MEMBER);
+        append_op(cw, idx);
+    }
+}
+
 void compile_ternary(compiler_wrapper *cw, ast_node *n)
 {
     ast_ternary_node *node = (ast_ternary_node *)n;
@@ -970,20 +970,6 @@ void compile_ternary(compiler_wrapper *cw, ast_node *n)
 
     // Jump out
     append_op(cw, tagOut);
-}
-
-// Used to lookup and reuse previous names/identifiers
-int find_prev_name(compiler_wrapper *cw, char *name)
-{
-    long i;
-    for(i = 0; i < cw->rnames.count; i++)
-    {
-        char *n = arr_get(&cw->rnames, i);
-        if(strcmp(name, n) == 0)
-            return (int)i;
-    }
-
-    return -1;
 }
 
 void compile_load(compiler_wrapper *cw, ast_node *n)
@@ -1327,6 +1313,9 @@ void compile(compiler_wrapper *cw, ast_node *root)
         break;
         case AINDEX:
             compile_indx(cw, root);
+        break;
+        case ATRIPLESET:
+            compile_triple_set(cw, root);
         break;
         case AONEOFF:
             compile_one_off(cw, root);

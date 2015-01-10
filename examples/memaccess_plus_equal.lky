@@ -1,0 +1,41 @@
+Io = <'Io'>;
+Meta = <'Meta'>;
+Obj = <'Object'>;
+
+createchain = func(ct) {
+    Io.putln("Creating big object chain.");
+    a = Obj();
+    start = a;
+    for i = 0; i < ct; i += 1 {
+        a.a = Obj();
+        a = a.a;
+    }
+
+    a.final = 5;
+
+    start.getlast = func() {
+        Io.putln("Getting last.");
+        b = start;
+        for i = 0; i < ct; i += 1 {
+            b = b.a;
+        }
+
+        ret b;
+    };
+
+    ret start;
+};
+
+thetest = func() {
+    test = Obj();
+    test.val = 11;
+    test.val += 13;
+    Io.putln("test.val = " + test.val);
+
+    obj = createchain(11);
+    obj.getlast().final *= 3;
+    Io.putln("final of the big long chain: " + obj.getlast().final);
+};
+
+thetest();
+Meta.repl();

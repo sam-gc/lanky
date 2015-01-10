@@ -46,7 +46,8 @@ typedef enum {
     ATABLE,
     AINDEX,
     AONEOFF,
-    ALOAD
+    ALOAD,
+    ATRIPLESET
 } ast_type;
 
 // The different value types...
@@ -184,6 +185,16 @@ typedef struct ast_index_node {
     struct ast_node *indexer;
 } ast_index_node;
 
+typedef struct ast_triple_set_node {
+    ast_type type;
+    struct ast_node *next;
+    
+    struct ast_node *index_node;
+    struct ast_node *new_val;
+    
+    char op;
+} ast_triple_set_node;
+
 // A node for conditionals
 typedef struct {
     ast_type type;
@@ -314,6 +325,7 @@ ast_node *create_ternary_node(ast_node *condition, ast_node *first, ast_node *se
 ast_node *create_array_node(ast_node *payload);
 ast_node *create_table_node(ast_node *payload);
 ast_node *create_index_node(ast_node *target, ast_node *indexer);
+ast_node *create_triple_set_node(ast_node *index_node, ast_node *value, char type);
 ast_node *create_member_access_node(ast_node *object, char *ident);
 ast_node *create_one_off_node(char opt);
 void ast_add_if_node(ast_node *curr, ast_node *next);

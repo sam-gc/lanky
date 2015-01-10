@@ -66,6 +66,10 @@ typedef enum {
     LI_MAKE_TABLE,
     LI_LOAD_INDEX,
     LI_SAVE_INDEX,
+    LI_SDUPLICATE,
+    LI_DDUPLICATE,
+    LI_FLIP_TWO,
+    LI_SINK_FIRST,
     LI_LOAD_MODULE
 } lky_instruction;
 

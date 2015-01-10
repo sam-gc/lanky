@@ -1,0 +1,24 @@
+Io = <'Io'>;
+Meta = <'Meta'>;
+
+messwitharray = func(arr) {
+    Io.putln("Looking at array!");
+    ret arr;
+};
+
+genidx = func(i) {
+    Io.putln("Creating index!");
+    ret i + 1 - 1;
+};
+
+therealtest = func() {
+    arr = [0, 1, 2, 3, 4, 5];
+    messwitharray(arr)[genidx(3)] += 3;
+    ret arr;
+};
+
+-- The text "Looking at array!" and "Creating index!"
+-- should only print once. The array should be as the following:
+-- [0, 1, 2, 6, 4, 5].
+Io.putln(therealtest());
+Meta.repl();

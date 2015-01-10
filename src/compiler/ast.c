@@ -216,6 +216,20 @@ ast_node *create_index_node(ast_node *target, ast_node *indexer)
     return (ast_node *)node;
 }
 
+ast_node *create_triple_set_node(ast_node *index_node, ast_node *value, char type)
+{
+    ast_triple_set_node *node = MALLOC(sizeof(ast_triple_set_node));
+    pool_add(&ast_memory_pool, node);
+    node->type = ATRIPLESET;
+    node->next = NULL;
+    
+    node->index_node = index_node;
+    node->new_val = value;
+    node->op = type;
+    
+    return (ast_node *)node;
+}
+
 ast_node *create_if_node(ast_node *condition, ast_node *payload)
 {
     ast_if_node *node = MALLOC(sizeof(ast_if_node));

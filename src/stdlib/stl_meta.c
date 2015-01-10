@@ -329,6 +329,10 @@ char *stlmeta_string_for_instruction(lky_instruction instr)
             return "LOAD_INDEX";
         case LI_SAVE_INDEX:
             return "SAVE_INDEX";
+        case LI_DDUPLICATE:
+            return "DDUPLICATE";
+        case LI_SINK_FIRST:
+            return "SINK_FIRST";
         case LI_UNARY_NOT:
             return "UNARY_NOT";
         case LI_UNARY_NEGATIVE:

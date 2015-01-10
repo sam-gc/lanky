@@ -81,6 +81,7 @@ int stack_effect_for(lky_instruction op, int *skip)
         case LI_MAKE_TABLE:
         case LI_LOAD_MODULE:
             *skip = 1;
+        case LI_SDUPLICATE:
             return 1;
         case LI_JUMP_TRUE_ELSE_POP:
         case LI_JUMP_FALSE_ELSE_POP:
@@ -97,6 +98,8 @@ int stack_effect_for(lky_instruction op, int *skip)
         case LI_UNARY_NOT:
         case LI_UNARY_NEGATIVE:
             return 0;
+        case LI_DDUPLICATE:
+            return 2;
     }
     return 0;
 }
