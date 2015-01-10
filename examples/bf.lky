@@ -104,3 +104,4 @@ bfinterp();
 if Io.prompt('View disassembly? (y/n) ') == 'y' {
     <'Meta'>.examine(bfinterp);
 }
+

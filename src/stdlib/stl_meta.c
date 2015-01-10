@@ -250,6 +250,24 @@ lky_object *stlmeta_gc_alloced(lky_object_seq *args, lky_object_function *func)
     return lobjb_build_int((long)gc_alloced());
 }
 
+int stlmeta_space_count_for_idx(int idx)
+{
+    if(idx < 10)
+        return 5;
+    if(idx < 100)
+        return 4;
+    if(idx < 1000)
+        return 3;
+    if(idx < 10000)
+        return 2;
+    if(idx < 100000)
+        return 1;
+    if(idx < 1000000)
+        return 0;
+
+    return 0;
+}
+
 char *stlmeta_string_for_instruction(lky_instruction instr)
 {
     // Switch statement generated using "instrgen.lky".
@@ -344,9 +362,12 @@ char *stlmeta_string_for_instruction(lky_instruction instr)
 
 void stlmeta_print_dissassembly(lky_object_code *code)
 {
-    long i;
+    long i, j;
     for(i = 0; i < code->op_len; i++)
     {
+        int numspaces = stlmeta_space_count_for_idx(i);
+        for(j = 0; j < numspaces; j++) printf(" ");
+
         lky_instruction instr = code->ops[i];
         printf("%ld: %s", i, stlmeta_string_for_instruction(instr));
         

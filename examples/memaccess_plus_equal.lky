@@ -1,6 +1,6 @@
-Io = <'Io'>;
-Meta = <'Meta'>;
-Obj = <'Object'>;
+Io      = <'Io'>;
+Meta    = <'Meta'>;
+Obj     = <'Object'>;
 
 createchain = func(ct) {
     Io.putln("Creating big object chain.");
