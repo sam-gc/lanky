@@ -61,6 +61,13 @@ arraylist stlarr_unwrap(lky_object *obj)
     return data->container;
 }
 
+arraylist *stlarr_get_store(lky_object *obj)
+{
+    lky_object_custom *self = (lky_object_custom *)obj;
+    stlarr_data *data = self->data;
+    return &data->container;
+}
+
 lky_object *stlarr_add(lky_object_seq *args, lky_object_function *func)
 {
     lky_object_custom *self = (lky_object_custom *)func->owner;

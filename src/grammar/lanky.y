@@ -41,7 +41,7 @@
 %token <string> TIDENTIFIER TINTEGER TFLOAT TSTRING
 %token <token> TCEQ TCNE TCLT TCLE TCGT TCGE TEQUAL TAND TOR TNOT TBAND TBOR TBXOR TBLSHIFT TBRSHIFT 
 %token <token> TLPAREN TRPAREN TLBRACE TRBRACE TLBRACKET TRBRACKET TCOMMA TDOT
-%token <token> TPLUS TMINUS TMUL TDIV TMOD TPOW TCON
+%token <token> TPLUS TMINUS TMUL TDIV TMOD TPOW TCON TIN
 %token <token> TPLUSE TMINUSE TMULE TDIVE TMODE TPOWE TORE TANDE TCONE TBANDE TBORE TBXORE TBLSHIFTE TBRSHIFTE
 %token <token> TIF TELIF TELSE TPRT TCOMMENT TLOOP TCOLON TFUNC TSEMI TRET TQUESTION TARROW TCLASS TNIL TCONTINUE TBREAK TLOAD TNILOR
 
@@ -100,6 +100,7 @@ elseblock : TELSE block { $$ = create_if_node(NULL, $2); }
     ;
 loopblock : TLOOP  expression  block { $$ = create_loop_node(NULL, $2, NULL, $3); }
     | TLOOP  stmt stmt expression  block { $$ = create_loop_node($2, $3, $4, $5); }
+    | TLOOP TIDENTIFIER TIN expression block { $$ = create_loop_node(create_value_node(VVAR, (void *)$2), $4, NULL, $5); }
     ;
 arg : TIDENTIFIER { $$ = create_value_node(VVAR, (void *)$1); }
     ;

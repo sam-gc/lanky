@@ -100,6 +100,11 @@ void *top_node(stackframe *frame)
 
 void *pop_node(stackframe *frame)
 {
+    if(frame->stack_pointer < 0)
+    {
+        int *test = NULL;
+        printf("HERE %d\n", *test);
+    }
     void *data = frame->data_stack[frame->stack_pointer];
     frame->data_stack[frame->stack_pointer] = NULL;
     frame->stack_pointer--;
@@ -249,6 +254,16 @@ lky_object *mach_execute(lky_object_function *func)
     // arr_free(&main_stack);
     // arr_free(&constants);
     // free(ops);
+}
+
+void print_stack(stackframe *frame)
+{
+    printf("printing frame\n");
+    int i = 0;
+    for(i = 0; i <= frame->stack_pointer; i++)
+    {
+        lobjb_print(frame->data_stack[i]);
+    }
 }
 
 // void mach_do_op(stackframe *frame, lky_instruction op);
@@ -910,6 +925,47 @@ _opcode_whiplash_:
             PUSH(topc);
             PUSH(topb);
             
+            goto _opcode_whiplash_;
+        }
+        break;
+        case LI_MAKE_ITER:
+        {
+            lky_object *obj = POP();
+            lky_object *it  = lobjb_build_iterable(obj);
+
+            PUSH(it);
+
+            goto _opcode_whiplash_;
+        }
+        break;
+        case LI_NEXT_ITER_OR_JUMP:
+        {
+            lky_object *it = TOP();
+            // printf("riter: %p\n", it);
+            lky_object *nxt = LKY_NEXT_ITERABLE(it);
+            // print_stack(frame);
+
+            if(nxt)
+            {
+                // printf("\t%d\n", frame->stack_pointer);
+                PUSH(nxt);
+                frame->pc += 4;
+
+                //printf("\t%d\n", frame->stack_pointer);
+            }
+            else
+            {
+                POP();
+                unsigned int idx = *(unsigned int *)(frame->ops + (++frame->pc));
+                frame->pc += 3;
+                //long idx = mach_calc_jump_idx(frame, len);
+
+                if(!idx)
+                    frame->pc = -1;
+                else
+                    frame->pc = idx < frame->pc ? idx - 1 : idx;
+            }
+
             goto _opcode_whiplash_;
         }
         break;

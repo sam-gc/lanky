@@ -35,6 +35,7 @@ typedef enum {
     LBI_FUNCTION,
     LBI_CLASS,
     LBI_CODE,
+    LBI_ITERABLE,
     LBI_CUSTOM,
     LBI_CUSTOM_EX,
     LBI_ERROR

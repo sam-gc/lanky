@@ -26,6 +26,10 @@
 #define BI_CAST(o, n) lky_object_builtin * n = (lky_object_builtin *) o
 #define GET_VA_ARGS(func) (lobj_get_member((lky_object *)func->bucket, "_va_args"))
 #define MAKE_VA_ARGS(args, list, ct) do { lky_object_seq *ab = args; int i = 0; for(; args; i++, args = args->next) { if(i < ct) continue; arr_append(&list, args->value);} args = ab; } while(0)
+#define LKY_NEXT_ITERABLE(obj) (obj->type != LBI_ITERABLE ? NULL :\
+        (((lky_object_iterable *)(obj))->index < ((lky_object_iterable *)(obj))->store->count ?\
+         ((lky_object_iterable *)(obj))->store->items[((lky_object_iterable *)(obj))->index++] : NULL))
+
 
 #include "lky_object.h"
 #include "arraylist.h"
@@ -51,6 +55,16 @@ typedef struct {
     
     lky_builtin_value value;
 } lky_object_builtin;
+
+typedef struct {
+    lky_builtin_type type;
+    int mem_count;
+    size_t size;
+
+    int index;
+    arraylist *store;
+    lky_object *owner;
+} lky_object_iterable;
 
 typedef struct {
     lky_builtin_type type;
@@ -141,6 +155,7 @@ lky_object *lobjb_call(lky_object *func, lky_object_seq *args);
 lky_object *lobjb_build_int(long value);
 lky_object *lobjb_build_float(double value);
 lky_object *lobjb_build_error(char *name, char *text);
+lky_object *lobjb_build_iterable(lky_object *owner);
 lky_object_custom *lobjb_build_custom(size_t extra_size);
 lky_object *lobjb_build_func(lky_object_code *code, int argc, arraylist inherited, mach_interp *interp);
 lky_object *lobjb_build_func_ex(lky_object *owner, int argc, lky_function_ptr ptr);
@@ -154,6 +169,8 @@ char *lobjb_stringify(lky_object *a);
 lky_object *lobjb_unary_load_index(lky_object *obj, lky_object *indexer);
 lky_object *lobjb_unary_save_index(lky_object *obj, lky_object *indexer, lky_object *newobj);
 lky_object *lobjb_unary_negative(lky_object *obj);
+
+lky_object *lobjb_iterable_get_next(lky_object *obj);
 
 lky_object_seq *lobjb_make_seq_node(lky_object *value);
 void lobjb_free_seq(lky_object_seq *seq);

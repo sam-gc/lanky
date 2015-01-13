@@ -619,12 +619,63 @@ int next_if_tag(compiler_wrapper *cw)
     return cw->ifTag++;
 }
 
+void compile_iter_loop(compiler_wrapper *cw, ast_node *root)
+{
+    ast_loop_node *node = (ast_loop_node *)root;
+
+    // append_var_info(cw, ((ast_value_node *)(node->left))->value.s, 0);
+
+    compile(cw, node->condition);
+    append_op(cw, LI_MAKE_ITER);
+
+    int tagOut = next_if_tag(cw);
+    int tagLoop = next_if_tag(cw);
+
+    int start = (int)cw->rops.count;
+
+    append_op(cw, LI_NEXT_ITER_OR_JUMP);
+    append_op(cw, tagOut);
+    append_op(cw, -1);
+    append_op(cw, -1);
+    append_op(cw, -1);
+
+    append_var_info(cw, ((ast_value_node *)(node->init))->value.s, 0);
+    append_op(cw, LI_POP);
+
+    lky_object *wrapLoop = lobjb_build_int(tagLoop);    
+    lky_object *wrapOut = lobjb_build_int(tagOut);
+    pool_add(&ast_memory_pool, wrapLoop);
+    pool_add(&ast_memory_pool, wrapOut);
+    arr_append(&cw->loop_start_stack, wrapLoop);
+    arr_append(&cw->loop_end_stack, wrapOut);
+
+    compile_compound(cw, node->payload->next);
+
+    arr_remove(&cw->loop_start_stack, NULL, cw->loop_start_stack.count - 1);
+    arr_remove(&cw->loop_end_stack, NULL, cw->loop_end_stack.count - 1);
+
+    append_op(cw, LI_JUMP); // Add the jump to the start location
+    unsigned char buf[4];
+    int_to_byte_array(buf, start);
+
+    append_op(cw, buf[0]);
+    append_op(cw, buf[1]);
+    append_op(cw, buf[2]);
+    append_op(cw, buf[3]);
+    append_op(cw, tagOut);
+
+    cw->save_val = 1;
+}
+
 void compile_loop(compiler_wrapper *cw, ast_node *root)
 {
+    ast_loop_node *node = (ast_loop_node *)root;
+
+    if(node->init && node->condition && !node->onloop)
+        return compile_iter_loop(cw, root);
+
     int tagOut = next_if_tag(cw); // Prepare the exit tag
     int tagLoop = next_if_tag(cw); // Prepare the continue tag
-
-    ast_loop_node *node = (ast_loop_node *)root;
 
     if(node->init) // If we have a for loop, compile the init
     {

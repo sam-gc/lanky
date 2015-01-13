@@ -1,0 +1,20 @@
+Io = <'Io'>;
+Math = <'Math'>;
+
+Io.putln('Running first example');
+for i in Math.range(10) {
+    Io.putln(i);
+}
+
+Io.putln('\nRunning second example (nested)');
+arr = Math.range(5);
+for a in arr {
+    Io.putln(a);
+    for b in arr {
+        Io.putln('\t' + b);
+
+        for c in arr {
+            Io.putln('\t\t> ' + c);
+        }
+    }
+}

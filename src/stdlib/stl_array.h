@@ -23,6 +23,7 @@
 
 lky_object *stlarr_cinit(arraylist inlist);
 arraylist stlarr_unwrap(lky_object *obj);
+arraylist *stlarr_get_store(lky_object *obj);
 lky_object *stlarr_get_class();
 
 #endif

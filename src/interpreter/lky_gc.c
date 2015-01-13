@@ -249,6 +249,12 @@ void gc_mark_object(lky_object *o)
             cu->savefunc(o);
         }
             break;
+        case LBI_ITERABLE:
+        {
+            lky_object_iterable *it = (lky_object_iterable *)o;
+            gc_mark_object(it->owner);
+        }
+            break;
         default:
             break;
     }

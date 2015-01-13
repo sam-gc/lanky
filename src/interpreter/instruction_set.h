@@ -70,6 +70,8 @@ typedef enum {
     LI_DDUPLICATE,
     LI_FLIP_TWO,
     LI_SINK_FIRST,
+    LI_MAKE_ITER,
+    LI_NEXT_ITER_OR_JUMP,
     LI_LOAD_MODULE
 } lky_instruction;
 

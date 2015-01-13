@@ -100,6 +100,22 @@ lky_object *lobjb_build_error(char *name, char *text)
     return (lky_object *)err;
 }
 
+lky_object *lobjb_build_iterable(lky_object *owner)
+{
+    lky_object_iterable *it = aqua_request_next_block(sizeof(lky_object_iterable));
+    it->type = LBI_ITERABLE;
+    it->size = sizeof(lky_object_iterable);
+    it->mem_count = 0;
+
+    it->index = 0;
+    it->store = stlarr_get_store(owner);
+    it->owner = owner;
+
+    gc_add_object((lky_object *)it);
+
+    return (lky_object *)it;
+}
+
 lky_object_custom *lobjb_build_custom(size_t extra_size)
 {
     lky_object_custom *obj = aqua_request_next_block(sizeof(lky_object_custom));
@@ -494,6 +510,25 @@ lky_object *lobjb_unary_negative(lky_object *obj)
             return lobjb_build_int(-OBJ_NUM_UNWRAP(obj));
     }
 
+    return NULL;
+}
+
+lky_object *lobjb_iterable_get_next(lky_object *obj)
+{
+    lky_object_iterable *it = (lky_object_iterable *)obj;
+    if(it->type != LBI_ITERABLE)
+    {
+        // TODO: Error
+        return NULL;
+    }
+
+    arraylist *store = it->store;
+    int idx = ++it->index;
+
+    if(idx < store->count)
+        return store->items[idx];
+
+    // NULL is used to indicate end of iteration.
     return NULL;
 }
 

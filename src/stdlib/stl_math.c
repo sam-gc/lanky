@@ -89,7 +89,6 @@ lky_object *stlmath_range(lky_object_seq *args, lky_object *func)
 {
     lky_object *maxobj = (lky_object *)args->value;
     int max = (int)OBJ_NUM_UNWRAP(maxobj);
-    printf("%d\n", max);
     arraylist list = arr_create(max + 8);
     int i;
     for(i = 0; i < max; i++)
