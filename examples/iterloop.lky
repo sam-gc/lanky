@@ -18,3 +18,22 @@ for a in arr {
         }
     }
 }
+
+Io.putln('\nRunning third example (with breaks)');
+for a in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] {
+    Io.putln('a = ' + a);
+
+    if a == 5 {
+        break;
+    }
+}
+
+for a in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] {
+    Io.putln('a = ' + a);
+
+    if a == 5 {
+        break;
+    }
+}
+
+Io.putln('End examples');

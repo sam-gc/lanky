@@ -941,24 +941,17 @@ _opcode_whiplash_:
         case LI_NEXT_ITER_OR_JUMP:
         {
             lky_object *it = TOP();
-            // printf("riter: %p\n", it);
             lky_object *nxt = LKY_NEXT_ITERABLE(it);
-            // print_stack(frame);
 
             if(nxt)
             {
-                // printf("\t%d\n", frame->stack_pointer);
                 PUSH(nxt);
                 frame->pc += 4;
-
-                //printf("\t%d\n", frame->stack_pointer);
             }
             else
             {
-                POP();
                 unsigned int idx = *(unsigned int *)(frame->ops + (++frame->pc));
                 frame->pc += 3;
-                //long idx = mach_calc_jump_idx(frame, len);
 
                 if(!idx)
                     frame->pc = -1;

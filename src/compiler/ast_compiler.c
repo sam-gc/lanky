@@ -657,12 +657,13 @@ void compile_iter_loop(compiler_wrapper *cw, ast_node *root)
     append_op(cw, LI_JUMP); // Add the jump to the start location
     unsigned char buf[4];
     int_to_byte_array(buf, start);
-
     append_op(cw, buf[0]);
     append_op(cw, buf[1]);
     append_op(cw, buf[2]);
     append_op(cw, buf[3]);
+
     append_op(cw, tagOut);
+    append_op(cw, LI_POP);
 
     cw->save_val = 1;
 }
