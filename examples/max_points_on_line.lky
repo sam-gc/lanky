@@ -131,11 +131,52 @@ maxPointsSq = func(points) {
     ret max;
 };
 
+-- Algorithm using the new for-in construct
+maxPointsIn = func(points) {
+    max = 0;
+    for p1 in points {
+        slopes = {:};
+
+        for p2 in points {
+            if p1 == p2 {
+                continue;
+            }
+
+
+            numerator = p2.y - p1.y;
+            denominator = p2.x - p1.x;
+
+            slope = denominator ? numerator / denominator : 9999999999;
+
+            if slopes.hasKey(slope) {
+                slopes[slope] += 1;
+            }
+            else {
+                slopes[slope] = 2;
+            }
+        }
+
+        cur = 0;
+        for ct in slopes.values() {
+            if ct > cur {
+                cur = ct;
+            }
+        }
+
+        if cur > max {
+            max = cur;
+        }
+    }
+
+    ret max;
+};
+
 -- Meta.allowIntTags(0);
 
 -- Canned example
 Io.putln(maxPoints(Point.genList()));
 Io.putln(maxPointsSq(Point.genList()));
+Io.putln(maxPointsIn(Point.genList()));
 
 -- Helper function to time a run
 -- with a given algorithm
@@ -154,6 +195,7 @@ timeRun = func(pts, algo, name) {
 plist = Point.genRandomList(40, 20);
 timeRun(plist, maxPointsSq, "maxPointsSq");
 timeRun(plist, maxPoints, "maxPoints");
+timeRun(plist, maxPointsIn, "maxPointsIn");
 
 -- Example of the Io.prompt function
 if Io.prompt("\nView dissassembly? (y/n): ") == 'y' {
@@ -161,6 +203,8 @@ if Io.prompt("\nView dissassembly? (y/n): ") == 'y' {
     Meta.examine(maxPoints);
     Io.putln("\nmaxPointsSq:\n======================================");
     Meta.examine(maxPointsSq);
+    Io.putln("\nmaxPointsIn:\n======================================");
+    Meta.examine(maxPointsIn);
 
     Io.putln("\nNOTE: The dissassembly does not go beyond one level. The hex values in the constants fields above are other anonymous functions");
 }

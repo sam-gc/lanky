@@ -646,6 +646,7 @@ void compile_iter_loop(compiler_wrapper *cw, ast_node *root)
     lky_object *wrapOut = lobjb_build_int(tagOut);
     pool_add(&ast_memory_pool, wrapLoop);
     pool_add(&ast_memory_pool, wrapOut);
+
     arr_append(&cw->loop_start_stack, wrapLoop);
     arr_append(&cw->loop_end_stack, wrapOut);
 
@@ -653,6 +654,8 @@ void compile_iter_loop(compiler_wrapper *cw, ast_node *root)
 
     arr_remove(&cw->loop_start_stack, NULL, cw->loop_start_stack.count - 1);
     arr_remove(&cw->loop_end_stack, NULL, cw->loop_end_stack.count - 1);
+
+    append_op(cw, tagLoop);
 
     append_op(cw, LI_JUMP); // Add the jump to the start location
     unsigned char buf[4];
@@ -729,6 +732,7 @@ void compile_loop(compiler_wrapper *cw, ast_node *root)
     append_op(cw, buf[1]);
     append_op(cw, buf[2]);
     append_op(cw, buf[3]);
+
     append_op(cw, tagOut);
 
     cw->save_val = 1;
@@ -1418,7 +1422,8 @@ void replace_tags(compiler_wrapper *cw)
     {
         //long op = ((lky_object_builtin *)arr_get(&cw->rops, i))->value.i;
         long op = OBJ_NUM_UNWRAP(arr_get(&cw->rops, i));
-        if(op < 0) // This should *never* happen.
+
+        if(op < 0) // This should *never* happen (except it does...).
             continue;
 
         if(op > 999) // If we are dealing with a tag...
