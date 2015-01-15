@@ -78,6 +78,9 @@ void lobj_set_class(lky_object *obj, lky_object *cls)
 
 char lobj_is_of_class(lky_object *obj, void *cls)
 {
+    if(obj->type != LBI_CUSTOM && obj->type != LBI_CUSTOM_EX)
+        return 0;
+
     return ((void *)obj->cls) == cls;
 }
 

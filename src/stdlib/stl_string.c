@@ -369,6 +369,26 @@ lky_object *stlstr_fmt_ext(char *mestr, arraylist list)
     return toret;
 }
 
+lky_object *stlstr_iterable(lky_object_seq *args, lky_object_function *func)
+{
+    lky_object_custom *self = (lky_object_custom *)func->owner;
+    char *mestr = self->data;
+    int i;
+    size_t len = strlen(mestr);
+    arraylist list = arr_create(len + 1);
+    
+    for(i = 0; i < len; i++)
+    {
+        char c[2];
+        c[0] = mestr[i];
+        c[1] = '\0';
+
+        arr_append(&list, stlstr_cinit(c));
+    }
+
+    return stlarr_cinit(list);
+}
+
 lky_object *stlstr_add(lky_object_seq *args, lky_object_function *func)
 {
     lky_object_custom *self = (lky_object_custom *)func->owner;
@@ -477,6 +497,7 @@ lky_object *stlstr_cinit(char *str)
     lobj_set_member(obj, "op_multiply_", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlstr_multiply));
     lobj_set_member(obj, "op_modulo_", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlstr_fmt_modulo));
     lobj_set_member(obj, "hash_", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlstr_hash));
+    lobj_set_member(obj, "iterable_", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlstr_iterable));
     
     cobj->freefunc = stlstr_free;
     

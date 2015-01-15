@@ -107,6 +107,22 @@ lky_object *lobjb_build_iterable(lky_object *owner)
     it->size = sizeof(lky_object_iterable);
     it->mem_count = 0;
 
+    if(!lobj_is_of_class(owner, stlarr_get_class()))
+    {
+        if(owner->type == LBI_CUSTOM_EX || owner->type == LBI_CUSTOM)
+        {
+            lky_object *func = lobj_get_member(owner, "iterable_");
+            if(!func)
+                return NULL;
+
+            owner = lobjb_call(func, NULL);
+        }
+        else
+        {
+            return NULL;
+        }
+    }
+
     it->index = 0;
     it->store = stlarr_get_store(owner);
     it->owner = owner;

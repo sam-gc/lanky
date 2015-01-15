@@ -11,6 +11,16 @@ build_shift_table = func(str) {
     ret tab;
 };
 
+print_shift_table = func(shifts) {
+    Io.putln('-------');
+
+    for shift in shifts.keys() {
+        val = shifts[shift];
+
+        Io.putln(' ' + shift + ' | ' + val);
+    }
+};
+
 horspool = func(search, text) {
     -- Cache lengths for future use (lanky isn't
     -- clever enough; there are exactly 0 compiler
@@ -47,3 +57,6 @@ Io.putln(idx + ":");
 Io.putln(text);
 Io.putln((" " * idx) + search);
 
+if Io.prompt('\nPrint shift table? (y/n): ') == 'y' {
+    print_shift_table(build_shift_table(search));
+}
