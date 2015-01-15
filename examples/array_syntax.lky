@@ -2,6 +2,7 @@ Io = <"Io">;
 
 nested = [ ["a", "b", "c", "d"], [1, 2, 3, 4, 5], ["x", "y", "z"] ];
 
+Io.putln('Using the array forEach with callback:');
 nested.forEach(func(iarr, idx) {
     Io.putln("In array " + idx);
     iarr.forEach(func(val) {
@@ -10,7 +11,19 @@ nested.forEach(func(iarr, idx) {
     Io.putln("");
 });
 
-for i = 0; i < 10000000; i = i + 1 {
-    nested[2] = i;
-    Io.putln(i);
-}   
+Io.putln('\nUsing the range-based approach (should have the same functionality minus the index):');
+for arr in nested {
+    for val in arr {
+        Io.putln(val);
+    }
+
+    Io.putln('');
+}
+
+Io.putln('\nExample complete');
+
+-- for i = 0; i < 10000000; i = i + 1 {
+--     nested[2] = i;
+--     Io.putln(i);
+-- }   
+
