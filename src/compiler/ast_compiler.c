@@ -625,7 +625,7 @@ void compile_iter_loop(compiler_wrapper *cw, ast_node *root)
 
     // append_var_info(cw, ((ast_value_node *)(node->left))->value.s, 0);
 
-    compile(cw, node->condition);
+    compile(cw, node->onloop);
     append_op(cw, LI_MAKE_ITER);
 
     int tagOut = next_if_tag(cw);
@@ -641,6 +641,13 @@ void compile_iter_loop(compiler_wrapper *cw, ast_node *root)
 
     append_var_info(cw, ((ast_value_node *)(node->init))->value.s, 0);
     append_op(cw, LI_POP);
+
+    if(node->condition)
+    {
+        append_op(cw, LI_ITER_INDEX);
+        append_var_info(cw, ((ast_value_node *)(node->condition))->value.s, 0);
+        append_op(cw, LI_POP);
+    }
 
     lky_object *wrapLoop = lobjb_build_int(tagLoop);    
     lky_object *wrapOut = lobjb_build_int(tagOut);
@@ -675,8 +682,8 @@ void compile_loop(compiler_wrapper *cw, ast_node *root)
 {
     ast_loop_node *node = (ast_loop_node *)root;
 
-    if(node->init && node->condition && !node->onloop)
-        return compile_iter_loop(cw, root);
+    // if(node->init && node->condition && !node->onloop)
+    //    return compile_iter_loop(cw, root);
 
     int tagOut = next_if_tag(cw); // Prepare the exit tag
     int tagLoop = next_if_tag(cw); // Prepare the continue tag
@@ -925,6 +932,123 @@ void compile_table(compiler_wrapper *cw, ast_node *n)
     append_op(cw, buf[3]);
 }
 
+void compile_object_simple(compiler_wrapper *cw, ast_object_decl_node *node)
+{
+    int ct = 0;
+    ast_node *list = node->payload;
+    arraylist names = arr_create(20);
+    for(; list; list = list->next)
+    {
+        arr_append(&names, ((ast_value_node *)list)->value.s);
+        list = list->next;
+        compile(cw, list);
+        ct++;
+    }
+
+    append_op(cw, LI_PUSH_NEW_OBJECT);
+
+    unsigned char buf[4];
+    int_to_byte_array(buf, ct);
+
+    append_op(cw, LI_MAKE_OBJECT);
+    append_op(cw, buf[0]);
+    append_op(cw, buf[1]);
+    append_op(cw, buf[2]);
+    append_op(cw, buf[3]);
+
+    int i;
+    for(i = ct - 1; i >= 0; i--)
+    {
+        char *sid = arr_get(&names, i);
+        char *nsid = malloc(strlen(sid) + 1);
+        strcpy(nsid, sid);
+
+        int i = find_prev_name(cw, nsid);
+        if(i < 0)
+        {
+            i = (int)cw->rnames.count;
+            arr_append(&cw->rnames, nsid);
+        }
+
+        append_op(cw, i);
+    }
+
+    arr_free(&names);
+}
+
+void compile_object(compiler_wrapper *cw, ast_node *n)
+{
+    ast_object_decl_node *node = (ast_object_decl_node *)n;
+
+    if(!node->refname)
+        return compile_object_simple(cw, node);
+
+    arraylist name_list = cw->used_names;
+    int i;
+    for(i = 0; i < name_list.count; i++)
+    {
+        name_wrapper *w = arr_get(&cw->used_names, i);
+        
+        if(strcmp(w->name, node->refname))
+            continue;   
+
+        switch_to_close(cw, node->refname, w->idx);
+    }
+
+    int ct = 0;
+    ast_node *list = node->payload;
+    arraylist names = arr_create(20);
+    for(; list; list = list->next)
+    {
+        arr_append(&names, ((ast_value_node *)list)->value.s);
+        list = list->next;
+        compile(cw, list);
+        ct++;
+    }
+
+    char *nsid = malloc(strlen(node->refname) + 1);
+    strcpy(nsid, node->refname);
+
+    i = find_prev_name(cw, nsid);
+    if(i < 0)
+    {
+        i = (int)cw->rnames.count;
+        arr_append(&cw->rnames, nsid);
+    }
+
+    append_op(cw, LI_LOAD_CLOSE);
+    append_op(cw, i);
+
+
+    unsigned char buf[4];
+    int_to_byte_array(buf, ct);
+
+    append_op(cw, LI_MAKE_OBJECT);
+    append_op(cw, buf[0]);
+    append_op(cw, buf[1]);
+    append_op(cw, buf[2]);
+    append_op(cw, buf[3]);
+
+    for(i = ct - 1; i >= 0; i--)
+    {
+        char *sid = arr_get(&names, i);
+        char *nsid = malloc(strlen(sid) + 1);
+        strcpy(nsid, sid);
+
+        int i = find_prev_name(cw, nsid);
+        if(i < 0)
+        {
+            i = (int)cw->rnames.count;
+            arr_append(&cw->rnames, nsid);
+        }
+
+        append_op(cw, i);
+    }
+
+    arr_free(&names);
+}
+        
+
 // Array indexing
 void compile_indx(compiler_wrapper *cw, ast_node *n)
 {
@@ -1128,6 +1252,9 @@ void compile_unary(compiler_wrapper *cw, ast_node *root)
         break;
     case '0':
         istr = LI_PUSH_NIL;
+        break;
+    case '1':
+        istr = LI_PUSH_NEW_OBJECT;
         break;
     case '-':
         istr = LI_UNARY_NEGATIVE;
@@ -1346,6 +1473,9 @@ void compile(compiler_wrapper *cw, ast_node *root)
         case ALOOP:
             compile_loop(cw, root);
         break;
+        case AITERLOOP:
+            compile_iter_loop(cw, root);
+        break;
         case AFUNC_DECL:
             compile_function(cw, root);
         break;
@@ -1366,6 +1496,9 @@ void compile(compiler_wrapper *cw, ast_node *root)
         break;
         case ATABLE:
             compile_table(cw, root);
+        break;
+        case AOBJDECL:
+            compile_object(cw, root);
         break;
         case AINDEX:
             compile_indx(cw, root);

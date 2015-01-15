@@ -50,7 +50,7 @@
    we call an ident (defined by union type ident) we are really
    calling an (NIdentifier*). It makes the compiler happy.
  */
-%type <node> program stmts stmt expression ifblock block elifblock elifblocks elseblock loopblock funcdecl arg arglist call calllist memaccess classdecl arrdecl arraccess opapply tabset tabsetlist tabdecl binor binand
+%type <node> program stmts stmt expression ifblock block elifblock elifblocks elseblock loopblock funcdecl arg arglist call calllist memaccess classdecl arrdecl arraccess opapply tabset tabsetlist tabdecl binor binand objset objsetlist objdecl
 
 /* Operator precedence for mathematical operators */
 %nonassoc TPRT TRET TNIL
@@ -100,7 +100,9 @@ elseblock : TELSE block { $$ = create_if_node(NULL, $2); }
     ;
 loopblock : TLOOP  expression  block { $$ = create_loop_node(NULL, $2, NULL, $3); }
     | TLOOP  stmt stmt expression  block { $$ = create_loop_node($2, $3, $4, $5); }
-    | TLOOP TIDENTIFIER TIN expression block { $$ = create_loop_node(create_value_node(VVAR, (void *)$2), $4, NULL, $5); }
+    | TLOOP TIDENTIFIER TIN expression block { $$ = create_iter_loop_node(create_value_node(VVAR, (void *)$2), NULL, $4, $5); }
+    | TLOOP TIDENTIFIER TCOMMA TIDENTIFIER TIN expression block {
+        $$ = create_iter_loop_node(create_value_node(VVAR, (void *)$2), create_value_node(VVAR, (void *)$4), $6, $7); }
     ;
 arg : TIDENTIFIER { $$ = create_value_node(VVAR, (void *)$1); }
     ;
@@ -133,8 +135,19 @@ arraccess : expression TLBRACKET expression TRBRACKET { $$ = create_index_node($
 arrdecl : TLBRACKET TRBRACKET { $$ = create_array_node(NULL); }
     | TLBRACKET calllist TRBRACKET { $$ = create_array_node($2); }
     ;
-tabdecl : TLBRACE TCOLON TRBRACE { $$ = create_table_node(NULL); }
-    | TLBRACE tabsetlist TRBRACE { $$ = create_table_node($2); }
+tabdecl : TLBRACKET TCOLON TRBRACKET { $$ = create_table_node(NULL); }
+    | TLBRACKET tabsetlist TRBRACKET { $$ = create_table_node($2); }
+    ;
+
+objset : TDOT TIDENTIFIER TCOLON expression { $$ = create_value_node(VVAR, (void *)$2); ast_add_node($$, $4); }
+    ;
+objsetlist : objset
+    | objsetlist TCOMMA objset { ast_add_node($1, $3); }
+    ;
+objdecl : TLBRACE TDOT TRBRACE { $$ = create_unary_node(NULL, '1'); }
+    | TLBRACE objsetlist TRBRACE { $$ = create_object_decl_node($2, NULL); }
+    | TLBRACE objsetlist TRBRACE TARROW TIDENTIFIER { $$ = create_object_decl_node($2, $5); }
+    |  TIDENTIFIER  TARROW TLBRACE objsetlist TRBRACE { $$ = create_object_decl_node($4, $1); }
     ;
 
 opapply : TIDENTIFIER TPLUSE expression { $$ = create_assignment_node($1, create_binary_node(create_value_node(VVAR, (void *)$1), $3, '+')); }
@@ -235,6 +248,7 @@ expression :
     | classdecl
     | arrdecl
     | tabdecl
+    | objdecl
     | TNIL { $$ = create_unary_node(NULL, '0'); }
     | TPRT expression { $$ = create_unary_node($2, 'p'); }
     | TNOT expression { $$ = create_unary_node($2, '!'); }

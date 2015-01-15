@@ -54,6 +54,7 @@ typedef enum {
     LI_SAVE_LOCAL,
     LI_LOAD_LOCAL,
     LI_PUSH_NIL,
+    LI_PUSH_NEW_OBJECT,
     LI_CALL_FUNC,
     LI_RETURN,
     LI_LOAD_MEMBER,
@@ -64,6 +65,7 @@ typedef enum {
     LI_LOAD_CLOSE,
     LI_MAKE_ARRAY,
     LI_MAKE_TABLE,
+    LI_MAKE_OBJECT,
     LI_LOAD_INDEX,
     LI_SAVE_INDEX,
     LI_SDUPLICATE,
@@ -72,6 +74,7 @@ typedef enum {
     LI_SINK_FIRST,
     LI_MAKE_ITER,
     LI_NEXT_ITER_OR_JUMP,
+    LI_ITER_INDEX,
     LI_LOAD_MODULE
 } lky_instruction;
 

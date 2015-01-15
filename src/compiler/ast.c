@@ -204,6 +204,47 @@ ast_node *create_table_node(ast_node *payload)
     return (ast_node *)node;
 }
 
+ast_node *create_object_decl_node_ex(ast_node *payload, char *refname)
+{
+    ast_object_decl_node *node = MALLOC(sizeof(ast_object_decl_node));
+    pool_add(&ast_memory_pool, node);
+    node->type = AOBJDECL;
+    node->next = NULL;
+
+    node->payload = payload;
+
+    node->refname = MALLOC(strlen(refname) + 1);
+    strcpy(node->refname, refname);
+    pool_add(&ast_memory_pool, node->refname);
+
+    ast_node *selfset = create_assignment_node(refname, create_unary_node(NULL, '1'));
+    ast_node *retnode = create_unary_node(create_value_node(VVAR, refname), 'r');
+
+    ast_node *root = create_root_node();
+    ast_add_node(root, selfset);
+    ast_add_node(root, node);
+    ast_add_node(root, retnode);
+
+    return create_func_call_node(create_func_decl_node(NULL, root), NULL);
+}
+
+ast_node *create_object_decl_node(ast_node *payload, char *refname)
+{
+    if(refname)
+       return create_object_decl_node_ex(payload, refname);
+    
+    ast_object_decl_node *node = MALLOC(sizeof(ast_object_decl_node));
+    pool_add(&ast_memory_pool, node);
+    node->type = AOBJDECL;
+    node->next = NULL;
+
+    node->payload = payload;
+    
+    node->refname = NULL;
+
+    return (ast_node *)node;
+}
+
 ast_node *create_index_node(ast_node *target, ast_node *indexer)
 {
     ast_index_node *node = MALLOC(sizeof(ast_index_node));
@@ -271,6 +312,21 @@ ast_node *create_loop_node(ast_node *init, ast_node *condition, ast_node *onloop
     node->payload = payload;
 
     node->loop_type = init ? LFOR : LWHILE;
+
+    return (ast_node *)node;
+}
+
+ast_node *create_iter_loop_node(ast_node *store, ast_node *index, ast_node *condition, ast_node *payload)
+{
+    ast_loop_node *node = MALLOC(sizeof(ast_loop_node));
+    pool_add(&ast_memory_pool, node);
+    node->type = AITERLOOP;
+    node->next = NULL;
+
+    node->init = store;
+    node->condition = index;
+    node->onloop = condition;
+    node->payload = payload;
 
     return (ast_node *)node;
 }

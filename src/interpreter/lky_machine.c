@@ -638,6 +638,12 @@ _opcode_whiplash_:
             goto _opcode_whiplash_;
         }
         break;
+        case LI_PUSH_NEW_OBJECT:
+        {
+            PUSH(lobj_alloc());
+            goto _opcode_whiplash_;
+        }
+        break;
         case LI_CALL_FUNC:
         {
             char ct = frame->ops[++frame->pc];
@@ -866,6 +872,25 @@ _opcode_whiplash_:
             goto _opcode_whiplash_;
         }
         break;
+        case LI_MAKE_OBJECT:
+        {
+            int ct = *(unsigned int *)(frame->ops + (++frame->pc));
+            frame->pc += 3;
+
+            lky_object *obj = POP();
+
+            while(0 <=-- ct)
+            {
+                lky_object *member = POP();
+                char *name = frame->names[*(char *)(frame->ops + (++frame->pc))];
+                lobj_set_member(obj, name, member);
+            }
+             
+            PUSH(obj);   
+
+            goto _opcode_whiplash_;
+        }
+        break;
         case LI_LOAD_INDEX:
         {
             lky_object *idx = POP();
@@ -958,6 +983,15 @@ _opcode_whiplash_:
                 else
                     frame->pc = idx < frame->pc ? idx - 1 : idx;
             }
+
+            goto _opcode_whiplash_;
+        }
+        break;
+        case LI_ITER_INDEX:
+        {
+            lky_object *it = TOP();
+            lky_object_iterable *i = (lky_object_iterable *)it;
+            PUSH(lobjb_build_int(i->index - 1));
 
             goto _opcode_whiplash_;
         }

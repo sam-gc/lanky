@@ -1,0 +1,18 @@
+Io = <'Io'>;
+Meta = <'Meta'>;
+
+expose = func(command) {
+    Io.putln("`" + command + "`:");
+    Io.put('\t');
+    Meta.exec(command);
+};
+
+exposeResult = func(command) {
+    Io.putln("`" + command + "`:");
+    Io.putln('\t' + Meta.exec(command));
+};
+
+ret {
+    .expose : expose,
+    .exposeResult : exposeResult
+};

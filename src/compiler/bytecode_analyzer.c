@@ -76,13 +76,14 @@ int stack_effect_for(lky_instruction op, int *skip)
         case LI_LOAD_CONST:
         case LI_LOAD_LOCAL:
         case LI_LOAD_CLOSE:
-        case LI_PUSH_NIL:
         case LI_LOAD_INDEX:
         case LI_MAKE_ARRAY:
         case LI_MAKE_TABLE:
         case LI_LOAD_MODULE:
             *skip = 1;
         case LI_SDUPLICATE:
+        case LI_PUSH_NIL:
+        case LI_PUSH_NEW_OBJECT:
             return 1;
         case LI_JUMP_TRUE_ELSE_POP:
         case LI_JUMP_FALSE_ELSE_POP:
