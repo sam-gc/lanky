@@ -9,7 +9,7 @@ fib_brute_force = func(n) {
     ret fib_brute_force(n - 1) + fib_brute_force(n - 2);
 };
 
-a = {:};
+a = [:];
 fib_smart = func(n) {
     -- Check to see if we've already calculated for n
     val = a[n];

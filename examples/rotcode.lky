@@ -149,7 +149,7 @@ Crypto = class () -> self {
 };
 
 build_arg_dict = func() {
-    args = {:};
+    args = [:];
     for i = 0; i < OS.argc; i += 1 {
         args[OS.argv[i]] = i < OS.argc - 1 ? OS.argv[i + 1] : nil;
     }

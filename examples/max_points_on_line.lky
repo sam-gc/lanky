@@ -95,7 +95,7 @@ maxPoints = func(points) {
 maxPointsSq = func(points) {
     max = 0;
     points.forEach(func(p1) {
-        slopes = {:}; -- Accumulator for slopes
+        slopes = [:]; -- Accumulator for slopes
 
         points.forEach(func(p2) {
             if p1 == p2 {
@@ -135,7 +135,7 @@ maxPointsSq = func(points) {
 maxPointsIn = func(points) {
     max = 0;
     for p1 in points {
-        slopes = {:};
+        slopes = [:];
 
         for p2 in points {
             if p1 == p2 {

@@ -108,7 +108,7 @@ void exec_in_repl()
 #endif 
        " by Clang [" STRINGIFY_INT(__clang_major__) "." STRINGIFY_INT(__clang_minor__) "." STRINGIFY_INT(__clang_patchlevel__) "].";
 #elif defined __GNUC__
-    start = "Lanky, version 0.1; compiled " __DATE__ " for "
+    start = "Lanky (\"" LIGHT_BLUE LKY_VERSION_TAG DEFAULT "\"), version 0.1;\ncompiled " __DATE__ " for "
 #ifdef __APPLE__
       "Mac OS X"
 #else

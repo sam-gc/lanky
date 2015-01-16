@@ -1,7 +1,7 @@
 Io = <"Io">;
 
 build_shift_table = func(str) {
-    tab = {:}; -- Create a new hashtable
+    tab = [:]; -- Create a new hashtable
     len = str.length;
     for i = 0; i < len; i += 1 {
         -- Assign value in table to character
