@@ -117,6 +117,7 @@ comment (\#|(\-\-)).*(\n)
 "\\>"                    return TOKEN(TBRSHIFT);
 "\\<="                   return TOKEN(TBLSHIFTE);
 "\\>="                   return TOKEN(TBRSHIFTE);
+"==>"                    return TOKEN(TRARROW);
 ";"                     return TOKEN(TSEMI);
 .                       printf("Unknown token! %s\n", yytext); yyterminate();
 %%

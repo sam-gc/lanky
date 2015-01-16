@@ -41,7 +41,7 @@
 %token <string> TIDENTIFIER TINTEGER TFLOAT TSTRING
 %token <token> TCEQ TCNE TCLT TCLE TCGT TCGE TEQUAL TAND TOR TNOT TBAND TBOR TBXOR TBLSHIFT TBRSHIFT 
 %token <token> TLPAREN TRPAREN TLBRACE TRBRACE TLBRACKET TRBRACKET TCOMMA TDOT
-%token <token> TPLUS TMINUS TMUL TDIV TMOD TPOW TCON TIN
+%token <token> TPLUS TMINUS TMUL TDIV TMOD TPOW TCON TIN TRARROW
 %token <token> TPLUSE TMINUSE TMULE TDIVE TMODE TPOWE TORE TANDE TCONE TBANDE TBORE TBXORE TBLSHIFTE TBRSHIFTE
 %token <token> TIF TELIF TELSE TPRT TCOMMENT TLOOP TCOLON TFUNC TSEMI TRET TQUESTION TARROW TCLASS TNIL TCONTINUE TBREAK TLOAD TNILOR
 
@@ -147,7 +147,7 @@ objsetlist : objset
 objdecl : TLBRACE TDOT TRBRACE { $$ = create_unary_node(NULL, '1'); }
     | TLBRACE objsetlist TRBRACE { $$ = create_object_decl_node($2, NULL); }
     | TLBRACE objsetlist TRBRACE TARROW TIDENTIFIER { $$ = create_object_decl_node($2, $5); }
-    |  TIDENTIFIER  TARROW TLBRACE objsetlist TRBRACE { $$ = create_object_decl_node($4, $1); }
+    | TIDENTIFIER TARROW TLBRACE objsetlist TRBRACE { $$ = create_object_decl_node($4, $1); }
     ;
 
 opapply : TIDENTIFIER TPLUSE expression { $$ = create_assignment_node($1, create_binary_node(create_value_node(VVAR, (void *)$1), $3, '+')); }

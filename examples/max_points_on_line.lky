@@ -142,7 +142,6 @@ maxPointsIn = func(points) {
                 continue;
             }
 
-
             numerator = p2.y - p1.y;
             denominator = p2.x - p1.x;
 

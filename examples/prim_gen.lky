@@ -1,0 +1,26 @@
+Io = <'Io'>;
+
+generator = self -> {
+    .store : [2],
+    .gen : func(n) {
+        store = self.store;
+        for i = store.last(); store.count < n; i += 1 {
+            isPrime = 1;
+            for num in store {
+                if i % num == 0 {
+                    isPrime = 0;
+                    break;
+                }
+            }
+
+            if isPrime {
+                store.append(i);
+            }
+        }
+
+        ret store;
+    }
+};
+
+Io.putln(generator.gen(1000));
+Io.putln("Got " + generator.store.count + " primes.");

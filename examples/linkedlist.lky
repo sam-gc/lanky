@@ -1,0 +1,89 @@
+List = class () -> self {
+    self.build_ = func() {
+        self.head = nil;
+        self.count = 0;
+    };
+
+    self.makeNode = func(obj) {
+        ret {
+            .next : nil,
+            .payload : obj
+        };
+    };
+
+    self.getLast = func() {
+        if !self.head {
+            ret nil;
+        }
+
+        for node = self.head; node.next; node = node.next {}
+
+        ret node;
+    };
+
+    self.append = func(obj) {
+        new = self.makeNode(obj);
+        last = self.getLast();
+
+        if !last { self.head = new; }
+        else     { last.next = new; }
+
+        self.count += 1;
+    };
+
+    self.iterable_ = func() {
+        arr = [];
+        for node = self.head; node; node = node.next {
+            arr.append(node.payload);
+        }
+
+        ret arr;
+    };
+
+    self.op_get_index_ = func(idx) {
+        if !self.head {
+            ret nil;
+        }
+
+        ct = 0;
+        for node = self.head; ct < idx & node.next; node = node.next { ct += 1; }
+
+        if ct == idx {
+            ret node.payload;
+        }
+
+        ret nil;
+    };
+
+    self.op_set_index_ = func(idx, obj) {
+        if !self.head {
+            -- This really should be an error.
+            ret;
+        }
+
+        ct = 0;
+        for node = self.head; ct < idx & node.next; node = node.next { ct += 1; }
+
+        if ct == idx {
+            node.payload = obj;
+        }
+    };
+
+    self.stringify_ = func() {
+        str = "(";
+        len = self.count;
+
+        for el, i in self {
+            str += el;
+            if i < len - 1 {
+                str += ', ';
+            }
+        }
+
+        str += ")";
+
+        ret str;
+    };
+};
+
+ret List;

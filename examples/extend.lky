@@ -1,0 +1,10 @@
+obj = {
+    .name : 'Sam',
+    .age  : 20
+};
+
+obj => self -> {
+    .sayHello : func() {
+        <'Io'>.putln("Hello, I'm " + self.name);
+    }
+}
