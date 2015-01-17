@@ -204,12 +204,14 @@ ast_node *create_table_node(ast_node *payload)
     return (ast_node *)node;
 }
 
-ast_node *create_object_decl_node_ex(ast_node *payload, char *refname)
+ast_node *create_object_decl_node_ex(ast_node *payload, char *refname, ast_node *obj)
 {
     ast_object_decl_node *node = MALLOC(sizeof(ast_object_decl_node));
     pool_add(&ast_memory_pool, node);
     node->type = AOBJDECL;
     node->next = NULL;
+
+    node->obj = obj;
 
     node->payload = payload;
 
@@ -217,7 +219,9 @@ ast_node *create_object_decl_node_ex(ast_node *payload, char *refname)
     strcpy(node->refname, refname);
     pool_add(&ast_memory_pool, node->refname);
 
-    ast_node *selfset = create_assignment_node(refname, create_unary_node(NULL, '1'));
+    ast_node *target  = obj ? obj : create_unary_node(NULL, '1');
+
+    ast_node *selfset = create_assignment_node(refname, target);
     ast_node *retnode = create_unary_node(create_value_node(VVAR, refname), 'r');
 
     ast_node *root = create_root_node();
@@ -228,15 +232,16 @@ ast_node *create_object_decl_node_ex(ast_node *payload, char *refname)
     return create_func_call_node(create_func_decl_node(NULL, root), NULL);
 }
 
-ast_node *create_object_decl_node(ast_node *payload, char *refname)
+ast_node *create_object_decl_node(ast_node *payload, char *refname, ast_node *obj)
 {
     if(refname)
-       return create_object_decl_node_ex(payload, refname);
+       return create_object_decl_node_ex(payload, refname, obj);
     
     ast_object_decl_node *node = MALLOC(sizeof(ast_object_decl_node));
     pool_add(&ast_memory_pool, node);
     node->type = AOBJDECL;
     node->next = NULL;
+    node->obj  = obj;
 
     node->payload = payload;
     

@@ -55,6 +55,7 @@
 /* Operator precedence for mathematical operators */
 %nonassoc TPRT TRET TNIL
 %left TEQUAL
+%left TRARROW
 %left TPLUSE TMINUSE TMULE TDIVE TMODE TPOWE TORE TANDE TBANDE TBORE TBXORE TBLSHIFTE TBRSHIFTE
 %left TQUESTION TCOLON TNILOR TCON TCONE
 %right TOR
@@ -145,9 +146,11 @@ objsetlist : objset
     | objsetlist TCOMMA objset { ast_add_node($1, $3); }
     ;
 objdecl : TLBRACE TDOT TRBRACE { $$ = create_unary_node(NULL, '1'); }
-    | TLBRACE objsetlist TRBRACE { $$ = create_object_decl_node($2, NULL); }
-    | TLBRACE objsetlist TRBRACE TARROW TIDENTIFIER { $$ = create_object_decl_node($2, $5); }
-    | TIDENTIFIER TARROW TLBRACE objsetlist TRBRACE { $$ = create_object_decl_node($4, $1); }
+    | TLBRACE objsetlist TRBRACE { $$ = create_object_decl_node($2, NULL, NULL); }
+    | TLBRACE objsetlist TRBRACE TARROW TIDENTIFIER { $$ = create_object_decl_node($2, $5, NULL); }
+    | TIDENTIFIER TARROW TLBRACE objsetlist TRBRACE { $$ = create_object_decl_node($4, $1, NULL); }
+    | expression TRARROW TLBRACE objsetlist TRBRACE { $$ = create_object_decl_node($4, NULL, $1);  }
+    | expression TRARROW TIDENTIFIER TARROW TLBRACE objsetlist TRBRACE { $$ = create_object_decl_node($6, $3, $1); }
     ;
 
 opapply : TIDENTIFIER TPLUSE expression { $$ = create_assignment_node($1, create_binary_node(create_value_node(VVAR, (void *)$1), $3, '+')); }

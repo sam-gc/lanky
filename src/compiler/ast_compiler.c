@@ -945,7 +945,10 @@ void compile_object_simple(compiler_wrapper *cw, ast_object_decl_node *node)
         ct++;
     }
 
-    append_op(cw, LI_PUSH_NEW_OBJECT);
+    if(node->obj)
+        compile(cw, node->obj);
+    else
+        append_op(cw, LI_PUSH_NEW_OBJECT);
 
     unsigned char buf[4];
     int_to_byte_array(buf, ct);

@@ -1,0 +1,62 @@
+Co = <'Convert'>;
+
+make_smart = func(arr) {
+    arr => self -> {
+        .idx : 0,
+        .first : func() { ret self[0]; },
+        .next : func() { self.idx += 1; ret self[self.idx - 1]; },
+        .cur : func() { ret self[self.idx]; },
+        .done : func() { ret self.idx == self.count; }
+    };
+};
+
+-- From Wikipedia
+merge_sort = func(m) {
+    -- Base case. A list of zero or one elements is sorted, by definition.
+    if m.count <= 1 {
+        ret m;
+    }
+    
+    left = []; right = [];
+    mid = m.count / 2;
+    for e, i in m {
+        (i < mid ? left : right).append(e);
+    }
+
+    <'Io'>.putln(Co.toString(left) + ' ' + Co.toString(right));
+
+    left = merge_sort(left);
+    right = merge_sort(right);
+
+    ret merge(left, right);
+};
+
+merge = func(left, right) {
+    make_smart(left);
+    make_smart(right);
+    result = [];
+
+    for !left.done() & !right.done() {
+        if left.first() <= right.first() {
+            result.append(left.next());
+        }
+        else {
+            result.append(right.next());
+        }
+    }
+
+    for !left.done() {
+        result.append(left.next());
+    }
+
+    for !right.done() {
+        result.append(right.next());
+    }
+
+    ret result;
+};
+
+ret {
+    .ms : merge_sort
+};
+

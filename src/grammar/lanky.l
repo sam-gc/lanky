@@ -63,6 +63,7 @@ comment (\#|(\-\-)).*(\n)
 "ret"                   return TOKEN(TRET);
 "->"                   return TOKEN(TARROW);
 "class"                 return TOKEN(TCLASS);
+"=>"                    return TOKEN(TRARROW);
 "nil"                   return TOKEN(TNIL);
 "load"                  return TOKEN(TLOAD);
 "in"                    return TOKEN(TIN);
@@ -117,7 +118,6 @@ comment (\#|(\-\-)).*(\n)
 "\\>"                    return TOKEN(TBRSHIFT);
 "\\<="                   return TOKEN(TBLSHIFTE);
 "\\>="                   return TOKEN(TBRSHIFTE);
-"==>"                    return TOKEN(TRARROW);
 ";"                     return TOKEN(TSEMI);
 .                       printf("Unknown token! %s\n", yytext); yyterminate();
 %%

@@ -7,41 +7,77 @@ if Os.argc < 2 {
     ret;
 }
 
-init_tape = func() {
-    tape = [0];
-    tape.idx = 0;
-    
-    tape.incr = func() {
-        cur = tape[tape.idx];
-        tape[tape.idx] = cur < 255 ? cur + 1 : 0;
-    };
-    
-    tape.decr = func() {
-        cur = tape[tape.idx];
-        tape[tape.idx] = cur > 0 ? cur - 1 : 255;
-    };
-    
-    tape.next = func() {
-        if tape.idx == tape.count - 1 {
-            tape.append(0);
-        }
-    
-        tape.idx = tape.idx + 1;
-    };
-    
-    tape.prev = func() {
-        tape.idx = tape.idx - 1;
-    };
-    
-    tape.prt = func() {
-        Io.put(Conv.toChar(tape[tape.idx]));
-    };
-    
-    tape.isZero = func() {
-        ret tape[tape.idx] == 0;
-    };
+-- init_tape = func() {
+--     tape = [0];
+--     tape.idx = 0;
+--     
+--     tape.incr = func() {
+--         cur = tape[tape.idx];
+--         tape[tape.idx] = cur < 255 ? cur + 1 : 0;
+--     };
+--     
+--     tape.decr = func() {
+--         cur = tape[tape.idx];
+--         tape[tape.idx] = cur > 0 ? cur - 1 : 255;
+--     };
+--     
+--     tape.next = func() {
+--         if tape.idx == tape.count - 1 {
+--             tape.append(0);
+--         }
+--     
+--         tape.idx = tape.idx + 1;
+--     };
+--     
+--     tape.prev = func() {
+--         tape.idx = tape.idx - 1;
+--     };
+--     
+--     tape.prt = func() {
+--         Io.put(Conv.toChar(tape[tape.idx]));
+--     };
+--     
+--     tape.isZero = func() {
+--         ret tape[tape.idx] == 0;
+--     };
+-- 
+--     ret tape;
+-- };
 
-    ret tape;
+init_tape = func() {
+    ret [0] => self -> {
+        .idx     : 0,
+
+        .incr    : func() {
+            cur = self[self.idx];
+            self[self.idx] = cur < 255 ? cur + 1 : 0;
+        },
+        
+        .decr    : func() {
+            cur = self[self.idx];
+            self[self.idx] = cur > 0 ? cur - 1 : 255;
+        },
+        
+        .next    : func() {
+            if self.idx == self.count - 1 {
+                self.append(0);
+            }
+
+            self.idx += 1;
+        },
+
+        .prev    : func() {
+            self.idx -= 1;
+        },
+
+        .prt     : func() {
+            Io.put(Conv.toChar(self[self.idx]));
+        },
+
+        .isZero  : func() {
+            ret self[self.idx] == 0;
+        }
+    };
 };
 
 preprocess = func(string) {
@@ -103,5 +139,9 @@ bfinterp();
 
 if Io.prompt('View disassembly? (y/n) ') == 'y' {
     <'Meta'>.examine(bfinterp);
+}
+
+if Io.prompt('Drop into REPL? (y/n) ') == 'y' {
+    <'Meta'>.repl();
 }
 

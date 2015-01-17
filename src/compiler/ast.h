@@ -268,6 +268,7 @@ typedef struct {
 
     struct ast_node *payload;
     char *refname;
+    struct ast_node *obj;
 } ast_object_decl_node;
 
 // A node that represents a function call
@@ -335,7 +336,7 @@ ast_node *create_func_call_node(ast_node *ident, ast_node *arguments);
 ast_node *create_ternary_node(ast_node *condition, ast_node *first, ast_node *second);
 ast_node *create_array_node(ast_node *payload);
 ast_node *create_table_node(ast_node *payload);
-ast_node *create_object_decl_node(ast_node *payload, char *refname);
+ast_node *create_object_decl_node(ast_node *payload, char *refname, ast_node *obj);
 ast_node *create_index_node(ast_node *target, ast_node *indexer);
 ast_node *create_triple_set_node(ast_node *index_node, ast_node *value, char type);
 ast_node *create_member_access_node(ast_node *object, char *ident);
