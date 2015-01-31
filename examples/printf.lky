@@ -1,0 +1,15 @@
+Io = <'Io'>;
+
+Io => self -> {
+    .print_f : func(fmt) {
+        pts = fmt.split('@');
+        va_args_.append('');
+        for p, i in pts {
+            self.put(p + va_args_[i]);
+        }
+    }
+};
+
+ret {
+    .Io : Io
+};

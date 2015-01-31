@@ -425,6 +425,9 @@ lky_object *stlarr_stringify(lky_object_seq *args, lky_object_function *func)
     lky_object_custom *self = (lky_object_custom *)func->owner;
     stlarr_data *data = self->data;
     arraylist list = data->container;
+
+    if(!list.count)
+        return stlstr_cinit("[ ]");
     
     char *innards[list.count];
     size_t tlen = 0;
