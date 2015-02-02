@@ -420,6 +420,43 @@ lky_object *stlarr_sorted(lky_object_seq *args, lky_object_function *func)
     return stlarr_cinit(nw);
 }
 
+lky_object *stlarr_slice_with_count(arraylist list, long start, long count)
+{
+    arraylist nw;
+    nw.items = malloc((count + 8) * sizeof(void *));
+    nw.count = count;
+    nw.allocated = count + 8;
+    
+    memcpy(nw.items, list.items + start, count * sizeof(void *));
+
+    return stlarr_cinit(nw);
+}
+
+lky_object *stlarr_slice(lky_object_seq *args, lky_object_function *func)
+{
+    lky_object_custom *self = (lky_object_custom *)func->owner;
+    stlarr_data *data = self->data;
+    arraylist list = data->container;
+
+    long start = OBJ_NUM_UNWRAP(args->value);
+    long count = OBJ_NUM_UNWRAP(args->next->value);
+
+    return stlarr_slice_with_count(list, start, count);
+}
+
+lky_object *stlarr_slice_to(lky_object_seq *args, lky_object_function *func)
+{
+    lky_object_custom *self = (lky_object_custom *)func->owner;
+    stlarr_data *data = self->data;
+    arraylist list = data->container;
+
+    long start = OBJ_NUM_UNWRAP(args->value);
+    long end =   OBJ_NUM_UNWRAP(args->next->value);
+    long count = end - start + 1;
+
+    return stlarr_slice_with_count(list, start, count);
+}
+
 lky_object *stlarr_stringify(lky_object_seq *args, lky_object_function *func)
 {
     lky_object_custom *self = (lky_object_custom *)func->owner;
@@ -522,6 +559,8 @@ lky_object *stlarr_cinit(arraylist inlist)
     lobj_set_member(obj, "sort",            lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlarr_sort));
     lobj_set_member(obj, "sorted",          lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlarr_sorted));
     lobj_set_member(obj, "copy",            lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlarr_copy));
+    lobj_set_member(obj, "slice",           lobjb_build_func_ex(obj, 2, (lky_function_ptr)stlarr_slice));
+    lobj_set_member(obj, "sliceTo",         lobjb_build_func_ex(obj, 2, (lky_function_ptr)stlarr_slice_to));
 
     cobj->freefunc = stlarr_dealloc;
     cobj->savefunc = stlarr_save;

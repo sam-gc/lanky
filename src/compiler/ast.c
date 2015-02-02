@@ -226,7 +226,7 @@ ast_node *create_object_decl_node_ex(ast_node *payload, char *refname, ast_node 
 
     ast_node *root = create_root_node();
     ast_add_node(root, selfset);
-    ast_add_node(root, node);
+    ast_add_node(root, (struct ast_node *)node);
     ast_add_node(root, retnode);
 
     return create_func_call_node(create_func_decl_node(NULL, root), NULL);
