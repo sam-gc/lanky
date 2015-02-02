@@ -258,6 +258,18 @@ void stlarr_save(lky_object *o)
 
 }
 
+lky_object *stlarr_slice_with_count(arraylist list, long start, long count)
+{
+    arraylist nw;
+    nw.items = malloc((count + 8) * sizeof(void *));
+    nw.count = count;
+    nw.allocated = count + 8;
+    
+    memcpy(nw.items, list.items + start, count * sizeof(void *));
+
+    return stlarr_cinit(nw);
+}
+
 lky_object *stlarr_remove_at(lky_object_seq *args, lky_object_function *func)
 {
     lky_object_custom *self = (lky_object_custom *)func->owner;
@@ -420,18 +432,6 @@ lky_object *stlarr_sorted(lky_object_seq *args, lky_object_function *func)
     return stlarr_cinit(nw);
 }
 
-lky_object *stlarr_slice_with_count(arraylist list, long start, long count)
-{
-    arraylist nw;
-    nw.items = malloc((count + 8) * sizeof(void *));
-    nw.count = count;
-    nw.allocated = count + 8;
-    
-    memcpy(nw.items, list.items + start, count * sizeof(void *));
-
-    return stlarr_cinit(nw);
-}
-
 lky_object *stlarr_slice(lky_object_seq *args, lky_object_function *func)
 {
     lky_object_custom *self = (lky_object_custom *)func->owner;
@@ -463,6 +463,12 @@ lky_object *stlarr_stringify(lky_object_seq *args, lky_object_function *func)
     stlarr_data *data = self->data;
     arraylist list = data->container;
 
+    // TODO: There is a bug in this function...
+    // Without the following check, the program should normally
+    // return "[ ]" as expected, but there is a memory corruption
+    // bug due to trying to copy 0 bytes. This should ideally be
+    // fixed in a more robust way than using the simple check
+    // below. For now, this check __NEEDS__ to stay in place.
     if(!list.count)
         return stlstr_cinit("[ ]");
     
