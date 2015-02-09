@@ -111,11 +111,11 @@ lky_object *stlreq_compile(lky_object_seq *args, lky_object *func)
 #ifdef __APPLE__
     char *compilefrmt = "gcc -shared -undefined dynamic_lookup -o %s %s %s";
 #else
-    char *compilefrmt = "gcc -shared -o %s %s %s -g";
+    char *compilefrmt = "gcc -shared -o %s %s %s -g -Isrc/interpreter -Isrc/compiler -Isrc/stdlib";
 #endif
 
     char *compcmd = calloc(1000, sizeof(char));
-    sprintf(compcmd, "gcc -fPIC -c %s -o %s -g", filename, objname);
+    sprintf(compcmd, "gcc -fPIC -c %s -o %s -g -Isrc/interpreter -Isrc/compiler -Isrc/stdlib", filename, objname);
     system(compcmd);
     sprintf(compcmd, compilefrmt, soname, objname, argobj ? argobj->data : "");
     system(compcmd);

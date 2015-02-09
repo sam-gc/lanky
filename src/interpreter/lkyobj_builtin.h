@@ -180,11 +180,6 @@ void lobjb_print(lky_object *a);
 char lobjb_quick_compare(lky_object *a, lky_object *b);
 lky_object *lobjb_num_to_string(lky_object *a);
 
-lky_object_code *lobjb_load_file(char *name);
-
-void lobjb_serialize(lky_object *obj, FILE *f);
-lky_object *lobjb_deserialize(FILE *f);
-
 void lobjb_clean(lky_object *a);
 
 

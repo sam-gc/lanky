@@ -56,25 +56,9 @@
 #define TOP() (top_node(frame))
 #define SECOND_TOP() (frame->data_stack[frame->stack_pointer - 1])
 
-// Macros that use the above but increment/
-// decrement the reference count of the objects
-// (Note that this is obsolete; rc_incr/decr()
-// return immediately)
-#define PUSH_RC(data) do{ push_node(frame, data); rc_incr(data); }while(0)
-#define POP_RC() rc_decr(POP())
-
 #define POP_TWO() lky_object *a = POP(); lky_object *b = POP()
-#define RC_TWO() rc_decr(a); rc_decr(b)
 
 void mach_eval(stackframe *frame);
-
-// static arraylist main_stack;
-// static arraylist constants;
-// char ops[6] = {LI_LOAD_CONST, 0, LI_LOAD_CONST, 1, LI_BINARY_DIVIDE, LI_PRINT};
-// char ops[9] = {LI_LOAD_CONST, 0, LI_LOAD_CONST, 1, LI_LOAD_CONST, 2, LI_BINARY_ADD, LI_BINARY_MULTIPLY, LI_PRINT};
-// static int pc = 0;
-// static char *ops;
-// static long tape_len;
 
 int pushes = 0;
 int good = 1;
@@ -162,11 +146,7 @@ lky_object *mach_interrupt_exec(lky_object_function *func)
     
     gc_add_root_object((lky_object *)func);
     
-    //    rc_incr(frame.bucket);
-    
     mach_eval(frame);
-    
-    //    rc_decr(frame.bucket);
     
     gc_remove_root_object((lky_object *)func);
     
@@ -232,11 +212,8 @@ lky_object *mach_execute(lky_object_function *func)
 
     gc_add_root_object((lky_object *)func);
 
-//    rc_incr(frame.bucket);
-
     mach_eval(frame);
 
-//    rc_decr(frame.bucket);
 
     gc_remove_root_object((lky_object *)func);
     func->bucket = NULL;
@@ -305,9 +282,7 @@ _opcode_whiplash_:
         {
             char idx = frame->ops[++frame->pc];
             lky_object *obj = frame->constants[idx];
-            PUSH_RC(obj);
-            rc_incr(obj);
-            rc_incr(obj);
+            PUSH(obj);
             goto _opcode_whiplash_;
         }
         break;
@@ -315,9 +290,8 @@ _opcode_whiplash_:
         {
             POP_TWO();
             lky_object *obj = lobjb_binary_add(b, a);
-            RC_TWO();
 
-            PUSH_RC(obj);
+            PUSH(obj);
             goto _opcode_whiplash_;
         }
         break;
@@ -325,9 +299,8 @@ _opcode_whiplash_:
         {
             POP_TWO();
             lky_object *obj = lobjb_binary_subtract(b, a);
-            RC_TWO();
 
-            PUSH_RC(obj);
+            PUSH(obj);
             goto _opcode_whiplash_;
         }
         break;
@@ -335,9 +308,8 @@ _opcode_whiplash_:
         {
             POP_TWO();
             lky_object *obj = lobjb_binary_multiply(b, a);
-            RC_TWO();
 
-            PUSH_RC(obj);
+            PUSH(obj);
             goto _opcode_whiplash_;
         }
         break;
@@ -345,9 +317,8 @@ _opcode_whiplash_:
         {
             POP_TWO();
             lky_object *obj = lobjb_binary_divide(b, a);
-            RC_TWO();
 
-            PUSH_RC(obj);
+            PUSH(obj);
             goto _opcode_whiplash_;
         }
         break;
@@ -355,9 +326,8 @@ _opcode_whiplash_:
         {
             POP_TWO();
             lky_object *obj = lobjb_binary_modulo(b, a);
-            RC_TWO();
 
-            PUSH_RC(obj);
+            PUSH(obj);
             goto _opcode_whiplash_;
         }
         break;
@@ -365,9 +335,8 @@ _opcode_whiplash_:
         {
             POP_TWO();
             lky_object *obj = lobjb_binary_power(b, a);
-            RC_TWO();
 
-            PUSH_RC(obj);
+            PUSH(obj);
             goto _opcode_whiplash_;
         }
         break;
@@ -375,9 +344,8 @@ _opcode_whiplash_:
         {
             POP_TWO();
             lky_object *obj = lobjb_binary_lessthan(b, a);
-            RC_TWO();
 
-            PUSH_RC(obj);
+            PUSH(obj);
             goto _opcode_whiplash_;
         }
         break;
@@ -385,9 +353,8 @@ _opcode_whiplash_:
         {
             POP_TWO();
             lky_object *obj = lobjb_binary_greaterthan(b, a);
-            RC_TWO();
 
-            PUSH_RC(obj);
+            PUSH(obj);
             goto _opcode_whiplash_;
         }
         break;
@@ -395,9 +362,8 @@ _opcode_whiplash_:
         {
             POP_TWO();
             lky_object *obj = lobjb_binary_lessequal(b, a);
-            RC_TWO();
 
-            PUSH_RC(obj);
+            PUSH(obj);
             goto _opcode_whiplash_;
         }
         break;
@@ -405,9 +371,8 @@ _opcode_whiplash_:
         {
             POP_TWO();
             lky_object *obj = lobjb_binary_greatequal(b, a);
-            RC_TWO();
 
-            PUSH_RC(obj);
+            PUSH(obj);
             goto _opcode_whiplash_;
         }
         break;
@@ -415,9 +380,8 @@ _opcode_whiplash_:
         {
             POP_TWO();
             lky_object *obj = lobjb_binary_equals(b, a);
-            RC_TWO();
 
-            PUSH_RC(obj);
+            PUSH(obj);
             goto _opcode_whiplash_;
         }
         break;
@@ -425,9 +389,8 @@ _opcode_whiplash_:
         {
             POP_TWO();
             lky_object *obj = lobjb_binary_notequal(b, a);
-            RC_TWO();
 
-            PUSH_RC(obj);
+            PUSH(obj);
             goto _opcode_whiplash_;
         }
         break;
@@ -435,9 +398,8 @@ _opcode_whiplash_:
         {
             POP_TWO();
             lky_object *obj = lobjb_binary_and(b, a);
-            RC_TWO();
 
-            PUSH_RC(obj);
+            PUSH(obj);
             goto _opcode_whiplash_;
         }
         break;
@@ -445,9 +407,8 @@ _opcode_whiplash_:
         {
             POP_TWO();
             lky_object *obj = lobjb_binary_or(b, a);
-            RC_TWO();
 
-            PUSH_RC(obj);
+            PUSH(obj);
             goto _opcode_whiplash_;
         }
         break;
@@ -455,9 +416,8 @@ _opcode_whiplash_:
         {
             POP_TWO();
             lky_object *obj = lobjb_binary_nc(b, a);
-            RC_TWO();
 
-            PUSH_RC(obj);
+            PUSH(obj);
             goto _opcode_whiplash_;
         }
         break;
@@ -465,9 +425,8 @@ _opcode_whiplash_:
         {
             POP_TWO();
             lky_object *obj = lobjb_binary_band(b, a);
-            RC_TWO();
 
-            PUSH_RC(obj);
+            PUSH(obj);
             goto _opcode_whiplash_;
         }
         break;
@@ -475,9 +434,8 @@ _opcode_whiplash_:
         {
             POP_TWO();
             lky_object *obj = lobjb_binary_bor(b, a);
-            RC_TWO();
 
-            PUSH_RC(obj);
+            PUSH(obj);
             goto _opcode_whiplash_;
         }
         break;
@@ -485,9 +443,8 @@ _opcode_whiplash_:
         {
             POP_TWO();
             lky_object *obj = lobjb_binary_bxor(b, a);
-            RC_TWO();
 
-            PUSH_RC(obj);
+            PUSH(obj);
             goto _opcode_whiplash_;
         }
         break;
@@ -495,9 +452,8 @@ _opcode_whiplash_:
         {
             POP_TWO();
             lky_object *obj = lobjb_binary_blshift(b, a);
-            RC_TWO();
 
-            PUSH_RC(obj);
+            PUSH(obj);
             goto _opcode_whiplash_;
         }
         break;
@@ -505,9 +461,8 @@ _opcode_whiplash_:
         {
             POP_TWO();
             lky_object *obj = lobjb_binary_brshift(b, a);
-            RC_TWO();
 
-            PUSH_RC(obj);
+            PUSH(obj);
             goto _opcode_whiplash_;
         }
         break;
@@ -516,7 +471,7 @@ _opcode_whiplash_:
             lky_object *a = POP();
             lky_object *obj = lobjb_unary_not(a);
 
-            PUSH_RC(obj);
+            PUSH(obj);
             goto _opcode_whiplash_;
         }
         break;
@@ -533,13 +488,12 @@ _opcode_whiplash_:
         {
             lky_object *a = POP();
             lobjb_print(a);
-            rc_decr(a);
             goto _opcode_whiplash_;
         }
         break;
         case LI_POP:
         {
-            POP_RC();
+            POP();
             goto _opcode_whiplash_;
         }
         break;
@@ -580,7 +534,6 @@ _opcode_whiplash_:
             {
                 // PUSH(&lky_nil);
             }
-            rc_decr(obj);
             goto _opcode_whiplash_;
         }
         break;
@@ -612,23 +565,19 @@ _opcode_whiplash_:
             lky_object *obj = TOP();
             char idx = frame->ops[++frame->pc];
             lky_object *old = frame->locals[idx];
-            if(old)
-                rc_decr(old);
 
             frame->locals[idx] = obj;
-            rc_incr(obj);
             // printf("=> %d\n", idx);
             // lobjb_print(obj);
 
             goto _opcode_whiplash_;
-            // rc_decr(obj);
         }
         break;
         case LI_LOAD_LOCAL:
         {
             char idx = frame->ops[++frame->pc];
             lky_object *obj = frame->locals[idx];
-            PUSH_RC(obj);
+            PUSH(obj);
             goto _opcode_whiplash_;
         }
         break;
@@ -684,7 +633,6 @@ _opcode_whiplash_:
         {
             lky_object *obj = POP();
             frame->ret = obj;
-            rc_incr(obj);
             goto _opcode_whiplash_;
         }
         break;
@@ -699,7 +647,7 @@ _opcode_whiplash_:
             if(!val)
                 mach_halt_with_err(lobjb_build_error("UndeclaredIdentifier", "The provided object does not have a member with the provided name."));
 
-            PUSH_RC(val);
+            PUSH(val);
             goto _opcode_whiplash_;
         }
         break;
@@ -713,7 +661,6 @@ _opcode_whiplash_:
 
             lobj_set_member(obj, name, val);
 
-            rc_decr(obj);
             goto _opcode_whiplash_;
         }
         break;
@@ -727,19 +674,16 @@ _opcode_whiplash_:
             for(i = 0; i < pstack.count; i++)
             {
                 lky_object *obk = arr_get(&pstack, i);
-                rc_incr(obk);
 
                 arr_append(&nplist, obk);
             }
 
             arr_append(&nplist, frame->bucket);
-            rc_incr(frame->bucket);
 
             char argc = frame->ops[++frame->pc];
             lky_object *func = lobjb_build_func(code, argc, nplist, frame->interp);
 
-            //rc_decr(code);
-            PUSH_RC(func);
+            PUSH(func);
             goto _opcode_whiplash_;
         }
         break;
@@ -809,7 +753,7 @@ _opcode_whiplash_:
             }
 
             if(obj)
-                PUSH_RC(obj);
+                PUSH(obj);
             else
             {
                 printf("%s\n", name);

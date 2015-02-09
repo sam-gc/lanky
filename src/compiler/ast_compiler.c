@@ -1318,7 +1318,6 @@ void compile_value(compiler_wrapper *cw, ast_node *root)
     }
 
     lky_object *obj = wrapper_to_obj(node_to_wrapper(node));
-    rc_incr(obj);
 
     long idx = find_prev_const(cw, obj);
 
@@ -1381,8 +1380,6 @@ void compile_function(compiler_wrapper *cw, ast_node *root)
     nw.save_val = 0;
     lky_object_code *code = compile_ast_ext(node->payload->next, &nw);
 
-    rc_incr((lky_object *)code);
-    
     long idx = cw->rcon.count;
     arr_append(&cw->rcon, code);
     
@@ -1414,8 +1411,6 @@ void compile_class_decl(compiler_wrapper *cw, ast_node *root)
 
     nw.save_val = 0;
     lky_object_code *code = compile_ast_ext(node->payload->next, &nw);
-
-    rc_incr((lky_object *)code);
 
     long cidx = cw->rcon.count;
     arr_append(&cw->rcon, code);
@@ -1717,37 +1712,3 @@ lky_object_code *compile_ast(ast_node *root)
     lobjb_uses_pointer_tags_ = backup;
     return ret;
 }
-
-// Writes the code to a file (now deprecated.)
-void write_to_file(char *name, lky_object_code *code)
-{
-    FILE *f = fopen(name, "w");
-
-    void **cons = code->constants;
-    fwrite(&(code->num_constants), sizeof(long), 1, f);
-    fwrite(&(code->num_locals), sizeof(long), 1, f);
-    fwrite(&(code->num_names), sizeof(long), 1, f);
-    fwrite(&(code->stack_size), sizeof(long), 1, f);
-
-    int i;
-    for(i = 0; i < code->num_names; i++)
-    {
-        char *str = code->names[i];
-        long len = strlen(str) + 1;
-        fwrite(&len, sizeof(long), 1, f);
-        fwrite(str, sizeof(unsigned char), len, f);
-    }
-
-    for(i = 0; i < code->num_constants; i++)
-    {
-        lky_object *obj = cons[i];
-        lobjb_serialize(obj, f);
-    }
-
-    fwrite(&(code->op_len), sizeof(long), 1, f);
-
-    fwrite(code->ops, sizeof(char), code->op_len, f);
-
-    fclose(f);
-}
-

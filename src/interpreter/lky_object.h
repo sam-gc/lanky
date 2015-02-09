@@ -73,8 +73,6 @@ typedef struct {
 lky_object *lobj_alloc();
 void lobj_set_member(lky_object *obj, char *member, lky_object *val);
 lky_object *lobj_get_member(lky_object *obj, char *member);
-void rc_decr(lky_object *obj);
-void rc_incr(lky_object *obj);
 void lobj_dealloc(lky_object *obj);
 void print_alloced();
 void lobj_set_class(lky_object *obj, lky_object *cls);

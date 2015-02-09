@@ -55,7 +55,6 @@ void lobj_set_member(lky_object *obj, char *member, lky_object *val)
         return;
 
     hst_put(&obj->members, member, val, NULL, NULL);
-    rc_incr(val);
 }
 
 lky_object *lobj_get_member(lky_object *obj, char *member)
@@ -105,20 +104,6 @@ char *lobj_stringify(lky_object *obj)
     return ((lky_object_custom *)strobj)->data;
 }
 
-void rc_decr(lky_object *obj)
-{
-    return;
-//    if(obj == &lky_nil)
-//        return;
-//    
-//    obj->mem_count--;
-//    // printf("%d (-)\n", obj->mem_count);
-//    if(!obj->mem_count)
-//    {
-//        lobj_dealloc(obj);
-//    }
-}
-
 void lobj_dealloc(lky_object *obj)
 {
     // printf("(D) ");
@@ -138,12 +123,6 @@ void lobj_dealloc(lky_object *obj)
 
     aqua_release(obj);
     // alloced--;
-}
-
-void rc_incr(lky_object *obj)
-{
-    //(obj->mem_count)++;
-    // printf("%d (+)\n", obj->mem_count);
 }
 
 void print_alloced()

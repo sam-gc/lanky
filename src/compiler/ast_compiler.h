@@ -24,6 +24,5 @@
 
 lky_object_code *compile_ast(ast_node *root);
 lky_object_code *compile_ast_repl(ast_node *root);
-void write_to_file(char *name, lky_object_code *code);
 
 #endif

@@ -19,7 +19,7 @@
 #ifndef LANKY_H
 #define LANKY_H
 
-#include <stdio.h>
+/*#include <stdio.h>
 #include <stdlib.h>
 
 // =================================================
@@ -359,6 +359,34 @@ lky_object *stlstr_cinit(char *str); // Inits a stl string
 lky_object *stlarr_cinit(arraylist list); // Inits a stl array
 lky_object *stltab_cinit(arraylist *keys, arraylist *vals); // Inits a table
 
+*/
+
+#include "interpreter/aquarium.h"
+#include "interpreter/arraylist.h"
+#include "interpreter/colors.h"
+#include "interpreter/hashmap.h"
+#include "interpreter/info.h"
+#include "interpreter/lky_gc.h"
+#include "interpreter/lky_machine.h"
+#include "interpreter/lkyobj_builtin.h"
+#include "interpreter/lky_object.h"
+#include "interpreter/mach_binary_ops.h"
+#include "interpreter/mach_unary_ops.h"
+#include "interpreter/module.h"
+#include "interpreter/serialize.h"
+#include "compiler/ast_compiler.h"
+#include "compiler/ast.h"
+#include "compiler/bytecode_analyzer.h"
+#include "compiler/mempool.h"
+#include "compiler/tools.h"
+#include "stdlib/hashtable.h"
+#include "stdlib/stanky.h"
+#include "stdlib/stl_array.h"
+#include "stdlib/stl_object.h"
+#include "stdlib/stl_meta.h"
+#include "stdlib/stl_string.h"
+
+
 // =================================================
 // Helper Macros
 // =================================================
@@ -375,6 +403,7 @@ lky_object *stltab_cinit(arraylist *keys, arraylist *vals); // Inits a table
 #define LKY_FIRST_ARG(seq) (seq->value)
 #define LKY_SECOND_ARG(seq) (seq->next->value)
 #define LKY_THIRD_ARG(seq) (seq->next->next->value)
+#define LKY_FOURTH_ARG(seq) (seq->next->next->next->value)
 #define LKY_RETURN_NIL return &lky_nil
 
 #define LKY_ADD_METHOD(obj, name, argc, ptr) (lobj_set_member((lky_object *)obj, name, lobjb_build_func_ex((lky_object *)obj, argc, (lky_function_ptr)ptr)))
