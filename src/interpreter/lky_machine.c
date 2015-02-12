@@ -61,7 +61,7 @@
 void mach_eval(stackframe *frame);
 
 int pushes = 0;
-lky_object_error *thrown_exception = NULL;
+lky_object *thrown_exception = NULL;
 
 void push_node(stackframe *frame, void *data)
 {
@@ -97,7 +97,6 @@ void *pop_node(stackframe *frame)
 
 void mach_halt_with_err(lky_object *err)
 {
-    lky_object_error *error = (lky_object_error *)err;
     thrown_exception = err;
 }
 
@@ -165,10 +164,12 @@ lky_object *mach_interrupt_exec(lky_object_function *func)
     if(frame->stack_pointer > -1)
         ret = frame->data_stack[frame->stack_pointer];
     
-    lky_object_error *err = frame->prev->thrown;
+    lky_object *err = frame->prev->thrown;
     if(err)
     { 
-        printf("Interrupt caught exception.\n%s: %s\n", err->name, err->text);
+        char *txt = lobj_stringify(err);
+        printf("Interrupt caught exception.\n%s\n", txt);
+        free(txt);
         frame->prev->thrown = NULL;
     }
 
@@ -263,12 +264,14 @@ _opcode_whiplash_:
         return;
     if(thrown_exception)
     {
-        lky_object_error *exc = thrown_exception;
+        lky_object *exc = thrown_exception;
         thrown_exception = NULL;
 
         if(!frame->catch_pointer && !frame->prev)
         {
-            printf("Fatal error: %s\nMessage: %s\n\nHalting.\n", exc->name, exc->text);
+            char *errtxt = lobj_stringify(exc);
+            printf("Fatal error--\n%s\n\nHalting.\n", errtxt);
+            free(errtxt);
             frame->ret = &lky_nil;
             return;
         }
