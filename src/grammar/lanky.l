@@ -61,6 +61,7 @@ comment (\#|(\-\-)).*(\n)
 "break"                 return TOKEN(TBREAK);
 "func"                  return TOKEN(TFUNC);
 "ret"                   return TOKEN(TRET);
+"raise"                 return TOKEN(TRAISE);
 "->"                   return TOKEN(TARROW);
 "class"                 return TOKEN(TCLASS);
 "=>"                    return TOKEN(TRARROW);

@@ -87,7 +87,6 @@ void *pop_node(stackframe *frame)
     if(frame->stack_pointer < 0)
     {
         int *test = NULL;
-        printf("HERE %d\n", *test);
     }
     void *data = frame->data_stack[frame->stack_pointer];
     frame->data_stack[frame->stack_pointer] = NULL;
@@ -255,16 +254,23 @@ _opcode_whiplash_:
         return;
     if(thrown_exception)
     {
-        if(!frame->catch_pointer)
+        lky_object_error *exc = thrown_exception;
+        thrown_exception = NULL;
+
+        if(!frame->catch_pointer && !frame->prev)
         {
-            printf("Fatal error: %s\nMessage: %s\n\nHalting.\n", thrown_exception->name, thrown_exception->text);
+            printf("Fatal error: %s\nMessage: %s\n\nHalting.\n", exc->name, exc->text);
             frame->ret = &lky_nil;
             return;
         }
+        else if(!frame->catch_pointer)
+        {
+            frame->prev->thrown = exc;
+            return;
+        }
 
-        PUSH(thrown_exception);
+        PUSH(exc);
         frame->pc = frame->catch_stack[--frame->catch_pointer];
-        thrown_exception = NULL;
     }
 
     gc_gc();
@@ -605,6 +611,12 @@ _opcode_whiplash_:
             }
 
             lky_object *ret = lobjb_call(obj, seq);
+            if(frame->thrown)
+            {
+                mach_halt_with_err(frame->thrown);
+                frame->thrown = NULL;
+                goto _opcode_whiplash_;
+            }
 
             if(seq)
                 gc_remove_root_object((lky_object *)first);
@@ -964,6 +976,12 @@ _opcode_whiplash_:
         case LI_POP_CATCH:
         {
             frame->catch_stack[frame->catch_pointer--] = 0;
+            goto _opcode_whiplash_;
+        }
+        break;
+        case LI_RAISE:
+        {
+            mach_halt_with_err(POP());
             goto _opcode_whiplash_;
         }
         break;

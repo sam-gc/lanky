@@ -43,7 +43,7 @@
 %token <token> TLPAREN TRPAREN TLBRACE TRBRACE TLBRACKET TRBRACKET TCOMMA TDOT
 %token <token> TPLUS TMINUS TMUL TDIV TMOD TPOW TCON TIN TRARROW
 %token <token> TPLUSE TMINUSE TMULE TDIVE TMODE TPOWE TORE TANDE TCONE TBANDE TBORE TBXORE TBLSHIFTE TBRSHIFTE
-%token <token> TIF TELIF TELSE TPRT TCOMMENT TLOOP TCOLON TFUNC TSEMI TRET TQUESTION TARROW TCLASS TNIL TCONTINUE TBREAK TLOAD TNILOR
+%token <token> TIF TELIF TELSE TPRT TCOMMENT TLOOP TCOLON TFUNC TSEMI TRET TQUESTION TARROW TCLASS TNIL TCONTINUE TBREAK TLOAD TNILOR TRAISE
 %token <token> TTRY TCATCH
 
 /* Define the type of node our nonterminal symbols represent.
@@ -54,7 +54,7 @@
 %type <node> program stmts stmt expression ifblock block elifblock elifblocks elseblock loopblock funcdecl arg arglist call calllist memaccess classdecl arrdecl arraccess opapply tabset tabsetlist tabdecl binor binand objset objsetlist objdecl trycatchblock
 
 /* Operator precedence for mathematical operators */
-%nonassoc TPRT TRET TNIL
+%nonassoc TPRT TRET TNIL TRAISE
 %left TEQUAL
 %left TRARROW
 %left TPLUSE TMINUSE TMULE TDIVE TMODE TPOWE TORE TANDE TBANDE TBORE TBXORE TBLSHIFTE TBRSHIFTE
@@ -128,7 +128,7 @@ funcdecl : TFUNC TLPAREN arglist TRPAREN block { $$ = create_func_decl_node($3, 
 classdecl : TCLASS TLPAREN TRPAREN TARROW TIDENTIFIER block { $$ = create_class_decl_node($5, $6); }
     ;
 stmt : expression TSEMI
-    | TRET TSEMI { $$ = create_unary_node(NULL, 'r'); }
+    | TRET TSEMI { $$ = create_unary_node(NULL, 'r'); } 
     | loopblock
     | ifblock
     | trycatchblock
@@ -260,6 +260,7 @@ expression :
     | TPRT expression { $$ = create_unary_node($2, 'p'); }
     | TNOT expression { $$ = create_unary_node($2, '!'); }
     | TRET expression { $$ = create_unary_node($2, 'r'); }
+    | TRAISE expression { $$ = create_unary_node($2, 't'); }
     | TMINUS expression %prec TNEGATIVE { $$ = create_unary_node($2, '-'); }
     ;
 

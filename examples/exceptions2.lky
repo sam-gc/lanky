@@ -1,0 +1,45 @@
+elevate = func() {
+    try {
+        func() {
+            try {
+                func() {
+                    try {
+                        func() {
+                            try {
+                                func() {
+                                    a = [11, 2];
+                                    <'Io'>.putln(a[2]);
+                                }();
+                            } catch e {
+                                e => self -> {
+                                    .count : 1,
+                                    .incr : func() {
+                                        self.count += 1;
+                                    }
+                                };
+
+                                raise e;
+                            }
+                        }();
+                    } catch e {
+                        e.incr();
+                        raise e;
+                    }
+                }();
+            } catch e {
+                e.incr();
+                raise e;
+            }
+        }();
+    } catch e {
+        e.incr();
+        raise e;
+    }
+};
+
+try {
+    elevate();
+} catch e {
+    e.print();
+    <'Io'>.putln('Exception was raised ' + e.count + ' times.');
+}

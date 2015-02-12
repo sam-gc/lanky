@@ -421,6 +421,7 @@ lky_object *lobjb_default_callable(lky_object_seq *args, lky_object *self)
     }
 
     lky_object *ret = mach_execute(func);
+
     return ret;
 }
 

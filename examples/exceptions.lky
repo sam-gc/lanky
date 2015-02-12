@@ -1,0 +1,69 @@
+Io = <'Io'>;
+
+throws = func() {
+    [][1];
+    Io.putln("This line shouldn't print.");
+};
+
+throws2 = func() {
+    ret 3 + aldskjfalkdsjf;
+};
+
+throws3 = func() {
+    func() {
+        [1, 2, 3]['seahorse'];
+    }();
+};
+
+ctch = func() {
+    try {
+        [][1];
+    } catch e {
+        Io.putln('We caught the error.');        
+    }
+};
+
+ctch();
+
+Io.putln('--------------------');
+
+try {
+    throws();
+} catch e {
+    Io.putln('We caught another one: ' + e.name);
+}
+
+Io.putln('--------------------');
+
+try {
+    throws2();
+} catch e {
+    Io.putln('And another one: ' + e.name);
+}
+
+Io.putln('--------------------');
+
+try {
+    throws3();
+} catch e {
+    Io.putln('And another still: ' + e.name);
+}
+
+Io.putln('--------------------');
+
+Io.putln('Custom exception time!');
+
+try {
+    raise {
+        .stringify_ : func() {
+            ret "W0ot I'm a custom exception!";
+        }
+    };
+} catch e {
+    Io.putln(e);
+}
+
+Io.putln('--------------------');
+Io.putln('Now we should crash.');
+
+throws3();
