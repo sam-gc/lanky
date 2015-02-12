@@ -125,6 +125,7 @@ lky_object *mach_interrupt_exec(lky_object_function *func)
     frame->locals_count = code->num_locals;
     
     frame->prev = interp->stack ? interp->stack : NULL;
+    frame->thrown = NULL;
     frame->next = NULL;
     
     func->parent_stack = frame->parent_stack;
@@ -164,6 +165,13 @@ lky_object *mach_interrupt_exec(lky_object_function *func)
     if(frame->stack_pointer > -1)
         ret = frame->data_stack[frame->stack_pointer];
     
+    lky_object_error *err = frame->prev->thrown;
+    if(err)
+    { 
+        printf("Interrupt caught exception.\n%s: %s\n", err->name, err->text);
+        frame->prev->thrown = NULL;
+    }
+
     free(frame);
     
     return ret;
@@ -189,6 +197,7 @@ lky_object *mach_execute(lky_object_function *func)
     frame->stack_size = code->stack_size;
     frame->names = code->names;
     frame->ret = NULL;
+    frame->thrown = NULL;
     
     frame->interp = interp;
     frame->locals_count = code->num_locals;
