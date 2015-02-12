@@ -276,6 +276,20 @@ ast_node *create_triple_set_node(ast_node *index_node, ast_node *value, char typ
     return (ast_node *)node;
 }
 
+ast_node *create_try_catch_node(ast_node *tryblock, ast_node *catchblock, ast_node *exception_name)
+{
+    ast_try_catch_node *node = MALLOC(sizeof(ast_try_catch_node));
+    pool_add(&ast_memory_pool, node);
+    node->type = ATRYCATCH;
+    node->next = NULL;
+
+    node->tryblock = tryblock;
+    node->catchblock = catchblock;
+    node->exception_name = exception_name;
+
+    return (ast_node *)node;
+}
+
 ast_node *create_if_node(ast_node *condition, ast_node *payload)
 {
     ast_if_node *node = MALLOC(sizeof(ast_if_node));

@@ -33,6 +33,7 @@ typedef struct stackframe {
     void **constants;
     void **locals;
     void **data_stack;
+    int *catch_stack;
     char **names;
     long pc;
     unsigned char *ops;
@@ -43,6 +44,8 @@ typedef struct stackframe {
     long stack_pointer;
     long stack_size;
     long locals_count;
+    
+    int catch_pointer;
     lky_object *ret;
 } stackframe;
 
@@ -58,6 +61,5 @@ mach_interp mach_make_interp();
 lky_object *mach_interrupt_exec(lky_object_function *func);
 lky_object *mach_execute(lky_object_function *func);
 void mach_halt_with_err(lky_object *err);
-void print_ops(char *ops, int tape_len);
 
 #endif

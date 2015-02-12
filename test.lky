@@ -1,10 +1,21 @@
-Io.putln('test');
+try {
+    _prt 3 + 4;
+} catch test {
+    _prt "ERROR!";
+}
 
-a = load 'examples/module';
+_prt "New test";
 
-Io.putln(a.io == Io);
-a.sayHello('World');
-Io.putln("Hello");
+try {
+    b + 3;
+} catch e {
+    e.print();
+}
 
+try {
+    3 + 4 + 5 + 6 + c;
+} catch e {
+    _prt "WHOOPS";
+}
 
-
+_prt "End test";

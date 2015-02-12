@@ -109,6 +109,11 @@ void *aqua_request_next_block(size_t size)
 {   
     if(aqua_use_system_malloc_free_)
         return malloc(size);
+    else if(size > LARGE_SIZE)
+    {
+        printf("Error requesting memory! Block size too big!\n");
+        exit(1);
+    }
 
     aqua_tide_pool *pool = large_pool;
     aqua_tide_pool *prev = NULL;

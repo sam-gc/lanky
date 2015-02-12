@@ -61,7 +61,7 @@
 void mach_eval(stackframe *frame);
 
 int pushes = 0;
-int good = 1;
+lky_object *thrown_exception = NULL;
 
 void push_node(stackframe *frame, void *data)
 {
@@ -99,8 +99,8 @@ void *pop_node(stackframe *frame)
 void mach_halt_with_err(lky_object *err)
 {
     lky_object_error *error = (lky_object_error *)err;
-    printf("Fatal error: %s\nMessage: %s\n\nHalting.\n", error->name, error->text);
-    good = 0;
+    //printf("Fatal error: %s\nMessage: %s\n\nHalting.\n", error->name, error->text);
+    thrown_exception = err;
 }
 
 lky_object *mach_interrupt_exec(lky_object_function *func)
@@ -141,7 +141,11 @@ lky_object *mach_interrupt_exec(lky_object_function *func)
     void *stack[code->stack_size];
     memset(stack, 0, sizeof(void *) * code->stack_size);
     
+    int catch_stack[code->catch_size];
+    memset(catch_stack, 0, sizeof(int) * code->catch_size);
+
     frame->data_stack = stack;
+    frame->catch_stack = catch_stack;
     func->bucket = frame->bucket;
     
     gc_add_root_object((lky_object *)func);
@@ -205,8 +209,14 @@ lky_object *mach_execute(lky_object_function *func)
 
     void *stack[code->stack_size];
     memset(stack, 0, sizeof(void *) * code->stack_size);
+    
+    int catch_stack[code->catch_size];
+    memset(catch_stack, 0, sizeof(int) * code->catch_size);
 
     frame->data_stack = stack;
+    frame->catch_stack = catch_stack;
+
+    frame->catch_pointer = 0;
 
     func->bucket = frame->bucket;
 
@@ -265,10 +275,17 @@ void mach_eval(stackframe *frame)
 _opcode_whiplash_:
     if(frame->pc >= frame->tape_len || frame->ret)
         return;
-    if(!good)
+    if(thrown_exception)
     {
-        frame->ret = &lky_nil;
-        return;
+        if(!frame->catch_pointer)
+        {
+            frame->ret = &lky_nil;
+            return;
+        }
+
+        PUSH(thrown_exception);
+        frame->pc = frame->catch_stack[--frame->catch_pointer];
+        thrown_exception = NULL;
     }
 
     gc_gc();
@@ -756,7 +773,7 @@ _opcode_whiplash_:
                 PUSH(obj);
             else
             {
-                printf("%s\n", name);
+                // printf("%s\n", name);
                 mach_halt_with_err(lobjb_build_error("UndeclaredIdentifier", "A bad name was used..."));
             }
             goto _opcode_whiplash_;
@@ -971,142 +988,25 @@ _opcode_whiplash_:
             goto _opcode_whiplash_;
         }
         break;
+        case LI_PUSH_CATCH:
+        {
+            unsigned int idx = *(unsigned int *)(frame->ops + (++frame->pc));
+            frame->pc += 3;
+
+            frame->catch_stack[frame->catch_pointer++] = idx;
+
+            goto _opcode_whiplash_;
+        }
+        break;
+        case LI_POP_CATCH:
+        {
+            frame->catch_stack[frame->catch_pointer--] = 0;
+            goto _opcode_whiplash_;
+        }
+        break;
         default:
             goto _opcode_whiplash_;
         break;
-    }
-
-    // printf("=> %d\t", frame.data_stack.count);
-    // if(frame.pc > 0)
-    //     print_op(frame.ops[frame.pc - 1]);
-    // printf("\t");
-    // print_op(frame.ops[frame.pc]);
-
-    // printf("----> %d\n", frame.pc);
-}
-
-void print_op(lky_instruction op)
-{
-    char *name = NULL;
-    switch(op)
-    {
-    case LI_BINARY_ADD:
-        name = "BINARY_ADD";
-        break;
-    case LI_BINARY_SUBTRACT:
-        name = "BINARY_SUBTRACT";
-        break;
-    case LI_BINARY_MULTIPLY:
-        name = "BINARY_MULTIPLY";
-        break;
-    case LI_BINARY_DIVIDE:
-        name = "BINARY_DIVIDE";
-        break;
-    case LI_BINARY_MODULO:
-        name = "BINARY_MODULO";
-        break;
-    case LI_BINARY_LT:
-        name = "BINARY_LT";
-        break;
-    case LI_BINARY_GT:
-        name = "BINARY_GT";
-        break;
-    case LI_BINARY_EQUAL:
-        name = "BINARY_EQUAL";
-        break;
-    case LI_BINARY_LTE:
-        name = "BINARY_LTE";
-        break;
-    case LI_BINARY_GTE:
-        name = "BINARY_GTE";
-        break;
-    case LI_BINARY_NE:
-        name = "BINARY_NE";
-        break;
-    case LI_BINARY_AND:
-        name = "BINARY_AND";
-        break;
-    case LI_BINARY_OR:
-        name = "BINARY_OR";
-        break;
-    case LI_LOAD_CONST:
-        name = "LOAD_CONST";
-        break;
-    case LI_PRINT:
-        name = "PRINT";
-        break;
-    case LI_POP:
-        name = "POP";
-        break;
-    case LI_JUMP_FALSE:
-        name = "JUMP_FALSE";
-        break;
-    case LI_JUMP_TRUE:
-        name = "JUMP_TRUE";
-        break;
-    case LI_JUMP:
-        name = "JUMP";
-        break;
-    case LI_IGNORE:
-        name = "IGNORE";
-        break;
-    case LI_SAVE_LOCAL:
-        name = "SAVE_LOCAL";
-        break;
-    case LI_LOAD_LOCAL:
-        name = "LOAD_LOCAL";
-        break;
-    case LI_PUSH_NIL:
-        name = "PUSH_NIL";
-        break;
-    case LI_CALL_FUNC:
-        name = "CALL_FUNC";
-        break;
-    case LI_RETURN:
-        name = "RETURN";
-        break;
-    case LI_LOAD_MEMBER:
-        name = "LOAD_MEMBER";
-        break;
-    case LI_SAVE_MEMBER:
-        name = "SAVE_MEMBER";
-        break;
-    case LI_MAKE_FUNCTION:
-        name = "MAKE_FUNCTION";
-        break;
-    case LI_MAKE_CLASS:
-        name = "MAKE_CLASS";
-        break;
-    case LI_SAVE_CLOSE:
-        name = "SAVE_CLOSE";
-        break;
-    case LI_LOAD_CLOSE:
-        name = "LOAD_CLOSE";
-        break;
-    case LI_MAKE_ARRAY:
-        name = "MAKE_ARRAY";
-        break;
-    case LI_LOAD_INDEX:
-        name = "LOAD_INDEX";
-        break;
-    case LI_SAVE_INDEX:
-        name = "SAVE_INDEX";
-        break;
-    default:
-        printf("   --> %d\n", op);
-        return;
-    }
-
-    printf("%s\n", name);
-}
-
-void print_ops(char *ops, int tape_len)
-{
-    int i;
-    for(i = 0; i < tape_len; i++)
-    {
-        printf("%d :: ", i);
-        print_op(ops[i]);
     }
 }
 

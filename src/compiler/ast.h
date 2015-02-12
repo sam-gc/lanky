@@ -49,7 +49,8 @@ typedef enum {
     AONEOFF,
     ALOAD,
     AOBJDECL,
-    ATRIPLESET
+    ATRIPLESET,
+    ATRYCATCH
 } ast_type;
 
 // The different value types...
@@ -197,6 +198,16 @@ typedef struct ast_triple_set_node {
     char op;
 } ast_triple_set_node;
 
+typedef struct ast_try_catch_node {
+    ast_type type;
+    struct ast_node *next;
+
+    struct ast_node *tryblock;
+    struct ast_node *catchblock;
+
+    struct ast_node *exception_name;
+} ast_try_catch_node;
+
 // A node for conditionals
 typedef struct {
     ast_type type;
@@ -339,6 +350,7 @@ ast_node *create_table_node(ast_node *payload);
 ast_node *create_object_decl_node(ast_node *payload, char *refname, ast_node *obj);
 ast_node *create_index_node(ast_node *target, ast_node *indexer);
 ast_node *create_triple_set_node(ast_node *index_node, ast_node *value, char type);
+ast_node *create_try_catch_node(ast_node *tryblock, ast_node *catchblock, ast_node *exception_name);
 ast_node *create_member_access_node(ast_node *object, char *ident);
 ast_node *create_one_off_node(char opt);
 void ast_add_if_node(ast_node *curr, ast_node *next);

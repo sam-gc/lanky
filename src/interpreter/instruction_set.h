@@ -75,7 +75,9 @@ typedef enum {
     LI_MAKE_ITER,
     LI_NEXT_ITER_OR_JUMP,
     LI_ITER_INDEX,
-    LI_LOAD_MODULE
+    LI_LOAD_MODULE,
+    LI_PUSH_CATCH,
+    LI_POP_CATCH
 } lky_instruction;
 
 typedef enum {

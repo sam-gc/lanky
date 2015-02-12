@@ -97,6 +97,7 @@ typedef struct {
     unsigned char *ops;
     long op_len;
     int stack_size;
+    int catch_size;
 } lky_object_code;
 
 // TODO: Is this necessary?

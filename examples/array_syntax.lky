@@ -27,3 +27,11 @@ Io.putln('\nExample complete');
 --     Io.putln(i);
 -- }   
 
+-- Demonstration of try/catch construct with arrays
+try {
+    test = [1, 2, 3, 4];
+    Io.putln(test[4]);
+} catch e {
+    e.print();
+}
+

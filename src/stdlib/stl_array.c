@@ -130,6 +130,12 @@ lky_object *stlarr_get(lky_object_seq *args, lky_object_function *func)
     lky_object_builtin *b = (lky_object_builtin *)args->value;
     long idx = OBJ_NUM_UNWRAP(b);
 
+    if(idx >= data->container.count)
+    {
+        mach_halt_with_err(lobjb_build_error("IndexOutOfBounds", "The given index is not valid for the array."));
+        return &lky_nil;
+    }
+
     return arr_get(&data->container, idx);
 }
 

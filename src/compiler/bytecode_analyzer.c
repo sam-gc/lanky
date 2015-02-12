@@ -38,6 +38,20 @@ int calculate_max_stack_depth(unsigned char *code, int len)
     return max;
 }
 
+// This function is highly erroneous, but in this case if the
+// value it returns is wrong, the wrong value will *always* be
+// greater than the necessary depth, which will allow everything
+// to run properly.
+int calculate_max_catch_depth(unsigned char *code, int len)
+{
+    int max;
+    int i;
+    for(i = 0; i < len; i++)
+        if(code[i] == LI_PUSH_CATCH)
+            max++;
+
+    return max;
+}
 
 int stack_effect_for(lky_instruction op, int *skip)
 {

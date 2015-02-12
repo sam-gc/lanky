@@ -20,5 +20,6 @@
 #define BYTECODE_ANALYZER_H
 
 int calculate_max_stack_depth(unsigned char *code, int len);
+int calculate_max_catch_depth(unsigned char *code, int len);
 
 #endif

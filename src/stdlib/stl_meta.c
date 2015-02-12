@@ -363,6 +363,10 @@ char *stlmeta_string_for_instruction(lky_instruction instr)
             return "UNARY_NOT";
         case LI_UNARY_NEGATIVE:
             return "UNARY_NEGATIVE";
+        case LI_PUSH_CATCH:
+            return "PUSH_CATCH";
+        case LI_POP_CATCH:
+            return "POP_CATCH";
         default:
             return "";
     }
@@ -423,6 +427,7 @@ void stlmeta_print_dissassembly(lky_object_code *code)
             case LI_JUMP_TRUE_ELSE_POP:
             case LI_JUMP_FALSE_ELSE_POP:
             case LI_NEXT_ITER_OR_JUMP:
+            case LI_PUSH_CATCH:
             {
                 unsigned int idx = *(unsigned int *)(code->ops + (++i));
                 printf("\t%u\t[jump location]", idx);

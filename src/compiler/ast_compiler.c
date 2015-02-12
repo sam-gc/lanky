@@ -619,6 +619,42 @@ int next_if_tag(compiler_wrapper *cw)
     return cw->ifTag++;
 }
 
+void compile_try_catch(compiler_wrapper *cw, ast_node *root)
+{
+    ast_try_catch_node *node = (ast_try_catch_node *)root;
+
+    int tagCatch = next_if_tag(cw);
+    int tagOut = next_if_tag(cw);
+
+    // Begin try
+    append_op(cw, LI_PUSH_CATCH);
+    append_op(cw, tagCatch);
+    append_op(cw, -1);
+    append_op(cw, -1);
+    append_op(cw, -1);
+
+    compile_compound(cw, node->tryblock->next);
+
+    append_op(cw, LI_POP_CATCH);
+    append_op(cw, LI_JUMP);
+    append_op(cw, tagOut);
+    append_op(cw, -1);
+    append_op(cw, -1);
+    append_op(cw, -1);
+    // End try
+
+    // Begin catch
+    append_op(cw, tagCatch);
+    append_var_info(cw, ((ast_value_node *)(node->exception_name))->value.s, 0);
+    append_op(cw, LI_POP);
+
+    compile_compound(cw, node->catchblock->next);
+
+    append_op(cw, tagOut);
+    cw->save_val = 1;
+    // End catch
+}
+
 void compile_iter_loop(compiler_wrapper *cw, ast_node *root)
 {
     ast_loop_node *node = (ast_loop_node *)root;
@@ -1504,6 +1540,9 @@ void compile(compiler_wrapper *cw, ast_node *root)
         case ATRIPLESET:
             compile_triple_set(cw, root);
         break;
+        case ATRYCATCH:
+            compile_try_catch(cw, root);
+        break;
         case AONEOFF:
             compile_one_off(cw, root);
         break;
@@ -1695,6 +1734,7 @@ lky_object_code *compile_ast_ext(ast_node *root, compiler_wrapper *incw)
     code->names = make_names_array(&cw);
     //code->cls = NULL;
     code->stack_size = calculate_max_stack_depth(code->ops, (int)code->op_len);
+    code->catch_size = calculate_max_catch_depth(code->ops, (int)code->op_len);
 
     int i;
     for(i = 0; i < cw.local_idx; i++)

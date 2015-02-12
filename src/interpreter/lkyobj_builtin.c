@@ -82,6 +82,15 @@ lky_object *lobjb_build_float(double value)
     return lobjb_alloc(LBI_FLOAT, v);
 }
 
+lky_object *lobjb_error_print(lky_object_seq *args, lky_object_function *func)
+{
+    lky_object_error *err = (lky_object_error *)func->owner;
+
+    printf("%s: %s\n", err->name, err->text);
+
+    return &lky_nil;
+}
+
 lky_object *lobjb_build_error(char *name, char *text)
 {
     lky_object_error *err = aqua_request_next_block(sizeof(lky_object_error));
@@ -93,6 +102,10 @@ lky_object *lobjb_build_error(char *name, char *text)
     err->name = name;
     err->text = text;
     err->cls = NULL;
+
+    lobj_set_member((lky_object *)err, "name", stlstr_cinit(name));
+    lobj_set_member((lky_object *)err, "text", stlstr_cinit(text));
+    lobj_set_member((lky_object *)err, "print", lobjb_build_func_ex((lky_object *)err, 0, (lky_function_ptr)lobjb_error_print));
 
     gc_add_object((lky_object *)err);
 

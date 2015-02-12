@@ -44,13 +44,14 @@
 %token <token> TPLUS TMINUS TMUL TDIV TMOD TPOW TCON TIN TRARROW
 %token <token> TPLUSE TMINUSE TMULE TDIVE TMODE TPOWE TORE TANDE TCONE TBANDE TBORE TBXORE TBLSHIFTE TBRSHIFTE
 %token <token> TIF TELIF TELSE TPRT TCOMMENT TLOOP TCOLON TFUNC TSEMI TRET TQUESTION TARROW TCLASS TNIL TCONTINUE TBREAK TLOAD TNILOR
+%token <token> TTRY TCATCH
 
 /* Define the type of node our nonterminal symbols represent.
    The types refer to the %union declaration above. Ex: when
    we call an ident (defined by union type ident) we are really
    calling an (NIdentifier*). It makes the compiler happy.
  */
-%type <node> program stmts stmt expression ifblock block elifblock elifblocks elseblock loopblock funcdecl arg arglist call calllist memaccess classdecl arrdecl arraccess opapply tabset tabsetlist tabdecl binor binand objset objsetlist objdecl
+%type <node> program stmts stmt expression ifblock block elifblock elifblocks elseblock loopblock funcdecl arg arglist call calllist memaccess classdecl arrdecl arraccess opapply tabset tabsetlist tabdecl binor binand objset objsetlist objdecl trycatchblock
 
 /* Operator precedence for mathematical operators */
 %nonassoc TPRT TRET TNIL
@@ -70,7 +71,7 @@
 %left NEG
 %right TPOW
 %nonassoc TNOT
-%nonassoc TIF TELIF TELSE TLOOP TFUNC TCLASS
+%nonassoc TIF TELIF TELSE TLOOP TFUNC TCLASS TTRY TCATCH
 %nonassoc TLPAREN TLBRACKET TRBRACKET
 %left TDOT
 %nonassoc TNEGATIVE
@@ -107,6 +108,8 @@ loopblock : TLOOP  expression  block { $$ = create_loop_node(NULL, $2, NULL, $3)
     ;
 arg : TIDENTIFIER { $$ = create_value_node(VVAR, (void *)$1); }
     ;
+trycatchblock: TTRY block TCATCH TIDENTIFIER block { $$ = create_try_catch_node($2, $5, create_value_node(VVAR, (void *)$4)); }
+    ;
 arglist : arg
     | arglist TCOMMA arg { ast_add_node($$, $3); }
     ;
@@ -128,6 +131,7 @@ stmt : expression TSEMI
     | TRET TSEMI { $$ = create_unary_node(NULL, 'r'); }
     | loopblock
     | ifblock
+    | trycatchblock
     ;
 memaccess : expression TDOT TIDENTIFIER { $$ = create_member_access_node($1, $3); }
     ;

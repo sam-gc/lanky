@@ -67,6 +67,8 @@ comment (\#|(\-\-)).*(\n)
 "nil"                   return TOKEN(TNIL);
 "load"                  return TOKEN(TLOAD);
 "in"                    return TOKEN(TIN);
+"try"                   return TOKEN(TTRY);
+"catch"                 return TOKEN(TCATCH);
 {nvar}      {SAVE_TOKEN; return TIDENTIFIER;}
 {real}      {SAVE_TOKEN; return TFLOAT;}
 {integer}   {SAVE_TOKEN; return TINTEGER;}
