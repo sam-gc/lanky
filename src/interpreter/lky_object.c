@@ -31,7 +31,6 @@ lky_object lky_nil = {LBI_NIL, 0, sizeof(lky_object), {0, 0, 0, NULL}, NULL, NUL
 int alloced = 0;
 lky_object *lobj_alloc()
 {
-    //lky_object *obj = malloc(sizeof(lky_object));
     lky_object *obj = aqua_request_next_block(sizeof(lky_object));
     obj->type = LBI_CUSTOM;
     obj->mem_count = 0;
@@ -44,8 +43,6 @@ lky_object *lobj_alloc()
     obj->child = NULL;
 
     stlobj_seed(obj);
-    // obj->value = value;
-    // alloced++;
     return obj;
 }
 
@@ -106,8 +103,6 @@ char *lobj_stringify(lky_object *obj)
 
 void lobj_dealloc(lky_object *obj)
 {
-    // printf("(D) ");
-    // lobjb_print(obj);
     if(obj->type != LBI_CUSTOM && obj->type != LBI_CUSTOM_EX)
         lobjb_clean(obj);
     else if(obj->type == LBI_CUSTOM_EX)
@@ -122,7 +117,6 @@ void lobj_dealloc(lky_object *obj)
         hst_free(&obj->members);
 
     aqua_release(obj);
-    // alloced--;
 }
 
 void print_alloced()

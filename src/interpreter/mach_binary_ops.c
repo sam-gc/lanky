@@ -114,41 +114,6 @@ lky_object *lobjb_binary_multiply(lky_object *a, lky_object *b)
     if(a == &lky_nil || b == &lky_nil)
         return &lky_nil;
 
-//    if(ab->type == LBI_STRING || bb->type == LBI_STRING)
-//    {
-//        if(ab->type == LBI_STRING && bb->type == LBI_STRING)
-//            return &lky_nil;
-//
-//        lky_object_builtin *strobj = ab->type == LBI_STRING ? ab : bb;
-//        lky_object_builtin *oobj = strobj == ab ? bb : ab;
-//
-//        if(oobj->type != LBI_INTEGER)
-//            return &lky_nil;
-//
-//        char *str = strobj->value.s;
-//        long ct = oobj->value.i;
-//
-//        int len = strlen(str);
-//        int targ = len * ct;
-//
-//        char *nstr = malloc(len * ct + 1);
-//        nstr[targ] = 0;
-//        strcpy(nstr, str);
-//
-//        long done = len;
-//        while(done < targ)
-//        {
-//            long n = (done <= targ - done ? done : targ - done);
-//            memcpy(nstr + done, nstr, n);
-//            done += n;
-//        }
-//
-//        v.s = nstr;
-//        t = LBI_STRING;
-//
-//        return lobjb_alloc(t, v);
-//    }
-
     t = OBJ_NUM_PROMO(ab, bb);
     switch(t)
     {
@@ -256,9 +221,6 @@ lky_object *lobjb_binary_lessthan(lky_object *a, lky_object *b)
     lky_builtin_type t = LBI_INTEGER;
 
     v.i = (OBJ_NUM_UNWRAP(ab) < OBJ_NUM_UNWRAP(bb));
-
-    // printf("==> %d\n", v.i);
-
     return lobjb_alloc(t, v);
 }
 

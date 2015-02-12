@@ -152,27 +152,6 @@ int get_next_local(compiler_wrapper *cw)
     return cw->local_idx++;
 }
 
-        //// Alright, we have to make this a closure.
-        //int loc = w->idx;
-        //compiler_wrapper *owner = w->owner;
-
-        //if(OBJ_NUM_UNWRAP(owner->rops.items[loc]) == LI_SAVE_CLOSE)
-        //    break;
-
-        //owner->rops.items[loc] = lobjb_build_int(LI_SAVE_CLOSE);
-        ////printf("HEREE\n");
-        //
-        //char *sid = ch;
-        //char *nsid = malloc(strlen(sid) + 1);
-        //strcpy(nsid, sid);
-
-        //int idx = find_prev_name(owner, nsid);
-        //if(idx < 0)
-        //{
-        //    idx = (int)owner->rnames.count;
-        //    arr_append(&owner->rnames, nsid);
-        //}
-
 char switch_to_close(compiler_wrapper *cw, char *sid, int idx)
 {
     lky_object *o = arr_get(&cw->rops, idx);
@@ -279,163 +258,7 @@ void append_var_info(compiler_wrapper *cw, char *ch, char load)
     arr_append(&cw->used_names, wrap);
 }
 
-// Holy actual crap..... This function is ridicilus... I'm not even going
-// to try to explain it this evening. But it seems to work!!!
-/*lky_instruction append_var_info(compiler_wrapper *cw, char *ch, char load)
-{
-    lky_instruction ret = 0;
-
-    int i = 0;
-    for(i = 0; i < cw->used_names.count; i++)
-    {
-        //printf("..........\n");
-        name_wrapper *w = arr_get(&cw->used_names, i);
-        //printf("%p\n", w);
-        char *o = w->name;
-        if(strcmp(o, ch))
-            continue;
-        
-        if(w->owner == cw)
-        {
-            ret = load ? LI_LOAD_LOCAL : LI_SAVE_LOCAL;
-            break;
-        }
-
-        ret = load ? LI_LOAD_CLOSE : LI_SAVE_CLOSE;
-
-        // Alright, we have to make this a closure.
-        int loc = w->idx;
-        compiler_wrapper *owner = w->owner;
-
-        if(OBJ_NUM_UNWRAP(owner->rops.items[loc]) == LI_SAVE_CLOSE)
-            break;
-
-        owner->rops.items[loc] = lobjb_build_int(LI_SAVE_CLOSE);
-        //printf("HEREE\n");
-        
-        char *sid = ch;
-        char *nsid = malloc(strlen(sid) + 1);
-        strcpy(nsid, sid);
-
-        int idx = find_prev_name(owner, nsid);
-        if(idx < 0)
-        {
-            idx = (int)owner->rnames.count;
-            arr_append(&owner->rnames, nsid);
-        }
-
-        owner->rops.items[loc + 1] = lobjb_build_int(idx);
-
-    }
-
-    if(!ret && load)
-        ret = LI_LOAD_CLOSE;
-    else if(!load && !ret && cw->repl)
-        ret = LI_SAVE_CLOSE;
-    
-    if(!ret)
-    {
-        // If we didn't find anything, we must need to set... We will make it local.
-        append_op(cw, LI_SAVE_LOCAL);
-        char *sid = ch;
-        hm_error_t err;
-        int idx = get_next_local(cw);
-        lky_object *obj = lobjb_build_int(idx);
-        pool_add(&ast_memory_pool, obj);
-        hm_put(&cw->saved_locals, sid, obj);
-        
-        append_op(cw, idx);
-
-        name_wrapper *wrap = malloc(sizeof(name_wrapper));
-        pool_add(&ast_memory_pool, wrap);
-        wrap->idx = cw->rops.count - 2;
-        wrap->name = ch;
-        wrap->owner = cw;
-
-        arr_append(&cw->used_names, wrap);
-        //printf("HERE\n");
-    }
-
-    if(ret == LI_SAVE_LOCAL)
-    {
-        int idx;
-        hm_error_t err;
-        lky_object_builtin *o = hm_get(&cw->saved_locals, ch, &err);
-        idx = o->value.i;
-        append_op(cw, LI_SAVE_LOCAL);
-        append_op(cw, idx);
-
-    }
-
-    if(ret == LI_LOAD_LOCAL)
-    {
-        int idx;
-        hm_error_t err;
-        lky_object_builtin *o = hm_get(&cw->saved_locals, ch, &err);
-        idx = o->value.i;
-        append_op(cw, LI_LOAD_LOCAL);
-        append_op(cw, idx);
-    }
-
-    if(ret == LI_LOAD_CLOSE)
-    {
-
-        int idx = find_prev_name(cw, ch);
-
-        if(idx < 0)
-        {
-            idx = (int)cw->rnames.count;
-            char *ns = malloc(strlen(ch) + 1);
-            strcpy(ns, ch);
-            arr_append(&cw->rnames, ns);
-        }
-
-        append_op(cw, LI_LOAD_CLOSE);
-        append_op(cw, idx);
-    }
-
-    if(ret == LI_SAVE_CLOSE)
-    {
-        append_op(cw, LI_SAVE_CLOSE);
-        char *sid = ch;
-        char *nsid = malloc(strlen(sid) + 1);
-        strcpy(nsid, sid);
-
-        int idx = find_prev_name(cw, nsid);
-        if(idx < 0)
-        {
-            idx = (int)cw->rnames.count;
-            arr_append(&cw->rnames, nsid);
-        }
-
-        append_op(cw, idx);
-    }
-} */
-
-//             append_op(cw, (char)LI_SAVE_LOCAL);
-//             char *sid = ((ast_value_node *)(node->left))->value.s;
-//             hm_error_t err;
-//             int idx;
-//             lky_object_builtin *o = hm_get(&cw->saved_locals, sid, &err);
-//             if(err == HM_KEY_NOT_FOUND)
-//             {
-//                 idx = get_next_local(cw);
-//                 lky_object *obj = lobjb_build_int(idx);
-//                 pool_add(&ast_memory_pool, obj);
-//                 hm_put(&cw->saved_locals, sid, obj);
-//             }
-//             else
-//                 idx = o->value.i;
-// 
-//             // printf("==> %s %d\n", sid, idx);
-// 
-//             append_op(cw, idx);
-//             // save_val = 1;
-//             return;
-
-
-// Makes a lky_object from the value wrapper described
-// in 'ast.h'
+// Gets the object value of a wrapped value
 lky_object *wrapper_to_obj(ast_value_wrapper wrap)
 {
     lky_builtin_type t;
@@ -592,21 +415,6 @@ void compile_binary(compiler_wrapper *cw, ast_node *root)
             // Deal with the weirdness of the '=' case.
         append_var_info(cw, ((ast_value_node *)(node->left))->value.s, 0);
         return;
-
-//            append_op(cw, LI_SAVE_CLOSE);
-//            char *sid = ((ast_value_node *)(node->left))->value.s;
-//            char *nsid = malloc(strlen(sid) + 1);
-//            strcpy(nsid, sid);
-//
-//            int idx = find_prev_name(cw, nsid);
-//            if(idx < 0)
-//            {
-//                idx = (int)cw->rnames.count;
-//                arr_append(&cw->rnames, nsid);
-//            }
-//
-//            append_op(cw, idx);
-//            return;
     }
 
     append_op(cw, instr_for_char(node->opt));
@@ -658,8 +466,6 @@ void compile_try_catch(compiler_wrapper *cw, ast_node *root)
 void compile_iter_loop(compiler_wrapper *cw, ast_node *root)
 {
     ast_loop_node *node = (ast_loop_node *)root;
-
-    // append_var_info(cw, ((ast_value_node *)(node->left))->value.s, 0);
 
     compile(cw, node->onloop);
     append_op(cw, LI_MAKE_ITER);
@@ -880,7 +686,6 @@ void compile_if(compiler_wrapper *cw, ast_node *root)
     }
 
     append_op(cw, tagOut);
-    // printf("-%d\n", tagOut);
 
     cw->save_val = 1;
 }
@@ -897,7 +702,6 @@ void compile_single_if(compiler_wrapper *cw, ast_if_node *node, int tagOut, int 
         append_op(cw, -1);
         append_op(cw, -1);
         append_op(cw, -1);
-        // printf("%d\n", tagNext);
     }
 
     compile_compound(cw, node->payload->next);
@@ -1334,12 +1138,6 @@ void compile_var(compiler_wrapper *cw, ast_value_node *node)
 
     append_op(cw, LI_LOAD_CLOSE);
     append_op(cw, idx);
-//    lky_object_builtin *obj = hm_get(&cw->saved_locals, node->value.s, NULL);
-//
-//    int idx = obj->value.i;
-//
-//    append_op(cw, LI_LOAD_LOCAL);
-//    append_op(cw, (char)idx);
 }
 
 // Used to compile constants and variables
@@ -1390,7 +1188,6 @@ void compile_function(compiler_wrapper *cw, ast_node *root)
     nw.local_idx = 0;
     nw.saved_locals = hm_create(100, 1);
     nw.rnames = arr_create(10);
-    //printf("-> %d\n", cw->used_names.count);
     nw.used_names = copy_arraylist(cw->used_names);
     nw.repl = 0;
     
@@ -1406,10 +1203,6 @@ void compile_function(compiler_wrapper *cw, ast_node *root)
 
         arr_append(&nw.rnames, nid);
 
-       //  long idx = get_next_local(&nw);
-       //  lky_object *obj = lobjb_build_int(idx);
-       //  pool_add(&ast_memory_pool, obj);
-       //  hm_put(&nw.saved_locals, v->value.s, obj);
        argc++;
     }
     
@@ -1455,7 +1248,6 @@ void compile_class_decl(compiler_wrapper *cw, ast_node *root)
     append_op(cw, cidx);
     append_op(cw, LI_MAKE_FUNCTION);
     append_op(cw, nw.classargc);
-    //printf("%d --- \n", nw.classargc);
     append_op(cw, LI_MAKE_CLASS);
     append_op(cw, idx);
 }
@@ -1477,8 +1269,6 @@ void compile_function_call(compiler_wrapper *cw, ast_node *root)
     compile(cw, node->ident);
     append_op(cw, LI_CALL_FUNC);
     append_op(cw, ct);
-
-    // cw->save_val = 1;
 }
 
 // Main compiler dispatch system
@@ -1590,7 +1380,6 @@ void replace_tags(compiler_wrapper *cw)
     long i;
     for(i = cw->rops.count - 1; i >= 0; i--)
     {
-        //long op = ((lky_object_builtin *)arr_get(&cw->rops, i))->value.i;
         long op = OBJ_NUM_UNWRAP(arr_get(&cw->rops, i));
 
         if(op < 0) // This should *never* happen (except it does...).
@@ -1727,12 +1516,10 @@ lky_object_code *compile_ast_ext(ast_node *root, compiler_wrapper *incw)
     code->mem_count = 0;
     code->type = LBI_CODE;
     code->num_names = cw.rnames.count;
-    //code->members = trie_new();
     code->ops = finalize_ops(&cw);
     code->op_len = cw.rops.count;
     code->locals = malloc(sizeof(void *) * cw.local_idx);
     code->names = make_names_array(&cw);
-    //code->cls = NULL;
     code->stack_size = calculate_max_stack_depth(code->ops, (int)code->op_len);
     code->catch_size = calculate_max_catch_depth(code->ops, (int)code->op_len);
 

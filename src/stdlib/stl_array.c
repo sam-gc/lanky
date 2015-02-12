@@ -168,11 +168,6 @@ lky_object *stlarr_contains(lky_object_seq *args, lky_object_function *func)
                 break;
         }
 
-//        if(result->type == &lky_nil)
-//            continue;
-
-//        toret = 1;
-//        break;
     }
 
     return lobjb_build_int(toret);
@@ -181,8 +176,6 @@ lky_object *stlarr_contains(lky_object_seq *args, lky_object_function *func)
 lky_object *stlarr_for_each(lky_object_seq *args, lky_object_function *func)
 {
     lky_object_custom *self = (lky_object_custom *)func->owner;
-
-//    gc_add_root_object(self);
 
     stlarr_data *data = self->data;
     arraylist list = data->container;
@@ -202,11 +195,8 @@ lky_object *stlarr_for_each(lky_object_seq *args, lky_object_function *func)
         if(useidx)
             seq->next = lobjb_make_seq_node(lobjb_build_int(i));
 
-        //callback->callable.function(seq, (struct lky_object *)callback);
         lobjb_call((lky_object *)callback, seq);
     }
-
-//    gc_remove_root_object(self);
 
     return &lky_nil;
 }
@@ -484,28 +474,6 @@ lky_object *stlarr_stringify(lky_object_seq *args, lky_object_function *func)
     int i;
     for(i = 0; i < list.count; i++)
     {
-        /*
-        lky_object_custom *strobj = NULL;
-        lky_object *obj = arr_get(&list, i);
-        lky_object_function *f = (lky_object_function *)lobj_get_member(obj, "stringify_");
-        
-        if(!f)
-        {
-            char str[100];
-            
-            if(obj->type == LBI_FLOAT || obj->type == LBI_INTEGER)
-                strobj = (lky_object_custom *)lobjb_num_to_string(obj);
-            else
-            {
-                sprintf(str, "%p", obj);
-                strobj = (lky_object_custom *)stlstr_cinit(str);
-            }
-        }
-        else
-        {
-            strobj = (lky_object_custom *)(f->callable.function)(NULL, (struct lky_object *)f);
-        }*/
-        
         lky_object *obj = arr_get(&list, i);
         char *str = lobjb_stringify(obj);
         

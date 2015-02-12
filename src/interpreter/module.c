@@ -234,9 +234,6 @@ lky_object *md_load_text_code(char *fullname, mach_interp *ip)
     lky_object_function *func = (lky_object_function *)lobjb_build_func(code, 0, list, ip);
 
     func->bucket = lobj_alloc();
-    //func->bucket->members = get_stdlib_objects();
-//    hst_add_all_from(&func->bucket->members, &ip->stdlib, NULL, NULL);
-//    hst_put(&func->bucket->members, "Meta", stlmeta_get_class(ip), NULL, NULL);
 
     char pathtemp[strlen(fullname) + 1];
     strcpy(pathtemp, fullname);

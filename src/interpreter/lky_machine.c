@@ -61,7 +61,7 @@
 void mach_eval(stackframe *frame);
 
 int pushes = 0;
-lky_object *thrown_exception = NULL;
+lky_object_error *thrown_exception = NULL;
 
 void push_node(stackframe *frame, void *data)
 {
@@ -99,7 +99,6 @@ void *pop_node(stackframe *frame)
 void mach_halt_with_err(lky_object *err)
 {
     lky_object_error *error = (lky_object_error *)err;
-    //printf("Fatal error: %s\nMessage: %s\n\nHalting.\n", error->name, error->text);
     thrown_exception = err;
 }
 
@@ -187,7 +186,6 @@ lky_object *mach_execute(lky_object_function *func)
     frame->pc = -1;
     frame->ops = code->ops;
     frame->tape_len = code->op_len;
-    // frame.data_stack = malloc(sizeof(void *) * code->stack_size);
     frame->stack_pointer = -1;
     frame->stack_size = code->stack_size;
     frame->names = code->names;
@@ -236,11 +234,6 @@ lky_object *mach_execute(lky_object_function *func)
     lky_object *ret = frame->ret;
     free(frame);
     return ret;
-    // print_ops();
-
-    // arr_free(&main_stack);
-    // arr_free(&constants);
-    // free(ops);
 }
 
 void print_stack(stackframe *frame)
@@ -253,25 +246,10 @@ void print_stack(stackframe *frame)
     }
 }
 
-// void mach_do_op(stackframe *frame, lky_instruction op);
-// 
-// {
-//     while(frame->pc < frame->tape_len && !frame->ret)
-//     {
-//         mach_do_op(frame, frame->ops[++frame->pc]);
-//     }
-// 
-//     // printf("%d\n", pushes);
-// }
-void print_op(lky_instruction i);
-
 void mach_eval(stackframe *frame)
 {
     lky_instruction op;
-    // print_stack();
-
-    // printf("==> %d\n", op);
-    // print_op(op);
+    
 _opcode_whiplash_:
     if(frame->pc >= frame->tape_len || frame->ret)
         return;
@@ -279,6 +257,7 @@ _opcode_whiplash_:
     {
         if(!frame->catch_pointer)
         {
+            printf("Fatal error: %s\nMessage: %s\n\nHalting.\n", thrown_exception->name, thrown_exception->text);
             frame->ret = &lky_nil;
             return;
         }
@@ -290,10 +269,7 @@ _opcode_whiplash_:
 
     gc_gc();
 
-    op = frame->ops[++frame->pc];
-    // (77)printf(" . %d\n", frame->pc);
-
-    switch(op)
+    switch((op = frame->ops[++frame->pc]))
     {
         case LI_LOAD_CONST:
         {
@@ -518,7 +494,6 @@ _opcode_whiplash_:
         {
             unsigned int idx = *(unsigned int *)(frame->ops + (++frame->pc));
             frame->pc += 3;
-            //long idx = mach_calc_jump_idx(frame, len);
 
             if(!idx)
                 frame->pc = -1;
@@ -533,9 +508,7 @@ _opcode_whiplash_:
             
             unsigned int idx = *(unsigned int *)(frame->ops + (++frame->pc));
             frame->pc += 3;
-            //long idx = mach_calc_jump_idx(frame, len);
 
-            // printf("=> %d\n", obj == &lky_nil || obj->type != LBI_STRING && !OBJ_NUM_UNWRAP(obj));
             char needs_jump = 0;
 
             if(obj == &lky_nil)
@@ -547,10 +520,7 @@ _opcode_whiplash_:
             {
                 frame->pc = idx;
             }
-            else
-            {
-                // PUSH(&lky_nil);
-            }
+
             goto _opcode_whiplash_;
         }
         break;
@@ -584,8 +554,6 @@ _opcode_whiplash_:
             lky_object *old = frame->locals[idx];
 
             frame->locals[idx] = obj;
-            // printf("=> %d\n", idx);
-            // lobjb_print(obj);
 
             goto _opcode_whiplash_;
         }
@@ -638,7 +606,6 @@ _opcode_whiplash_:
 
             lky_object *ret = lobjb_call(obj, seq);
 
-//            lobjb_free_seq(seq);
             if(seq)
                 gc_remove_root_object((lky_object *)first);
 
@@ -750,8 +717,6 @@ _opcode_whiplash_:
             int idx = frame->ops[++frame->pc];
             char *name = frame->names[idx];
 
-            //printf("----> %s\n", name);
-
             lky_object *bk = NULL;
             lky_object *obj = NULL;
             arraylist ps = frame->parent_stack;
@@ -772,10 +737,8 @@ _opcode_whiplash_:
             if(obj)
                 PUSH(obj);
             else
-            {
-                // printf("%s\n", name);
                 mach_halt_with_err(lobjb_build_error("UndeclaredIdentifier", "A bad name was used..."));
-            }
+
             goto _opcode_whiplash_;
         }
         break;

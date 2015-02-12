@@ -61,11 +61,9 @@ ast_node *create_value_node(ast_value_type type, void *data)
     {
     case VINT:
         u.i = atol((char *)data);
-        // FREE(data);
         break;
     case VDOUBLE:
         u.d = atof((char *)data);
-        // FREE(data);
         break;
     case VSTRING:
     {
@@ -75,14 +73,12 @@ ast_node *create_value_node(ast_value_type type, void *data)
         memset(str, 0, strlen(raw) - 1);
         memcpy(str, raw + 1, strlen(raw) - 2);
         u.s = (char *)str;
-        // FREE(raw);
         break;
     }
     case VVAR:
         u.s = data;
         break;
     default:
-//        DEBUG("Shouldn't have reached here...");
         break;
     }
 
@@ -489,27 +485,4 @@ void ast_free_if_node(ast_node *node)
 void ast_free(ast_node *node)
 {
     pool_drain(&ast_memory_pool);
-    // switch(node->type)
-    // {
-    // case ABINARY_EXPRESSION:
-    //     ast_free_binary_node(node);
-    //     break;
-    // case AVALUE:
-    //     ast_free_value_node(node);
-    //     break;
-    // case AIF:
-    //     ast_free_if_node(node);
-    //     break;
-    // case AUNARY_EXPRESSION:
-    //     ast_free_unary_node(node);
-    //     break;
-    // default:
-    //     break;
-    // }
-
-    // ast_node *next = node->next;
-    // FREE(node);
-
-    // if(next)
-    //     ast_free(next);
 }

@@ -126,16 +126,9 @@ void exec_in_repl()
     hst_put(&interp.stdlib, "Meta", stlmeta_get_class(&interp), NULL, NULL);
     
     gc_init();
-//    lky_object_function *func = (lky_object_function *)lobjb_build_func(NULL, 0, list, &interp);
-//    gc_add_root_object(func);
-//    
-//    func->bucket = lobj_alloc();
-//    func->bucket->members = get_stdlib_objects();
     
     stackframe frame;
     frame.bucket = lobj_alloc();
-//    hst_add_all_from(&frame.bucket->members, &interp.stdlib, NULL, NULL);
-    //frame.bucket->members = get_stdlib_objects();
     frame.parent_stack = list;
     frame.stack_size = 0;
     frame.locals_count = 0;
@@ -144,11 +137,9 @@ void exec_in_repl()
     
     gc_add_func_stack(&frame);
     
-//    gc_add_root_object(frame.bucket);
     char path[1000];
     getcwd(path, 1000);
 
-//    hst_put(&frame.bucket->members, "Meta", stlmeta_get_class(&interp), NULL, NULL);
     lobj_set_member(frame.bucket, "dirname_", stlstr_cinit(path));
     
     run_repl(&interp);
@@ -195,8 +186,6 @@ void exec_from_code(lky_object_code *code, char *file, int exec)
     gc_init();
 
     func->bucket = lobj_alloc();
-//    hst_add_all_from(&func->bucket->members, &interp.stdlib, NULL, NULL);
-//    hst_put(&func->bucket->members, "Meta", stlmeta_get_class(&interp), NULL, NULL);
     lobj_set_member(func->bucket, "dirname_", stlstr_cinit(path));
 
     if(exec)

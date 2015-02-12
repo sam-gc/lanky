@@ -174,39 +174,6 @@ lky_object *stlstr_multiply(lky_object_seq *args, lky_object_function *func)
     return ret;
 }
 
-//    if(ab->type == LBI_STRING || bb->type == LBI_STRING)
-//    {
-//        if(ab->type == LBI_STRING && bb->type == LBI_STRING)
-//            return &lky_nil;
-//
-//        lky_object_builtin *strobj = ab->type == LBI_STRING ? ab : bb;
-//        lky_object_builtin *oobj = strobj == ab ? bb : ab;
-//
-//        if(oobj->type != LBI_INTEGER)
-//            return &lky_nil;
-//
-//        char *str = strobj->value.s;
-//        long ct = oobj->value.i;
-//
-//        int len = strlen(str);
-//        int targ = len * ct;
-//
-//        char *nstr = malloc(len * ct + 1);
-//        nstr[targ] = 0;
-//        strcpy(nstr, str);
-//
-//        long done = len;
-//        while(done < targ)
-//        {
-//            long n = (done <= targ - done ? done : targ - done);
-//            memcpy(nstr + done, nstr, n);
-//            done += n;
-//        }
-//
-//        v.s = nstr;
-//        t = LBI_STRING;
-//
-
 lky_object *stlstr_set_index(lky_object_seq *args, lky_object_function *func)
 {
     lky_object_custom *self = (lky_object_custom *)func->owner;
@@ -262,12 +229,6 @@ lky_object *stlstr_split(lky_object_seq *args, lky_object_function *func)
         return stlarr_cinit(list);
     }
     
-//    // We want to capture the first instance.
-//    char *next = strstr(loc, delim);
-//    size_t nlen = (next ? next : strlen(loc) + loc) - loc + 1;
-//    char *str = malloc(nlen);
-//    memcpy(str, )
-    
     while(loc)
     {
         char *next = strstr(loc, delim);
@@ -275,8 +236,6 @@ lky_object *stlstr_split(lky_object_seq *args, lky_object_function *func)
         char *str = malloc(nlen);
         memcpy(str, loc, nlen - 1);
         str[nlen - 1] = '\0';
-        
-//        loc = next;
         
         arr_append(&list, stlstr_cinit(str));
         free(str);
@@ -511,8 +470,3 @@ lky_object *stlstr_class()
         _stlstr_class = lobjb_build_int((long)&stlstr_cinit);
     return _stlstr_class;
 }
-
-//lky_object *stlstr_get_class()
-//{
-//    
-//}

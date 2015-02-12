@@ -57,9 +57,7 @@ lky_object *lobjb_alloc(lky_builtin_type t, lky_builtin_value v)
     obj->type = t;
     obj->size = sizeof(lky_object_builtin);
     obj->mem_count = 0;
-    //obj->members = trie_new();
     obj->value = v;
-    //obj->cls = NULL;
     gc_add_object((lky_object *)obj);
 
     return (lky_object *)obj;
@@ -178,7 +176,6 @@ lky_object *lobjb_build_func(lky_object_code *code, int argc, arraylist inherite
     func->code = code;
     func->bucket = NULL;
     func->owner = NULL;
-    //func->cls = NULL;
 
     func->interp = interp;
 
@@ -210,7 +207,6 @@ lky_object *lobjb_build_func_ex(lky_object *owner, int argc, lky_function_ptr pt
     
     func->code = NULL;
     func->bucket = NULL;
-    //func->cls = NULL;
 
     func->parent_stack = arr_create(1);
 
@@ -234,14 +230,11 @@ lky_object *lobjb_build_class(lky_object_function *builder, char *refname, lky_o
     cls->type = LBI_CLASS;
     cls->mem_count = 0;
     cls->size = sizeof(lky_object_class);
-    //cls->members = trie_new();
-    //cls->cls = NULL;
     cls->members = hst_create();
     cls->members.duplicate_keys = 1;
 
     cls->builder = builder;
     cls->refname = refname;
-    //cls->parent_cls = parent_class ? parent_class : stlobj_get_class();
     gc_add_object((lky_object *)cls);
 
     lky_callable c;
@@ -398,13 +391,11 @@ lky_object *lobjb_default_callable(lky_object_seq *args, lky_object *self)
 
     func->bucket = lobj_alloc();
 
-//    gc_add_root_object(func);
     long i;
     for(i = 0; args && i < func->callable.argc; i++, args = args->next)
     {
         char *name = code->names[i];
         lobj_set_member(func->bucket, name, (lky_object *)args->value);
-        // code->locals[i] = args->value;
     }
 
     for(; i < func->callable.argc; i++)
@@ -430,7 +421,6 @@ lky_object *lobjb_default_callable(lky_object_seq *args, lky_object *self)
     }
 
     lky_object *ret = mach_execute(func);
-//    gc_remove_root_object(func);
     return ret;
 }
 
@@ -444,12 +434,6 @@ lky_object *lobjb_default_class_callable(lky_object_seq *args, lky_object *self)
     lky_object *outobj = lobj_alloc();
     outobj->cls = (struct lky_object *)cls;
 
-    //lky_object *parent_cls = cls->parent_cls;
-    //lky_callable pc = parent_cls->callable;
-    //lky_object *interm = (lky_object *)(pc.function(NULL, (struct lky_object *)parent_cls));
-    //utobj->parent = (struct lky_object *)interm;
-    //interm->child = (struct lky_object *)outobj;
-
     stlobj_seed(outobj);
     lobj_set_member(func->bucket, cls->refname, outobj);
 
@@ -459,7 +443,6 @@ lky_object *lobjb_default_class_callable(lky_object_seq *args, lky_object *self)
 
     if(args)
         gc_remove_root_object((lky_object *)args);
-    //printf("...%d\n", func->bucket->mem_count);
 
     if(returned)
     {
@@ -487,11 +470,7 @@ lky_object *lobjb_unary_load_index(lky_object *obj, lky_object *indexer)
         return &lky_nil;
     }
 
-//    gc_add_root_object(func);
-
     lky_object *ret = (lky_object *)func->callable.function(lobjb_make_seq_node(indexer), (struct lky_object *)func);
-
-//    gc_remove_root_object(func);
 
     return ret;
 }
@@ -506,14 +485,10 @@ lky_object *lobjb_unary_save_index(lky_object *obj, lky_object *indexer, lky_obj
         return &lky_nil;
     }
 
-//    gc_add_root_object(func);
-
     lky_object_seq *args = lobjb_make_seq_node(indexer);
     args->next = lobjb_make_seq_node(newobj);
 
     lky_object *ret = (lky_object *)func->callable.function(args, (struct lky_object *)func);
-
-//    gc_remove_root_object(func);
 
     return ret;
 }
@@ -554,25 +529,6 @@ lky_object *lobjb_iterable_get_next(lky_object *obj)
     // NULL is used to indicate end of iteration.
     return NULL;
 }
-
-//lky_object *lobjb_default_class_callable(lky_object_seq *args, lky_object *self)
-//{
-//    lky_object_class *cls = (lky_object_class *)self;
-//
-//    arraylist list = cls->members;
-//
-//    lky_object *obj = lobj_alloc();
-//
-//    int i;
-//    for(i = 0; i < list.count; i++)
-//    {
-//        lky_class_member_wrapper *wrap = arr_get(&list, i);
-//        lobj_set_member(obj, wrap->name, wrap->member);
-//    }
-//
-//    return obj;
-//}
-//    
 
 char lobjb_quick_compare(lky_object *a, lky_object *b)
 {
@@ -638,7 +594,6 @@ void lobjb_free_seq(lky_object_seq *seq)
     {
         lky_object *obj = (lky_object *)seq->value;
         lky_object_seq *next = seq->next;
-        //lobj_dealloc((lky_object *)seq);
         seq = next;
     }
 }
