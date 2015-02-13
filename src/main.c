@@ -132,6 +132,7 @@ void exec_in_repl()
     frame.parent_stack = list;
     frame.stack_size = 0;
     frame.locals_count = 0;
+    frame.thrown = NULL;
     
     interp.stack = &frame;
     
