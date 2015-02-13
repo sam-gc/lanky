@@ -55,6 +55,8 @@
 #define POP() (pop_node(frame))
 #define TOP() (top_node(frame))
 #define SECOND_TOP() (frame->data_stack[frame->stack_pointer - 1])
+#define vmop(op, code) case LI_ ## op : { code goto _opcode_whiplash_; } break;
+#define vmvm(code) switch((op = frame->ops[++frame->pc])) { code default: goto _opcode_whiplash_; break; }
 
 #define POP_TWO() lky_object *a = POP(); lky_object *b = POP()
 
@@ -287,229 +289,152 @@ _opcode_whiplash_:
 
     gc_gc();
 
-    switch((op = frame->ops[++frame->pc]))
-    {
-        case LI_LOAD_CONST:
-        {
+    vmvm(
+        vmop(LOAD_CONST,
             char idx = frame->ops[++frame->pc];
             lky_object *obj = frame->constants[idx];
             PUSH(obj);
-            goto _opcode_whiplash_;
-        }
-        break;
-        case LI_BINARY_ADD:
-        {
+        )
+        vmop(BINARY_ADD,
             POP_TWO();
             lky_object *obj = lobjb_binary_add(b, a);
 
             PUSH(obj);
-            goto _opcode_whiplash_;
-        }
-        break;
-        case LI_BINARY_SUBTRACT:
-        {
+        )
+        vmop(BINARY_SUBTRACT,
             POP_TWO();
             lky_object *obj = lobjb_binary_subtract(b, a);
 
             PUSH(obj);
-            goto _opcode_whiplash_;
-        }
-        break;
-        case LI_BINARY_MULTIPLY:
-        {
+        )
+        vmop(BINARY_MULTIPLY,
             POP_TWO();
             lky_object *obj = lobjb_binary_multiply(b, a);
 
             PUSH(obj);
-            goto _opcode_whiplash_;
-        }
-        break;
-        case LI_BINARY_DIVIDE:
-        {
+        )
+        vmop(BINARY_DIVIDE,
             POP_TWO();
             lky_object *obj = lobjb_binary_divide(b, a);
 
             PUSH(obj);
-            goto _opcode_whiplash_;
-        }
-        break;
-        case LI_BINARY_MODULO:
-        {
+        )
+        vmop(BINARY_MODULO,
             POP_TWO();
             lky_object *obj = lobjb_binary_modulo(b, a);
 
             PUSH(obj);
-            goto _opcode_whiplash_;
-        }
-        break;
-        case LI_BINARY_POWER:
-        {
+        )
+        vmop(BINARY_POWER,
             POP_TWO();
             lky_object *obj = lobjb_binary_power(b, a);
 
             PUSH(obj);
-            goto _opcode_whiplash_;
-        }
-        break;
-        case LI_BINARY_LT:
-        {
+        )
+        vmop(BINARY_LT,
             POP_TWO();
             lky_object *obj = lobjb_binary_lessthan(b, a);
 
             PUSH(obj);
-            goto _opcode_whiplash_;
-        }
-        break;
-        case LI_BINARY_GT:
-        {
+        )
+        vmop(BINARY_GT,
             POP_TWO();
             lky_object *obj = lobjb_binary_greaterthan(b, a);
 
             PUSH(obj);
-            goto _opcode_whiplash_;
-        }
-        break;
-        case LI_BINARY_LTE:
-        {
+        )
+        vmop(BINARY_LTE,
             POP_TWO();
             lky_object *obj = lobjb_binary_lessequal(b, a);
 
             PUSH(obj);
-            goto _opcode_whiplash_;
-        }
-        break;
-        case LI_BINARY_GTE:
-        {
+        )
+        vmop(BINARY_GTE,
             POP_TWO();
             lky_object *obj = lobjb_binary_greatequal(b, a);
 
             PUSH(obj);
-            goto _opcode_whiplash_;
-        }
-        break;
-        case LI_BINARY_EQUAL:
-        {
+        )
+        vmop(BINARY_EQUAL,
             POP_TWO();
             lky_object *obj = lobjb_binary_equals(b, a);
 
             PUSH(obj);
-            goto _opcode_whiplash_;
-        }
-        break;
-        case LI_BINARY_NE:
-        {
+        )
+        vmop(BINARY_NE,
             POP_TWO();
             lky_object *obj = lobjb_binary_notequal(b, a);
 
             PUSH(obj);
-            goto _opcode_whiplash_;
-        }
-        break;
-        case LI_BINARY_AND:
-        {
+        )
+        vmop(BINARY_AND,
             POP_TWO();
             lky_object *obj = lobjb_binary_and(b, a);
 
             PUSH(obj);
-            goto _opcode_whiplash_;
-        }
-        break;
-        case LI_BINARY_OR:
-        {
+        )
+        vmop(BINARY_OR,
             POP_TWO();
             lky_object *obj = lobjb_binary_or(b, a);
 
             PUSH(obj);
-            goto _opcode_whiplash_;
-        }
-        break;
-        case LI_BINARY_NC:
-        {
+        )
+        vmop(BINARY_NC,
             POP_TWO();
             lky_object *obj = lobjb_binary_nc(b, a);
 
             PUSH(obj);
-            goto _opcode_whiplash_;
-        }
-        break;
-        case LI_BINARY_BAND:
-        {
+        )
+        vmop(BINARY_BAND,
             POP_TWO();
             lky_object *obj = lobjb_binary_band(b, a);
 
             PUSH(obj);
-            goto _opcode_whiplash_;
-        }
-        break;
-        case LI_BINARY_BOR:
-        {
+        )
+        vmop(BINARY_BOR,
             POP_TWO();
             lky_object *obj = lobjb_binary_bor(b, a);
 
             PUSH(obj);
-            goto _opcode_whiplash_;
-        }
-        break;
-        case LI_BINARY_BXOR:
-        {
+        )
+        vmop(BINARY_BXOR,
             POP_TWO();
             lky_object *obj = lobjb_binary_bxor(b, a);
 
             PUSH(obj);
-            goto _opcode_whiplash_;
-        }
-        break;
-        case LI_BINARY_BLSHIFT:
-        {
+        )
+        vmop(BINARY_BLSHIFT,
             POP_TWO();
             lky_object *obj = lobjb_binary_blshift(b, a);
 
             PUSH(obj);
-            goto _opcode_whiplash_;
-        }
-        break;
-        case LI_BINARY_BRSHIFT:
-        {
+        )
+        vmop(BINARY_BRSHIFT,
             POP_TWO();
             lky_object *obj = lobjb_binary_brshift(b, a);
 
             PUSH(obj);
-            goto _opcode_whiplash_;
-        }
-        break;
-        case LI_UNARY_NOT:
-        {
+        )
+        vmop(UNARY_NOT,
             lky_object *a = POP();
             lky_object *obj = lobjb_unary_not(a);
 
             PUSH(obj);
-            goto _opcode_whiplash_;
-        }
-        break;
-        case LI_UNARY_NEGATIVE:
-        {
+        )
+        vmop(UNARY_NEGATIVE,
             lky_object *a = POP();
             lky_object *obj = lobjb_unary_negative(a);
 
             PUSH(obj);
-            goto _opcode_whiplash_;
-        }
-        break;
-        case LI_PRINT:
-        {
+        )
+        vmop(PRINT,
             lky_object *a = POP();
             lobjb_print(a);
-            goto _opcode_whiplash_;
-        }
-        break;
-        case LI_POP:
-        {
+        )
+        vmop(POP,
             POP();
-            goto _opcode_whiplash_;
-        }
-        break;
-        case LI_JUMP:
-        {
+        )
+        vmop(JUMP,
             unsigned int idx = *(unsigned int *)(frame->ops + (++frame->pc));
             frame->pc += 3;
 
@@ -517,11 +442,8 @@ _opcode_whiplash_:
                 frame->pc = -1;
             else
                 frame->pc = idx < frame->pc ? idx - 1 : idx;
-            goto _opcode_whiplash_;
-        }
-        break;
-        case LI_JUMP_FALSE:
-        {
+        )
+        vmop(JUMP_FALSE,
             lky_object *obj = POP();
             
             unsigned int idx = *(unsigned int *)(frame->ops + (++frame->pc));
@@ -538,13 +460,9 @@ _opcode_whiplash_:
             {
                 frame->pc = idx;
             }
-
-            goto _opcode_whiplash_;
-        }
-        break;
+        )
         case LI_JUMP_FALSE_ELSE_POP:
-        case LI_JUMP_TRUE_ELSE_POP:
-        {
+        vmop(JUMP_TRUE_ELSE_POP,
             lky_object *obj = TOP();
 
             unsigned int idx = *(unsigned int *)(frame->ops + (++frame->pc));
@@ -562,42 +480,26 @@ _opcode_whiplash_:
             else
                 POP();
 
-            goto _opcode_whiplash_;
-        }
-        break;
-        case LI_SAVE_LOCAL:
-        {
+        )
+        vmop(SAVE_LOCAL,
             lky_object *obj = TOP();
             char idx = frame->ops[++frame->pc];
             lky_object *old = frame->locals[idx];
 
             frame->locals[idx] = obj;
-
-            goto _opcode_whiplash_;
-        }
-        break;
-        case LI_LOAD_LOCAL:
-        {
+        )
+        vmop(LOAD_LOCAL,
             char idx = frame->ops[++frame->pc];
             lky_object *obj = frame->locals[idx];
             PUSH(obj);
-            goto _opcode_whiplash_;
-        }
-        break;
-        case LI_PUSH_NIL:
-        {
+        )
+        vmop(PUSH_NIL,
             PUSH(&lky_nil);
-            goto _opcode_whiplash_;
-        }
-        break;
-        case LI_PUSH_NEW_OBJECT:
-        {
+        )
+        vmop(PUSH_NEW_OBJECT,
             PUSH(lobj_alloc());
-            goto _opcode_whiplash_;
-        }
-        break;
-        case LI_CALL_FUNC:
-        {
+        )
+        vmop(CALL_FUNC,
             char ct = frame->ops[++frame->pc];
             lky_object *obj = POP();
 
@@ -634,18 +536,12 @@ _opcode_whiplash_:
                 gc_remove_root_object((lky_object *)first);
 
             PUSH(ret);
-            goto _opcode_whiplash_;
-        }
-        break;
-        case LI_RETURN:
-        {
+        )
+        vmop(RETURN,
             lky_object *obj = POP();
             frame->ret = obj;
-            goto _opcode_whiplash_;
-        }
-        break;
-        case LI_LOAD_MEMBER:
-        {
+        )
+        vmop(LOAD_MEMBER,
             lky_object *obj = POP();
 
             int idx = frame->ops[++frame->pc];
@@ -656,11 +552,8 @@ _opcode_whiplash_:
                 mach_halt_with_err(lobjb_build_error("UndeclaredIdentifier", "The provided object does not have a member with the provided name."));
 
             PUSH(val);
-            goto _opcode_whiplash_;
-        }
-        break;
-        case LI_SAVE_MEMBER:
-        {
+        )
+        vmop(SAVE_MEMBER,
             lky_object *obj = POP();
             lky_object *val = TOP();
 
@@ -669,11 +562,8 @@ _opcode_whiplash_:
 
             lobj_set_member(obj, name, val);
 
-            goto _opcode_whiplash_;
-        }
-        break;
-        case LI_MAKE_FUNCTION:
-        {
+        )
+        vmop(MAKE_FUNCTION,
             lky_object_code *code = POP();
 
             arraylist pstack = frame->parent_stack;
@@ -692,11 +582,8 @@ _opcode_whiplash_:
             lky_object *func = lobjb_build_func(code, argc, nplist, frame->interp);
 
             PUSH(func);
-            goto _opcode_whiplash_;
-        }
-        break;
-        case LI_MAKE_CLASS:
-        {
+        )
+        vmop(MAKE_CLASS,
             lky_object_function *func = POP();
             
             int idx = frame->ops[++frame->pc];
@@ -705,11 +592,8 @@ _opcode_whiplash_:
             lky_object *cls = lobjb_build_class(func, name, NULL);
 
             PUSH(cls);
-            goto _opcode_whiplash_;
-        }
-        break;
-        case LI_SAVE_CLOSE:
-        {
+        )
+        vmop(SAVE_CLOSE,
             lky_object *obj = TOP();
             int idx = frame->ops[++frame->pc];
 
@@ -733,11 +617,8 @@ _opcode_whiplash_:
 
             lobj_set_member(bk, name, obj);
             
-            goto _opcode_whiplash_;
-        }
-        break;
-        case LI_LOAD_CLOSE:
-        {
+        )
+        vmop(LOAD_CLOSE,
             int idx = frame->ops[++frame->pc];
             char *name = frame->names[idx];
 
@@ -763,11 +644,8 @@ _opcode_whiplash_:
             else
                 mach_halt_with_err(lobjb_build_error("UndeclaredIdentifier", "A bad name was used..."));
 
-            goto _opcode_whiplash_;
-        }
-        break;
-        case LI_MAKE_ARRAY:
-        {
+        )
+        vmop(MAKE_ARRAY,
             unsigned int ct = *(unsigned int *)(frame->ops + (++frame->pc));
             frame->pc += 3;
 
@@ -786,11 +664,8 @@ _opcode_whiplash_:
             lky_object *outobj = stlarr_cinit(arr);
             PUSH(outobj);
 
-            goto _opcode_whiplash_;
-        }
-        break;
-        case LI_MAKE_TABLE:
-        {
+        )
+        vmop(MAKE_TABLE,
             unsigned int ct = *(unsigned int *)(frame->ops + (++frame->pc));
             frame->pc += 3;
 
@@ -817,11 +692,8 @@ _opcode_whiplash_:
 
             PUSH(outobj);
 
-            goto _opcode_whiplash_;
-        }
-        break;
-        case LI_MAKE_OBJECT:
-        {
+        )
+        vmop(MAKE_OBJECT,
             int ct = *(unsigned int *)(frame->ops + (++frame->pc));
             frame->pc += 3;
 
@@ -836,60 +708,42 @@ _opcode_whiplash_:
              
             PUSH(obj);   
 
-            goto _opcode_whiplash_;
-        }
-        break;
-        case LI_LOAD_INDEX:
-        {
+        )
+        vmop(LOAD_INDEX,
             lky_object *idx = POP();
             lky_object *targ = POP();
 
             PUSH(lobjb_unary_load_index(targ, idx));
-            goto _opcode_whiplash_;
-        }
-        break;
-        case LI_SAVE_INDEX:
-        {
+        )
+        vmop(SAVE_INDEX,
             lky_object *idx = POP();
             lky_object *targ = POP();
             lky_object *nobj = TOP();
 
             lobjb_unary_save_index(targ, idx, nobj);
 
-            goto _opcode_whiplash_;
-        }
-        break;
-        case LI_SDUPLICATE:
-        {
+        )
+        vmop(SDUPLICATE,
             PUSH(TOP());
             
-            goto _opcode_whiplash_;
-        }
-        break;
-        case LI_DDUPLICATE:
-        {
+        )
+        vmop(DDUPLICATE,
             lky_object *topa = TOP();
             lky_object *topb = SECOND_TOP();
             
             PUSH(topb);
             PUSH(topa);
             
-            goto _opcode_whiplash_;
-        }
-        break;
-        case LI_FLIP_TWO:
-        {
+        )
+        vmop(FLIP_TWO,
             lky_object *topa = POP();
             lky_object *topb = POP();
             
             PUSH(topa);
             PUSH(topb);
             
-            goto _opcode_whiplash_;
-        }
-        break;
-        case LI_SINK_FIRST:
-        {
+        )
+        vmop(SINK_FIRST,
             lky_object *topa = POP();
             lky_object *topb = POP();
             lky_object *topc = POP();
@@ -898,21 +752,15 @@ _opcode_whiplash_:
             PUSH(topc);
             PUSH(topb);
             
-            goto _opcode_whiplash_;
-        }
-        break;
-        case LI_MAKE_ITER:
-        {
+        )
+        vmop(MAKE_ITER,
             lky_object *obj = POP();
             lky_object *it  = lobjb_build_iterable(obj);
 
             PUSH(it);
 
-            goto _opcode_whiplash_;
-        }
-        break;
-        case LI_NEXT_ITER_OR_JUMP:
-        {
+        )
+        vmop(NEXT_ITER_OR_JUMP,
             lky_object *it = TOP();
             lky_object *nxt = LKY_NEXT_ITERABLE(it);
 
@@ -932,20 +780,14 @@ _opcode_whiplash_:
                     frame->pc = idx < frame->pc ? idx - 1 : idx;
             }
 
-            goto _opcode_whiplash_;
-        }
-        break;
-        case LI_ITER_INDEX:
-        {
+        )
+        vmop(ITER_INDEX,
             lky_object *it = TOP();
             lky_object_iterable *i = (lky_object_iterable *)it;
             PUSH(lobjb_build_int(i->index - 1));
 
-            goto _opcode_whiplash_;
-        }
-        break;
-        case LI_LOAD_MODULE:
-        {
+        )
+        vmop(LOAD_MODULE,
             int idx = (frame->ops[++frame->pc]);
             char *name = frame->names[idx];
 
@@ -972,34 +814,20 @@ _opcode_whiplash_:
 
             PUSH(loaded);
 
-            goto _opcode_whiplash_;
-        }
-        break;
-        case LI_PUSH_CATCH:
-        {
+        )
+        vmop(PUSH_CATCH,
             unsigned int idx = *(unsigned int *)(frame->ops + (++frame->pc));
             frame->pc += 3;
 
             frame->catch_stack[frame->catch_pointer++] = idx;
 
-            goto _opcode_whiplash_;
-        }
-        break;
-        case LI_POP_CATCH:
-        {
+        )
+        vmop(POP_CATCH,
             frame->catch_stack[frame->catch_pointer--] = 0;
-            goto _opcode_whiplash_;
-        }
-        break;
-        case LI_RAISE:
-        {
+        )
+        vmop(RAISE,
             mach_halt_with_err(POP());
-            goto _opcode_whiplash_;
-        }
-        break;
-        default:
-            goto _opcode_whiplash_;
-        break;
-    }
+        )
+    )
 }
 

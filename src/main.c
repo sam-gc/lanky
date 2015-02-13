@@ -100,7 +100,7 @@ void exec_in_repl()
 {
     char *start;
 #ifdef __clang__
-    start = "Lanky (\"" LIGHT_BLUE LKY_VERSION_TAG DEFAULT "\"), version 0.1;\ncompiled " __DATE__ " for "
+    start = "Lanky (\"" LIGHT_BLUE LKY_VERSION_TAG DEFAULT "\"), version " LKY_VERSION_NUM ";\ncompiled " __DATE__ " for "
 #ifdef __APPLE__
        "Mac OS X"
 #else
@@ -108,7 +108,7 @@ void exec_in_repl()
 #endif 
        " by Clang [" STRINGIFY_INT(__clang_major__) "." STRINGIFY_INT(__clang_minor__) "." STRINGIFY_INT(__clang_patchlevel__) "].";
 #elif defined __GNUC__
-    start = "Lanky (\"" LIGHT_BLUE LKY_VERSION_TAG DEFAULT "\"), version 0.1;\ncompiled " __DATE__ " for "
+    start = "Lanky (\"" LIGHT_BLUE LKY_VERSION_TAG DEFAULT "\"), version " LKY_VERSION_NUM ";\ncompiled " __DATE__ " for "
 #ifdef __APPLE__
       "Mac OS X"
 #else
@@ -116,7 +116,7 @@ void exec_in_repl()
 #endif
       " by GCC [" STRINGIFY_INT(__GNUC__) "." STRINGIFY_INT(__GNUC_MINOR__) "." STRINGIFY_INT(__GNUC_PATCHLEVEL__) "].";
 #else
-    start = "Lanky (\"" LKY_VERSION_TAG "\"), version 0.1;\ncompiled " __DATE__ " for unknown platform with unknown compiler."
+    start = "Lanky (\"" LKY_VERSION_TAG "\"), version " LKY_VERSION_NUM ";\ncompiled " __DATE__ " for unknown platform with unknown compiler."
 #endif
     printf("%s\nCopyright (C) 2014 Sam Olsen\n", start);
     gc_init();
