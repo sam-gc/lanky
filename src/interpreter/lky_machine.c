@@ -124,6 +124,7 @@ lky_object *mach_interrupt_exec(lky_object_function *func)
     frame->ret = NULL;
     frame->interp = interp;
     frame->locals_count = code->num_locals;
+    frame->catch_pointer = 0;
     
     frame->prev = interp->stack ? interp->stack : NULL;
     frame->thrown = NULL;
@@ -201,6 +202,7 @@ lky_object *mach_execute(lky_object_function *func)
     frame->names = code->names;
     frame->ret = NULL;
     frame->thrown = NULL;
+    frame->catch_pointer = 0;
     
     frame->interp = interp;
     frame->locals_count = code->num_locals;

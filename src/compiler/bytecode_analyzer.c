@@ -46,7 +46,7 @@ int calculate_max_catch_depth(unsigned char *code, int len)
 {
     int max;
     int i;
-    for(i = 0; i < len; i++)
+    for(i = max = 0; i < len; i++)
         if(code[i] == LI_PUSH_CATCH)
             max++;
 
