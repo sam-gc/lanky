@@ -118,7 +118,7 @@ void exec_in_repl()
 #else
     start = "Lanky (\"" LKY_VERSION_TAG "\"), version " LKY_VERSION_NUM ";\ncompiled " __DATE__ " for unknown platform with unknown compiler."
 #endif
-    printf("%s\nCopyright (C) 2014 Sam Olsen\n", start);
+    printf("%s\n" LKY_COPYRIGHT "\n", start);
     gc_init();
     arraylist list = arr_create(1);
 

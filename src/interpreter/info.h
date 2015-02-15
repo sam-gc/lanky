@@ -3,5 +3,6 @@
 
 #define LKY_VERSION_TAG "You could call it functional"
 #define LKY_VERSION_NUM "0.1.9"
+#define LKY_COPYRIGHT   "Copyright (C) 2014-2015 Sam Olsen"
 
 #endif
