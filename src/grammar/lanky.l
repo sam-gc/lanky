@@ -39,7 +39,7 @@ int fileno(FILE *stream);
 white [ \t]+
 digit [0-9]
 lalpha [a-z]
-alpha [a-zA-Z_]
+alpha [a-zA-Z_$]
 integer {digit}+
 exponent [eE][+-]?{integer}
 real {integer}("."{digit}*){exponent}?
