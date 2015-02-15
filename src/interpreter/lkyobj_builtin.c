@@ -98,6 +98,13 @@ lky_object *lobjb_error_stringify(lky_object_seq *args, lky_object_function *fun
     return stlstr_cinit(text);
 }
 
+void lobjb_error_free(lky_object *o)
+{
+    lky_object_error *err = (lky_object_error *)o;
+    free(err->name);
+    free(err->text);
+}
+
 lky_object *lobjb_build_error(char *name, char *text)
 {
     lky_object_error *err = aqua_request_next_block(sizeof(lky_object_error));
@@ -106,8 +113,15 @@ lky_object *lobjb_build_error(char *name, char *text)
     err->mem_count = 0;
     err->members = hst_create();
     err->members.duplicate_keys = 1;
-    err->name = name;
-    err->text = text;
+
+    char *name_ = malloc(strlen(name) + 1);
+    char *text_ = malloc(strlen(text) + 1);
+
+    strcpy(name_, name);
+    strcpy(text_, text);
+
+    err->name = name_;
+    err->text = text_;
     err->cls = NULL;
 
     lobj_set_member((lky_object *)err, "name", stlstr_cinit(name));
@@ -118,6 +132,26 @@ lky_object *lobjb_build_error(char *name, char *text)
     gc_add_object((lky_object *)err);
 
     return (lky_object *)err;
+}
+
+lky_object *lobjb_make_exception(lky_object_seq *args, lky_object_function *func)
+{
+    lky_object *first = (lky_object *)args->value;
+    lky_object *second = (lky_object *)args->next->value;
+
+    char *name = lobjb_stringify(first);
+    char *text = lobjb_stringify(second);
+
+    lky_object *ret = lobjb_build_error(name, text);
+    free(name);
+    free(text);
+
+    return ret;
+}
+
+lky_object *lobjb_get_exception_class()
+{
+    return lobjb_build_func_ex(NULL, 2, (lky_function_ptr)lobjb_make_exception);
 }
 
 lky_object *lobjb_build_iterable(lky_object *owner)
@@ -291,6 +325,7 @@ char *lobjb_stringify(lky_object *a)
         break;
         case LBI_CUSTOM:
         case LBI_CUSTOM_EX:
+        case LBI_ERROR:
         {
             lky_object_function *func = (lky_object_function *)lobj_get_member(a, "stringify_");
             
@@ -620,6 +655,9 @@ void lobjb_clean(lky_object *a)
         break;
         case LBI_FUNCTION:
             arr_free(&((lky_object_function *)a)->parent_stack);
+        case LBI_ERROR:
+            lobjb_error_free(a);
+        break;
         default:
         break;
     }

@@ -1,3 +1,5 @@
+Error = <'Error'>;
+
 List = class () -> self {
     self.build_ = func() {
         self.head = nil;
@@ -52,7 +54,7 @@ List = class () -> self {
             ret node.payload;
         }
 
-        ret nil;
+        raise Error('IndexOutOfBounds', 'The given index is not valid for the list');
     };
 
     self.op_set_index_ = func(idx, obj) {
@@ -66,6 +68,9 @@ List = class () -> self {
 
         if ct == idx {
             node.payload = obj;
+        }
+        else {
+            raise Error('IndexOutOfBounds', 'The given index is not valid for the list');
         }
     };
 

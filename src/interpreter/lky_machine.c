@@ -170,10 +170,12 @@ lky_object *mach_interrupt_exec(lky_object_function *func)
     lky_object *err = frame->prev->thrown;
     if(err)
     { 
-        char *txt = lobj_stringify(err);
+        char *txt = lobjb_stringify(err);
         printf("Interrupt caught exception.\n%s\n", txt);
         free(txt);
         frame->prev->thrown = NULL;
+        
+        ret = &lky_nil;
     }
 
     free(frame);

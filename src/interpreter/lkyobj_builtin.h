@@ -165,6 +165,8 @@ lky_object *lobjb_alloc(lky_builtin_type t, lky_builtin_value v);
 lky_object *lobjb_default_callable(lky_object_seq *args, lky_object *self);
 lky_object *lobjb_default_class_callable(lky_object_seq *args, lky_object *self);
 
+lky_object *lobjb_get_exception_class();
+
 char *lobjb_stringify(lky_object *a);
 
 lky_object *lobjb_unary_load_index(lky_object *obj, lky_object *indexer);
