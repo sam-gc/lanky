@@ -22,6 +22,9 @@ guts: src/grammar/lanky.l src/grammar/lanky.y
 glory: $(COMP_OBJ_FILES) $(INT_OBJ_FILES) $(STD_OBJ_FILES) src/main.c src/grammar/parser.c src/grammar/tokens.c
 	$(CC) $(CFLAGS) -o lanky $^ $(LDFLAGS)     
 
+bottled: $(COMP_OBJ_FILES) $(INT_OBJ_FILES) $(STD_OBJ_FILES) src/bottled_main.c src/grammar/parser.c src/grammar/tokens.c lky_bottled.c
+	$(CC) $(CFLAGS) -o bottled $^ $(LDFLAGS)     
+
 clean:
 	rm -f lanky machine test
 	rm -rf obj

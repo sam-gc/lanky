@@ -41,6 +41,7 @@
 #include "serialize.h"
 #include "colors.h"
 #include "info.h"
+#include "exporter.h"
 
 #define STRINGIFY_TOK(tok) #tok
 #define STRINGIFY_INT(i) STRINGIFY_TOK(i)
@@ -69,31 +70,14 @@ hashtable parse_args(int argc, char *argv[])
             hst_put(&tab, "--no-tagged-ints", (void *)1, NULL, NULL);
         else if(strcmp(argv[i], "--use-system-malloc") == 0)
             hst_put(&tab, "--use-system-malloc", (void *)1, NULL, NULL);
+        else if(strcmp(argv[i], "-b") == 0) 
+        {
+            hst_put(&tab, "-b", (void *)1, NULL, NULL);
+            hst_put(&tab, "-o", "lky_bottled.c", NULL, NULL);
+        }
     }
 
     return tab;
-}
-
-void export_to_file(char *data, size_t len, char *filename)
-{
-    FILE *f = fopen(filename, "wb");
-    if(!f)
-        return;
-
-    fwrite(data, 1, len, f);
-
-    fclose(f);
-}
-
-void read_from_file(char *filename)
-{
-    FILE *f = fopen(filename, "rb");
-    if(!f)
-        return;
-
-    srl_deserialize_from_file(f);
-
-    fclose(f);
 }
 
 void exec_in_repl()
@@ -226,7 +210,9 @@ int main(int argc, char *argv[])
                 code = compile_from_file(argv[1]);
                 size_t len;
                 char *rendered = srl_serialize_object((lky_object *)code, &len);
-                export_to_file(rendered, len, hst_get(&args, "-o", NULL, NULL));
+                void (*out_func)(char *, size_t, char *) = hst_contains_key(&args, "-b", NULL, NULL) ? exp_send_to_c_source : exp_send_to_binary_file;
+
+                out_func(rendered, len, hst_get(&args, "-o", NULL, NULL));
                 free(rendered);
                 goto cleanup;
             }

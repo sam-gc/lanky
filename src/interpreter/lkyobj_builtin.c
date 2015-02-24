@@ -101,6 +101,7 @@ lky_object *lobjb_error_stringify(lky_object_seq *args, lky_object_function *fun
 void lobjb_error_free(lky_object *o)
 {
     lky_object_error *err = (lky_object_error *)o;
+
     free(err->name);
     free(err->text);
 }
@@ -655,6 +656,7 @@ void lobjb_clean(lky_object *a)
         break;
         case LBI_FUNCTION:
             arr_free(&((lky_object_function *)a)->parent_stack);
+        break;
         case LBI_ERROR:
             lobjb_error_free(a);
         break;
