@@ -235,4 +235,6 @@ cleanup:
     un_clean();
     md_unload();
     aqua_teardown();
+
+    return 0;
 }
