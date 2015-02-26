@@ -10,7 +10,7 @@ CFLAGS=-g -gdwarf-3 -Isrc/interpreter -Isrc/compiler -Isrc/grammar -Isrc/stdlib 
 #CFLAGS=-Isrc/interpreter -Isrc/compiler -Isrc/grammar -Isrc/stdlib -rdynamic -O3 -fdiagnostics-color=auto -std=c99
 LDFLAGS=-lm -lreadline -ldl
 COLOR=-fdiagnostics-color=always
-CC=clang
+CC=gcc
 MKDIR=mkdir -p
 
 all: lanky
