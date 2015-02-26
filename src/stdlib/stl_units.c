@@ -30,8 +30,11 @@ lky_object *stlun_stringify(lky_object_seq *args, lky_object_function *caller)
     return stlstr_cinit(buf);
 }
 
-lky_object *stlun_add(lky_object_seq *args, lky_object_function *func)
+lky_object *stlun_add(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_custom *self = (lky_object_custom *)func->owner;
     stlun_data *data = self->data;
 
@@ -50,8 +53,11 @@ lky_object *stlun_add(lky_object_seq *args, lky_object_function *func)
     return stlun_cinit_ex(un_add(a, b));
 }
 
-lky_object *stlun_subtract(lky_object_seq *args, lky_object_function *func)
+lky_object *stlun_subtract(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_custom *self = (lky_object_custom *)func->owner;
     stlun_data *data = self->data;
 
@@ -70,8 +76,11 @@ lky_object *stlun_subtract(lky_object_seq *args, lky_object_function *func)
     return stlun_cinit_ex(un_sub(a, b));
 }
 
-lky_object *stlun_multiply(lky_object_seq *args, lky_object_function *func)
+lky_object *stlun_multiply(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_custom *self = (lky_object_custom *)func->owner;
     stlun_data *data = self->data;
 
@@ -90,8 +99,11 @@ lky_object *stlun_multiply(lky_object_seq *args, lky_object_function *func)
     return stlun_cinit_ex(un_mult(a, b));
 }
 
-lky_object *stlun_divide(lky_object_seq *args, lky_object_function *func)
+lky_object *stlun_divide(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_custom *self = (lky_object_custom *)func->owner;
     stlun_data *data = self->data;
 

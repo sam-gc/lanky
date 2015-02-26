@@ -80,8 +80,11 @@ lky_object *lobjb_build_float(double value)
     return lobjb_alloc(LBI_FLOAT, v);
 }
 
-lky_object *lobjb_error_print(lky_object_seq *args, lky_object_function *func)
+lky_object *lobjb_error_print(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_error *err = (lky_object_error *)func->owner;
 
     printf("%s: %s\n", err->name, err->text);
@@ -89,8 +92,11 @@ lky_object *lobjb_error_print(lky_object_seq *args, lky_object_function *func)
     return &lky_nil;
 }
 
-lky_object *lobjb_error_stringify(lky_object_seq *args, lky_object_function *func)
+lky_object *lobjb_error_stringify(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_error *err = (lky_object_error *)func->owner;
     char text[strlen(err->name) + strlen(err->text) + 5];
     sprintf(text, "%s: %s", err->name, err->text);
@@ -135,8 +141,11 @@ lky_object *lobjb_build_error(char *name, char *text)
     return (lky_object *)err;
 }
 
-lky_object *lobjb_make_exception(lky_object_seq *args, lky_object_function *func)
+lky_object *lobjb_make_exception(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object *first = (lky_object *)args->value;
     lky_object *second = (lky_object *)args->next->value;
 
@@ -336,7 +345,8 @@ char *lobjb_stringify(lky_object *a)
                 sprintf(ret, "%p", b);
                 break;
             }
-            lky_object_custom *s = (lky_object_custom *)(func->callable.function)(NULL, (struct lky_object *)func);
+            lky_func_bundle b = MAKE_BUNDLE(func, NULL);
+            lky_object_custom *s = (lky_object_custom *)(func->callable.function)(&b);
 
             ret = malloc(strlen(s->data) + 1);
             strcpy(ret, s->data);
@@ -427,12 +437,15 @@ lky_object *lobjb_call(lky_object *func, lky_object_seq *args)
             break;
     }
     
-    return (lky_object *)c.function(args, (struct lky_object *)func);
+    lky_func_bundle b = MAKE_BUNDLE(func, args);
+    return (lky_object *)c.function(&b);
 }
 
-lky_object *lobjb_default_callable(lky_object_seq *args, lky_object *self)
+lky_object *lobjb_default_callable(lky_func_bundle *bundle)
 {
-    lky_object_function *func = (lky_object_function *)self;
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+    lky_object *self = (lky_object *)func;
     lky_object_code *code = func->code;
 
     func->bucket = lobj_alloc();
@@ -471,8 +484,10 @@ lky_object *lobjb_default_callable(lky_object_seq *args, lky_object *self)
     return ret;
 }
 
-lky_object *lobjb_default_class_callable(lky_object_seq *args, lky_object *self)
+lky_object *lobjb_default_class_callable(lky_func_bundle *bundle)
 {
+    lky_object_seq *args = BUW_ARGS(bundle);
+    lky_object *self = (lky_object *)BUW_FUNC(bundle);
     lky_object_class *cls = (lky_object_class *)self;
 
     lky_object_function *func = cls->builder;
@@ -499,7 +514,8 @@ lky_object *lobjb_default_class_callable(lky_object_seq *args, lky_object *self)
     lky_object *init = lobj_get_member(outobj, "build_");
     if(init)
     {
-        lobjb_default_callable(args, init);
+        lky_func_bundle b = MAKE_BUNDLE(init, args);
+        lobjb_default_callable(&b);
     }
     
     lobj_set_class(outobj, (lky_object *)cls);
@@ -517,7 +533,8 @@ lky_object *lobjb_unary_load_index(lky_object *obj, lky_object *indexer)
         return &lky_nil;
     }
 
-    lky_object *ret = (lky_object *)func->callable.function(lobjb_make_seq_node(indexer), (struct lky_object *)func);
+    lky_func_bundle b = MAKE_BUNDLE(func, lobjb_make_seq_node(indexer));
+    lky_object *ret = (lky_object *)func->callable.function(&b);
 
     return ret;
 }
@@ -535,7 +552,8 @@ lky_object *lobjb_unary_save_index(lky_object *obj, lky_object *indexer, lky_obj
     lky_object_seq *args = lobjb_make_seq_node(indexer);
     args->next = lobjb_make_seq_node(newobj);
 
-    lky_object *ret = (lky_object *)func->callable.function(args, (struct lky_object *)func);
+    lky_func_bundle b = MAKE_BUNDLE(func, args);
+    lky_object *ret = (lky_object *)func->callable.function(&b);
 
     return ret;
 }

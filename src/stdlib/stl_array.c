@@ -34,8 +34,11 @@ typedef struct {
     arraylist container;
 } stlarr_data;
 
-lky_object *stlarr_append(lky_object_seq *args, lky_object_function *func)
+lky_object *stlarr_append(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_custom *self = (lky_object_custom *)func->owner;
     stlarr_data *data = self->data;
     arr_append(&data->container, args->value);
@@ -43,8 +46,11 @@ lky_object *stlarr_append(lky_object_seq *args, lky_object_function *func)
     return &lky_nil;
 }
 
-lky_object *stlarr_insert(lky_object_seq *args, lky_object_function *func)
+lky_object *stlarr_insert(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_custom *self = (lky_object_custom *)func->owner;
 
     int idx = (int)OBJ_NUM_UNWRAP(args->next->value);
@@ -68,8 +74,11 @@ arraylist *stlarr_get_store(lky_object *obj)
     return &data->container;
 }
 
-lky_object *stlarr_add(lky_object_seq *args, lky_object_function *func)
+lky_object *stlarr_add(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_custom *self = (lky_object_custom *)func->owner;
     stlarr_data *data = self->data;
     arraylist list = data->container;
@@ -95,8 +104,11 @@ lky_object *stlarr_add(lky_object_seq *args, lky_object_function *func)
     return stlarr_cinit(nlist);
 }
 
-lky_object *stlarr_set(lky_object_seq *args, lky_object_function *func)
+lky_object *stlarr_set(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_custom *self = (lky_object_custom *)func->owner;
     stlarr_data *data = self->data;
     arraylist list = data->container;
@@ -123,8 +135,11 @@ lky_object *stlarr_set(lky_object_seq *args, lky_object_function *func)
     return &lky_nil;
 }
 
-lky_object *stlarr_get(lky_object_seq *args, lky_object_function *func)
+lky_object *stlarr_get(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_custom *self = (lky_object_custom *)func->owner;
     stlarr_data *data = self->data;
     lky_object_builtin *b = (lky_object_builtin *)args->value;
@@ -139,16 +154,22 @@ lky_object *stlarr_get(lky_object_seq *args, lky_object_function *func)
     return arr_get(&data->container, idx);
 }
 
-lky_object *stlarr_last(lky_object_seq *args, lky_object_function *func)
+lky_object *stlarr_last(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_custom *self = (lky_object_custom *)func->owner;
     stlarr_data *data = self->data;
 
     return arr_get(&data->container, data->container.count - 1);
 }
 
-lky_object *stlarr_contains(lky_object_seq *args, lky_object_function *func)
+lky_object *stlarr_contains(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_custom *self = (lky_object_custom *)func->owner;
     stlarr_data *data = self->data;
     arraylist list = data->container;
@@ -173,8 +194,11 @@ lky_object *stlarr_contains(lky_object_seq *args, lky_object_function *func)
     return lobjb_build_int(toret);
 }
 
-lky_object *stlarr_for_each(lky_object_seq *args, lky_object_function *func)
+lky_object *stlarr_for_each(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_custom *self = (lky_object_custom *)func->owner;
 
     stlarr_data *data = self->data;
@@ -201,8 +225,11 @@ lky_object *stlarr_for_each(lky_object_seq *args, lky_object_function *func)
     return &lky_nil;
 }
 
-lky_object *stlarr_index_of(lky_object_seq *args, lky_object_function *func)
+lky_object *stlarr_index_of(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_custom *self = (lky_object_custom *)func->owner;
     stlarr_data *data = self->data;
     arraylist list = data->container;
@@ -266,8 +293,11 @@ lky_object *stlarr_slice_with_count(arraylist list, long start, long count)
     return stlarr_cinit(nw);
 }
 
-lky_object *stlarr_remove_at(lky_object_seq *args, lky_object_function *func)
+lky_object *stlarr_remove_at(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_custom *self = (lky_object_custom *)func->owner;
     stlarr_data *data = self->data;
     
@@ -283,8 +313,11 @@ lky_object *stlarr_remove_at(lky_object_seq *args, lky_object_function *func)
     return obj;
 }
 
-lky_object *stlarr_joined(lky_object_seq *args, lky_object_function *func)
+lky_object *stlarr_joined(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_custom *self = (lky_object_custom *)func->owner;
     stlarr_data *data = self->data;
     arraylist list = data->container;
@@ -321,7 +354,8 @@ lky_object *stlarr_joined(lky_object_seq *args, lky_object_function *func)
         }
         else
         {
-            strobj = (lky_object_custom *)(f->callable.function)(NULL, (struct lky_object *)f);
+            lky_func_bundle b = MAKE_BUNDLE(f, NULL);
+            strobj = (lky_object_custom *)(f->callable.function)(&b);
         }
         
         char *str = strobj->data;
@@ -353,8 +387,11 @@ lky_object *stlarr_joined(lky_object_seq *args, lky_object_function *func)
     return ret;
 }
 
-lky_object *stlarr_reverse(lky_object_seq *args, lky_object_function *func)
+lky_object *stlarr_reverse(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_custom *self = (lky_object_custom *)func->owner;
     stlarr_data *data = self->data;
     arraylist list = data->container;
@@ -383,8 +420,11 @@ arr_sort_result stlarr_wrap_sort(void *left, void *right, void *data)
     return lt ? SORT_RESULT_SORTED : SORT_RESULT_REVERSE;
 }
 
-lky_object *stlarr_sort(lky_object_seq *args, lky_object_function *func)
+lky_object *stlarr_sort(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_custom *self = (lky_object_custom *)func->owner;
     stlarr_data *data = self->data;
     arraylist list = data->container;
@@ -394,8 +434,11 @@ lky_object *stlarr_sort(lky_object_seq *args, lky_object_function *func)
     return (lky_object *)self;
 }
 
-lky_object *stlarr_copy(lky_object_seq *args, lky_object_function *func)
+lky_object *stlarr_copy(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_custom *self = (lky_object_custom *)func->owner;
     stlarr_data *data = self->data;
     arraylist list = data->container;
@@ -410,8 +453,11 @@ lky_object *stlarr_copy(lky_object_seq *args, lky_object_function *func)
     return stlarr_cinit(nw);
 }
 
-lky_object *stlarr_sorted(lky_object_seq *args, lky_object_function *func)
+lky_object *stlarr_sorted(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_custom *self = (lky_object_custom *)func->owner;
     stlarr_data *data = self->data;
     arraylist list = data->container;
@@ -428,8 +474,11 @@ lky_object *stlarr_sorted(lky_object_seq *args, lky_object_function *func)
     return stlarr_cinit(nw);
 }
 
-lky_object *stlarr_slice(lky_object_seq *args, lky_object_function *func)
+lky_object *stlarr_slice(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_custom *self = (lky_object_custom *)func->owner;
     stlarr_data *data = self->data;
     arraylist list = data->container;
@@ -440,8 +489,11 @@ lky_object *stlarr_slice(lky_object_seq *args, lky_object_function *func)
     return stlarr_slice_with_count(list, start, count);
 }
 
-lky_object *stlarr_slice_to(lky_object_seq *args, lky_object_function *func)
+lky_object *stlarr_slice_to(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_custom *self = (lky_object_custom *)func->owner;
     stlarr_data *data = self->data;
     arraylist list = data->container;
@@ -453,8 +505,11 @@ lky_object *stlarr_slice_to(lky_object_seq *args, lky_object_function *func)
     return stlarr_slice_with_count(list, start, count);
 }
 
-lky_object *stlarr_stringify(lky_object_seq *args, lky_object_function *func)
+lky_object *stlarr_stringify(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_custom *self = (lky_object_custom *)func->owner;
     stlarr_data *data = self->data;
     arraylist list = data->container;
@@ -547,8 +602,11 @@ lky_object *stlarr_cinit(arraylist inlist)
     return (lky_object *)obj;
 }
 
-lky_object *stlarr_build(lky_object_seq *args, lky_object *func)
+lky_object *stlarr_build(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     return stlarr_cinit(arr_create(10));
 }
 

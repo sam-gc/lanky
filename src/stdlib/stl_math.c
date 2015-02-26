@@ -36,8 +36,9 @@
 // Then we use the next macro to wrap all of those up into the math
 // object.
 #define STLMATH_WRAP_FUNC(function) \
-lky_object *TOKENPASTE(stlmath_wrap_, function) (lky_object_seq *args, lky_object *func) \
+lky_object *TOKENPASTE(stlmath_wrap_, function) (lky_func_bundle *bundle) \
 {\
+    lky_object_seq *args = BUW_ARGS(bundle);\
     lky_object_builtin *b = (lky_object_builtin *)args->value;\
     if(!IS_NUMBER(b))\
     {\
@@ -51,13 +52,19 @@ lky_object *TOKENPASTE(stlmath_wrap_, function) (lky_object_seq *args, lky_objec
 
 #define STLMATH_WRAP_MEMBER(obj, function) (lobj_set_member(obj, #function, lobjb_build_func_ex(obj, 1, (lky_function_ptr)TOKENPASTE(stlmath_wrap_, function))))
 
-lky_object *stlmath_wrap_rand(lky_object_seq *args, lky_object *func)
+lky_object *stlmath_wrap_rand(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     return lobjb_build_int(rand());
 }
 
-lky_object *stlmath_shuffle(lky_object_seq *args, lky_object *func)
+lky_object *stlmath_shuffle(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object *arrobj = (lky_object *)args->value;
     arraylist arr = stlarr_unwrap(arrobj);
 
@@ -85,8 +92,11 @@ lky_object *stlmath_shuffle(lky_object_seq *args, lky_object *func)
     return stlarr_cinit(list);
 }
 
-lky_object *stlmath_range(lky_object_seq *args, lky_object *func)
+lky_object *stlmath_range(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object *maxobj = (lky_object *)args->value;
     int max = (int)OBJ_NUM_UNWRAP(maxobj);
     arraylist list = arr_create(max + 8);
@@ -97,8 +107,11 @@ lky_object *stlmath_range(lky_object_seq *args, lky_object *func)
     return stlarr_cinit(list);
 }
 
-lky_object *stlmath_rand_int(lky_object_seq *args, lky_object *func)
+lky_object *stlmath_rand_int(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_builtin *first = (lky_object_builtin *)args->value;
     lky_object_builtin *second = (lky_object_builtin *)args->next->value;
 
@@ -118,8 +131,11 @@ lky_object *stlmath_rand_int(lky_object_seq *args, lky_object *func)
     return lobjb_build_int(rv);
 }
 
-lky_object *stlmath_quad(lky_object_seq *args, lky_object *func)
+lky_object *stlmath_quad(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_builtin *first = (lky_object_builtin *)args->value;
     lky_object_builtin *second = (lky_object_builtin *)args->next->value;
     lky_object_builtin *third = (lky_object_builtin *)args->next->next->value;

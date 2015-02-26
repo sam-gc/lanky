@@ -24,8 +24,11 @@
 
 #define IS_TAGGED(a) ((uintptr_t)(a) & 1)
 
-lky_object *stlcon_to_int(lky_object_seq *args, lky_object *func)
+lky_object *stlcon_to_int(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object *from = (lky_object *)args->value;
 
     if(IS_TAGGED(from) || from->type == LBI_INTEGER)
@@ -46,8 +49,11 @@ lky_object *stlcon_to_int(lky_object_seq *args, lky_object *func)
     return lobjb_build_int(val);
 }
 
-lky_object *stlcon_to_float(lky_object_seq *args, lky_object *func)
+lky_object *stlcon_to_float(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object *from = (lky_object *)args->value;
 
     if(IS_TAGGED(from) || from->type == LBI_INTEGER)
@@ -64,8 +70,11 @@ lky_object *stlcon_to_float(lky_object_seq *args, lky_object *func)
     return lobjb_build_float(val);
 }
 
-lky_object *stlcon_to_string(lky_object_seq *args, lky_object *func)
+lky_object *stlcon_to_string(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object *from = (lky_object *)args->value;
     char *str = lobjb_stringify(from);
     lky_object *ret = stlstr_cinit(str);
@@ -73,8 +82,11 @@ lky_object *stlcon_to_string(lky_object_seq *args, lky_object *func)
     return ret;
 }
 
-lky_object *stlcon_ord(lky_object_seq *args, lky_object *func)
+lky_object *stlcon_ord(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object *from = (lky_object *)args->value;
     char *str = lobjb_stringify(from);
     lky_object *ret = NULL;
@@ -97,8 +109,11 @@ lky_object *stlcon_ord(lky_object_seq *args, lky_object *func)
     return ret;
 }
 
-lky_object *stlcon_char(lky_object_seq *args, lky_object *func)
+lky_object *stlcon_char(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object *from = (lky_object *)args->value;
     if(!OBJ_IS_INTEGER(from))
         return &lky_nil;
@@ -110,8 +125,11 @@ lky_object *stlcon_char(lky_object_seq *args, lky_object *func)
     return stlstr_cinit(c);
 }
 
-lky_object *stlcon_unit(lky_object_seq *args, lky_object *func)
+lky_object *stlcon_unit(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_custom *c = (lky_object_custom *)args->value;
     lky_object *to = (lky_object *)args->next->value;
 

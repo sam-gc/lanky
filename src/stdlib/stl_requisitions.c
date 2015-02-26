@@ -29,8 +29,11 @@ void stlreq_wrap_dlclose(void *obj)
 
 lky_mempool dlmempool = {NULL, &stlreq_wrap_dlclose};
 
-lky_object *stlreq_import(lky_object_seq *args, lky_object_function *func)
+lky_object *stlreq_import(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_custom *nobj = (lky_object_custom *)args->value;
     char *pname = nobj->data;
     char *name = malloc(strlen(pname) + 6);
@@ -88,8 +91,11 @@ lky_object *stlreq_import(lky_object_seq *args, lky_object_function *func)
     return obj;
 }
 
-lky_object *stlreq_compile(lky_object_seq *args, lky_object *func)
+lky_object *stlreq_compile(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_custom *fileobj = (lky_object_custom *)args->value;
     lky_object_custom *argobj = args->next ? (lky_object_custom *)args->next->value : NULL;
 

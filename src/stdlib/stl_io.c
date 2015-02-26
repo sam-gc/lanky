@@ -30,8 +30,11 @@ typedef struct {
     FILE *f;
 } stlio_file_object_data;
 
-lky_object *stlio_input(lky_object_seq *args, lky_object *func)
+lky_object *stlio_input(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object *prompt = (lky_object *)args->value;
     lobjb_print_object(prompt);
 
@@ -47,24 +50,33 @@ lky_object *stlio_input(lky_object_seq *args, lky_object *func)
     return toret;
 }
 
-lky_object *stlio_put(lky_object_seq *args, lky_object *func)
+lky_object *stlio_put(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object *obj = (lky_object *)args->value;
     lobjb_print_object(obj);
 
     return &lky_nil;
 }
 
-lky_object *stlio_putln(lky_object_seq *args, lky_object *func)
+lky_object *stlio_putln(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object *obj = (lky_object *)args->value;
     lobjb_print(obj);
 
     return &lky_nil;
 }
 
-lky_object *stlio_printf(lky_object_seq *args, lky_object *func)
+lky_object *stlio_printf(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     arraylist list = arr_create(10);
     MAKE_VA_ARGS(args, list, 1);
     lobjb_print_object(stlstr_fmt_ext(((lky_object_custom *)args->value)->data, list));
@@ -77,8 +89,11 @@ void stlio_file_dealloc(lky_object_custom *obj)
     free(obj->data);
 }
 
-lky_object *stlio_file_read_raw(lky_object_seq *args, lky_object_function *func)
+lky_object *stlio_file_read_raw(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_custom *self = (lky_object_custom *)func->owner;
     stlio_file_object_data *data = self->data;
 
@@ -104,8 +119,11 @@ lky_object *stlio_file_read_raw(lky_object_seq *args, lky_object_function *func)
     return (lky_object *)str;
 }
 
-lky_object *stlio_file_readall(lky_object_seq *args, lky_object_function *func)
+lky_object *stlio_file_readall(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_custom *self = (lky_object_custom *)func->owner;
     stlio_file_object_data *data = self->data;
 
@@ -143,8 +161,11 @@ lky_object *stlio_file_readall(lky_object_seq *args, lky_object_function *func)
     return ret;
 }
 
-lky_object *stlio_file_readlines(lky_object_seq *args, lky_object_function *func)
+lky_object *stlio_file_readlines(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_custom *self = (lky_object_custom *)func->owner;
     stlio_file_object_data *data = self->data;
     
@@ -173,8 +194,11 @@ lky_object *stlio_file_readlines(lky_object_seq *args, lky_object_function *func
     return stlarr_cinit(list);
 }
 
-lky_object *stlio_file_readline(lky_object_seq *args, lky_object_function *func)
+lky_object *stlio_file_readline(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_custom *self = (lky_object_custom *)func->owner;
     stlio_file_object_data *data = self->data;
 
@@ -196,8 +220,11 @@ lky_object *stlio_file_readline(lky_object_seq *args, lky_object_function *func)
     return ret;
 }
 
-lky_object *stlio_file_write(lky_object_seq *args, lky_object_function *func)
+lky_object *stlio_file_write(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_custom *self = (lky_object_custom *)func->owner;
     stlio_file_object_data *data = self->data;
 
@@ -213,8 +240,11 @@ lky_object *stlio_file_write(lky_object_seq *args, lky_object_function *func)
     return &lky_nil;
 }
 
-lky_object *stlio_file_writeline(lky_object_seq *args, lky_object_function *func)
+lky_object *stlio_file_writeline(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_custom *self = (lky_object_custom *)func->owner;
     stlio_file_object_data *data = self->data;
 
@@ -230,8 +260,11 @@ lky_object *stlio_file_writeline(lky_object_seq *args, lky_object_function *func
     return &lky_nil;
 }
 
-lky_object *stlio_file_close(lky_object_seq *args, lky_object_function *func)
+lky_object *stlio_file_close(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_custom *self = (lky_object_custom *)func->owner;
     stlio_file_object_data *data = self->data;
 
@@ -240,8 +273,11 @@ lky_object *stlio_file_close(lky_object_seq *args, lky_object_function *func)
     return &lky_nil;
 }
 
-lky_object *stlio_make_file_object(lky_object_seq *args, lky_object *func)
+lky_object *stlio_make_file_object(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_custom *obj = lobjb_build_custom(sizeof(stlio_file_object_data));
     lky_object *name = (lky_object *)args->value;
     lky_object *type = (lky_object *)args->next->value;

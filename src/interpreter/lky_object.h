@@ -25,6 +25,7 @@
 // #define INCREF(obj) (rc_decr(obj))
 struct lky_object_seq;
 struct lky_object;
+typedef struct lky_func_bundle lky_func_bundle;
 
 typedef enum {
     LBI_FLOAT,
@@ -41,7 +42,7 @@ typedef enum {
     LBI_ERROR
 } lky_builtin_type;
 
-typedef struct lky_object *(*lky_function_ptr)(struct lky_object_seq *args, struct lky_object *self);
+typedef struct lky_object *(*lky_function_ptr)(lky_func_bundle *);
 
 typedef struct {
     int argc;
@@ -70,6 +71,11 @@ typedef struct {
     lky_callable callable;
 } lky_object;
 
+typedef struct lky_func_bundle {
+    lky_object *func;
+    lky_object_seq *args;
+} lky_func_bundle;
+
 lky_object *lobj_alloc();
 void lobj_set_member(lky_object *obj, char *member, lky_object *val);
 lky_object *lobj_get_member(lky_object *obj, char *member);
@@ -81,5 +87,13 @@ char lobj_have_same_class(lky_object *a, lky_object *b);
 char *lobj_stringify(lky_object *obj);
 
 extern lky_object lky_nil;
+
+#define MAKE_BUNDLE(f, a) {\
+    .func = (lky_object *)(f),\
+    .args = (lky_object_seq *)(a)\
+}
+
+#define BUW_FUNC(b) ((lky_object_function *)b->func)
+#define BUW_ARGS(b) ((lky_object_seq *)b->args)
 
 #endif

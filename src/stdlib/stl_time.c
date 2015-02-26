@@ -43,13 +43,19 @@ long millis()
     return (long)(tb.time * 1000 + tb.millitm);
 }
 
-lky_object *stltime_millis(lky_object_seq *args, lky_object *func)
+lky_object *stltime_millis(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     return lobjb_build_int(millis());
 }
 
-lky_object *stltime_date_stringify(lky_object_seq *args, lky_object_function *func)
+lky_object *stltime_date_stringify(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_custom *self = (lky_object_custom *)func->owner;
     time_data *d = self->data;
     struct tm td = d->time;
@@ -109,8 +115,11 @@ void stltime_copy_props_to_struct(lky_object *o)
     data->time = tm;
 }
 
-lky_object *stltime_date_format(lky_object_seq *args, lky_object_function *func)
+lky_object *stltime_date_format(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_custom *self = (lky_object_custom *)func->owner;
     stltime_copy_props_to_struct((lky_object *)self);
     char *str = lobjb_stringify((lky_object *)args->value);
@@ -162,8 +171,11 @@ lky_object *stltime_build_date_object(lky_object *ht)
     return obj;
 }
 
-lky_object *stltime_date_builder(lky_object_seq *args, lky_object *func)
+lky_object *stltime_date_builder(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object *indict = args ? (lky_object *)args->value : NULL;
     return stltime_build_date_object(indict);
 }

@@ -28,8 +28,11 @@ struct stlobj_members {
     arraylist vals;
 };
 
-lky_object *stlobj_stringify(lky_object_seq *args, lky_object_function *func)
+lky_object *stlobj_stringify(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object *self = func->owner;
     char *buf = malloc(100);
     sprintf(buf, "(lky_object | %p)", self);
@@ -38,8 +41,11 @@ lky_object *stlobj_stringify(lky_object_seq *args, lky_object_function *func)
     return retobj;
 }
 
-lky_object *stlobj_equals(lky_object_seq *args, lky_object_function *func)
+lky_object *stlobj_equals(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     // TODO: Using func->owner for self is problematic
     // for subclassing.
     lky_object *self = func->owner;
@@ -69,8 +75,11 @@ void stlobj_members_set_each(void *key, void *val, void *data)
     lobj_set_member(o, ch, (lky_object *)val);
 }
 
-lky_object *stlobj_set_members(lky_object_seq *args, lky_object_function *func)
+lky_object *stlobj_set_members(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object *self = func->owner;
 
     lky_object *dict = (lky_object *)args->value;
@@ -92,10 +101,13 @@ lky_object *stlobj_set_members(lky_object_seq *args, lky_object_function *func)
     return &lky_nil;
 }
 
-lky_object *stlobj_members(lky_object *args, lky_object_function *func)
+lky_object *stlobj_members(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     if(args)
-        return stlobj_set_members((lky_object_seq *)args, func);
+        return stlobj_set_members(bundle);
     lky_object *self = func->owner;
     
     struct stlobj_members m;

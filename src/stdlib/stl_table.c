@@ -97,8 +97,11 @@ void stltab_append_array(void *key, void *val, void *data)
     arr_append(lifo->list, touse);
 }
 
-lky_object *stltab_stringify(lky_object_seq *args, lky_object_function *func)
+lky_object *stltab_stringify(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_custom *tab = (lky_object_custom *)func->owner;
     stltab_data *d = tab->data;
 
@@ -115,8 +118,11 @@ lky_object *stltab_stringify(lky_object_seq *args, lky_object_function *func)
     return ret;
 }
 
-lky_object *stltab_keys(lky_object_seq *args, lky_object_function *func)
+lky_object *stltab_keys(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_custom *tab = (lky_object_custom *)func->owner;
     stltab_data *d = tab->data;
 
@@ -130,8 +136,11 @@ lky_object *stltab_keys(lky_object_seq *args, lky_object_function *func)
     return stlarr_cinit(list);
 }
 
-lky_object *stltab_values(lky_object_seq *args, lky_object_function *func)
+lky_object *stltab_values(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_custom *tab = (lky_object_custom *)func->owner;
     stltab_data *d = tab->data;
 
@@ -161,8 +170,11 @@ void stltab_cput(lky_object *table, lky_object *key, lky_object *val)
     hst_put(&d->ht, key, val, stltab_autohash, stltab_autoequ);
 }
 
-lky_object *stltab_put(lky_object_seq *args, lky_object_function *func)
+lky_object *stltab_put(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_custom *tab = (lky_object_custom *)func->owner;
     stltab_data *d = tab->data;
 
@@ -177,8 +189,11 @@ lky_object *stltab_put(lky_object_seq *args, lky_object_function *func)
     return &lky_nil;
 }
 
-lky_object *stltab_add_all(lky_object_seq *args, lky_object_function *func)
+lky_object *stltab_add_all(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_custom *tab = (lky_object_custom *)func->owner;
     stltab_data *d = tab->data;
 
@@ -195,8 +210,11 @@ lky_object *stltab_add_all(lky_object_seq *args, lky_object_function *func)
     return &lky_nil;
 }
 
-lky_object *stltab_get(lky_object_seq *args, lky_object_function *func)
+lky_object *stltab_get(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_custom *tab = (lky_object_custom *)func->owner;
     stltab_data *d = tab->data;
 
@@ -207,8 +225,11 @@ lky_object *stltab_get(lky_object_seq *args, lky_object_function *func)
     return ret ? ret : &lky_nil;
 }
 
-lky_object *stltab_remove(lky_object_seq *args, lky_object_function *func)
+lky_object *stltab_remove(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_custom *tab = (lky_object_custom *)func->owner;
     stltab_data *d = tab->data;
 
@@ -220,8 +241,11 @@ lky_object *stltab_remove(lky_object_seq *args, lky_object_function *func)
     return ret ? ret : &lky_nil;
 }
 
-lky_object *stltab_remove_value(lky_object_seq *args, lky_object_function *func)
+lky_object *stltab_remove_value(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_custom *tab = (lky_object_custom *)func->owner;
     stltab_data *d = tab->data;
 
@@ -233,16 +257,22 @@ lky_object *stltab_remove_value(lky_object_seq *args, lky_object_function *func)
     return &lky_nil;
 }
 
-lky_object *stltab_has_key(lky_object_seq *args, lky_object_function *func)
+lky_object *stltab_has_key(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_custom *tab = (lky_object_custom *)func->owner;
     stltab_data *d = tab->data;
 
     return lobjb_build_int(hst_contains_key(&d->ht, args->value, stltab_autohash, stltab_autoequ));
 }
 
-lky_object *stltab_has_value(lky_object_seq *args, lky_object_function *func)
+lky_object *stltab_has_value(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_custom *tab = (lky_object_custom *)func->owner;
     stltab_data *d = tab->data;
 

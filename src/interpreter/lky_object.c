@@ -25,6 +25,7 @@
 #include "aquarium.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 lky_object lky_nil = {LBI_NIL, 0, sizeof(lky_object), {0, 0, 0, NULL}, NULL, NULL, NULL, {0, NULL}};
 
@@ -60,8 +61,13 @@ lky_object *lobj_get_member(lky_object *obj, char *member)
         return NULL;
 
     lky_object *val = hst_get(&obj->members, member, NULL, NULL);
-    if(!val && obj->type != LBI_FUNCTION && obj->type != LBI_CLASS)
-        return lobj_get_member((lky_object *)obj->parent, member);
+    if(!val && obj->type != LBI_FUNCTION && obj->type != LBI_CLASS && !!strcmp(member, "proto_"))
+    {
+        lky_object *proto = hst_get(&obj->members, "proto_", NULL, NULL);
+        if(proto)
+            return lobj_get_member(proto, member);
+    }
+        //return lobj_get_member((lky_object *)obj->parent, member);
 
     return val;
 }
@@ -91,7 +97,8 @@ char *lobj_stringify(lky_object *obj)
     if(!func)
         return NULL;
     
-    lky_object *strobj = (lky_object *)(func->callable.function)(NULL, (struct lky_object *)func);
+    lky_func_bundle b = MAKE_BUNDLE(func, NULL);
+    lky_object *strobj = (lky_object *)(func->callable.function)(&b);
     if(!strobj)
         return NULL;
 

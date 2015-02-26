@@ -162,8 +162,8 @@ lky_object *lobjb_build_func(lky_object_code *code, int argc, arraylist inherite
 lky_object *lobjb_build_func_ex(lky_object *owner, int argc, lky_function_ptr ptr);
 lky_object *lobjb_build_class(lky_object_function *builder, char *refname, lky_object *parent_class);
 lky_object *lobjb_alloc(lky_builtin_type t, lky_builtin_value v);
-lky_object *lobjb_default_callable(lky_object_seq *args, lky_object *self);
-lky_object *lobjb_default_class_callable(lky_object_seq *args, lky_object *self);
+lky_object *lobjb_default_callable(lky_func_bundle *bundle);
+lky_object *lobjb_default_class_callable(lky_func_bundle *bundle);
 
 lky_object *lobjb_get_exception_class();
 

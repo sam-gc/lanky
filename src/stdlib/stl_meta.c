@@ -164,8 +164,11 @@ void run_repl(mach_interp *interp)
     free(buf);
 }
 
-lky_object *stlmeta_exec(lky_object_seq *args, lky_object_function *func)
+lky_object *stlmeta_exec(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_custom *self = (lky_object_custom *)func->owner;
     
     lky_object_custom *strobj = (lky_object_custom *)args->value;
@@ -174,8 +177,11 @@ lky_object *stlmeta_exec(lky_object_seq *args, lky_object_function *func)
     return compile_and_exec(str, self->data);
 }
 
-lky_object *stlmeta_audit(lky_object_seq *args, lky_object_function *func)
+lky_object *stlmeta_audit(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     META_AUDIT(lky_object);
     META_AUDIT(lky_object_seq);
     META_AUDIT(lky_object_function);
@@ -188,8 +194,11 @@ lky_object *stlmeta_audit(lky_object_seq *args, lky_object_function *func)
     return &lky_nil;
 }
 
-lky_object *stlmeta_repl(lky_object_seq *args, lky_object_function *func)
+lky_object *stlmeta_repl(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_custom *self = (lky_object_custom *)func->owner;
     
     run_repl(self->data);
@@ -197,56 +206,80 @@ lky_object *stlmeta_repl(lky_object_seq *args, lky_object_function *func)
     return &lky_nil;
 }
 
-lky_object *stlmeta_address_of(lky_object_seq *args, lky_object_function *func)
+lky_object *stlmeta_address_of(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     void *p = (void *)args->value;
     char str[20];
     sprintf(str, "%p", p);
     return stlstr_cinit(str);
 }
 
-lky_object *stlmeta_allow_int_tags(lky_object_seq *args, lky_object_function *func)
+lky_object *stlmeta_allow_int_tags(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object *o = (lky_object *)args->value;
     lobjb_uses_pointer_tags_ = OBJ_NUM_UNWRAP(o);
 
     return &lky_nil;
 }
 
-lky_object *stlmeta_gc_pause(lky_object_seq *args, lky_object_function *func)
+lky_object *stlmeta_gc_pause(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     gc_pause_collection();
     return &lky_nil;
 }
 
-lky_object *stlmeta_gc_halt(lky_object_seq *args, lky_object_function *func)
+lky_object *stlmeta_gc_halt(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     gc_pause();
     return &lky_nil;
 }
 
-lky_object *stlmeta_gc_resume(lky_object_seq *args, lky_object_function *func)
+lky_object *stlmeta_gc_resume(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     gc_resume();
     gc_resume_collection();
     return &lky_nil;
 }
 
-lky_object *stlmeta_gc_pass(lky_object_seq *args, lky_object_function *func)
+lky_object *stlmeta_gc_pass(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     gc_gc();
     return &lky_nil;
 }
 
-lky_object *stlmeta_gc_collect(lky_object_seq *args, lky_object_function *func)
+lky_object *stlmeta_gc_collect(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     gc_mark();
     gc_collect();
     return &lky_nil;
 }
 
-lky_object *stlmeta_gc_alloced(lky_object_seq *args, lky_object_function *func)
+lky_object *stlmeta_gc_alloced(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     return lobjb_build_int((long)gc_alloced());
 }
 
@@ -473,8 +506,11 @@ void stlmeta_print_dissassembly(lky_object_code *code)
     }
 }
 
-lky_object *stlmeta_examine(lky_object_seq *args, lky_object_function *func)
+lky_object *stlmeta_examine(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_function *obj = (lky_object_function *)args->value;
 
     if((uintptr_t)(obj) & 1)
@@ -526,8 +562,11 @@ lky_object *stlmeta_examine(lky_object_seq *args, lky_object_function *func)
     return &lky_nil;
 }
 
-lky_object *stlmeta_help_stdlib(lky_object_seq *args, lky_object_function *func)
+lky_object *stlmeta_help_stdlib(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     printf("LANKY STANDARD LIBRARY\n"
            "======================\n\n"
            "+ Object (stl_object.c)\n"

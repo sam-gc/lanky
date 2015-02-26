@@ -47,7 +47,8 @@ lky_object *bin_op_exec_custom(lky_object_function *func, lky_object *other, cha
     if(c.argc == 2)
         seq->next = lobjb_make_seq_node(lobjb_build_int(first));
     
-    return (lky_object *)c.function(seq, (struct lky_object *)func);
+    lky_func_bundle b = MAKE_BUNDLE(func, seq);
+    return (lky_object *)c.function(&b);
 }
 
 lky_object *lobjb_binary_add(lky_object *a, lky_object *b)

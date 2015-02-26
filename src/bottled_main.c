@@ -69,7 +69,7 @@ void exec_from_code(lky_object_code *code, char *file, int exec)
     arraylist list = arr_create(1);
     mach_interp interp = {NULL};
     
-lky_object_function *func = (lky_object_function *)lobjb_build_func(code, 0, list, &interp);
+    lky_object_function *func = (lky_object_function *)lobjb_build_func(code, 0, list, &interp);
 
     char codeloc[2000];
     realpath(file, codeloc);

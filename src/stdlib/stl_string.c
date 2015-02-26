@@ -22,8 +22,11 @@
 #include "stl_array.h"
 #include "hashtable.h"
 
-lky_object *stlstr_stringify(lky_object_seq *args, lky_object_function *func)
+lky_object *stlstr_stringify(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     return func->owner;
 }
 
@@ -34,8 +37,11 @@ void stlstr_free(lky_object *obj)
     free(self->data);
 }
 
-lky_object *stlstr_get_index(lky_object_seq *args, lky_object_function *func)
+lky_object *stlstr_get_index(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_custom *self = (lky_object_custom *)func->owner;
     
     lky_object *obj = (lky_object *)args->value;
@@ -48,15 +54,21 @@ lky_object *stlstr_get_index(lky_object_seq *args, lky_object_function *func)
     return stlstr_cinit(s);
 }
 
-lky_object *stlstr_hash(lky_object_seq *args, lky_object_function *func)
+lky_object *stlstr_hash(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_custom *self = (lky_object_custom *)func->owner;
     
     return lobjb_build_int(hst_djb2(self->data, NULL));
 }
 
-lky_object *stlstr_equals(lky_object_seq *args, lky_object_function *func)
+lky_object *stlstr_equals(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_custom *self = (lky_object_custom *)func->owner;
     
     lky_object_custom *obj = (lky_object_custom *)args->value;
@@ -70,8 +82,11 @@ lky_object *stlstr_equals(lky_object_seq *args, lky_object_function *func)
     return lobjb_build_int(!strcmp(stra, strb));
 }
 
-lky_object *stlstr_reverse(lky_object_seq *args, lky_object_function *func)
+lky_object *stlstr_reverse(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_custom *self = (lky_object_custom *)func->owner;
     char *str = self->data;
     size_t len = strlen(str);
@@ -88,8 +103,11 @@ lky_object *stlstr_reverse(lky_object_seq *args, lky_object_function *func)
     return stlstr_cinit(nstr);
 }
 
-lky_object *stlstr_not_equals(lky_object_seq *args, lky_object_function *func)
+lky_object *stlstr_not_equals(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_custom *self = (lky_object_custom *)func->owner;
 
     lky_object_custom *obj = (lky_object_custom *)args->value;
@@ -103,8 +121,11 @@ lky_object *stlstr_not_equals(lky_object_seq *args, lky_object_function *func)
     return lobjb_build_int(!!strcmp(stra, strb));
 }
 
-lky_object *stlstr_greater_than(lky_object_seq *args, lky_object_function *func)
+lky_object *stlstr_greater_than(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_custom *self = (lky_object_custom *)func->owner;
 
     lky_object_custom *obj = (lky_object_custom *)args->value;
@@ -118,8 +139,11 @@ lky_object *stlstr_greater_than(lky_object_seq *args, lky_object_function *func)
     return lobjb_build_int(strcmp(stra, strb) > 0);
 }
 
-lky_object *stlstr_lesser_than(lky_object_seq *args, lky_object_function *func)
+lky_object *stlstr_lesser_than(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_custom *self = (lky_object_custom *)func->owner;
 
     lky_object_custom *obj = (lky_object_custom *)args->value;
@@ -133,8 +157,11 @@ lky_object *stlstr_lesser_than(lky_object_seq *args, lky_object_function *func)
     return lobjb_build_int(strcmp(stra, strb) < 0);
 }
 
-lky_object *stlstr_multiply(lky_object_seq *args, lky_object_function *func)
+lky_object *stlstr_multiply(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_custom *self = (lky_object_custom *)func->owner;
     lky_object_builtin *other = (lky_object_builtin *)args->value;
 
@@ -174,8 +201,11 @@ lky_object *stlstr_multiply(lky_object_seq *args, lky_object_function *func)
     return ret;
 }
 
-lky_object *stlstr_set_index(lky_object_seq *args, lky_object_function *func)
+lky_object *stlstr_set_index(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_custom *self = (lky_object_custom *)func->owner;
     
     lky_object *idx = (lky_object *)args->value;
@@ -192,8 +222,11 @@ lky_object *stlstr_set_index(lky_object_seq *args, lky_object_function *func)
     return &lky_nil;
 }
 
-lky_object *stlstr_split(lky_object_seq *args, lky_object_function *func)
+lky_object *stlstr_split(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_custom *self = (lky_object_custom *)func->owner;
     lky_object *other = (lky_object *)args->value;
     
@@ -203,7 +236,8 @@ lky_object *stlstr_split(lky_object_seq *args, lky_object_function *func)
         // TODO: Error
     }
     
-    lky_object *ostr = (lky_object *)(strf->callable.function)(NULL, (struct lky_object *)strf);
+    lky_func_bundle b = MAKE_BUNDLE(strf, NULL);
+    lky_object *ostr = (lky_object *)(strf->callable.function)(&b);
 
     if((void *)ostr->cls != (void *)stlstr_class())
         return &lky_nil;
@@ -246,8 +280,11 @@ lky_object *stlstr_split(lky_object_seq *args, lky_object_function *func)
     return stlarr_cinit(list);
 }
 
-lky_object *stlstr_fmt_func(lky_object_seq *args, lky_object_function *func)
+lky_object *stlstr_fmt_func(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_custom *self = (lky_object_custom *)func->owner;
     char *mestr = self->data;
 
@@ -262,8 +299,11 @@ lky_object *stlstr_fmt_func(lky_object_seq *args, lky_object_function *func)
     return ret;
 }
 
-lky_object *stlstr_fmt_modulo(lky_object_seq *args, lky_object_function *func)
+lky_object *stlstr_fmt_modulo(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_custom *self = (lky_object_custom *)func->owner;
     char *mestr = self->data;
 
@@ -328,8 +368,11 @@ lky_object *stlstr_fmt_ext(char *mestr, arraylist list)
     return toret;
 }
 
-lky_object *stlstr_iterable(lky_object_seq *args, lky_object_function *func)
+lky_object *stlstr_iterable(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_custom *self = (lky_object_custom *)func->owner;
     char *mestr = self->data;
     int i;
@@ -348,8 +391,11 @@ lky_object *stlstr_iterable(lky_object_seq *args, lky_object_function *func)
     return stlarr_cinit(list);
 }
 
-lky_object *stlstr_add(lky_object_seq *args, lky_object_function *func)
+lky_object *stlstr_add(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_custom *self = (lky_object_custom *)func->owner;
     char *mestr = self->data;
     
@@ -408,8 +454,11 @@ char *stlstr_copy_and_escape(char *str)
     return cop;
 }
 
-lky_object *stlstr_to_lower(lky_object_seq *args, lky_object_function *func)
+lky_object *stlstr_to_lower(lky_func_bundle *bundle)
 {
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
     lky_object_custom *self = (lky_object_custom *)func->owner;
     char *me = self->data;
     size_t len = strlen(me);

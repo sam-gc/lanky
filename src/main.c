@@ -46,6 +46,15 @@
 #define STRINGIFY_TOK(tok) #tok
 #define STRINGIFY_INT(i) STRINGIFY_TOK(i)
 
+// TODO-----
+// HEY YOU,
+//      This is a transitional period. The function calling mechanism is moving
+//      to a more robust model (we can now control what things are getting sent
+//      to functions by using the lky_func_bundle structure). As such you might
+//      need to replace old api calls. The following is a search/replace string
+//      for vim that will do what you want.
+// %s/\(lky_object_seq\|lky_object\) \*args, \(lky_object_function\|lky_object\) \*func)\n{/lky_func_bundle *bundle)\r{\r    lky_object_function *func = BUW_FUNC(bundle);\r    lky_object_seq *args = BUW_ARGS(bundle);\r/gc)
+
 extern ast_node *programBlock;
 extern int yyparse();
 extern FILE *yyin;
@@ -176,7 +185,10 @@ void exec_from_code(lky_object_code *code, char *file, int exec)
     if(exec)
         mach_execute((lky_object_function *)func);
     else
-        stlmeta_examine(lobjb_make_seq_node((lky_object *)func), NULL);
+    {
+        lky_func_bundle b = MAKE_BUNDLE(NULL, lobjb_make_seq_node((lky_object *)func));
+        stlmeta_examine(&b);
+    }
 }
 
 int main(int argc, char *argv[])

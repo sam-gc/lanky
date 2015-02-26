@@ -36,7 +36,9 @@ lky_object *un_op_exec_custom(lky_object_function *func)
 {
     lky_callable c = func->callable;
 
-    return (lky_object *)c.function(NULL, (struct lky_object *)func);
+    //return (lky_object *)c.function(MAKE_BUNDLE(func, NULL));
+    lky_func_bundle b = MAKE_BUNDLE(func, NULL);
+    return (lky_object *)c.function(&b);
 }
 
 lky_object *lobjb_unary_not(lky_object *a)
