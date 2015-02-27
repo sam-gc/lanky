@@ -22,22 +22,32 @@
 #include "stl_string.h"
 #include "stl_table.h"
 #include "arraylist.h"
+#include "aquarium.h"
+#include "lky_gc.h"
 
 struct stlobj_members {
     arraylist keys;
     arraylist vals;
 };
 
+static  lky_object *_stlobj_proto = NULL;
+
 lky_object *stlobj_stringify(lky_func_bundle *bundle)
 {
     lky_object_function *func = BUW_FUNC(bundle);
     lky_object_seq *args = BUW_ARGS(bundle);
 
-    lky_object *self = func->owner;
-    char *buf = malloc(100);
-    sprintf(buf, "(lky_object | %p)", self);
+    lky_object *self = func->bound;
+    char buf[100];
+
+    if(!self)
+        strcpy(buf, "(lky_object | global prototype)");
+    else
+        sprintf(buf, "(lky_object | %p)", self);
+
+    func->bound = NULL;
+
     lky_object *retobj = stlstr_cinit(buf);
-    free(buf);
     return retobj;
 }
 
@@ -46,15 +56,18 @@ lky_object *stlobj_equals(lky_func_bundle *bundle)
     lky_object_function *func = BUW_FUNC(bundle);
     lky_object_seq *args = BUW_ARGS(bundle);
 
-    // TODO: Using func->owner for self is problematic
-    // for subclassing.
-    lky_object *self = func->owner;
+    lky_object *self = func->bound;
     lky_object *other = (lky_object *)args->value;
 
     char is_equal = 0;
-    for(; other; other = (lky_object *)other->parent)
-        if(other == self)
-            is_equal = 1;
+    // Handle special case where we are dealing with the
+    // prototype.
+    if(!func->bound)
+        is_equal = other == _stlobj_proto;
+    else
+        is_equal = other == self;
+
+    func->bound = NULL;
 
     return lobjb_build_int(is_equal);
 }
@@ -134,11 +147,35 @@ lky_object *stlobj_cinit()
     return obj;
 }
 
-void stlobj_seed(lky_object *obj)
+lky_object *stlobj_get_proto()
 {
+    if(_stlobj_proto)
+        return _stlobj_proto;
+
+    // We have to manually create this so as to avoid
+    // deep recursion
+    lky_object *obj = aqua_request_next_block(sizeof(lky_object));
+    obj->type = LBI_CUSTOM;
+    obj->mem_count = 0;
+    obj->size = sizeof(lky_object);
+    obj->members = hst_create();
+    obj->members.duplicate_keys = 1;
+    gc_add_object(obj);
+
     lobj_set_member(obj, "stringify_", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlobj_stringify));
     lobj_set_member(obj, "op_equals_", lobjb_build_func_ex(obj, 2, (lky_function_ptr)stlobj_equals));
+
+    _stlobj_proto = obj;
+
+    return obj;
+}
+
+void stlobj_seed(lky_object *obj)
+{
+    //lobj_set_member(obj, "stringify_", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlobj_stringify));
+    //lobj_set_member(obj, "op_equals_", lobjb_build_func_ex(obj, 2, (lky_function_ptr)stlobj_equals));
     lobj_set_member(obj, "members_", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlobj_members));
+    lobj_set_member(obj, "proto_", stlobj_get_proto());
 }
 
 lky_object *stlobj_build(lky_object_seq *args, lky_object_function *function)
@@ -157,6 +194,8 @@ lky_object *stlobj_get_class()
     c.argc = 0;
     c.function = (lky_function_ptr)stlobj_build;
     cls->callable = c;
+
+    lobj_set_member(cls, "proto_", stlobj_get_proto());
 
     _stlobj_class = cls;
 

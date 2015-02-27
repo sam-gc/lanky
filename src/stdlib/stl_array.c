@@ -29,6 +29,7 @@
 #define FAIL_CHECK(check, name, text) do { if(check) { mach_halt_with_err(lobjb_build_error(name, text)); return &lky_nil; } }while(0);
 
 static lky_object *stlarr_class = NULL;
+static lky_object *stlarr_proto = NULL;
 
 typedef struct {
     arraylist container;
@@ -562,6 +563,15 @@ lky_object *stlarr_stringify(lky_func_bundle *bundle)
     return ret;
 }
 
+lky_object *stlarr_get_proto()
+{
+    if(stlarr_proto)
+        return stlarr_proto;
+
+    stlarr_proto = lobj_alloc();
+    return stlarr_proto;
+}
+
 lky_object *stlarr_cinit(arraylist inlist)
 {
     lky_object_custom *cobj = lobjb_build_custom(sizeof(stlarr_data));
@@ -596,6 +606,7 @@ lky_object *stlarr_cinit(arraylist inlist)
     lobj_set_member(obj, "copy",            lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlarr_copy));
     lobj_set_member(obj, "slice",           lobjb_build_func_ex(obj, 2, (lky_function_ptr)stlarr_slice));
     lobj_set_member(obj, "sliceTo",         lobjb_build_func_ex(obj, 2, (lky_function_ptr)stlarr_slice_to));
+    lobj_set_member(obj, "proto_",          stlarr_get_proto());
 
     cobj->freefunc = stlarr_dealloc;
     cobj->savefunc = stlarr_save;
@@ -610,7 +621,6 @@ lky_object *stlarr_build(lky_func_bundle *bundle)
     return stlarr_cinit(arr_create(10));
 }
 
-
 lky_object *stlarr_get_class()
 {
     if(stlarr_class)
@@ -622,6 +632,9 @@ lky_object *stlarr_get_class()
     c.function = (lky_function_ptr)stlarr_build;
     clsobj->callable = c;
 
+    lobj_set_member(clsobj, "proto_", stlarr_get_proto());
+
     stlarr_class = clsobj;
     return clsobj;
 }
+

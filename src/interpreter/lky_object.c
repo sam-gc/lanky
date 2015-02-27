@@ -27,7 +27,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-lky_object lky_nil = {LBI_NIL, 0, sizeof(lky_object), {0, 0, 0, NULL}, NULL, NULL, NULL, {0, NULL}};
+lky_object lky_nil = {LBI_NIL, 0, sizeof(lky_object), {0, 0, 0, NULL}, NULL, {0, NULL}};
 
 int alloced = 0;
 lky_object *lobj_alloc()
@@ -39,9 +39,6 @@ lky_object *lobj_alloc()
     obj->members = hst_create();
     obj->members.duplicate_keys = 1;
     gc_add_object(obj);
-
-    obj->parent = NULL;
-    obj->child = NULL;
 
     stlobj_seed(obj);
     return obj;
@@ -65,9 +62,16 @@ lky_object *lobj_get_member(lky_object *obj, char *member)
     {
         lky_object *proto = hst_get(&obj->members, "proto_", NULL, NULL);
         if(proto)
-            return lobj_get_member(proto, member);
+        {
+            lky_object *m = lobj_get_member(proto, member);
+            if(!m)
+                return NULL;
+            if(!OBJ_IS_INTEGER(m) && m->type == LBI_FUNCTION)
+                ((lky_object_function *)m)->bound = obj;
+
+            return m;
+        }
     }
-        //return lobj_get_member((lky_object *)obj->parent, member);
 
     return val;
 }

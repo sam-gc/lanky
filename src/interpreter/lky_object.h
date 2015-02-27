@@ -63,9 +63,7 @@ typedef struct {
     int mem_count;
     size_t size;
     hashtable members;
-    //Trie_t members;
-    struct lky_object *parent;
-    struct lky_object *child;
+
     struct lky_object *cls;
 
     lky_callable callable;

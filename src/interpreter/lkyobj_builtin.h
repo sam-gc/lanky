@@ -71,8 +71,6 @@ typedef struct {
     int mem_count;
     size_t size;
     hashtable members;
-    lky_object *parent;
-    lky_object *child;
     lky_object *cls;
 
     lky_callable callable;
@@ -121,6 +119,8 @@ struct lky_object_function {
 
     lky_object_code *code;
     lky_object *owner;
+    lky_object *bound;
+    char *refname;
 };
 
 typedef struct {
@@ -142,8 +142,6 @@ typedef struct {
     int mem_count;
     size_t size;
     hashtable members;
-    lky_object *parent;
-    lky_object *child;
     lky_object *cls;
 
     char *name;

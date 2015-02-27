@@ -208,14 +208,24 @@ lky_object_custom *lobjb_build_custom(size_t extra_size)
     obj->freefunc = NULL;
     obj->savefunc = NULL;
     obj->cls = NULL;
-    obj->parent = NULL;
-    obj->child = NULL;
 
     stlobj_seed((lky_object *)obj);
 
     gc_add_object((lky_object *)obj);
 
     return obj;
+}
+
+lky_object *lobjb_bind_func(lky_func_bundle *bundle)
+{
+    lky_object_seq *args = BUW_ARGS(bundle);
+
+    lky_object_function *func = (lky_object_function *)BUW_FUNC(bundle)->owner;
+
+    lky_object *obj = (lky_object *)args->value;
+    func->bound = obj;
+
+    return (lky_object *)func;
 }
 
 lky_object *lobjb_build_func(lky_object_code *code, int argc, arraylist inherited, mach_interp *interp)
@@ -230,6 +240,8 @@ lky_object *lobjb_build_func(lky_object_code *code, int argc, arraylist inherite
     func->code = code;
     func->bucket = NULL;
     func->owner = NULL;
+    func->bound = NULL;
+    func->refname = "self";
 
     func->interp = interp;
 
@@ -245,6 +257,7 @@ lky_object *lobjb_build_func(lky_object_code *code, int argc, arraylist inherite
     // Add some members to the function argument
     lobj_set_member((lky_object *)func, "argc", (lky_object *)lobjb_build_int(argc)); 
     lobj_set_member((lky_object *)func, "code_", (lky_object *)code);
+    lobj_set_member((lky_object *)func, "bind", lobjb_build_func_ex((lky_object *)func, 1, (lky_function_ptr)lobjb_bind_func));
     
     return (lky_object *)func;
 }
@@ -258,6 +271,8 @@ lky_object *lobjb_build_func_ex(lky_object *owner, int argc, lky_function_ptr pt
     func->members = hst_create();
     func->members.duplicate_keys = 1;
     func->owner = NULL;
+    func->bound = NULL;
+    func->refname = NULL;
     
     func->code = NULL;
     func->bucket = NULL;
@@ -455,6 +470,12 @@ lky_object *lobjb_default_callable(lky_func_bundle *bundle)
     {
         char *name = code->names[i];
         lobj_set_member(func->bucket, name, (lky_object *)args->value);
+    }
+
+    if(func->bound)
+    {
+        lobj_set_member(func->bucket, func->refname, func->bound);
+        func->bound = NULL;
     }
 
     for(; i < func->callable.argc; i++)

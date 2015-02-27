@@ -22,7 +22,7 @@
 #include "aquarium.h"
 #include "lkyobj_builtin.h"
 
-#define LARGE_SIZE 112
+#define LARGE_SIZE 128
 #define LARGE_COUNT 100000
 
 // #define SCRUB_POOL
