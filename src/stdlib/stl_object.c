@@ -51,6 +51,42 @@ lky_object *stlobj_stringify(lky_func_bundle *bundle)
     return retobj;
 }
 
+lky_object *stlobj_responds_to(lky_func_bundle *bundle)
+{
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
+    lky_object *self = func->bound ? func->bound : _stlobj_proto;
+
+    // TODO: There should be some checking here...
+    lky_object_custom *c = (lky_object_custom *)args->value;
+    char *str = c->data;
+
+    lky_object *o = lobj_get_member(self, str);
+    if(!o)
+        return lobjb_build_int(0);
+
+    // Help avoid tagged integer problems
+    if(OBJ_IS_INTEGER(o))
+        return lobjb_build_int(0);
+
+    return lobjb_build_int(o->type == LBI_FUNCTION);
+}
+
+lky_object *stlobj_has(lky_func_bundle *bundle)
+{
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
+    lky_object *self = func->bound ? func->bound : _stlobj_proto;
+
+    // TODO: There should be some checking here...
+    lky_object_custom *c = (lky_object_custom *)args->value;
+    char *str = c->data;
+
+    return lobjb_build_int(!!lobj_get_member(self, str));
+}
+
 lky_object *stlobj_equals(lky_func_bundle *bundle)
 {
     lky_object_function *func = BUW_FUNC(bundle);
@@ -142,8 +178,7 @@ lky_object *stlobj_cinit()
 {
     lky_object_custom *self = lobjb_build_custom(0);
     lky_object *obj = (lky_object *)self;
-
-    lobj_set_member(obj, "stringify_", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlobj_stringify));
+lobj_set_member(obj, "stringify_", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlobj_stringify));
     lobj_set_member(obj, "op_equals_", lobjb_build_func_ex(obj, 2, (lky_function_ptr)stlobj_equals));
 
     return obj;
@@ -167,6 +202,8 @@ lky_object *stlobj_get_proto()
     lobj_set_member(obj, "stringify_", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlobj_stringify));
     lobj_set_member(obj, "op_equals_", lobjb_build_func_ex(obj, 2, (lky_function_ptr)stlobj_equals));
     lobj_set_member(obj, "members_", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlobj_members));
+    lobj_set_member(obj, "respondsTo", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlobj_responds_to));
+    lobj_set_member(obj, "has", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlobj_has));
 
     _stlobj_proto = obj;
 
