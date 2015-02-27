@@ -70,6 +70,9 @@ comment (\#|(\-\-)).*(\n)
 "in"                    return TOKEN(TIN);
 "try"                   return TOKEN(TTRY);
 "catch"                 return TOKEN(TCATCH);
+"init"                  return TOKEN(TINIT);
+"proto"                 return TOKEN(TPROTO);
+"static"                return TOKEN(TSTATIC);
 {nvar}      {SAVE_TOKEN; return TIDENTIFIER;}
 {real}      {SAVE_TOKEN; return TFLOAT;}
 {integer}   {SAVE_TOKEN; return TINTEGER;}

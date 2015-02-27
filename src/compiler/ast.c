@@ -362,6 +362,76 @@ ast_node *create_func_decl_node(ast_node *params, ast_node *payload, char *refna
     return (ast_node *)node;
 }
 
+
+/*typedef struct {
+    ast_type type;
+    struct ast_node *next;
+
+    lky_class_prefix prefix;
+    char *name;
+    struct ast_node *payload;
+} ast_class_member_node;
+
+typedef struct {
+    ast_type type;
+    struct ast_node *next;
+
+    struct ast_node *members;
+    struct ast_node *init;
+} ast_class_decl_node;*/
+ast_node *create_class_decl_node(ast_node *members)
+{
+    ast_node *col = MALLOC(sizeof(ast_node));
+    ast_class_decl_node *node = MALLOC(sizeof(ast_class_decl_node));
+    pool_add(&ast_memory_pool, col);
+    pool_add(&ast_memory_pool, node);
+
+    node->type = ACLASS_DECL;
+    node->next = NULL;
+
+    ast_node *cur = col;
+
+    for(; members; members = members->next)
+    {
+        ast_class_member_node *m = (ast_class_member_node *)members;
+        if(m->prefix == LCP_INIT)
+            node->init = members;
+        else
+        {
+            cur->next = members;
+            cur = cur->next;
+        }
+    }
+
+    node->members = col;
+
+    return (ast_node *)node;
+}
+
+ast_node *create_class_member_node(lky_class_prefix p, char *refname, ast_node *payload)
+{
+    ast_class_member_node *node = MALLOC(sizeof(ast_class_member_node));
+    pool_add(&ast_memory_pool, node);
+
+    node->type = ACLASSMEMBER;
+    node->next = NULL;
+
+    node->name = refname;
+    node->prefix = p;
+
+    if(p == LCP_INIT)
+    {
+        ast_func_decl_node *f = (ast_func_decl_node *)payload;
+        ast_node *args = f->params;
+        f->params = create_value_node(VVAR, (void *)refname);
+        f->params->next = args;
+    }
+
+    node->payload = payload;
+
+    return (ast_node *)node;
+}
+/*
 ast_node *create_class_decl_node(char *refname, ast_node *payload)
 {
     ast_class_decl_node *node = MALLOC(sizeof(ast_class_decl_node));
@@ -374,7 +444,7 @@ ast_node *create_class_decl_node(char *refname, ast_node *payload)
     node->payload = payload;
 
     return (ast_node *)node;
-}
+}*/
  
 ast_node *create_func_call_node(ast_node *ident, ast_node *arguments)
 {

@@ -20,6 +20,7 @@
 #define AST_H
 
 #include "mempool.h"
+#include "class_builder.h"
 
 //#define DEBUG(txt) printf("%d %s\n", __LINE__, txt )
 
@@ -50,7 +51,8 @@ typedef enum {
     ALOAD,
     AOBJDECL,
     ATRIPLESET,
-    ATRYCATCH
+    ATRYCATCH,
+    ACLASSMEMBER
 } ast_type;
 
 // The different value types...
@@ -239,6 +241,7 @@ typedef struct {
     char *refname;
 } ast_func_decl_node;
 
+/*
 // A node to represent class
 // declarations
 typedef struct {
@@ -256,6 +259,23 @@ typedef struct {
     // is the compromise.
     char *refname;
     struct ast_node *payload;
+} ast_class_decl_node;*/
+
+typedef struct {
+    ast_type type;
+    struct ast_node *next;
+
+    lky_class_prefix prefix;
+    char *name;
+    struct ast_node *payload;
+} ast_class_member_node;
+
+typedef struct {
+    ast_type type;
+    struct ast_node *next;
+
+    struct ast_node *members;
+    struct ast_node *init;
 } ast_class_decl_node;
 
 // A loop node to represent loop syntax. There
@@ -344,7 +364,8 @@ ast_node *create_cond_node(ast_node *left, ast_node *right, char type);
 ast_node *create_loop_node(ast_node *init, ast_node *condition, ast_node *onloop, ast_node *payload);
 ast_node *create_iter_loop_node(ast_node *store, ast_node *index, ast_node *condition, ast_node *payload);
 ast_node *create_func_decl_node(ast_node *params, ast_node *payload, char *refname);
-ast_node *create_class_decl_node(char *refname, ast_node *payload); 
+ast_node *create_class_decl_node(ast_node *members); 
+ast_node *create_class_member_node(lky_class_prefix p, char *refname, ast_node *payload);
 ast_node *create_func_call_node(ast_node *ident, ast_node *arguments);
 ast_node *create_ternary_node(ast_node *condition, ast_node *first, ast_node *second);
 ast_node *create_array_node(ast_node *payload);

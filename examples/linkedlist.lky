@@ -1,19 +1,44 @@
 Error = <'Error'>;
 
-List = class () -> self {
-    self.build_ = func() {
+List = class () {
+    init self: func() {
         self.head = nil;
         self.count = 0;
-    };
+    }
 
-    self.makeNode = func(obj) {
+    static fromArray: func(arr) -> cls {
+        new = cls.new();
+        cur = nil;
+        start = nil;
+        ct = 0;
+
+        for e in arr {
+            node = new.makeNode(e);
+            if !cur {
+                cur = node;
+                start = cur;
+            } else {
+                cur.next = node;
+                cur = node;
+            }
+
+            ct += 1;
+        }
+
+        new.head = start;
+        new.count = ct;
+
+        ret new;
+    }
+
+    proto makeNode: func(obj) {
         ret {
-            .next : nil,
-            .payload : obj
+            .next: nil,
+            .payload: obj
         };
-    };
+    }
 
-    self.getLast = func() {
+    proto getLast: func() -> self {
         if !self.head {
             ret nil;
         }
@@ -21,9 +46,9 @@ List = class () -> self {
         for node = self.head; node.next; node = node.next {}
 
         ret node;
-    };
+    }
 
-    self.append = func(obj) {
+    proto append: func(obj) -> self {
         new = self.makeNode(obj);
         last = self.getLast();
 
@@ -31,18 +56,18 @@ List = class () -> self {
         else     { last.next = new; }
 
         self.count += 1;
-    };
+    }
 
-    self.iterable_ = func() {
+    proto iterable_: func() -> self {
         arr = [];
         for node = self.head; node; node = node.next {
             arr.append(node.payload);
         }
 
         ret arr;
-    };
+    }
 
-    self.op_get_index_ = func(idx) {
+    proto op_get_index_: func(idx) -> self {
         if !self.head {
             ret nil;
         }
@@ -55,9 +80,9 @@ List = class () -> self {
         }
 
         raise Error('IndexOutOfBounds', 'The given index is not valid for the list');
-    };
+    }
 
-    self.op_set_index_ = func(idx, obj) {
+    proto op_set_index_: func(idx, obj) -> self {
         if !self.head {
             -- This really should be an error.
             ret;
@@ -72,9 +97,9 @@ List = class () -> self {
         else {
             raise Error('IndexOutOfBounds', 'The given index is not valid for the list');
         }
-    };
+    }
 
-    self.stringify_ = func() {
+    proto stringify_: func() -> self {
         str = "(";
         len = self.count;
 
@@ -84,11 +109,21 @@ List = class () -> self {
                 str += ', ';
             }
         }
-
         str += ")";
-
         ret str;
-    };
+    }
+
+    static hotPatch: func() -> cls {
+        cls.model_.sum = func() -> self {
+            sum = 0;
+            for e in self {
+                sum += e;
+            }
+
+            ret sum;
+        };
+    }
 };
+
 
 ret List;

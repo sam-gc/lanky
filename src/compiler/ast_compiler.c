@@ -1229,6 +1229,7 @@ void compile_function(compiler_wrapper *cw, ast_node *root)
     append_op(cw, argc);
 }
 
+/*
 void compile_class_decl(compiler_wrapper *cw, ast_node *root)
 {
     ast_class_decl_node *node = (ast_class_decl_node *)root;
@@ -1261,6 +1262,44 @@ void compile_class_decl(compiler_wrapper *cw, ast_node *root)
     append_op(cw, nw.classargc);
     append_op(cw, LI_MAKE_CLASS);
     append_op(cw, idx);
+}*/
+
+void compile_class_decl(compiler_wrapper *cw, ast_node *root)
+{
+    ast_class_decl_node *node = (ast_class_decl_node *)root;
+
+    arraylist list = arr_create(10);
+    ast_node *member = node->members->next;
+    for(; member; member = member->next)
+    {
+        ast_class_member_node *m = (ast_class_member_node *)member;
+        //append_op(cw, m->prefix);
+        compile(cw, m->payload);
+        arr_append(&list, member);
+    }
+
+    compile(cw, ((ast_class_member_node *)node->init)->payload);
+
+    append_op(cw, LI_MAKE_CLASS);
+    append_op(cw, list.count);
+    int i;
+    for(i = list.count - 1; i >= 0; i--)
+    {
+        ast_class_member_node *m = (ast_class_member_node *)arr_get(&list, i);
+        append_op(cw, m->prefix);
+        
+        long idx = find_prev_name(cw, m->name);
+
+        if(idx < 0)
+        {
+            idx = cw->rnames.count;
+            char *nid = malloc(strlen(m->name) + 1);
+            strcpy(nid, m->name);
+            arr_append(&cw->rnames, nid);
+        }
+
+        append_op(cw, idx);
+    }
 }
 
 void compile_function_call(compiler_wrapper *cw, ast_node *root)

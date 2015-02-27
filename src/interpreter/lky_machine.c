@@ -48,6 +48,7 @@
 #include "stl_table.h"
 #include "hashmap.h"
 #include "module.h"
+#include "class_builder.h"
 
 // Macros to abstract the notion of "pushing"
 // and "popping" from the state machine
@@ -588,12 +589,27 @@ _opcode_whiplash_:
             PUSH(func);
         )
         vmop(MAKE_CLASS,
-            lky_object_function *func = POP();
+            /*lky_object_function *func = POP();
             
             int idx = frame->ops[++frame->pc];
             char *name = frame->names[idx];
 
             lky_object *cls = lobjb_build_class(func, name, NULL);
+
+            PUSH(cls);*/
+            int count = frame->ops[++frame->pc];
+
+            lky_object *cls = clb_init_class(POP());
+
+            int i;
+            for(i = 0; i < count; i++)
+            {
+                lky_class_prefix prfx = frame->ops[++frame->pc];
+                int idx = frame->ops[++frame->pc];
+                
+                char *name = frame->names[idx];
+                clb_add_member(cls, name, POP(), prfx);
+            }
 
             PUSH(cls);
         )

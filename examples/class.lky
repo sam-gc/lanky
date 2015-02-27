@@ -1,26 +1,46 @@
-Dog = class() -> self {
-    self.build_ = func(name) {
+-- Old style class declaration:
+-- Dog = class() -> self {
+--     self.build_ = func(name) {
+--         self.name = name;
+--         self.weight = 40;
+--     };
+-- 
+--     self.op_equals_ = func(other) {
+--         ret self.name == other.name & self.weight == other.weight;
+--     };
+-- 
+--     self.bark = func() {
+--         _prt self.name + " : Bark!";
+--     };
+-- };
+------------------------------------------
+-- New style
+Dog = class() {
+    init self: func(name) {
         self.name = name;
         self.weight = 40;
-    };
+    }
 
-    self.op_equals_ = func(other) {
+    proto op_equals_: func(other) -> self {
         ret self.name == other.name & self.weight == other.weight;
-    };
+    }
 
-    self.bark = func() {
-        _prt self.name + " : Bark!";
-    };
+    proto bark: func() -> self {
+        _prt self.name + " : Bark! ";
+    }
 };
 
-moki = Dog("Moki");
+-- Old style:
+--  moki = Dog("Moki");
+-- New style:
+moki = Dog.new('Moki');
 
 moki.bark();
 _prt moki.weight;
 
 _prt "----------------";
 
-fred = Dog("Fred");
+fred = Dog.new("Fred");
 _prt fred.op_equals_(moki);
 _prt moki.op_equals_(fred);
 

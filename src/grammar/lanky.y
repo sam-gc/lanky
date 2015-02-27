@@ -19,6 +19,7 @@
 
     #include "ast.h"
     #include "tools.h"
+    #include "class_builder.h"
     #include <stdlib.h>
     #include <stdio.h>
     ast_node *programBlock; /* the top level root node of our final AST */
@@ -45,13 +46,14 @@
 %token <token> TPLUSE TMINUSE TMULE TDIVE TMODE TPOWE TORE TANDE TCONE TBANDE TBORE TBXORE TBLSHIFTE TBRSHIFTE
 %token <token> TIF TELIF TELSE TPRT TCOMMENT TLOOP TCOLON TFUNC TSEMI TRET TQUESTION TARROW TCLASS TNIL TCONTINUE TBREAK TLOAD TNILOR TRAISE
 %token <token> TTRY TCATCH
+%token <token> TINIT TPROTO TSTATIC
 
 /* Define the type of node our nonterminal symbols represent.
    The types refer to the %union declaration above. Ex: when
    we call an ident (defined by union type ident) we are really
    calling an (NIdentifier*). It makes the compiler happy.
  */
-%type <node> program stmts stmt expression ifblock block elifblock elifblocks elseblock loopblock funcdecl arg arglist call calllist memaccess classdecl arrdecl arraccess opapply tabset tabsetlist tabdecl binor binand objset objsetlist objdecl trycatchblock
+%type <node> program stmts stmt expression ifblock block elifblock elifblocks elseblock loopblock funcdecl arg arglist call calllist memaccess classdecl arrdecl arraccess opapply tabset tabsetlist tabdecl binor binand objset objsetlist objdecl trycatchblock classmember classmemberlist
 
 /* Operator precedence for mathematical operators */
 %nonassoc TPRT TRET TNIL TRAISE
@@ -127,7 +129,16 @@ funcdecl : TFUNC TLPAREN arglist TRPAREN block { $$ = create_func_decl_node($3, 
     | TFUNC TLPAREN arglist TRPAREN TARROW TIDENTIFIER block { $$ = create_func_decl_node($3, $7, $6); }
     | TFUNC TLPAREN TRPAREN TARROW TIDENTIFIER block { $$ = create_func_decl_node(NULL, $6, $5); }
     ;
-classdecl : TCLASS TLPAREN TRPAREN TARROW TIDENTIFIER block { $$ = create_class_decl_node($5, $6); }
+/*classdecl : TCLASS TLPAREN TRPAREN TARROW TIDENTIFIER block { $$ = create_class_decl_node($5, $6); }
+    ;*/
+classmemberlist : classmember
+    | classmemberlist classmember { ast_add_node($$, $2); }
+    ;
+classmember : TPROTO TIDENTIFIER TCOLON expression { $$ = create_class_member_node(LCP_PROTO, $2, $4); }
+    | TSTATIC TIDENTIFIER TCOLON expression { $$ = create_class_member_node(LCP_STATIC, $2, $4); }
+    | TINIT TIDENTIFIER TCOLON funcdecl { $$ = create_class_member_node(LCP_INIT, $2, $4); }
+    ;
+classdecl : TCLASS TLPAREN TRPAREN TLBRACE classmemberlist TRBRACE { $$ = create_class_decl_node($5); }
     ;
 stmt : expression TSEMI
     | TRET TSEMI { $$ = create_unary_node(NULL, 'r'); } 

@@ -61,5 +61,3 @@ adder = func(val) {
 -- Print a mapping...
 Io.putln(a.map(adder));
 
-
--- Even more monkeying
