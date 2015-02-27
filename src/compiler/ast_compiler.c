@@ -1213,6 +1213,13 @@ void compile_function(compiler_wrapper *cw, ast_node *root)
     nw.save_val = 0;
     lky_object_code *code = compile_ast_ext(node->payload->next, &nw);
 
+    if(node->refname)
+    {
+        char *refname = node->refname;
+        code->refname = malloc(strlen(refname) + 1);
+        strcpy(code->refname, refname);
+    }
+
     long idx = cw->rcon.count;
     arr_append(&cw->rcon, code);
     
@@ -1524,6 +1531,7 @@ lky_object_code *compile_ast_ext(ast_node *root, compiler_wrapper *incw)
     code->op_len = cw.rops.count;
     code->locals = malloc(sizeof(void *) * cw.local_idx);
     code->names = make_names_array(&cw);
+    code->refname = NULL;
     code->stack_size = calculate_max_stack_depth(code->ops, (int)code->op_len);
     code->catch_size = calculate_max_catch_depth(code->ops, (int)code->op_len);
 

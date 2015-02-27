@@ -122,8 +122,10 @@ call : expression
 calllist : call
     | calllist TCOMMA call { ast_add_node($$, $3); }
     ;
-funcdecl : TFUNC TLPAREN arglist TRPAREN block { $$ = create_func_decl_node($3, $5); }
-    | TFUNC TLPAREN TRPAREN block { $$ = create_func_decl_node(NULL, $4); }
+funcdecl : TFUNC TLPAREN arglist TRPAREN block { $$ = create_func_decl_node($3, $5, NULL); }
+    | TFUNC TLPAREN TRPAREN block { $$ = create_func_decl_node(NULL, $4, NULL); }
+    | TFUNC TLPAREN arglist TRPAREN TARROW TIDENTIFIER block { $$ = create_func_decl_node($3, $7, $6); }
+    | TFUNC TLPAREN TRPAREN TARROW TIDENTIFIER block { $$ = create_func_decl_node(NULL, $6, $5); }
     ;
 classdecl : TCLASS TLPAREN TRPAREN TARROW TIDENTIFIER block { $$ = create_class_decl_node($5, $6); }
     ;

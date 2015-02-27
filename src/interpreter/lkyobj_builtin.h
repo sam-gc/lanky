@@ -96,6 +96,8 @@ typedef struct {
     long op_len;
     int stack_size;
     int catch_size;
+
+    char *refname;
 } lky_object_code;
 
 // TODO: Is this necessary?

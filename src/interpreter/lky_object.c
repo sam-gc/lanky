@@ -72,6 +72,8 @@ lky_object *lobj_get_member(lky_object *obj, char *member)
             return m;
         }
     }
+    else if(!OBJ_IS_INTEGER(val) && val && val->type == LBI_FUNCTION)
+        ((lky_object_function *)val)->bound = obj;
 
     return val;
 }

@@ -197,7 +197,7 @@ lky_object *stlobj_get_class()
     c.function = (lky_function_ptr)stlobj_build;
     cls->callable = c;
 
-    lobj_set_member(cls, "proto_", stlobj_get_proto());
+    lobj_set_member(cls, "model_", stlobj_get_proto());
 
     _stlobj_class = cls;
 

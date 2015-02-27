@@ -225,7 +225,7 @@ ast_node *create_object_decl_node_ex(ast_node *payload, char *refname, ast_node 
     ast_add_node(root, (struct ast_node *)node);
     ast_add_node(root, retnode);
 
-    return create_func_call_node(create_func_decl_node(NULL, root), NULL);
+    return create_func_call_node(create_func_decl_node(NULL, root, NULL), NULL);
 }
 
 ast_node *create_object_decl_node(ast_node *payload, char *refname, ast_node *obj)
@@ -346,7 +346,7 @@ ast_node *create_iter_loop_node(ast_node *store, ast_node *index, ast_node *cond
     return (ast_node *)node;
 }
 
-ast_node *create_func_decl_node(ast_node *params, ast_node *payload)
+ast_node *create_func_decl_node(ast_node *params, ast_node *payload, char *refname)
 {
     ast_func_decl_node *node = MALLOC(sizeof(ast_func_decl_node));
     pool_add(&ast_memory_pool, node);
@@ -356,6 +356,8 @@ ast_node *create_func_decl_node(ast_node *params, ast_node *payload)
     
     node->params = params;
     node->payload = payload;
+
+    node->refname = refname;
     
     return (ast_node *)node;
 }

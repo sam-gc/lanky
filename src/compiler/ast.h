@@ -235,6 +235,8 @@ typedef struct {
     
     struct ast_node *params;
     struct ast_node *payload;
+
+    char *refname;
 } ast_func_decl_node;
 
 // A node to represent class
@@ -341,7 +343,7 @@ ast_node *create_if_node(ast_node *condition, ast_node *payload);
 ast_node *create_cond_node(ast_node *left, ast_node *right, char type);
 ast_node *create_loop_node(ast_node *init, ast_node *condition, ast_node *onloop, ast_node *payload);
 ast_node *create_iter_loop_node(ast_node *store, ast_node *index, ast_node *condition, ast_node *payload);
-ast_node *create_func_decl_node(ast_node *params, ast_node *payload);
+ast_node *create_func_decl_node(ast_node *params, ast_node *payload, char *refname);
 ast_node *create_class_decl_node(char *refname, ast_node *payload); 
 ast_node *create_func_call_node(ast_node *ident, ast_node *arguments);
 ast_node *create_ternary_node(ast_node *condition, ast_node *first, ast_node *second);

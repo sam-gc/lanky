@@ -1,4 +1,6 @@
 Array = <'Array'>;
+Object = <'Object'>;
+Meta = <'Meta'>;
 Io = <'Io'>;
 
 trySum = func(arr) {
@@ -10,14 +12,54 @@ trySum = func(arr) {
 };
 
 a = [1, 2, 3, 4];
+
+-- This will not work.
 trySum(a);
 
-Array.model_.sum = func() {
-    sum = 0;
-    for i in self {
-        sum += i;
-    }
-    ret sum;
+-- Add to the Object prototype
+Object.model_.printAddr = func() -> self {
+    Io.putln(Meta.addressOf(self));
 };
 
+-- Monkey patch the Array prototype
+Array.model_ => {
+    .sum : func() -> self {
+        sum = 0;
+        for i in self {
+            sum += i;
+        }
+
+        ret sum;
+    },
+
+    .first : func() -> self {
+        ret self.count ? self[0] : nil;
+    },
+
+    .map : func(callback) -> self {
+        new = [];
+        for i in self {
+            new.append(callback(i));
+        }
+
+        ret new;
+    }
+};
+
+-- Now this will work
 trySum(a);
+
+-- The following will also work; this
+-- is an example of multiple prototype
+-- lookup.
+a.printAddr();
+
+adder = func(val) {
+    ret val + 1;
+};
+
+-- Print a mapping...
+Io.putln(a.map(adder));
+
+
+-- Even more monkeying

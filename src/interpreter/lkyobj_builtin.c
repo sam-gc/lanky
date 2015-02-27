@@ -241,7 +241,7 @@ lky_object *lobjb_build_func(lky_object_code *code, int argc, arraylist inherite
     func->bucket = NULL;
     func->owner = NULL;
     func->bound = NULL;
-    func->refname = "self";
+    func->refname = code->refname;
 
     func->interp = interp;
 
@@ -276,6 +276,7 @@ lky_object *lobjb_build_func_ex(lky_object *owner, int argc, lky_function_ptr pt
     
     func->code = NULL;
     func->bucket = NULL;
+    func->refname = NULL;
 
     func->parent_stack = arr_create(1);
 
@@ -472,7 +473,7 @@ lky_object *lobjb_default_callable(lky_func_bundle *bundle)
         lobj_set_member(func->bucket, name, (lky_object *)args->value);
     }
 
-    if(func->bound)
+    if(func->bound && func->refname)
     {
         lobj_set_member(func->bucket, func->refname, func->bound);
         func->bound = NULL;
