@@ -158,7 +158,7 @@ void srl_copy_int32_to_index(char *buf, int src, size_t idx)
 
 char *srl_serialize_code(lky_object *obj, size_t *len)
 {
-    size_t accum = 25;
+    size_t accum = 29;
 
     lky_object_code *code = (lky_object_code *)obj;
     char *rendered_constants[code->num_constants];
@@ -176,6 +176,9 @@ char *srl_serialize_code(lky_object *obj, size_t *len)
 
     for(i = 0; i < code->num_names; i++)
         accum += strlen(code->names[i]) + 4;
+
+    if(code->refname)
+        accum += strlen(code->refname);
 
     accum += code->op_len;
     char *data = malloc(accum);
@@ -203,6 +206,20 @@ char *srl_serialize_code(lky_object *obj, size_t *len)
         idx += 4;
         srl_copy_bytes_to_index(data, cur, idx, ln);
         idx += ln;
+    }
+
+    if(code->refname)
+    {
+        size_t ln = strlen(code->refname);
+        srl_copy_int32_to_index(data, ln, idx);
+        idx += 4;
+        srl_copy_bytes_to_index(data, code->refname, idx, ln);
+        idx += ln;
+    }
+    else
+    {
+        srl_copy_int32_to_index(data, 0, idx);
+        idx += 4;
     }
 
     srl_copy_bytes_to_index(data, code->ops, idx, code->op_len);
@@ -269,6 +286,8 @@ lky_object *srl_deserialize_code(unsigned char *bytes)
     char **names = malloc(sizeof(char *) * nnm);
     void **locs = calloc(sizeof(void *) * nlc, 1);
 
+    char *refname = NULL;
+
     int i;
     for(i = 0; i < ncs; i++)
     {
@@ -287,6 +306,15 @@ lky_object *srl_deserialize_code(unsigned char *bytes)
         bytes += len;
     }
 
+    int reflen = srl_bytes_to_int32(bytes, 0);
+    bytes += 4;
+    if(reflen)
+    {
+        refname = calloc(reflen + 1, 1);
+        memcpy(refname, bytes, reflen);
+        bytes += reflen;
+    }
+
     unsigned char *ops = calloc(nop, 1);
     memcpy(ops, bytes, nop);
 
@@ -303,6 +331,7 @@ lky_object *srl_deserialize_code(unsigned char *bytes)
     code->num_locals = nlc;
     code->num_names = nnm;
     code->stack_size = sss;
+    code->refname = refname;
 
     return (lky_object *)code;
 }
