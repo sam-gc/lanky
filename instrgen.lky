@@ -1,9 +1,11 @@
+Io = <'Io'>;
+
 f = Io.fopen("src/interpreter/instruction_set.h", "r");
 
 lines = f.getlns();
 f.close();
 
-instrs = Array();
+instrs = [];
 
 lines.forEach(func(line) {
     if(line.length > 4) {
@@ -16,10 +18,10 @@ lines.forEach(func(line) {
 
 Io.putln("    switch(istr)\n    {");
 
-instrs.forEach(func(ins) {
+for ins in instrs {
     Io.putln("        case " + ins + ":");
     Io.putln('            return "' + ins.split("LI_")[1] + '";');
-});
+}
 
 Io.putln("    }");
 

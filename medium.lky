@@ -1,9 +1,0 @@
-Io.putln("Hello!");
-
-test = func(name) {
-    text = "Yo yo " + name;
-
-    ret text;
-};
-
-Io.putln(test('Bob'));
