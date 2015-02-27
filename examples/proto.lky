@@ -1,0 +1,23 @@
+Array = <'Array'>;
+Io = <'Io'>;
+
+trySum = func(arr) {
+    try {
+        Io.putln("Sum: " + arr.sum());
+    } catch e {
+        e.print();
+    }
+};
+
+a = [1, 2, 3, 4];
+trySum(a);
+
+Array.model_.sum = func() {
+    sum = 0;
+    for i in self {
+        sum += i;
+    }
+    ret sum;
+};
+
+trySum(a);

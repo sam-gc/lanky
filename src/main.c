@@ -36,6 +36,7 @@
 #include "stl_string.h"
 #include "stl_requisitions.h"
 #include "stl_os.h"
+#include "stl_array.h"
 #include "units.h"
 #include "module.h"
 #include "serialize.h"
@@ -119,6 +120,8 @@ void exec_in_repl()
     hst_put(&interp.stdlib, "Meta", stlmeta_get_class(&interp), NULL, NULL);
     
     gc_init();
+
+    register_stdlib_prototypes();
     
     stackframe frame;
     frame.bucket = lobj_alloc();
@@ -178,6 +181,8 @@ void exec_from_code(lky_object_code *code, char *file, int exec)
     hst_put(&interp.stdlib, "Meta", stlmeta_get_class(&interp), NULL, NULL);
     
     gc_init();
+
+    register_stdlib_prototypes();
 
     func->bucket = lobj_alloc();
     lobj_set_member(func->bucket, "dirname_", stlstr_cinit(path));

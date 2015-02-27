@@ -26,6 +26,7 @@
 #include "stl_time.h"
 #include "stl_os.h"
 #include "stl_table.h"
+#include "lky_gc.h"
 #include "lkyobj_builtin.h"
 
 hashtable get_stdlib_objects()
@@ -44,3 +45,10 @@ hashtable get_stdlib_objects()
     hst_put(&t, "Error", lobjb_get_exception_class(), NULL, NULL);
     return t;
 }
+
+void register_stdlib_prototypes()
+{
+    gc_add_object(stlarr_get_proto());
+    gc_add_object(stlobj_get_proto());
+}
+

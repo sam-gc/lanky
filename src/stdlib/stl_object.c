@@ -121,7 +121,7 @@ lky_object *stlobj_members(lky_func_bundle *bundle)
 
     if(args)
         return stlobj_set_members(bundle);
-    lky_object *self = func->owner;
+    lky_object *self = func->bound ? func->bound : _stlobj_proto;
     
     struct stlobj_members m;
     m.keys = arr_create(self->members.count + 1);
@@ -132,6 +132,8 @@ lky_object *stlobj_members(lky_func_bundle *bundle)
 
     arr_free(&m.keys);
     arr_free(&m.vals);
+
+    func->bound = NULL;
 
     return ret;
 }
@@ -164,6 +166,7 @@ lky_object *stlobj_get_proto()
 
     lobj_set_member(obj, "stringify_", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlobj_stringify));
     lobj_set_member(obj, "op_equals_", lobjb_build_func_ex(obj, 2, (lky_function_ptr)stlobj_equals));
+    lobj_set_member(obj, "members_", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlobj_members));
 
     _stlobj_proto = obj;
 
@@ -174,7 +177,6 @@ void stlobj_seed(lky_object *obj)
 {
     //lobj_set_member(obj, "stringify_", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlobj_stringify));
     //lobj_set_member(obj, "op_equals_", lobjb_build_func_ex(obj, 2, (lky_function_ptr)stlobj_equals));
-    lobj_set_member(obj, "members_", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlobj_members));
     lobj_set_member(obj, "proto_", stlobj_get_proto());
 }
 

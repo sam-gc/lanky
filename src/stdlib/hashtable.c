@@ -22,6 +22,7 @@
 
 // If we have an equals function, use it; otherwise use pointer equality
 #define EQU_CHECK(a, b, f) (f ? (f(a, b)) : (!strcmp(a, b)))
+#define NO_RESIZE
 
 long hst_djb2(void *val, void *data)
 {
@@ -100,8 +101,10 @@ void hst_resize(hashtable *ht)
 
 void hst_put(hashtable *ht, void *key, void *val, hst_hash_function hashfunc, hst_equa_function equfunc)
 {
+#ifndef NO_RESIZE
     if(ht->count + 1 > ht->size * (0.66))
         hst_resize(ht);
+#endif
 
     if(!hashfunc)
         hashfunc = hst_djb2;    

@@ -22,5 +22,6 @@
 #include "hashtable.h"
 
 hashtable get_stdlib_objects();
+void register_stdlib_prototypes();
 
 #endif

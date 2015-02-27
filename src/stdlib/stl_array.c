@@ -632,7 +632,7 @@ lky_object *stlarr_get_class()
     c.function = (lky_function_ptr)stlarr_build;
     clsobj->callable = c;
 
-    lobj_set_member(clsobj, "proto_", stlarr_get_proto());
+    lobj_set_member(clsobj, "model_", stlarr_get_proto());
 
     stlarr_class = clsobj;
     return clsobj;

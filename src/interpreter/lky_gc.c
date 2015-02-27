@@ -149,7 +149,6 @@ void gc_gc()
     
     gc_mark();
     gc_collect();
-    
     bundle.max_size = bundle.marked_size + bundle.growth_size;
 }
 
