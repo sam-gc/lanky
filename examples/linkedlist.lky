@@ -1,6 +1,9 @@
 Error = <'Error'>;
 
 List = class () {
+    proto count: 0
+    proto head: nil
+
     init self: func() {
         self.head = nil;
         self.count = 0;

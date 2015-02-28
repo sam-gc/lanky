@@ -5,55 +5,60 @@ Convert = <"Convert">;
 Io      = <"Io">;
 
 -- Convenient point class
-Point = class() -> self {
-    self.build_ = func(x, y) {
+Point = class() {
+    proto x: 0.0
+    proto y: 0.0
+
+    init self: func(x, y) {
         self.x = Convert.toFloat(x);
         self.y = Convert.toFloat(y);
-    };
-
-    self.op_equals_ = func(o) {
-        ret self.x == o.x & self.y == o.y;
-    };
-
-    self.stringify_ = func() {
-        ret "(" + Convert.toInt(self.x) + ", " + Convert.toInt(self.y) + ")";
-    };
-};
-
--- Generates a convenient test list
--- (Not a representative of all cases)
-Point.genList = func() {
-    ret [
-        Point(10,   0),
-        Point(11,   3),
-        Point(12,   6),
-        Point(134,  92),
-        Point(34,   12),
-        Point(14,   12),
-        Point(9,    -3),
-        Point(0,    33),
-        Point(11,   5),
-        Point(17,   2),
-        Point(0,    -30)
-    ];
-};
-
--- Generates a random list of n points
--- with x, y values between 0 and max
-Point.genRandomList = func(n, max) {
-    points = [];
-    for points.count < n {
-        x = Math.rand() % max;
-        y = Math.rand() % max;
-
-        p = Point(x, y);
-        if !points.contains(p) {
-            points.append(p);
-        } 
     }
 
-    ret points;
+    proto op_equals_: func(o) -> self {
+        ret self.x == o.x & self.y == o.y;
+    }
+
+    proto stringify_: func() -> self {
+        ret "(" + Convert.toInt(self.x) + ", " + Convert.toInt(self.y) + ")";
+    }
+
+    -- Generates a convenient test list
+    -- (Not a representative of all cases)
+    static genList: func() -> cls {
+        ret [
+            cls.new(10, 0),
+            cls.new(11, 3),
+            cls.new(12, 6),
+            cls.new(134, 92),
+            cls.new(34, 12),
+            cls.new(14, 12),
+            cls.new(9, -3),
+            cls.new(0, 33),
+            cls.new(11, 5),
+            cls.new(17, 2),
+            cls.new(0, -30)
+        ];
+    }
+
+    -- Generates a random list of n points
+    -- with x, y values between 0 and max
+    static genRandomList: func(n, max) -> cls {
+        points = [];
+        for points.count < n {
+            x = Math.rand() % max;
+            y = Math.rand() % max;
+
+            p = cls.new(x, y);
+            if !points.contains(p) {
+                points.append(p);
+            } 
+        }
+
+        ret points;
+    }
 };
+
+-- Meta.repl();
 
 -- Max points that runs in O(n^3) time
 maxPoints = func(points) {

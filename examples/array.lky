@@ -41,28 +41,28 @@ listb.forEach(printer);
 
 _prt "........................";
 
-Dog = class() -> self {
-    self.build_ = func(name) {
+Dog = class() {
+    init self: func(name) {
         self.name = name;
         self.weight = 40;
-    };
+    }
 
-    self.bark = func() {
-        _prt self.name + ": Bark!";
-    };
+    proto bark: func() -> self {
+        _prt self.name + " : Bark!";
+    }
 
-    self.op_equals_ = func(other) {
-        ret self.name == other.name & self.weight == other.weight;
-    };
+    proto op_equals_: func(o) -> self {
+        ret self.name == o.name & self.weight == o.weight;
+    }
 };
 
-moki = Dog("Moki");
+moki = Dog.new("Moki");
 
 group = Array();
 group.append(moki);
-group.append(Dog("Joe"));
+group.append(Dog.new("Joe"));
 
-if group.contains(Dog("Moki")) {
+if group.contains(Dog.new("Moki")) {
     moki.bark();
 }
 

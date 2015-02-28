@@ -19,7 +19,7 @@
 #include "bytecode_analyzer.h"
 #include "instruction_set.h"
 
-int stack_effect_for(lky_instruction op, int *skip);
+int stack_effect_for(lky_instruction op, int *skip, unsigned char *code, int i);
 
 int calculate_max_stack_depth(unsigned char *code, int len)
 {
@@ -29,7 +29,7 @@ int calculate_max_stack_depth(unsigned char *code, int len)
     for(i = 0; i < len; i++)
     {
         int skip;
-        current += stack_effect_for(code[i], &skip);
+        current += stack_effect_for(code[i], &skip, code, i);
         i += skip;
 
         max = current > max ? current : max;
@@ -53,7 +53,7 @@ int calculate_max_catch_depth(unsigned char *code, int len)
     return max;
 }
 
-int stack_effect_for(lky_instruction op, int *skip)
+int stack_effect_for(lky_instruction op, int *skip, unsigned char *code, int i)
 {
     *skip = 0;
     switch(op)
@@ -112,13 +112,18 @@ int stack_effect_for(lky_instruction op, int *skip)
         case LI_IGNORE:
         case LI_CALL_FUNC:
         case LI_MAKE_FUNCTION:
-        case LI_MAKE_CLASS:
         case LI_SAVE_INDEX:
         case LI_UNARY_NOT:
         case LI_UNARY_NEGATIVE:
             return 0;
         case LI_DDUPLICATE:
             return 2;
+        case LI_MAKE_CLASS:
+        {
+            int howmany = code[++i];
+            *skip = howmany * 2;
+            return howmany;
+        }
     }
     return 0;
 }
