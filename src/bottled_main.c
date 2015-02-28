@@ -87,7 +87,10 @@ void exec_from_code(lky_object_code *code, char *file, int exec)
     if(exec)
         mach_execute((lky_object_function *)func);
     else
-        stlmeta_examine(lobjb_make_seq_node((lky_object *)func), NULL);
+    {
+        lky_func_bundle b = MAKE_BUNDLE(NULL, lobjb_make_seq_node((lky_object *)func));
+        stlmeta_examine(&b);
+    }
 }
 
 int main(int argc, char *argv[])
