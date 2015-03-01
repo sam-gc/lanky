@@ -50,14 +50,52 @@
 #include "module.h"
 #include "class_builder.h"
 
+//#define COMPUTED_GOTO
+
 // Macros to abstract the notion of "pushing"
 // and "popping" from the state machine
 #define PUSH(data) (push_node(frame, data))
 #define POP() (pop_node(frame))
 #define TOP() (top_node(frame))
 #define SECOND_TOP() (frame->data_stack[frame->stack_pointer - 1])
-#define vmop(op, code) case LI_ ## op : { code goto _opcode_whiplash_; } break;
-#define vmvm(code) switch((op = frame->ops[++frame->pc])) { code default: goto _opcode_whiplash_; break; }
+
+#ifdef COMPUTED_GOTO
+    #define dispatch_() goto *dispatch_table_[frame->ops[++frame->pc] - 50]
+    #define vmop(op_, code_) LI_ ## op_ : do{code_\
+    op = LI_ ## op_ ;\
+    if(frame->pc >= frame->tape_len || frame->ret)\
+        return;\
+    if(thrown_exception)\
+    {\
+        lky_object *exc = thrown_exception;\
+        thrown_exception = NULL;\
+\
+        if(!frame->catch_pointer && !frame->prev)\
+        {\
+            char *errtxt = lobj_stringify(exc);\
+            printf("Fatal error--\n%s\n\nHalting.\n", errtxt);\
+            free(errtxt);\
+            frame->ret = &lky_nil;\
+            return;\
+        }\
+        else if(!frame->catch_pointer)\
+        {\
+            frame->prev->thrown = exc;\
+            return;\
+        }\
+\
+        PUSH(exc);\
+        frame->pc = frame->catch_stack[--frame->catch_pointer];\
+    }\
+\
+    gc_gc();\
+    dispatch_();}while(0);
+    #define vmvm(code) dispatch_(); code
+#else
+    #define vmop(op, code) case LI_ ## op : { code goto _opcode_whiplash_; } break;
+    #define vmvm(code) switch((op = frame->ops[++frame->pc])) { code default: printf("HIT DEFAULT. BUG!\n"); goto _opcode_whiplash_; break; }
+    #define dispatch_() goto _opcode_whiplash_
+#endif
 
 #define POP_TWO() lky_object *a = POP(); lky_object *b = POP()
 
@@ -265,7 +303,23 @@ void print_stack(stackframe *frame)
 void mach_eval(stackframe *frame)
 {
     lky_instruction op;
-    
+ 
+#ifdef COMPUTED_GOTO
+static void *dispatch_table_[] = {
+    &&LI_BINARY_ADD, &&LI_BINARY_SUBTRACT, &&LI_BINARY_MULTIPLY, &&LI_BINARY_DIVIDE, 
+    &&LI_BINARY_MODULO, &&LI_BINARY_POWER, &&LI_BINARY_LT, &&LI_BINARY_GT, &&LI_BINARY_EQUAL, 
+    &&LI_BINARY_LTE, &&LI_BINARY_GTE, &&LI_BINARY_NE, &&LI_BINARY_AND, &&LI_BINARY_OR, 
+    &&LI_BINARY_NC, &&LI_BINARY_BAND, &&LI_BINARY_BOR, &&LI_BINARY_BXOR, &&LI_BINARY_BLSHIFT, 
+    &&LI_BINARY_BRSHIFT, &&LI_UNARY_NOT, &&LI_UNARY_NEGATIVE, &&LI_LOAD_CONST, &&LI_PRINT, 
+    &&LI_POP, &&LI_JUMP_FALSE, &&LI_JUMP_TRUE, &&LI_JUMP, &&LI_JUMP_FALSE_ELSE_POP, 
+    &&LI_JUMP_TRUE_ELSE_POP, &&LI_IGNORE, &&LI_SAVE_LOCAL, &&LI_LOAD_LOCAL, &&LI_PUSH_NIL, 
+    &&LI_PUSH_NEW_OBJECT, &&LI_CALL_FUNC, &&LI_RETURN, &&LI_LOAD_MEMBER, &&LI_SAVE_MEMBER, 
+    &&LI_MAKE_FUNCTION, &&LI_MAKE_CLASS, &&LI_SAVE_CLOSE, &&LI_LOAD_CLOSE, &&LI_MAKE_ARRAY, 
+    &&LI_MAKE_TABLE, &&LI_MAKE_OBJECT, &&LI_LOAD_INDEX, &&LI_SAVE_INDEX, &&LI_SDUPLICATE, 
+    &&LI_DDUPLICATE, &&LI_FLIP_TWO, &&LI_SINK_FIRST, &&LI_MAKE_ITER, &&LI_NEXT_ITER_OR_JUMP, 
+    &&LI_ITER_INDEX, &&LI_LOAD_MODULE, &&LI_PUSH_CATCH, &&LI_POP_CATCH, &&LI_RAISE
+};
+#else
 _opcode_whiplash_:
     if(frame->pc >= frame->tape_len || frame->ret)
         return;
@@ -293,7 +347,7 @@ _opcode_whiplash_:
     }
 
     gc_gc();
-
+#endif
     vmvm(
         vmop(LOAD_CONST,
             char idx = frame->ops[++frame->pc];
@@ -466,7 +520,24 @@ _opcode_whiplash_:
                 frame->pc = idx;
             }
         )
-        case LI_JUMP_FALSE_ELSE_POP:
+        vmop(JUMP_FALSE_ELSE_POP,
+            lky_object *obj = TOP();
+
+            unsigned int idx = *(unsigned int *)(frame->ops + (++frame->pc));
+            frame->pc += 3;
+
+            char needs_jump = 0;
+            if(obj == &lky_nil)
+                needs_jump = 0;
+            else if(((uintptr_t)(obj) & 1) || obj->type == LBI_FLOAT || obj->type == LBI_INTEGER)
+                needs_jump = !!(OBJ_NUM_UNWRAP(obj));
+
+            if(needs_jump && op == LI_JUMP_TRUE_ELSE_POP ||
+               !needs_jump && op == LI_JUMP_FALSE_ELSE_POP)
+                frame->pc = idx;
+            else
+                POP();
+        )
         vmop(JUMP_TRUE_ELSE_POP,
             lky_object *obj = TOP();
 
@@ -534,7 +605,7 @@ _opcode_whiplash_:
             {
                 mach_halt_with_err(frame->thrown);
                 frame->thrown = NULL;
-                goto _opcode_whiplash_;
+                dispatch_();
             }
 
             if(seq)
@@ -849,6 +920,11 @@ _opcode_whiplash_:
         )
         vmop(RAISE,
             mach_halt_with_err(POP());
+        )
+        // Unused...
+        vmop(IGNORE,
+        )
+        vmop(JUMP_TRUE,
         )
     )
 }

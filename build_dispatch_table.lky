@@ -1,0 +1,33 @@
+Io = <'Io'>;
+
+f = Io.fopen('src/interpreter/instruction_set.h', 'r');
+
+lines = f.getlns();
+f.close();
+
+instrs = [];
+for line in lines {
+    if line.length > 4 {
+        if line[4] == "L" & line[5] == "I" {
+            line = line.split('    ')[1].split(' = ')[0].split(',')[0];
+            instrs.append(line);
+        }
+    }
+}
+
+Io.putln('static void *dispatch_table_[] = {\n    ');
+
+for e, i in instrs {
+    if i % 5 == 4 {
+        Io.put('\n    ');
+    }
+
+    Io.put('&&' + e);
+    
+    if i != instrs.count - 1 {
+        Io.put(', ');
+    }
+}
+
+Io.putln('};');
+
