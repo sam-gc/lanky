@@ -16,6 +16,9 @@
 ------------------------------------------
 -- New style
 Dog = class() {
+    proto name: nil
+    proto weight: 0
+
     init self: func(name) {
         self.name = name;
         self.weight = 40;

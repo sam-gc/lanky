@@ -1229,41 +1229,6 @@ void compile_function(compiler_wrapper *cw, ast_node *root)
     append_op(cw, argc);
 }
 
-/*
-void compile_class_decl(compiler_wrapper *cw, ast_node *root)
-{
-    ast_class_decl_node *node = (ast_class_decl_node *)root;
-
-    compiler_wrapper nw;
-    nw.local_idx = 0;
-    nw.saved_locals = hm_create(100, 1);
-    nw.rnames = arr_create(10);
-    nw.used_names = copy_arraylist(cw->used_names);
-
-    long idx = find_prev_name(cw, node->refname);
-
-    if(idx < 0)
-    {
-        idx = cw->rnames.count;
-        char *nid = malloc(strlen(node->refname) + 1);
-        strcpy(nid, node->refname);
-        arr_append(&cw->rnames, nid);
-    }
-
-    nw.save_val = 0;
-    lky_object_code *code = compile_ast_ext(node->payload->next, &nw);
-
-    long cidx = cw->rcon.count;
-    arr_append(&cw->rcon, code);
-
-    append_op(cw, LI_LOAD_CONST);
-    append_op(cw, cidx);
-    append_op(cw, LI_MAKE_FUNCTION);
-    append_op(cw, nw.classargc);
-    append_op(cw, LI_MAKE_CLASS);
-    append_op(cw, idx);
-}*/
-
 void compile_class_decl(compiler_wrapper *cw, ast_node *root)
 {
     ast_class_decl_node *node = (ast_class_decl_node *)root;
@@ -1278,10 +1243,12 @@ void compile_class_decl(compiler_wrapper *cw, ast_node *root)
         arr_append(&list, member);
     }
 
-    compile(cw, ((ast_class_member_node *)node->init)->payload);
+    if(node->init)
+        compile(cw, ((ast_class_member_node *)node->init)->payload);
 
     append_op(cw, LI_MAKE_CLASS);
     append_op(cw, list.count);
+    append_op(cw, !!node->init);
     int i;
     for(i = list.count - 1; i >= 0; i--)
     {

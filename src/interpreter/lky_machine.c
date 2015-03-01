@@ -598,8 +598,10 @@ _opcode_whiplash_:
 
             PUSH(cls);*/
             int count = frame->ops[++frame->pc];
+            int has_init = frame->ops[++frame->pc];
 
-            lky_object *cls = clb_init_class(POP());
+            lky_object *init = has_init ? POP() : NULL;
+            lky_object *cls = clb_init_class(init);
 
             int i;
             for(i = 0; i < count; i++)

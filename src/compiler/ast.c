@@ -363,22 +363,6 @@ ast_node *create_func_decl_node(ast_node *params, ast_node *payload, char *refna
 }
 
 
-/*typedef struct {
-    ast_type type;
-    struct ast_node *next;
-
-    lky_class_prefix prefix;
-    char *name;
-    struct ast_node *payload;
-} ast_class_member_node;
-
-typedef struct {
-    ast_type type;
-    struct ast_node *next;
-
-    struct ast_node *members;
-    struct ast_node *init;
-} ast_class_decl_node;*/
 ast_node *create_class_decl_node(ast_node *members)
 {
     ast_node *col = MALLOC(sizeof(ast_node));
@@ -388,6 +372,7 @@ ast_node *create_class_decl_node(ast_node *members)
 
     node->type = ACLASS_DECL;
     node->next = NULL;
+    node->init = NULL;
 
     ast_node *cur = col;
 

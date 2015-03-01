@@ -121,7 +121,7 @@ int stack_effect_for(lky_instruction op, int *skip, unsigned char *code, int i)
         case LI_MAKE_CLASS:
         {
             int howmany = code[++i];
-            *skip = howmany * 2;
+            *skip = howmany * 2 + 1;
             return howmany;
         }
     }

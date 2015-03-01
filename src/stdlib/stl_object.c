@@ -40,7 +40,7 @@ lky_object *stlobj_stringify(lky_func_bundle *bundle)
     lky_object *self = func->bound;
     char buf[100];
 
-    if(!self)
+    if(self == _stlobj_proto)
         strcpy(buf, "(lky_object | global prototype)");
     else
         sprintf(buf, "(lky_object | %p)", self);
@@ -229,12 +229,9 @@ lky_object *stlobj_get_class()
         return _stlobj_class;
 
     lky_object *cls = lobj_alloc();
-    lky_callable c;
-    c.argc = 0;
-    c.function = (lky_function_ptr)stlobj_build;
-    cls->callable = c;
 
     lobj_set_member(cls, "model_", stlobj_get_proto());
+    lobj_set_member(cls, "new", lobjb_build_func_ex(cls, 0, (lky_function_ptr)stlobj_build));
 
     _stlobj_class = cls;
 

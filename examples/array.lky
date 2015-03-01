@@ -42,6 +42,9 @@ listb.forEach(printer);
 _prt "........................";
 
 Dog = class() {
+    proto name: nil
+    proto weight: -1
+
     init self: func(name) {
         self.name = name;
         self.weight = 40;
