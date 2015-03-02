@@ -61,8 +61,9 @@
 
 #ifdef COMPUTED_GOTO
     #define dispatch_() goto *dispatch_table_[frame->ops[++frame->pc] - 50]
-    #define vmop(op_, code_) LI_ ## op_ : do{code_\
+    #define vmop(op_, code_) LI_ ## op_ : do{\
     op = LI_ ## op_ ;\
+    code_\
     if(frame->pc >= frame->tape_len || frame->ret)\
         return;\
     if(thrown_exception)\

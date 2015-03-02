@@ -59,6 +59,7 @@ List = class () {
         else     { last.next = new; }
 
         self.count += 1;
+        ret self;
     }
 
     proto iterable_: func() -> self {
