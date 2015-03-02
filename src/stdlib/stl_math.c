@@ -131,6 +131,13 @@ lky_object *stlmath_rand_int(lky_func_bundle *bundle)
     return lobjb_build_int(rv);
 }
 
+lky_object *stlmath_atan2(lky_func_bundle *bundle)
+{
+    lky_object_seq *args = BUW_ARGS(bundle);
+    return lobjb_build_float(atan2(OBJ_NUM_UNWRAP(args->value),
+        OBJ_NUM_UNWRAP(args->next->value)));
+}
+
 lky_object *stlmath_quad(lky_func_bundle *bundle)
 {
     lky_object_function *func = BUW_FUNC(bundle);
@@ -224,6 +231,7 @@ lky_object *stlmath_get_class()
     lobj_set_member(obj, "quad", lobjb_build_func_ex(obj, 3, (lky_function_ptr)stlmath_quad));
     lobj_set_member(obj, "shuffle", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlmath_shuffle));
     lobj_set_member(obj, "range", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlmath_range));
+    lobj_set_member(obj, "atan2", lobjb_build_func_ex(obj, 2, (lky_function_ptr)stlmath_atan2));
     STLMATH_WRAP_MEMBER(obj, sin);
     STLMATH_WRAP_MEMBER(obj, cos);
     STLMATH_WRAP_MEMBER(obj, tan);
