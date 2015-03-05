@@ -28,7 +28,7 @@ typedef enum {
     LCP_INIT
 } lky_class_prefix;
 
-lky_object *clb_init_class(lky_object *init_func);
+lky_object *clb_init_class(lky_object *init_func, lky_object *super);
 void clb_add_member(lky_object *cls, char *refname, lky_object *obj, lky_class_prefix how);
 
 #endif

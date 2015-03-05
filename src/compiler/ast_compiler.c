@@ -1243,12 +1243,22 @@ void compile_class_decl(compiler_wrapper *cw, ast_node *root)
         arr_append(&list, member);
     }
 
+    int init_flag = 0;
+
+    if(node->super)
+    {
+        compile(cw, node->super);
+        init_flag |= 2;
+    }
     if(node->init)
+    {
         compile(cw, ((ast_class_member_node *)node->init)->payload);
+        init_flag |= 1;
+    }
 
     append_op(cw, LI_MAKE_CLASS);
     append_op(cw, list.count);
-    append_op(cw, !!node->init);
+    append_op(cw, init_flag);
     int i;
     for(i = list.count - 1; i >= 0; i--)
     {

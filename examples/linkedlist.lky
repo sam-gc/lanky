@@ -1,6 +1,6 @@
 Error = <'Error'>;
 
-List = class () {
+List = class {
     proto count: 0
     proto head: nil
 

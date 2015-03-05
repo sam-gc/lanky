@@ -363,7 +363,7 @@ ast_node *create_func_decl_node(ast_node *params, ast_node *payload, char *refna
 }
 
 
-ast_node *create_class_decl_node(ast_node *members)
+ast_node *create_class_decl_node(ast_node *members, ast_node *super)
 {
     ast_node *col = MALLOC(sizeof(ast_node));
     ast_class_decl_node *node = MALLOC(sizeof(ast_class_decl_node));
@@ -373,6 +373,7 @@ ast_node *create_class_decl_node(ast_node *members)
     node->type = ACLASS_DECL;
     node->next = NULL;
     node->init = NULL;
+    node->super = super;
 
     ast_node *cur = col;
 

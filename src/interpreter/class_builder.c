@@ -18,6 +18,31 @@
 
 #include "class_builder.h"
 
+lky_object *clb_super_init_wrapper(lky_func_bundle *bundle)
+{
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
+    lky_object *self = (lky_object *)func->bound;
+
+    lky_object *class = lobj_get_member(self, "class_");
+    lky_object *super = lobj_get_member((lky_object *)func->owner, "super_");
+    lky_object *init = lobj_get_member(super, "init_");
+    if(init)
+    {
+        lky_object *sinit = lobj_get_member(super, "super_init_");
+        //lobjb_print(super);
+        if(sinit)
+            lobj_set_member(self, "superInit", sinit);
+
+        lky_object_seq *nx = lobjb_make_seq_node(self);
+        nx->next = args;
+        lobjb_call(init, nx);
+    }
+
+    return &lky_nil;
+}
+
 lky_object *clb_new_wrapper(lky_func_bundle *bundle)
 {
     lky_object_function *func = BUW_FUNC(bundle);
@@ -27,20 +52,25 @@ lky_object *clb_new_wrapper(lky_func_bundle *bundle)
 
     lky_object *nobj = lobj_alloc();
     lobj_set_member(nobj, "proto_", lobj_get_member(cls, "model_"));
+    lobj_set_member(nobj, "class_", cls);
 
     lky_object *init = lobj_get_member(cls, "init_");
     if(init)
     {
+        lky_object *sinit = lobj_get_member(cls, "super_init_");
+        if(sinit)
+            lobj_set_member(nobj, "superInit", sinit);
+
         lky_object_seq *nx = lobjb_make_seq_node(nobj);
         nx->next = args;
 
-        lobjb_call(lobj_get_member(cls, "init_"), nx);
+        lobjb_call(init, nx);
     }
 
     return nobj;
 }
 
-lky_object *clb_init_class(lky_object *init_func)
+lky_object *clb_init_class(lky_object *init_func, lky_object *super)
 {
     lky_object_function *fobj = (lky_object_function *)init_func;
     lky_object *cls = lobj_alloc();
@@ -52,8 +82,20 @@ lky_object *clb_init_class(lky_object *init_func)
         argc = fobj->callable.argc - 1;
     }
 
+    if(super)
+    {
+        lobj_set_member(cls, "super_", super);
+        lky_object_function *sinit = (lky_object_function *)lobj_get_member(super, "init_");
+        int argc = sinit ? sinit->callable.argc - 1 : 0;
+        lobj_set_member(cls, "super_init_", lobjb_build_func_ex(cls, argc, (lky_function_ptr)clb_super_init_wrapper));
+    }
+
     lobj_set_member(cls, "new", lobjb_build_func_ex(cls, argc, (lky_function_ptr)clb_new_wrapper));
-    lobj_set_member(cls, "model_", lobj_alloc());
+
+    lky_object *model = lobj_alloc();
+    if(super)
+        lobj_set_member(model, "proto_", lobj_get_member(super, "model_"));
+    lobj_set_member(cls, "model_", model);
 
     return cls;
 }

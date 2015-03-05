@@ -5,7 +5,7 @@ Convert = <"Convert">;
 Io      = <"Io">;
 
 -- Convenient point class
-Point = class() {
+Point = class {
     proto x: 0.0
     proto y: 0.0
 

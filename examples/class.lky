@@ -15,7 +15,7 @@
 -- };
 ------------------------------------------
 -- New style
-Dog = class() {
+Dog = class {
     proto name: nil
     proto weight: 0
 

@@ -661,19 +661,13 @@ _opcode_whiplash_:
             PUSH(func);
         )
         vmop(MAKE_CLASS,
-            /*lky_object_function *func = POP();
-            
-            int idx = frame->ops[++frame->pc];
-            char *name = frame->names[idx];
-
-            lky_object *cls = lobjb_build_class(func, name, NULL);
-
-            PUSH(cls);*/
             int count = frame->ops[++frame->pc];
             int has_init = frame->ops[++frame->pc];
 
-            lky_object *init = has_init ? POP() : NULL;
-            lky_object *cls = clb_init_class(init);
+            lky_object *init = has_init & 1 ? POP() : NULL;
+            lky_object *super = has_init & 2 ? POP() : NULL;
+            
+            lky_object *cls = clb_init_class(init, super);
 
             int i;
             for(i = 0; i < count; i++)

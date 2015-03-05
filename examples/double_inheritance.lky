@@ -1,0 +1,38 @@
+Io = <'Io'>;
+
+Base = class {
+    proto x: -1
+    proto y: -1
+
+    init self: func(x, y) {
+        self.x = x;
+        self.y = y;
+    }
+
+    proto stringify_: func() -> self {
+        ret '(' + self.x + ', ' + self.y + ')';
+    }
+};
+
+b = Base.new(1, 2);
+Io.putln(b);
+
+-- Inheritance.....
+Child = class (Base) {
+    proto w: 0
+    proto h: 0
+
+    init self: func(x, y, w, h) {
+        self.superInit(x, y);
+        self.w = w;
+        self.h = h;
+    }
+
+    proto calcArea: func() -> self {
+        ret self.w * self.h;
+    }
+};
+
+c = Child.new(10, 10, 11, 2);
+Io.putln('' + c + " --> has width: " + c.calcArea());
+

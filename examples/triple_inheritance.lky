@@ -1,0 +1,71 @@
+Io = <'Io'>;
+
+First = class {
+    proto a: nil
+    proto b: nil
+
+    init self: func(a, b) {
+        Io.putln("c");
+        self.a = a;
+        self.b = b;
+    }
+
+    proto sum: func() -> self {
+        ret self.a + " " + self.b;
+    }
+
+    static stringify_: func() {
+        ret "First";
+    }
+};
+
+Second = class (First) {
+    proto x: 0
+    proto y: 0
+
+    init self: func(a, b, x, y) {
+        Io.putln("b");
+        self.superInit(a, b);
+        self.x = x;
+        self.y = y;
+    }
+
+    proto stringify_: func() -> self {
+        ret '(' + self.x + ', ' + self.y + ') <' + self.a + ' ' + self.b + '>';
+    }
+
+    static stringify_: func() {
+        ret "Second";
+    }
+};
+
+Third = class (Second) {
+    proto w: -1
+    proto h: -1
+
+    init self: func(a, b, x, y, w, h) {
+        Io.putln("a");
+        self.superInit(a, b, x, y);
+        self.w = w;
+        self.h = h;
+    }
+
+    static stringify_: func() {
+        ret "Third";
+    }
+};
+
+Io.putln(Third);
+Io.putln(Third.super_);
+Io.putln(Third.super_.super_);
+
+t = Third.new("Hello", "World", 10, 10, 800, 600);
+Io.putln(t);
+
+Third.model_.stringify_ = func() -> self {
+    ret "Flying spaghetti monster";
+};
+
+Io.putln(t);
+Io.putln(t.sum());
+
