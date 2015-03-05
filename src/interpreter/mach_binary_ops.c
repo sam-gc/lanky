@@ -252,6 +252,9 @@ lky_object *lobjb_binary_equals(lky_object *a, lky_object *b)
     if(a == &lky_nil || b == &lky_nil)
         return &lky_nil;
 
+    if(a->type == LBI_FUNCTION || b->type == LBI_FUNCTION)
+        return lobjb_build_int(a == b);
+
     lky_builtin_value v;
     lky_builtin_type t = LBI_INTEGER;
 
