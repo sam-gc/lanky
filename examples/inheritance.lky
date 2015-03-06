@@ -1,0 +1,72 @@
+Io = load 'Io';
+Aggregator = load 'aggregator';
+
+Animal = class {
+    proto weight: -1
+    proto diet: ''
+
+    init self: func(weight, diet) {
+        self.weight = weight;
+        self.diet = diet;
+    }
+
+    proto classify: func() -> self {
+        ret '(Weight: ' + self.weight +
+                '; Consumes: ' + self.diet + ')';
+    }
+
+    proto move: func() {
+        raise "Unimplemented submethod!";
+    }
+};
+
+Dog = class (Animal) {
+    proto name: ''
+    proto type: ''
+
+    init self: func(weight, name, type) {
+        self.superInit(weight, 'Meat');
+        self.name = name;
+        self.type = type;
+    }
+
+    proto move: func() {
+        ret "trots";
+    }
+};
+
+Bird = class (Animal) {
+    proto type: ''
+    proto wingspan: -1
+
+    init self: func(type, wingspan) {
+        self.superInit(wingspan / 2, wingspan > 10 ? "Rodents" : "Fish");
+        self.type = type;
+        self.wingspan = wingspan;
+    }
+
+    proto move: func() {
+        ret "Flies";
+    }
+};
+
+agg = Aggregator.new();
+agg.register(Bird);
+agg.register(Dog);
+agg.register(Animal);
+agg.proto_.printInfo = func(name, cls) -> self {
+    Io.putln(name + ": " + self.getCount(cls));
+};
+
+moki = Dog.new(40, "Moki", "Husky");
+Io.putln(moki.classify());
+Io.putln(moki.name + " " + moki.move());
+
+Io.putln('----------------------');
+bo = Bird.new('Albatross', 50);
+Io.putln(bo.classify());
+Io.putln(bo.type + " " + bo.move());
+
+agg.printInfo("Animal", Animal);
+agg.printInfo("Dog", Dog);
+agg.printInfo("Bird", Bird);

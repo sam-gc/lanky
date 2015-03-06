@@ -47,16 +47,18 @@ lky_object *lobjb_unary_not(lky_object *a)
     lky_object_builtin *ac = (lky_object_builtin *)a;
 
     if(IS_TAGGED(a))
-        return lobjb_build_int(!OBJ_NUM_UNWRAP(a));
+        return LKY_TESTC_FAST(!OBJ_NUM_UNWRAP(a));
 
     switch(a->type)
     {
         case LBI_FLOAT:
         case LBI_INTEGER:
-            return lobjb_build_int(!OBJ_NUM_UNWRAP(ac));
+            return LKY_TESTC_FAST(!OBJ_NUM_UNWRAP(ac));
+        case LBI_BOOL:
+            return a == &lky_yes ? &lky_no : &lky_yes;
         default:
             break;
     }
 
-    return lobjb_build_int(a == &lky_nil);
+    return LKY_TESTC_FAST(a == &lky_nil);
 }

@@ -1,0 +1,46 @@
+Test = class {
+    proto x: -1
+    proto y: -1
+
+    init self: func(x, y) {
+        self.x = x;
+        self.y = y;
+    }
+
+    proto stringify_: func() -> self {
+        ret "(" + self.x + ", " + self.y + ")";
+    }
+};
+
+ClassAggregator = class {
+    proto dict: nil
+
+    init self: func() {
+        self.dict = [:];
+    }
+
+    proto register: func(cls) -> self {
+        old = cls.init_;
+        count = 0;
+        cls.init_ = func(a, b, c, d, e, f, g, h, i, j) {
+            count += 1;
+            old(a, b, c, d, e, f, g, h, i, j);
+        };
+
+        self.dict[cls] = func() {
+            ret count;
+        };
+    }
+
+    proto getCount: func(cls) -> self {
+        f = self.dict[cls];
+        if f {
+            ret f();
+        }
+    }
+
+    static Test: Test
+};
+
+ret ClassAggregator;
+

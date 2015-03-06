@@ -28,6 +28,8 @@
 #include <string.h>
 
 lky_object lky_nil = {LBI_NIL, 0, sizeof(lky_object), {0, 0, 0, NULL}, NULL, {0, NULL}};
+lky_object lky_yes = {LBI_BOOL, 1, sizeof(lky_object), {0, 0, 0, NULL}, NULL, {0, NULL}};
+lky_object lky_no = {LBI_BOOL, 1, sizeof(lky_object), {0, 0, 0, NULL}, NULL, {0, NULL}};
 
 int alloced = 0;
 lky_object *lobj_alloc()

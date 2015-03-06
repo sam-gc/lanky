@@ -64,13 +64,13 @@ lky_object *stlobj_responds_to(lky_func_bundle *bundle)
 
     lky_object *o = lobj_get_member(self, str);
     if(!o)
-        return lobjb_build_int(0);
+        return &lky_no;
 
     // Help avoid tagged integer problems
     if(OBJ_IS_INTEGER(o))
-        return lobjb_build_int(0);
+        return &lky_no;
 
-    return lobjb_build_int(o->type == LBI_FUNCTION);
+    return LKY_TESTC_FAST(o->type == LBI_FUNCTION);
 }
 
 lky_object *stlobj_has(lky_func_bundle *bundle)
@@ -84,7 +84,7 @@ lky_object *stlobj_has(lky_func_bundle *bundle)
     lky_object_custom *c = (lky_object_custom *)args->value;
     char *str = c->data;
 
-    return lobjb_build_int(!!lobj_get_member(self, str));
+    return LKY_TESTC_FAST(!!lobj_get_member(self, str));
 }
 
 lky_object *stlobj_equals(lky_func_bundle *bundle)

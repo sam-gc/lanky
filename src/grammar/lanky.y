@@ -44,7 +44,7 @@
 %token <token> TLPAREN TRPAREN TLBRACE TRBRACE TLBRACKET TRBRACKET TCOMMA TDOT
 %token <token> TPLUS TMINUS TMUL TDIV TMOD TPOW TCON TIN TRARROW
 %token <token> TPLUSE TMINUSE TMULE TDIVE TMODE TPOWE TORE TANDE TCONE TBANDE TBORE TBXORE TBLSHIFTE TBRSHIFTE
-%token <token> TIF TELIF TELSE TPRT TCOMMENT TLOOP TCOLON TFUNC TSEMI TRET TQUESTION TARROW TCLASS TNIL TCONTINUE TBREAK TLOAD TNILOR TRAISE
+%token <token> TIF TELIF TELSE TPRT TCOMMENT TLOOP TCOLON TFUNC TSEMI TRET TQUESTION TARROW TCLASS TNIL TCONTINUE TBREAK TLOAD TNILOR TRAISE TYES TNO
 %token <token> TTRY TCATCH
 %token <token> TINIT TPROTO TSTATIC
 
@@ -56,7 +56,7 @@
 %type <node> program stmts stmt expression ifblock block elifblock elifblocks elseblock loopblock funcdecl arg arglist call calllist memaccess classdecl arrdecl arraccess opapply tabset tabsetlist tabdecl binor binand objset objsetlist objdecl trycatchblock classmember classmemberlist
 
 /* Operator precedence for mathematical operators */
-%nonassoc TPRT TRET TNIL TRAISE
+%nonassoc TPRT TRET TNIL TRAISE TYES TNO
 %left TEQUAL
 %left TRARROW
 %left TPLUSE TMINUSE TMULE TDIVE TMODE TPOWE TORE TANDE TBANDE TBORE TBXORE TBLSHIFTE TBRSHIFTE
@@ -271,6 +271,8 @@ expression :
     | tabdecl
     | objdecl
     | TNIL { $$ = create_unary_node(NULL, '0'); }
+    | TYES { $$ = create_unary_node(NULL, 'Y'); }
+    | TNO { $$ = create_unary_node(NULL, 'N'); }
     | TPRT expression { $$ = create_unary_node($2, 'p'); }
     | TNOT expression { $$ = create_unary_node($2, '!'); }
     | TRET expression { $$ = create_unary_node($2, 'r'); }

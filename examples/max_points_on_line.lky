@@ -58,8 +58,6 @@ Point = class {
     }
 };
 
--- Meta.repl();
-
 -- Max points that runs in O(n^3) time
 maxPoints = func(points) {
     max = 0;

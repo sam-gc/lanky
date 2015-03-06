@@ -1,0 +1,61 @@
+Meta = <'Meta'>;
+Io = <'Io'>;
+
+Test = class {
+
+    proto name: "Sam"
+
+    init self: func(a, b, c) {
+        self.a = a;
+        self.b = b;
+        self.c = c;
+    }
+
+    proto sayHello: func() -> self {
+        Io.putln("Hello, I'm " + self.name);
+    }
+
+    proto stringify_: func() -> self {
+        ret '(Test | name = ' + self.name + ')';
+    }
+
+    static factory: func(name) -> cls {
+        var = cls.new(1, 2, 3);
+        var.name = name;
+
+        ret var;
+    }
+};
+
+Meta.repl();
+
+-- Same as:
+-- Io = <'Io'>;
+-- Test = func() {
+--     obj = {.};
+--     obj.model_ = {
+--         .name: "Sam",
+--         .sayHello: func() -> self {
+--             Io.putln("Hello, I'm " + self.name);
+--         }
+--     };
+-- 
+--     obj.new = func(a, b, c) {
+--         self = {.};
+--         self.a = a;
+--         self.b = b;
+--         self.c = c;
+--         self.proto_ = obj.model_;
+--         ret self;
+--     };
+-- 
+--     obj.factory = func(name) -> cls {
+--         var = cls.new(1, 2, 3);
+--         var.name = name;
+-- 
+--         ret var;
+--     };
+--     ret obj;
+-- }();
+
+ret Test;

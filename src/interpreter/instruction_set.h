@@ -54,6 +54,7 @@ typedef enum {
     LI_SAVE_LOCAL,
     LI_LOAD_LOCAL,
     LI_PUSH_NIL,
+    LI_PUSH_BOOL,
     LI_PUSH_NEW_OBJECT,
     LI_CALL_FUNC,
     LI_RETURN,

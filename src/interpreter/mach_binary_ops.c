@@ -23,6 +23,10 @@
 #include "lky_machine.h"
 
 #define IS_TAGGED(a) ((uintptr_t)(a) & 1)
+#define IS_SINGLETON(a) (a && (a == &lky_nil || a == &lky_yes || a == &lky_no))
+#define EITHER_SIGNLETONS(a, b) (IS_SINGLETON(a) || IS_SINGLETON(b))
+#define IS_NIL(a) (a == &lky_nil)
+#define EITHER_NIL(a, b) (IS_NIL(a) || IS_NIL(b))
 #define OBJ_NUM_PROMO(a, b) ((!((uintptr_t)(a) & 1) && a->type == LBI_FLOAT) || (!((uintptr_t)(b) & 1) && b->type == LBI_FLOAT ) ? LBI_FLOAT : LBI_INTEGER) 
 #define CHECK_EXEC_CUSTOM_IMPL(a, b, name) \
     do { \
@@ -57,7 +61,7 @@ lky_object *lobjb_binary_add(lky_object *a, lky_object *b)
     BI_CAST(a, ab);
     BI_CAST(b, bb);
 
-    if(a == &lky_nil || b == &lky_nil)
+    if(EITHER_SIGNLETONS(a, b))
         return &lky_nil;
     
     lky_builtin_value v;
@@ -83,7 +87,7 @@ lky_object *lobjb_binary_subtract(lky_object *a, lky_object *b)
     BI_CAST(a, ab);
     BI_CAST(b, bb);
 
-    if(a == &lky_nil || b == &lky_nil)
+    if(EITHER_SIGNLETONS(a, b))
         return &lky_nil;
 
     lky_builtin_value v;
@@ -112,7 +116,7 @@ lky_object *lobjb_binary_multiply(lky_object *a, lky_object *b)
     lky_builtin_value v;
     lky_builtin_type t;
 
-    if(a == &lky_nil || b == &lky_nil)
+    if(EITHER_SIGNLETONS(a, b))
         return &lky_nil;
 
     t = OBJ_NUM_PROMO(ab, bb);
@@ -137,7 +141,7 @@ lky_object *lobjb_binary_divide(lky_object *a, lky_object *b)
     BI_CAST(a, ab);
     BI_CAST(b, bb);
 
-    if(a == &lky_nil || b == &lky_nil)
+    if(EITHER_SIGNLETONS(a, b))
         return &lky_nil;
 
     lky_builtin_value v;
@@ -163,7 +167,7 @@ lky_object *lobjb_binary_modulo(lky_object *a, lky_object *b)
     BI_CAST(a, ab);
     BI_CAST(b, bb);
 
-    if(a == &lky_nil || b == &lky_nil)
+    if(EITHER_SIGNLETONS(a, b))
         return &lky_nil;
 
     lky_builtin_value v;
@@ -189,7 +193,7 @@ lky_object *lobjb_binary_power(lky_object *a, lky_object *b)
     BI_CAST(a, ab);
     BI_CAST(b, bb);
 
-    if(a == &lky_nil || b == &lky_nil)
+    if(EITHER_SIGNLETONS(a, b))
         return &lky_nil;
 
     lky_builtin_value v;
@@ -215,14 +219,10 @@ lky_object *lobjb_binary_lessthan(lky_object *a, lky_object *b)
     BI_CAST(a, ab);
     BI_CAST(b, bb);
 
-    if(a == &lky_nil || b == &lky_nil)
+    if(EITHER_SIGNLETONS(a, b))
         return &lky_nil;
 
-    lky_builtin_value v;
-    lky_builtin_type t = LBI_INTEGER;
-
-    v.i = (OBJ_NUM_UNWRAP(ab) < OBJ_NUM_UNWRAP(bb));
-    return lobjb_alloc(t, v);
+    return LKY_TESTC_FAST(OBJ_NUM_UNWRAP(ab) < OBJ_NUM_UNWRAP(bb));
 }
 
 lky_object *lobjb_binary_greaterthan(lky_object *a, lky_object *b)
@@ -231,15 +231,10 @@ lky_object *lobjb_binary_greaterthan(lky_object *a, lky_object *b)
     BI_CAST(a, ab);
     BI_CAST(b, bb);
 
-    if(a == &lky_nil || b == &lky_nil)
+    if(EITHER_SIGNLETONS(a, b))
         return &lky_nil;
 
-    lky_builtin_value v;
-    lky_builtin_type t = LBI_INTEGER;
-
-    v.i = (OBJ_NUM_UNWRAP(ab) > OBJ_NUM_UNWRAP(bb));
-
-    return lobjb_alloc(t, v);
+    return LKY_TESTC_FAST(OBJ_NUM_UNWRAP(ab) > OBJ_NUM_UNWRAP(bb));
 }
 
 lky_object *lobjb_binary_equals(lky_object *a, lky_object *b)
@@ -249,18 +244,21 @@ lky_object *lobjb_binary_equals(lky_object *a, lky_object *b)
     BI_CAST(a, ab);
     BI_CAST(b, bb);
 
-    if(a == &lky_nil || b == &lky_nil)
+    if(EITHER_NIL(a, b))
         return &lky_nil;
 
-    if(a->type == LBI_FUNCTION || b->type == LBI_FUNCTION)
-        return lobjb_build_int(a == b);
+    if(OBJ_IS_NUMBER(ab) || OBJ_IS_NUMBER(bb))
+    {
+        if(!OBJ_IS_NUMBER(ab) || !OBJ_IS_NUMBER(bb))
+            return &lky_nil;
 
-    lky_builtin_value v;
-    lky_builtin_type t = LBI_INTEGER;
+        return LKY_TESTC_FAST(OBJ_NUM_UNWRAP(ab) == OBJ_NUM_UNWRAP(bb));
+    }
 
-    v.i = (OBJ_NUM_UNWRAP(ab) == OBJ_NUM_UNWRAP(bb));
+    if(a->type == LBI_BOOL || b->type == LBI_BOOL)
+        return LKY_TESTC_FAST(LKY_CTEST_FAST(a) == LKY_CTEST_FAST(b));
 
-    return lobjb_alloc(t, v);
+    return &lky_nil;
 }
 
 lky_object *lobjb_binary_lessequal(lky_object *a, lky_object *b)
@@ -269,15 +267,10 @@ lky_object *lobjb_binary_lessequal(lky_object *a, lky_object *b)
     BI_CAST(a, ab);
     BI_CAST(b, bb);
 
-    if(a == &lky_nil || b == &lky_nil)
+    if(EITHER_SIGNLETONS(a, b))
         return &lky_nil;
 
-    lky_builtin_value v;
-    lky_builtin_type t = LBI_INTEGER;
-
-    v.i = (OBJ_NUM_UNWRAP(ab) <= OBJ_NUM_UNWRAP(bb));
-
-    return lobjb_alloc(t, v);
+    return LKY_TESTC_FAST(OBJ_NUM_UNWRAP(ab) <= OBJ_NUM_UNWRAP(bb));
 }
 
 lky_object *lobjb_binary_greatequal(lky_object *a, lky_object *b)
@@ -286,15 +279,10 @@ lky_object *lobjb_binary_greatequal(lky_object *a, lky_object *b)
     BI_CAST(a, ab);
     BI_CAST(b, bb);
 
-    if(a == &lky_nil || b == &lky_nil)
+    if(EITHER_SIGNLETONS(a, b))
         return &lky_nil;
 
-    lky_builtin_value v;
-    lky_builtin_type t = LBI_INTEGER;
-
-    v.i = (OBJ_NUM_UNWRAP(ab) >= OBJ_NUM_UNWRAP(bb));
-
-    return lobjb_alloc(t, v);
+    return LKY_TESTC_FAST(OBJ_NUM_UNWRAP(ab) >= OBJ_NUM_UNWRAP(bb));
 }
 
 lky_object *lobjb_binary_notequal(lky_object *a, lky_object *b)
@@ -303,15 +291,21 @@ lky_object *lobjb_binary_notequal(lky_object *a, lky_object *b)
     BI_CAST(a, ab);
     BI_CAST(b, bb);
 
-    if(a == &lky_nil || b == &lky_nil)
+    if(EITHER_NIL(a, b))
         return &lky_nil;
 
-    lky_builtin_value v;
-    lky_builtin_type t = LBI_INTEGER;
+    if(OBJ_IS_NUMBER(ab) || OBJ_IS_NUMBER(bb))
+    {
+        if(!OBJ_IS_NUMBER(ab) || !OBJ_IS_NUMBER(bb))
+            return &lky_nil;
 
-    v.i = (OBJ_NUM_UNWRAP(ab) != OBJ_NUM_UNWRAP(bb));
+        return LKY_TESTC_FAST(OBJ_NUM_UNWRAP(ab) != OBJ_NUM_UNWRAP(bb));
+    }
 
-    return lobjb_alloc(t, v);
+    if(a->type == LBI_BOOL || b->type == LBI_BOOL)
+        return LKY_TESTC_FAST(LKY_CTEST_FAST(a) != LKY_CTEST_FAST(b));
+
+    return &lky_nil;
 }
 
 lky_object *lobjb_binary_and(lky_object *a, lky_object *b)
@@ -320,7 +314,7 @@ lky_object *lobjb_binary_and(lky_object *a, lky_object *b)
     BI_CAST(a, ab);
     BI_CAST(b, bb);
 
-    if(a == &lky_nil || b == &lky_nil)
+    if(EITHER_SIGNLETONS(a, b))
         return lobjb_build_int(0);
 
     int vala = a->type == LBI_INTEGER || a->type == LBI_FLOAT ? (int)OBJ_NUM_UNWRAP(ab) : 1;
@@ -335,7 +329,7 @@ lky_object *lobjb_binary_or(lky_object *a, lky_object *b)
     BI_CAST(a, ab);
     BI_CAST(b, bb);
 
-    if(a == &lky_nil && b == &lky_nil)
+    if(EITHER_SIGNLETONS(a, b))
         return lobjb_build_int(0);
 
     int vala = a->type == LBI_INTEGER || a->type == LBI_FLOAT ? (int)OBJ_NUM_UNWRAP(ab) : 1;

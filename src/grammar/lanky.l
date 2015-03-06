@@ -66,6 +66,8 @@ comment (\#|(\-\-)).*(\n)
 "class"                 return TOKEN(TCLASS);
 "=>"                    return TOKEN(TRARROW);
 "nil"                   return TOKEN(TNIL);
+"yes"                   return TOKEN(TYES);
+"no"                    return TOKEN(TNO);
 "load"                  return TOKEN(TLOAD);
 "in"                    return TOKEN(TIN);
 "try"                   return TOKEN(TTRY);

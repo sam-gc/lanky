@@ -67,7 +67,7 @@ long stltab_autohash(void *key, void *data)
 
 int stltab_autoequ(void *a, void *b)
 {
-    return (int)OBJ_NUM_UNWRAP(lobjb_binary_equals((lky_object *)a, (lky_object *)b));
+    return (int)LKY_CTEST_FAST(lobjb_binary_equals((lky_object *)a, (lky_object *)b));
 }
 
 void stltab_cat_each(void *key, void *val, void *data)

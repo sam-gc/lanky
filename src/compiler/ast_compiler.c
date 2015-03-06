@@ -1077,6 +1077,9 @@ void compile_unary(compiler_wrapper *cw, ast_node *root)
     if(node->target)
         compile(cw, node->target);
 
+    // Used to compile boolean values
+    int extra = -1;
+
     lky_instruction istr = LI_IGNORE;
     switch(node->opt)
     {
@@ -1106,9 +1109,18 @@ void compile_unary(compiler_wrapper *cw, ast_node *root)
     case '-':
         istr = LI_UNARY_NEGATIVE;
         break;
+    case 'Y':
+        istr = LI_PUSH_BOOL;
+        extra = 1;
+        break;
+    case 'N':
+        istr = LI_PUSH_BOOL;
+        extra = 0;
     }
 
     append_op(cw, (char)istr);
+    if(extra > -1)
+        append_op(cw, extra);
 }
 
 // Used to find and reuse previous constants.

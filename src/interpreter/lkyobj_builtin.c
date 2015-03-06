@@ -342,6 +342,10 @@ char *lobjb_stringify(lky_object *a)
             ret = malloc(100);
             sprintf(ret, "%ld", b->value.i);
         break;
+        case LBI_BOOL:
+            ret = malloc(4);
+            sprintf(ret, "%s", a == &lky_yes ? "yes" : "no");
+        break;
         case LBI_STRING:
             printf("%s", b->value.s);
         break;
@@ -683,6 +687,40 @@ void lobjb_free_seq(lky_object_seq *seq)
         lky_object_seq *next = seq->next;
         seq = next;
     }
+}
+
+lky_object *lobjb_test(lky_object *cond)
+{
+    if(!cond)
+        return &lky_no;
+
+    if(OBJ_IS_NUMBER(cond))
+        return !!OBJ_NUM_UNWRAP(cond) ? &lky_yes : &lky_no;
+
+    if(cond == &lky_nil)
+        return &lky_no;
+
+    if(cond->type == LBI_BOOL)
+        return cond;
+
+    return !!cond ? &lky_yes : &lky_no;
+}
+
+int lobjb_ctest(lky_object *cond)
+{
+    if(!cond)
+        return 0;
+
+    if(OBJ_IS_NUMBER(cond))
+        return !!OBJ_NUM_UNWRAP(cond);
+
+    if(cond == &lky_nil)
+        return 0;
+
+    if(cond->type == LBI_BOOL)
+        return cond == &lky_yes;
+
+    return 1;
 }
 
 void lobjb_clean(lky_object *a)

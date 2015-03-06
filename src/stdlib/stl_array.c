@@ -44,7 +44,7 @@ lky_object *stlarr_append(lky_func_bundle *bundle)
     stlarr_data *data = self->data;
     arr_append(&data->container, args->value);
     lobj_set_member((lky_object *)self, "count", lobjb_build_int(data->container.count));
-    return &lky_nil;
+    return (lky_object *)self;
 }
 
 lky_object *stlarr_insert(lky_func_bundle *bundle)
@@ -58,7 +58,7 @@ lky_object *stlarr_insert(lky_func_bundle *bundle)
     stlarr_data *data = self->data;
     arr_insert(&data->container, args->value, idx);
     lobj_set_member((lky_object *)self, "count", lobjb_build_int(data->container.count));
-    return &lky_nil;
+    return (lky_object *)self;
 }
 
 arraylist stlarr_unwrap(lky_object *obj)
@@ -189,10 +189,11 @@ lky_object *stlarr_contains(lky_func_bundle *bundle)
             if(toret)
                 break;
         }
-
+        else if(result == &lky_yes)
+            return result;
     }
 
-    return lobjb_build_int(toret);
+    return LKY_TESTC_FAST(toret);
 }
 
 lky_object *stlarr_for_each(lky_func_bundle *bundle)

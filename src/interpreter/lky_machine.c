@@ -50,7 +50,7 @@
 #include "module.h"
 #include "class_builder.h"
 
-//#define COMPUTED_GOTO
+#define COMPUTED_GOTO
 
 // Macros to abstract the notion of "pushing"
 // and "popping" from the state machine
@@ -313,7 +313,7 @@ static void *dispatch_table_[] = {
     &&LI_BINARY_NC, &&LI_BINARY_BAND, &&LI_BINARY_BOR, &&LI_BINARY_BXOR, &&LI_BINARY_BLSHIFT, 
     &&LI_BINARY_BRSHIFT, &&LI_UNARY_NOT, &&LI_UNARY_NEGATIVE, &&LI_LOAD_CONST, &&LI_PRINT, 
     &&LI_POP, &&LI_JUMP_FALSE, &&LI_JUMP_TRUE, &&LI_JUMP, &&LI_JUMP_FALSE_ELSE_POP, 
-    &&LI_JUMP_TRUE_ELSE_POP, &&LI_IGNORE, &&LI_SAVE_LOCAL, &&LI_LOAD_LOCAL, &&LI_PUSH_NIL, 
+    &&LI_JUMP_TRUE_ELSE_POP, &&LI_IGNORE, &&LI_SAVE_LOCAL, &&LI_LOAD_LOCAL, &&LI_PUSH_NIL, &&LI_PUSH_BOOL,
     &&LI_PUSH_NEW_OBJECT, &&LI_CALL_FUNC, &&LI_RETURN, &&LI_LOAD_MEMBER, &&LI_SAVE_MEMBER, 
     &&LI_MAKE_FUNCTION, &&LI_MAKE_CLASS, &&LI_SAVE_CLOSE, &&LI_LOAD_CLOSE, &&LI_MAKE_ARRAY, 
     &&LI_MAKE_TABLE, &&LI_MAKE_OBJECT, &&LI_LOAD_INDEX, &&LI_SAVE_INDEX, &&LI_SDUPLICATE, 
@@ -509,17 +509,17 @@ _opcode_whiplash_:
             unsigned int idx = *(unsigned int *)(frame->ops + (++frame->pc));
             frame->pc += 3;
 
+            /*
             char needs_jump = 0;
 
             if(obj == &lky_nil)
                 needs_jump = 1;
             else if(((uintptr_t)(obj) & 1) || obj->type == LBI_FLOAT || obj->type == LBI_INTEGER)
                 needs_jump = !OBJ_NUM_UNWRAP(obj);
+            */
 
-            if(needs_jump)
-            {
+            if(!LKY_CTEST_FAST(obj))
                 frame->pc = idx;
-            }
         )
         vmop(JUMP_FALSE_ELSE_POP,
             lky_object *obj = TOP();
@@ -527,14 +527,15 @@ _opcode_whiplash_:
             unsigned int idx = *(unsigned int *)(frame->ops + (++frame->pc));
             frame->pc += 3;
 
+            /*
             char needs_jump = 0;
             if(obj == &lky_nil)
                 needs_jump = 0;
             else if(((uintptr_t)(obj) & 1) || obj->type == LBI_FLOAT || obj->type == LBI_INTEGER)
                 needs_jump = !!(OBJ_NUM_UNWRAP(obj));
+            */
 
-            if(needs_jump && op == LI_JUMP_TRUE_ELSE_POP ||
-               !needs_jump && op == LI_JUMP_FALSE_ELSE_POP)
+            if(!LKY_CTEST_FAST(obj))
                 frame->pc = idx;
             else
                 POP();
@@ -545,14 +546,15 @@ _opcode_whiplash_:
             unsigned int idx = *(unsigned int *)(frame->ops + (++frame->pc));
             frame->pc += 3;
 
+            /*
             char needs_jump = 0;
             if(obj == &lky_nil)
                 needs_jump = 0;
             else if(((uintptr_t)(obj) & 1) || obj->type == LBI_FLOAT || obj->type == LBI_INTEGER)
                 needs_jump = !!(OBJ_NUM_UNWRAP(obj));
+            */
 
-            if(needs_jump && op == LI_JUMP_TRUE_ELSE_POP ||
-               !needs_jump && op == LI_JUMP_FALSE_ELSE_POP)
+            if(LKY_CTEST_FAST(obj))
                 frame->pc = idx;
             else
                 POP();
@@ -572,6 +574,9 @@ _opcode_whiplash_:
         )
         vmop(PUSH_NIL,
             PUSH(&lky_nil);
+        )
+        vmop(PUSH_BOOL,
+            PUSH(LKY_TESTC_FAST(frame->ops[++frame->pc]));
         )
         vmop(PUSH_NEW_OBJECT,
             PUSH(lobj_alloc());

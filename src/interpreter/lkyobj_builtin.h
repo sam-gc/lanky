@@ -29,7 +29,12 @@
 #define LKY_NEXT_ITERABLE(obj) (obj->type != LBI_ITERABLE ? NULL :\
         (((lky_object_iterable *)(obj))->index < ((lky_object_iterable *)(obj))->store->count ?\
          ((lky_object_iterable *)(obj))->store->items[((lky_object_iterable *)(obj))->index++] : NULL))
-
+#define LKY_TEST_FAST(cond)\
+    (!cond || cond == &lky_nil ? &lky_no : (OBJ_IS_NUMBER(cond) ? (!!OBJ_NUM_UNWRAP(cond) ? &lky_yes : &lky_no) :\
+                                            (cond->type == LBI_BOOL ? cond : &lky_yes)))
+#define LKY_CTEST_FAST(cond)\
+    (!cond || cond == &lky_nil ? 0 : (OBJ_IS_NUMBER(cond) ? !!OBJ_NUM_UNWRAP(cond) : (cond->type == LBI_BOOL ? cond == &lky_yes : 1)))
+#define LKY_TESTC_FAST(val) (val ? &lky_yes : &lky_no)
 
 #include "lky_object.h"
 #include "arraylist.h"
@@ -182,6 +187,9 @@ void lobjb_print_object(lky_object *a);
 void lobjb_print(lky_object *a);
 char lobjb_quick_compare(lky_object *a, lky_object *b);
 lky_object *lobjb_num_to_string(lky_object *a);
+
+lky_object *lobjb_test(lky_object *cond);
+int lobjb_ctest(lky_object *cond);
 
 void lobjb_clean(lky_object *a);
 

@@ -39,7 +39,8 @@ typedef enum {
     LBI_ITERABLE,
     LBI_CUSTOM,
     LBI_CUSTOM_EX,
-    LBI_ERROR
+    LBI_ERROR,
+    LBI_BOOL
 } lky_builtin_type;
 
 typedef struct lky_object *(*lky_function_ptr)(lky_func_bundle *);
@@ -85,6 +86,8 @@ char lobj_have_same_class(lky_object *a, lky_object *b);
 char *lobj_stringify(lky_object *obj);
 
 extern lky_object lky_nil;
+extern lky_object lky_yes;
+extern lky_object lky_no;
 
 #define MAKE_BUNDLE(f, a) {\
     .func = (lky_object *)(f),\
