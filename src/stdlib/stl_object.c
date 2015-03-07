@@ -87,6 +87,21 @@ lky_object *stlobj_has(lky_func_bundle *bundle)
     return LKY_TESTC_FAST(!!lobj_get_member(self, str));
 }
 
+lky_object *stlobj_remove(lky_func_bundle *bundle)
+{
+    lky_object_function *func = BUW_FUNC(bundle);
+    lky_object_seq *args = BUW_ARGS(bundle);
+
+    lky_object *self = func->bound;
+
+    lky_object_custom *c = (lky_object_custom *)args->value;
+    char *str = c->data;
+
+    hst_remove_key(&self->members, str, NULL, NULL);
+
+    return &lky_nil;
+}
+
 lky_object *stlobj_equals(lky_func_bundle *bundle)
 {
     lky_object_function *func = BUW_FUNC(bundle);
@@ -202,8 +217,9 @@ lky_object *stlobj_get_proto()
     lobj_set_member(obj, "stringify_", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlobj_stringify));
     lobj_set_member(obj, "op_equals_", lobjb_build_func_ex(obj, 2, (lky_function_ptr)stlobj_equals));
     lobj_set_member(obj, "members_", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlobj_members));
-    lobj_set_member(obj, "respondsTo", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlobj_responds_to));
+    lobj_set_member(obj, "responds_to", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlobj_responds_to));
     lobj_set_member(obj, "has", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlobj_has));
+    lobj_set_member(obj, "remove_member", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlobj_remove));
 
     _stlobj_proto = obj;
 
