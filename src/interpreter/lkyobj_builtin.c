@@ -453,7 +453,7 @@ lky_object *lobjb_call(lky_object *func, lky_object_seq *args)
             c = func->callable;
             break;
         default:
-            break;
+            return NULL;
     }
     
     lky_func_bundle b = MAKE_BUNDLE(func, args);

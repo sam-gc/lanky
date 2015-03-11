@@ -79,6 +79,7 @@ ast_node *create_value_node(ast_value_type type, void *data)
         u.s = data;
         break;
     default:
+        u.i = -11;
         break;
     }
 
