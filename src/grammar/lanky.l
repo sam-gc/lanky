@@ -28,6 +28,7 @@ int yyerror(char *s)
     {
           printf("%d: %s at %s\n", yylineno, s, yytext);
           yyyhad_error = 1;
+          return 0;
     }
 
 int fileno(FILE *stream);
@@ -35,6 +36,8 @@ int fileno(FILE *stream);
 
 %option noyywrap
 %option yylineno
+%option noinput
+%option nounput
 
 white [ \t]+
 digit [0-9]

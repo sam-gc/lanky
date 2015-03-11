@@ -25,7 +25,6 @@
 lky_object *stlstr_stringify(lky_func_bundle *bundle)
 {
     lky_object_function *func = BUW_FUNC(bundle);
-    lky_object_seq *args = BUW_ARGS(bundle);
 
     return func->owner;
 }
@@ -57,7 +56,6 @@ lky_object *stlstr_get_index(lky_func_bundle *bundle)
 lky_object *stlstr_hash(lky_func_bundle *bundle)
 {
     lky_object_function *func = BUW_FUNC(bundle);
-    lky_object_seq *args = BUW_ARGS(bundle);
 
     lky_object_custom *self = (lky_object_custom *)func->owner;
     
@@ -85,7 +83,6 @@ lky_object *stlstr_equals(lky_func_bundle *bundle)
 lky_object *stlstr_reverse(lky_func_bundle *bundle)
 {
     lky_object_function *func = BUW_FUNC(bundle);
-    lky_object_seq *args = BUW_ARGS(bundle);
 
     lky_object_custom *self = (lky_object_custom *)func->owner;
     char *str = self->data;
@@ -371,7 +368,6 @@ lky_object *stlstr_fmt_ext(char *mestr, arraylist list)
 lky_object *stlstr_iterable(lky_func_bundle *bundle)
 {
     lky_object_function *func = BUW_FUNC(bundle);
-    lky_object_seq *args = BUW_ARGS(bundle);
 
     lky_object_custom *self = (lky_object_custom *)func->owner;
     char *mestr = self->data;
@@ -457,7 +453,6 @@ char *stlstr_copy_and_escape(char *str)
 lky_object *stlstr_to_lower(lky_func_bundle *bundle)
 {
     lky_object_function *func = BUW_FUNC(bundle);
-    lky_object_seq *args = BUW_ARGS(bundle);
 
     lky_object_custom *self = (lky_object_custom *)func->owner;
     char *me = self->data;

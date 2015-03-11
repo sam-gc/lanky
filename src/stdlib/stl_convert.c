@@ -26,7 +26,6 @@
 
 lky_object *stlcon_to_int(lky_func_bundle *bundle)
 {
-    lky_object_function *func = BUW_FUNC(bundle);
     lky_object_seq *args = BUW_ARGS(bundle);
 
     lky_object *from = (lky_object *)args->value;
@@ -51,7 +50,6 @@ lky_object *stlcon_to_int(lky_func_bundle *bundle)
 
 lky_object *stlcon_to_float(lky_func_bundle *bundle)
 {
-    lky_object_function *func = BUW_FUNC(bundle);
     lky_object_seq *args = BUW_ARGS(bundle);
 
     lky_object *from = (lky_object *)args->value;
@@ -72,7 +70,6 @@ lky_object *stlcon_to_float(lky_func_bundle *bundle)
 
 lky_object *stlcon_to_string(lky_func_bundle *bundle)
 {
-    lky_object_function *func = BUW_FUNC(bundle);
     lky_object_seq *args = BUW_ARGS(bundle);
 
     lky_object *from = (lky_object *)args->value;
@@ -84,7 +81,6 @@ lky_object *stlcon_to_string(lky_func_bundle *bundle)
 
 lky_object *stlcon_ord(lky_func_bundle *bundle)
 {
-    lky_object_function *func = BUW_FUNC(bundle);
     lky_object_seq *args = BUW_ARGS(bundle);
 
     lky_object *from = (lky_object *)args->value;
@@ -111,7 +107,6 @@ lky_object *stlcon_ord(lky_func_bundle *bundle)
 
 lky_object *stlcon_char(lky_func_bundle *bundle)
 {
-    lky_object_function *func = BUW_FUNC(bundle);
     lky_object_seq *args = BUW_ARGS(bundle);
 
     lky_object *from = (lky_object *)args->value;
@@ -127,7 +122,6 @@ lky_object *stlcon_char(lky_func_bundle *bundle)
 
 lky_object *stlcon_unit(lky_func_bundle *bundle)
 {
-    lky_object_function *func = BUW_FUNC(bundle);
     lky_object_seq *args = BUW_ARGS(bundle);
 
     lky_object_custom *c = (lky_object_custom *)args->value;

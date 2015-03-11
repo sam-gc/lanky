@@ -25,7 +25,6 @@ lky_object *clb_super_init_wrapper(lky_func_bundle *bundle)
 
     lky_object *self = (lky_object *)func->bound;
 
-    lky_object *class = lobj_get_member(self, "class_");
     lky_object *super = lobj_get_member((lky_object *)func->owner, "super_");
     lky_object *init = lobj_get_member(super, "init_");
     if(init)
@@ -112,6 +111,8 @@ void clb_add_member(lky_object *cls, char *refname, lky_object *obj, lky_class_p
         break;
         case LCP_STATIC:
             lobj_set_member(cls, refname, obj);
+        break;
+        default:
         break;
     }
 }

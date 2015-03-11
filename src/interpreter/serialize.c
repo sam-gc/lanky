@@ -74,7 +74,7 @@ int32_t srl_read_int32_from_file(FILE *f)
 {
     char buf[4];
     fread(buf, 1, 4, f);
-    return srl_bytes_to_int32(buf, 0);
+    return srl_bytes_to_int32((unsigned char *)buf, 0);
 }
 
 void srl_render_shared_info(lky_object *obj, unsigned char *buf, size_t len)
@@ -92,8 +92,8 @@ void srl_render_shared_info(lky_object *obj, unsigned char *buf, size_t len)
 
 void srl_parse_shared_info(unsigned char *buf, lky_builtin_type *t, size_t *len)
 {
-    t && (*t = buf[0]);
-    len && (*len = srl_bytes_to_int32(buf, 1));
+    if(t) (*t = buf[0]);
+    if(len) (*len = srl_bytes_to_int32(buf, 1));
 }
 
 char *srl_serialize_number(lky_object *obj, size_t *len)
@@ -102,7 +102,7 @@ char *srl_serialize_number(lky_object *obj, size_t *len)
     char buf[8];
     *len = 13;
 
-    srl_render_shared_info(obj, data, *len);
+    srl_render_shared_info(obj, (unsigned char *)data, *len);
 
     if(obj->type == LBI_INTEGER)
     {
@@ -129,7 +129,7 @@ char *srl_serialize_string(lky_object *obj, size_t *len)
     *len = 5 + strlen(tex);
     char *data = malloc(*len);
 
-    srl_render_shared_info(obj, data, *len);
+    srl_render_shared_info(obj, (unsigned char *)data, *len);
     data[0] = (char)LBI_STRING; // Standard library strings normally have type 'LBI_CUSTOM'
 
     int i;
@@ -222,10 +222,10 @@ char *srl_serialize_code(lky_object *obj, size_t *len)
         idx += 4;
     }
 
-    srl_copy_bytes_to_index(data, code->ops, idx, code->op_len);
+    srl_copy_bytes_to_index(data, (char *)code->ops, idx, code->op_len);
 
     *len = accum;
-    srl_render_shared_info(obj, data, accum);
+    srl_render_shared_info(obj, (unsigned char *)data, accum);
 
     return data;
 }
@@ -244,6 +244,7 @@ char *srl_serialize_object(lky_object *obj, size_t *len)
             return srl_serialize_code(obj, targ_len);
         case LBI_CUSTOM_EX:
             return srl_serialize_string(obj, targ_len);
+        default: break;
     }
 
     printf("%d\n", obj->type);
@@ -255,7 +256,7 @@ lky_object *srl_deserialize_number(char *bytes)
     char type = bytes[0];
 
     if(type == LBI_INTEGER)
-        return lobjb_build_int(srl_bytes_to_int64(bytes, 5));
+        return lobjb_build_int(srl_bytes_to_int64((unsigned char *)bytes, 5));
     if(type == LBI_FLOAT)
         return lobjb_build_float(*((double *)(bytes + 5)));
 
@@ -264,7 +265,7 @@ lky_object *srl_deserialize_number(char *bytes)
 
 lky_object *srl_deserialize_string(char *bytes)
 {
-    int len = srl_bytes_to_int32(bytes, 1) - 5;
+    int len = srl_bytes_to_int32((unsigned char *)bytes, 1) - 5;
     char tex[len + 1];
     memcpy(tex, bytes + 5, len);
     tex[len] = 0;
@@ -293,7 +294,7 @@ lky_object *srl_deserialize_code(unsigned char *bytes)
     {
         size_t len;
         srl_parse_shared_info(bytes, NULL, &len);
-        cons[i] = srl_deserialize_object(bytes);
+        cons[i] = srl_deserialize_object((char *)bytes);
         bytes += len;
     }
 
@@ -345,7 +346,7 @@ lky_object *srl_deserialize_object(char *bytes)
         case LBI_FLOAT:
             return srl_deserialize_number(bytes);
         case LBI_CODE:
-            return srl_deserialize_code(bytes);
+            return srl_deserialize_code((unsigned char *)bytes);
         case LBI_STRING:
             return srl_deserialize_string(bytes);
     }

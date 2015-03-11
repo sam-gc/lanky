@@ -62,7 +62,6 @@
 #ifdef COMPUTED_GOTO
     #define dispatch_() goto *dispatch_table_[frame->ops[++frame->pc] - 50]
     #define vmop(op_, code_) LI_ ## op_ : do{\
-    op = LI_ ## op_ ;\
     code_\
     if(frame->pc >= frame->tape_len || frame->ret)\
         return;\
@@ -128,7 +127,7 @@ void *pop_node(stackframe *frame)
 {
     if(frame->stack_pointer < 0)
     {
-        int *test = NULL;
+        // TODO: Nope...
     }
     void *data = frame->data_stack[frame->stack_pointer];
     frame->data_stack[frame->stack_pointer] = NULL;
@@ -303,8 +302,6 @@ void print_stack(stackframe *frame)
 
 void mach_eval(stackframe *frame)
 {
-    lky_instruction op;
- 
 #ifdef COMPUTED_GOTO
 static void *dispatch_table_[] = {
     &&LI_BINARY_ADD, &&LI_BINARY_SUBTRACT, &&LI_BINARY_MULTIPLY, &&LI_BINARY_DIVIDE, 
@@ -351,7 +348,7 @@ _opcode_whiplash_:
 #endif
     vmvm(
         vmop(LOAD_CONST,
-            char idx = frame->ops[++frame->pc];
+            int idx = frame->ops[++frame->pc];
             lky_object *obj = frame->constants[idx];
             PUSH(obj);
         )
@@ -562,13 +559,12 @@ _opcode_whiplash_:
         )
         vmop(SAVE_LOCAL,
             lky_object *obj = TOP();
-            char idx = frame->ops[++frame->pc];
-            lky_object *old = frame->locals[idx];
+            int idx = frame->ops[++frame->pc];
 
             frame->locals[idx] = obj;
         )
         vmop(LOAD_LOCAL,
-            char idx = frame->ops[++frame->pc];
+            int idx = frame->ops[++frame->pc];
             lky_object *obj = frame->locals[idx];
             PUSH(obj);
         )
@@ -795,7 +791,7 @@ _opcode_whiplash_:
             while(0 <=-- ct)
             {
                 lky_object *member = POP();
-                char *name = frame->names[*(char *)(frame->ops + (++frame->pc))];
+                char *name = frame->names[(int)(*(char *)(frame->ops + (++frame->pc)))];
                 lobj_set_member(obj, name, member);
             }
              

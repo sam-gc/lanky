@@ -83,7 +83,6 @@ lky_object *lobjb_build_float(double value)
 lky_object *lobjb_error_print(lky_func_bundle *bundle)
 {
     lky_object_function *func = BUW_FUNC(bundle);
-    lky_object_seq *args = BUW_ARGS(bundle);
 
     lky_object_error *err = (lky_object_error *)func->owner;
 
@@ -95,7 +94,6 @@ lky_object *lobjb_error_print(lky_func_bundle *bundle)
 lky_object *lobjb_error_stringify(lky_func_bundle *bundle)
 {
     lky_object_function *func = BUW_FUNC(bundle);
-    lky_object_seq *args = BUW_ARGS(bundle);
 
     lky_object_error *err = (lky_object_error *)func->owner;
     char text[strlen(err->name) + strlen(err->text) + 5];
@@ -143,7 +141,6 @@ lky_object *lobjb_build_error(char *name, char *text)
 
 lky_object *lobjb_make_exception(lky_func_bundle *bundle)
 {
-    lky_object_function *func = BUW_FUNC(bundle);
     lky_object_seq *args = BUW_ARGS(bundle);
 
     lky_object *first = (lky_object *)args->value;
@@ -432,7 +429,7 @@ lky_object *lobjb_num_to_string(lky_object *a)
     char str[100];
 
     if((uintptr_t)(a) & 1)
-        sprintf(str, "%ld", OBJ_NUM_UNWRAP(a));
+        sprintf(str, "%ld", (long)OBJ_NUM_UNWRAP(a));
     else
         str_print(b->type, b->value, str);
     
@@ -455,6 +452,8 @@ lky_object *lobjb_call(lky_object *func, lky_object_seq *args)
         case LBI_CUSTOM_EX:
             c = func->callable;
             break;
+        default:
+            break;
     }
     
     lky_func_bundle b = MAKE_BUNDLE(func, args);
@@ -465,7 +464,6 @@ lky_object *lobjb_default_callable(lky_func_bundle *bundle)
 {
     lky_object_function *func = BUW_FUNC(bundle);
     lky_object_seq *args = BUW_ARGS(bundle);
-    lky_object *self = (lky_object *)func;
     lky_object_code *code = func->code;
 
     func->bucket = lobj_alloc();
@@ -597,6 +595,7 @@ lky_object *lobjb_unary_negative(lky_object *obj)
             return lobjb_build_float(-OBJ_NUM_UNWRAP(obj));
         case LBI_INTEGER:
             return lobjb_build_int(-OBJ_NUM_UNWRAP(obj));
+        default: break;
     }
 
     return NULL;
@@ -656,8 +655,6 @@ void lobjb_print_object(lky_object *a)
     char *txt = lobjb_stringify(a);
     printf("%s", txt);
     free(txt);
-
-    lky_object_builtin *b = (lky_object_builtin *)a;
 }
 
 void lobjb_print(lky_object *a)
@@ -683,7 +680,6 @@ void lobjb_free_seq(lky_object_seq *seq)
 {
     while(seq)
     {
-        lky_object *obj = (lky_object *)seq->value;
         lky_object_seq *next = seq->next;
         seq = next;
     }

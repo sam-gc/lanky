@@ -100,7 +100,6 @@ void stltab_append_array(void *key, void *val, void *data)
 lky_object *stltab_stringify(lky_func_bundle *bundle)
 {
     lky_object_function *func = BUW_FUNC(bundle);
-    lky_object_seq *args = BUW_ARGS(bundle);
 
     lky_object_custom *tab = (lky_object_custom *)func->owner;
     stltab_data *d = tab->data;
@@ -121,7 +120,6 @@ lky_object *stltab_stringify(lky_func_bundle *bundle)
 lky_object *stltab_keys(lky_func_bundle *bundle)
 {
     lky_object_function *func = BUW_FUNC(bundle);
-    lky_object_seq *args = BUW_ARGS(bundle);
 
     lky_object_custom *tab = (lky_object_custom *)func->owner;
     stltab_data *d = tab->data;
@@ -139,7 +137,6 @@ lky_object *stltab_keys(lky_func_bundle *bundle)
 lky_object *stltab_values(lky_func_bundle *bundle)
 {
     lky_object_function *func = BUW_FUNC(bundle);
-    lky_object_seq *args = BUW_ARGS(bundle);
 
     lky_object_custom *tab = (lky_object_custom *)func->owner;
     stltab_data *d = tab->data;

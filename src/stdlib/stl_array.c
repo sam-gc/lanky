@@ -158,7 +158,6 @@ lky_object *stlarr_get(lky_func_bundle *bundle)
 lky_object *stlarr_last(lky_func_bundle *bundle)
 {
     lky_object_function *func = BUW_FUNC(bundle);
-    lky_object_seq *args = BUW_ARGS(bundle);
 
     lky_object_custom *self = (lky_object_custom *)func->owner;
     stlarr_data *data = self->data;
@@ -392,7 +391,6 @@ lky_object *stlarr_joined(lky_func_bundle *bundle)
 lky_object *stlarr_reverse(lky_func_bundle *bundle)
 {
     lky_object_function *func = BUW_FUNC(bundle);
-    lky_object_seq *args = BUW_ARGS(bundle);
 
     lky_object_custom *self = (lky_object_custom *)func->owner;
     stlarr_data *data = self->data;
@@ -425,7 +423,6 @@ arr_sort_result stlarr_wrap_sort(void *left, void *right, void *data)
 lky_object *stlarr_sort(lky_func_bundle *bundle)
 {
     lky_object_function *func = BUW_FUNC(bundle);
-    lky_object_seq *args = BUW_ARGS(bundle);
 
     lky_object_custom *self = (lky_object_custom *)func->owner;
     stlarr_data *data = self->data;
@@ -439,7 +436,6 @@ lky_object *stlarr_sort(lky_func_bundle *bundle)
 lky_object *stlarr_copy(lky_func_bundle *bundle)
 {
     lky_object_function *func = BUW_FUNC(bundle);
-    lky_object_seq *args = BUW_ARGS(bundle);
 
     lky_object_custom *self = (lky_object_custom *)func->owner;
     stlarr_data *data = self->data;
@@ -458,7 +454,6 @@ lky_object *stlarr_copy(lky_func_bundle *bundle)
 lky_object *stlarr_sorted(lky_func_bundle *bundle)
 {
     lky_object_function *func = BUW_FUNC(bundle);
-    lky_object_seq *args = BUW_ARGS(bundle);
 
     lky_object_custom *self = (lky_object_custom *)func->owner;
     stlarr_data *data = self->data;
@@ -510,7 +505,6 @@ lky_object *stlarr_slice_to(lky_func_bundle *bundle)
 lky_object *stlarr_stringify(lky_func_bundle *bundle)
 {
     lky_object_function *func = BUW_FUNC(bundle);
-    lky_object_seq *args = BUW_ARGS(bundle);
 
     lky_object_custom *self = (lky_object_custom *)func->owner;
     stlarr_data *data = self->data;
@@ -616,9 +610,6 @@ lky_object *stlarr_cinit(arraylist inlist)
 
 lky_object *stlarr_build(lky_func_bundle *bundle)
 {
-    lky_object_function *func = BUW_FUNC(bundle);
-    lky_object_seq *args = BUW_ARGS(bundle);
-
     return stlarr_cinit(arr_create(10));
 }
 

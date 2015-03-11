@@ -16,7 +16,6 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#define _GNU_SOURCE
 #include "stl_time.h"
 #include "hashtable.h"
 #include "stl_string.h"
@@ -45,16 +44,12 @@ long millis()
 
 lky_object *stltime_millis(lky_func_bundle *bundle)
 {
-    lky_object_function *func = BUW_FUNC(bundle);
-    lky_object_seq *args = BUW_ARGS(bundle);
-
     return lobjb_build_int(millis());
 }
 
 lky_object *stltime_date_stringify(lky_func_bundle *bundle)
 {
     lky_object_function *func = BUW_FUNC(bundle);
-    lky_object_seq *args = BUW_ARGS(bundle);
 
     lky_object_custom *self = (lky_object_custom *)func->owner;
     time_data *d = self->data;
@@ -173,7 +168,6 @@ lky_object *stltime_build_date_object(lky_object *ht)
 
 lky_object *stltime_date_builder(lky_func_bundle *bundle)
 {
-    lky_object_function *func = BUW_FUNC(bundle);
     lky_object_seq *args = BUW_ARGS(bundle);
 
     lky_object *indict = args ? (lky_object *)args->value : NULL;

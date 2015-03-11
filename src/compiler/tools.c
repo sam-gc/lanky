@@ -79,7 +79,7 @@ void auto_cat(char **buf, char *cat)
             free(*buf);
         }
         else
-            sprintf(next, "");
+            strcpy(next, "");
         *buf = next;
     }
 

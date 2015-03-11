@@ -179,9 +179,6 @@ lky_object *stlmeta_exec(lky_func_bundle *bundle)
 
 lky_object *stlmeta_audit(lky_func_bundle *bundle)
 {
-    lky_object_function *func = BUW_FUNC(bundle);
-    lky_object_seq *args = BUW_ARGS(bundle);
-
     META_AUDIT(lky_object);
     META_AUDIT(lky_object_seq);
     META_AUDIT(lky_object_function);
@@ -197,7 +194,6 @@ lky_object *stlmeta_audit(lky_func_bundle *bundle)
 lky_object *stlmeta_repl(lky_func_bundle *bundle)
 {
     lky_object_function *func = BUW_FUNC(bundle);
-    lky_object_seq *args = BUW_ARGS(bundle);
 
     lky_object_custom *self = (lky_object_custom *)func->owner;
     
@@ -208,7 +204,6 @@ lky_object *stlmeta_repl(lky_func_bundle *bundle)
 
 lky_object *stlmeta_address_of(lky_func_bundle *bundle)
 {
-    lky_object_function *func = BUW_FUNC(bundle);
     lky_object_seq *args = BUW_ARGS(bundle);
 
     void *p = (void *)args->value;
@@ -219,7 +214,6 @@ lky_object *stlmeta_address_of(lky_func_bundle *bundle)
 
 lky_object *stlmeta_allow_int_tags(lky_func_bundle *bundle)
 {
-    lky_object_function *func = BUW_FUNC(bundle);
     lky_object_seq *args = BUW_ARGS(bundle);
 
     lky_object *o = (lky_object *)args->value;
@@ -230,27 +224,18 @@ lky_object *stlmeta_allow_int_tags(lky_func_bundle *bundle)
 
 lky_object *stlmeta_gc_pause(lky_func_bundle *bundle)
 {
-    lky_object_function *func = BUW_FUNC(bundle);
-    lky_object_seq *args = BUW_ARGS(bundle);
-
     gc_pause_collection();
     return &lky_nil;
 }
 
 lky_object *stlmeta_gc_halt(lky_func_bundle *bundle)
 {
-    lky_object_function *func = BUW_FUNC(bundle);
-    lky_object_seq *args = BUW_ARGS(bundle);
-
     gc_pause();
     return &lky_nil;
 }
 
 lky_object *stlmeta_gc_resume(lky_func_bundle *bundle)
 {
-    lky_object_function *func = BUW_FUNC(bundle);
-    lky_object_seq *args = BUW_ARGS(bundle);
-
     gc_resume();
     gc_resume_collection();
     return &lky_nil;
@@ -258,18 +243,12 @@ lky_object *stlmeta_gc_resume(lky_func_bundle *bundle)
 
 lky_object *stlmeta_gc_pass(lky_func_bundle *bundle)
 {
-    lky_object_function *func = BUW_FUNC(bundle);
-    lky_object_seq *args = BUW_ARGS(bundle);
-
     gc_gc();
     return &lky_nil;
 }
 
 lky_object *stlmeta_gc_collect(lky_func_bundle *bundle)
 {
-    lky_object_function *func = BUW_FUNC(bundle);
-    lky_object_seq *args = BUW_ARGS(bundle);
-
     gc_mark();
     gc_collect();
     return &lky_nil;
@@ -277,9 +256,6 @@ lky_object *stlmeta_gc_collect(lky_func_bundle *bundle)
 
 lky_object *stlmeta_gc_alloced(lky_func_bundle *bundle)
 {
-    lky_object_function *func = BUW_FUNC(bundle);
-    lky_object_seq *args = BUW_ARGS(bundle);
-
     return lobjb_build_int((long)gc_alloced());
 }
 
@@ -418,27 +394,6 @@ void stlmeta_print_dissassembly(lky_object_code *code)
         
         switch(instr)
         {
-            case LI_BINARY_ADD:
-            case LI_BINARY_SUBTRACT:
-            case LI_BINARY_MULTIPLY:
-            case LI_BINARY_DIVIDE:
-            case LI_BINARY_MODULO:
-            case LI_BINARY_LT:
-            case LI_BINARY_GT:
-            case LI_BINARY_EQUAL:
-            case LI_BINARY_LTE:
-            case LI_BINARY_GTE:
-            case LI_BINARY_NE:
-            case LI_BINARY_AND:
-            case LI_BINARY_OR:
-            case LI_PRINT:
-            case LI_POP:
-            case LI_IGNORE:
-            case LI_PUSH_NIL:
-            case LI_RETURN:
-            case LI_LOAD_INDEX:
-            case LI_SAVE_INDEX:
-                break;
             case LI_LOAD_CONST:
                 printf("\t%d\t(", code->ops[++i]);
                 lobjb_print_object(code->constants[code->ops[i]]);
@@ -500,6 +455,7 @@ void stlmeta_print_dissassembly(lky_object_code *code)
 
                 break;
             }
+            default: break;
         }
         
         printf("\n");
@@ -508,7 +464,6 @@ void stlmeta_print_dissassembly(lky_object_code *code)
 
 lky_object *stlmeta_examine(lky_func_bundle *bundle)
 {
-    lky_object_function *func = BUW_FUNC(bundle);
     lky_object_seq *args = BUW_ARGS(bundle);
 
     lky_object_function *obj = (lky_object_function *)args->value;
@@ -556,7 +511,7 @@ lky_object *stlmeta_examine(lky_func_bundle *bundle)
     
     printf("]\n\n");
 
-    printf("Number of local slots: %d\n", code->num_locals);
+    printf("Number of local slots: %ld\n", code->num_locals);
     stlmeta_print_dissassembly(code);
     
     return &lky_nil;
@@ -564,9 +519,6 @@ lky_object *stlmeta_examine(lky_func_bundle *bundle)
 
 lky_object *stlmeta_help_stdlib(lky_func_bundle *bundle)
 {
-    lky_object_function *func = BUW_FUNC(bundle);
-    lky_object_seq *args = BUW_ARGS(bundle);
-
     printf("LANKY STANDARD LIBRARY\n"
            "======================\n\n"
            "+ Object (stl_object.c)\n"

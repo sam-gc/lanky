@@ -30,7 +30,7 @@
 #define OBJ_NUM_PROMO(a, b) ((!((uintptr_t)(a) & 1) && a->type == LBI_FLOAT) || (!((uintptr_t)(b) & 1) && b->type == LBI_FLOAT ) ? LBI_FLOAT : LBI_INTEGER) 
 #define CHECK_EXEC_CUSTOM_IMPL(a, b, name) \
     do { \
-        if(!(IS_TAGGED(a)) && a->type == LBI_CUSTOM || !(IS_TAGGED(a)) && a->type == LBI_CUSTOM_EX || !(IS_TAGGED(b)) && b->type == LBI_CUSTOM || !(IS_TAGGED(b)) && b->type == LBI_CUSTOM_EX) { \
+        if((!(IS_TAGGED(a)) && a->type == LBI_CUSTOM) || (!(IS_TAGGED(a)) && a->type == LBI_CUSTOM_EX) || (!(IS_TAGGED(b)) && b->type == LBI_CUSTOM) || (!(IS_TAGGED(b)) && b->type == LBI_CUSTOM_EX)) { \
             lky_object *caller = !(IS_TAGGED(a)) && (a->type == LBI_CUSTOM || a->type == LBI_CUSTOM_EX) ? a : b;\
             lky_object *other = caller == a ? b : a; \
             lky_object *func = lobj_get_member(caller, name); \

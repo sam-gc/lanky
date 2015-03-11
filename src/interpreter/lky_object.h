@@ -25,7 +25,6 @@
 // #define INCREF(obj) (rc_decr(obj))
 struct lky_object_seq;
 struct lky_object;
-typedef struct lky_func_bundle lky_func_bundle;
 
 typedef enum {
     LBI_FLOAT,
@@ -43,7 +42,8 @@ typedef enum {
     LBI_BOOL
 } lky_builtin_type;
 
-typedef struct lky_object *(*lky_function_ptr)(lky_func_bundle *);
+struct lky_func_bundle;
+typedef struct lky_object *(*lky_function_ptr)(struct lky_func_bundle *);
 
 typedef struct {
     int argc;

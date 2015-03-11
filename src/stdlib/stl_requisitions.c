@@ -31,7 +31,6 @@ lky_mempool dlmempool = {NULL, &stlreq_wrap_dlclose};
 
 lky_object *stlreq_import(lky_func_bundle *bundle)
 {
-    lky_object_function *func = BUW_FUNC(bundle);
     lky_object_seq *args = BUW_ARGS(bundle);
 
     lky_object_custom *nobj = (lky_object_custom *)args->value;
@@ -93,13 +92,12 @@ lky_object *stlreq_import(lky_func_bundle *bundle)
 
 lky_object *stlreq_compile(lky_func_bundle *bundle)
 {
-    lky_object_function *func = BUW_FUNC(bundle);
     lky_object_seq *args = BUW_ARGS(bundle);
 
     lky_object_custom *fileobj = (lky_object_custom *)args->value;
     lky_object_custom *argobj = args->next ? (lky_object_custom *)args->next->value : NULL;
 
-    printf("%s\n", argobj->data);
+    printf("%s\n", (char *)argobj->data);
 
     char *filename = fileobj->data;
 

@@ -35,7 +35,7 @@ void exp_send_to_c_source(char *data, size_t len, char *filename)
     if(!f)
         return;
 
-    fprintf(f, "long lky_bottled_bytecode_len_ = %d;\n", len);
+    fprintf(f, "long lky_bottled_bytecode_len_ = %d;\n", (int)len);
     fprintf(f, "unsigned char lky_bottled_bytecode_data_[] = {\n    ");
     int i;
     for(i = 0; i < len; i++)

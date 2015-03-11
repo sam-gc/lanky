@@ -99,6 +99,7 @@ int stack_effect_for(lky_instruction op, int *skip, unsigned char *code, int i)
         case LI_PUSH_NIL:
         case LI_PUSH_NEW_OBJECT:
         case LI_ITER_INDEX:
+        case LI_MAKE_OBJECT:
             return 1;
         case LI_NEXT_ITER_OR_JUMP:
             *skip = 4;
@@ -116,6 +117,12 @@ int stack_effect_for(lky_instruction op, int *skip, unsigned char *code, int i)
         case LI_SAVE_INDEX:
         case LI_UNARY_NOT:
         case LI_UNARY_NEGATIVE:
+        case LI_RAISE:
+        case LI_POP_CATCH:
+        case LI_MAKE_ITER:
+        case LI_PUSH_CATCH:
+        case LI_SINK_FIRST:
+        case LI_FLIP_TWO:
             return 0;
         case LI_DDUPLICATE:
             return 2;

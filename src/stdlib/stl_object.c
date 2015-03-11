@@ -35,7 +35,6 @@ static  lky_object *_stlobj_proto = NULL;
 lky_object *stlobj_stringify(lky_func_bundle *bundle)
 {
     lky_object_function *func = BUW_FUNC(bundle);
-    lky_object_seq *args = BUW_ARGS(bundle);
 
     lky_object *self = func->bound;
     char buf[100];
@@ -125,7 +124,7 @@ lky_object *stlobj_equals(lky_func_bundle *bundle)
 
 void stlobj_members_each(void *key, void *val, void *data)
 {
-    printf("%s\n", key);
+    printf("%s\n", (char *)key);
     struct stlobj_members *m = (struct stlobj_members *)data;
     arr_append(&m->keys, stlstr_cinit((char *)key));
     arr_append(&m->vals, val);

@@ -24,8 +24,13 @@
 #include "stl_array.h"
 #include "stl_units.h"
 
+#ifndef M_PI
 #define M_PI 3.14159265358979323846
+#endif
+
+#ifndef M_E
 #define M_E  2.71828182845904523536
+#endif
 
 #define TOKENPASTE(x, y) x ## y
 #define IS_NUMBER(obj) (((uintptr_t)(obj) & 1) || obj->type == LBI_FLOAT || obj->type == LBI_INTEGER)
@@ -47,22 +52,18 @@ lky_object *TOKENPASTE(stlmath_wrap_, function) (lky_func_bundle *bundle) \
 \
     double val = OBJ_NUM_UNWRAP(b);\
 \
-    return lobjb_build_float( function (val));\
+    return lobjb_build_float( (double) function (val));\
 }
 
 #define STLMATH_WRAP_MEMBER(obj, function) (lobj_set_member(obj, #function, lobjb_build_func_ex(obj, 1, (lky_function_ptr)TOKENPASTE(stlmath_wrap_, function))))
 
 lky_object *stlmath_wrap_rand(lky_func_bundle *bundle)
 {
-    lky_object_function *func = BUW_FUNC(bundle);
-    lky_object_seq *args = BUW_ARGS(bundle);
-
     return lobjb_build_int(rand());
 }
 
 lky_object *stlmath_shuffle(lky_func_bundle *bundle)
 {
-    lky_object_function *func = BUW_FUNC(bundle);
     lky_object_seq *args = BUW_ARGS(bundle);
 
     lky_object *arrobj = (lky_object *)args->value;
@@ -94,7 +95,6 @@ lky_object *stlmath_shuffle(lky_func_bundle *bundle)
 
 lky_object *stlmath_range(lky_func_bundle *bundle)
 {
-    lky_object_function *func = BUW_FUNC(bundle);
     lky_object_seq *args = BUW_ARGS(bundle);
 
     lky_object *maxobj = (lky_object *)args->value;
@@ -109,7 +109,6 @@ lky_object *stlmath_range(lky_func_bundle *bundle)
 
 lky_object *stlmath_rand_int(lky_func_bundle *bundle)
 {
-    lky_object_function *func = BUW_FUNC(bundle);
     lky_object_seq *args = BUW_ARGS(bundle);
 
     lky_object_builtin *first = (lky_object_builtin *)args->value;
@@ -140,7 +139,6 @@ lky_object *stlmath_atan2(lky_func_bundle *bundle)
 
 lky_object *stlmath_quad(lky_func_bundle *bundle)
 {
-    lky_object_function *func = BUW_FUNC(bundle);
     lky_object_seq *args = BUW_ARGS(bundle);
 
     lky_object_builtin *first = (lky_object_builtin *)args->value;
@@ -175,7 +173,7 @@ lky_object *stlmath_quad(lky_func_bundle *bundle)
 STLMATH_WRAP_FUNC(sin)
 STLMATH_WRAP_FUNC(cos)
 STLMATH_WRAP_FUNC(tan)
-STLMATH_WRAP_FUNC(abs)
+STLMATH_WRAP_FUNC(fabs)
 STLMATH_WRAP_FUNC(acos)
 STLMATH_WRAP_FUNC(asin)
 STLMATH_WRAP_FUNC(atan)
@@ -232,10 +230,10 @@ lky_object *stlmath_get_class()
     lobj_set_member(obj, "shuffle", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlmath_shuffle));
     lobj_set_member(obj, "range", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlmath_range));
     lobj_set_member(obj, "atan2", lobjb_build_func_ex(obj, 2, (lky_function_ptr)stlmath_atan2));
+    lobj_set_member(obj, "abs", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlmath_wrap_fabs));
     STLMATH_WRAP_MEMBER(obj, sin);
     STLMATH_WRAP_MEMBER(obj, cos);
     STLMATH_WRAP_MEMBER(obj, tan);
-    STLMATH_WRAP_MEMBER(obj, abs);
     STLMATH_WRAP_MEMBER(obj, acos);
     STLMATH_WRAP_MEMBER(obj, asin);
     STLMATH_WRAP_MEMBER(obj, atan);

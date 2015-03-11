@@ -248,7 +248,7 @@ lky_object *md_load_text_code(char *fullname, mach_interp *ip)
 
 lky_object *md_load_lib(char *fullname, char *file)
 {
-    char *shtemp;
+    char *shtemp = NULL;
     char shortname[1000];
     int i;
     for(i = strlen(fullname); i > 0; i--)
@@ -257,6 +257,13 @@ lky_object *md_load_lib(char *fullname, char *file)
             continue;
         shtemp = fullname + i;
         break;
+    }
+    
+    if(!shtemp)
+    {
+        // TODO: Error!
+        printf("Error loading module: %s\n", fullname);
+        exit(1);
     }
 
     strcpy(shortname, shtemp);
