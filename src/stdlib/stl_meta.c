@@ -147,7 +147,7 @@ void run_repl(mach_interp *interp)
         lky_object *ret = compile_and_exec(line, interp);
 
         printf(DEFAULT);
-        lobjb_print(ret);
+        lobjb_print(ret, interp);
         
         if (buf[0] != 0)
             add_history(buf);
@@ -396,7 +396,7 @@ void stlmeta_print_dissassembly(lky_object_code *code)
         {
             case LI_LOAD_CONST:
                 printf("\t%d\t(", code->ops[++i]);
-                lobjb_print_object(code->constants[code->ops[i]]);
+                lobjb_print_object(code->constants[code->ops[i]], NULL);
                 printf(")");
                 break;
             case LI_LOAD_CLOSE:
@@ -503,7 +503,7 @@ lky_object *stlmeta_examine(lky_func_bundle *bundle)
     
     for(i = 0; i < code->num_constants; i++)
     {
-        lobjb_print_object(code->constants[i]);
+        lobjb_print_object(code->constants[i], BUW_INTERP(bundle));
         
         if(i < code->num_constants - 1)
             printf(", ");

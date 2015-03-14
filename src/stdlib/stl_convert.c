@@ -73,7 +73,7 @@ lky_object *stlcon_to_string(lky_func_bundle *bundle)
     lky_object_seq *args = BUW_ARGS(bundle);
 
     lky_object *from = (lky_object *)args->value;
-    char *str = lobjb_stringify(from);
+    char *str = lobjb_stringify(from, BUW_INTERP(bundle));
     lky_object *ret = stlstr_cinit(str);
     free(str);
     return ret;
@@ -84,7 +84,7 @@ lky_object *stlcon_ord(lky_func_bundle *bundle)
     lky_object_seq *args = BUW_ARGS(bundle);
 
     lky_object *from = (lky_object *)args->value;
-    char *str = lobjb_stringify(from);
+    char *str = lobjb_stringify(from, BUW_INTERP(bundle));
     lky_object *ret = NULL;
 
     size_t len = strlen(str);
@@ -127,7 +127,7 @@ lky_object *stlcon_unit(lky_func_bundle *bundle)
     lky_object_custom *c = (lky_object_custom *)args->value;
     lky_object *to = (lky_object *)args->next->value;
 
-    char *str = lobjb_stringify(to);
+    char *str = lobjb_stringify(to, BUW_INTERP(bundle));
     un_unit t = un_create(0, str);
 
     stlun_data *data = c->data;

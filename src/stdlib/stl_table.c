@@ -55,7 +55,7 @@ long stltab_autohash(void *key, void *data)
     if(!hf)
         return (long)key; // Use the pointer as the hash; mirrors equals
 
-    lky_object *obj = lobjb_call(hf, NULL);
+    lky_object *obj = lobjb_call(hf, NULL, NULL);
 
     return (long)OBJ_NUM_UNWRAP(obj);
 
@@ -67,7 +67,7 @@ long stltab_autohash(void *key, void *data)
 
 int stltab_autoequ(void *a, void *b)
 {
-    return (int)LKY_CTEST_FAST(lobjb_binary_equals((lky_object *)a, (lky_object *)b));
+    return (int)LKY_CTEST_FAST(lobjb_binary_equals((lky_object *)a, (lky_object *)b, NULL));
 }
 
 void stltab_cat_each(void *key, void *val, void *data)
@@ -76,8 +76,8 @@ void stltab_cat_each(void *key, void *val, void *data)
     lky_object *k = (lky_object *)key;
     lky_object *v = (lky_object *)val;
 
-    char *sk = lobjb_stringify(k);
-    char *sv = lobjb_stringify(v);
+    char *sk = lobjb_stringify(k, NULL);
+    char *sv = lobjb_stringify(v, NULL);
 
     auto_cat(buf, "   ");
     auto_cat(buf, sk);

@@ -21,27 +21,27 @@
 
 #include "lkyobj_builtin.h"
 
-lky_object *lobjb_binary_add(lky_object *a, lky_object *b);
-lky_object *lobjb_binary_subtract(lky_object *a, lky_object *b);
-lky_object *lobjb_binary_multiply(lky_object *a, lky_object *b);
-lky_object *lobjb_binary_divide(lky_object *a, lky_object *b);
-lky_object *lobjb_binary_modulo(lky_object *a, lky_object *b);
-lky_object *lobjb_binary_power(lky_object *a, lky_object *b);
-lky_object *lobjb_binary_lessthan(lky_object *a, lky_object *b);
-lky_object *lobjb_binary_greaterthan(lky_object *a, lky_object *b);
-lky_object *lobjb_binary_equals(lky_object *a, lky_object *b);
-lky_object *lobjb_binary_lessequal(lky_object *a, lky_object *b);
-lky_object *lobjb_binary_greatequal(lky_object *a, lky_object *b);
-lky_object *lobjb_binary_notequal(lky_object *a, lky_object *b);
-lky_object *lobjb_binary_and(lky_object *a, lky_object *b);
-lky_object *lobjb_binary_or(lky_object *a, lky_object *b);
-lky_object *lobjb_binary_nc(lky_object *a, lky_object *b);
+lky_object *lobjb_binary_add(lky_object *a, lky_object *b, struct interp *interp);
+lky_object *lobjb_binary_subtract(lky_object *a, lky_object *b, struct interp *interp);
+lky_object *lobjb_binary_multiply(lky_object *a, lky_object *b, struct interp *interp);
+lky_object *lobjb_binary_divide(lky_object *a, lky_object *b, struct interp *interp);
+lky_object *lobjb_binary_modulo(lky_object *a, lky_object *b, struct interp *interp);
+lky_object *lobjb_binary_power(lky_object *a, lky_object *b, struct interp *interp);
+lky_object *lobjb_binary_lessthan(lky_object *a, lky_object *b, struct interp *interp);
+lky_object *lobjb_binary_greaterthan(lky_object *a, lky_object *b, struct interp *interp);
+lky_object *lobjb_binary_equals(lky_object *a, lky_object *b, struct interp *interp);
+lky_object *lobjb_binary_lessequal(lky_object *a, lky_object *b, struct interp *interp);
+lky_object *lobjb_binary_greatequal(lky_object *a, lky_object *b, struct interp *interp);
+lky_object *lobjb_binary_notequal(lky_object *a, lky_object *b, struct interp *interp);
+lky_object *lobjb_binary_and(lky_object *a, lky_object *b, struct interp *interp);
+lky_object *lobjb_binary_or(lky_object *a, lky_object *b, struct interp *interp);
+lky_object *lobjb_binary_nc(lky_object *a, lky_object *b, struct interp *interp);
 
 // Bitwise operations
-lky_object *lobjb_binary_band(lky_object *a, lky_object *b);
-lky_object *lobjb_binary_bor(lky_object *a, lky_object *b);
-lky_object *lobjb_binary_bxor(lky_object *a, lky_object *b);
-lky_object *lobjb_binary_blshift(lky_object *a, lky_object *b);
-lky_object *lobjb_binary_brshift(lky_object *a, lky_object *b);
+lky_object *lobjb_binary_band(lky_object *a, lky_object *b, struct interp *interp);
+lky_object *lobjb_binary_bor(lky_object *a, lky_object *b, struct interp *interp);
+lky_object *lobjb_binary_bxor(lky_object *a, lky_object *b, struct interp *interp);
+lky_object *lobjb_binary_blshift(lky_object *a, lky_object *b, struct interp *interp);
+lky_object *lobjb_binary_brshift(lky_object *a, lky_object *b, struct interp *interp);
 
 #endif

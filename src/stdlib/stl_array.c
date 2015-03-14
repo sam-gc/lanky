@@ -181,7 +181,7 @@ lky_object *stlarr_contains(lky_func_bundle *bundle)
     for(i = 0; i < list.count; i++)
     {
         lky_object *b = arr_get(&list, i);
-        lky_object *result = lobjb_binary_equals(a, b);
+        lky_object *result = lobjb_binary_equals(a, b, BUW_INTERP(bundle));
         if(IS_TAGGED(result) || result->type == LBI_INTEGER || result->type == LBI_FLOAT)
         {
             toret = !!OBJ_NUM_UNWRAP(result);
@@ -220,7 +220,7 @@ lky_object *stlarr_for_each(lky_func_bundle *bundle)
         if(useidx)
             seq->next = lobjb_make_seq_node(lobjb_build_int(i));
 
-        lobjb_call((lky_object *)callback, seq);
+        lobjb_call((lky_object *)callback, seq, BUW_INTERP(bundle));
     }
 
     return &lky_nil;
@@ -240,7 +240,7 @@ lky_object *stlarr_index_of(lky_func_bundle *bundle)
     for(i = 0; i < list.count; i++)
     {
         lky_object *b = arr_get(&list, i);
-        lky_object *result = lobjb_binary_equals(a, b);
+        lky_object *result = lobjb_binary_equals(a, b, BUW_INTERP(bundle));
         if(IS_TAGGED(result) || result->type == LBI_INTEGER || result->type == LBI_FLOAT)
         {
             if(OBJ_NUM_UNWRAP(result))
@@ -323,7 +323,7 @@ lky_object *stlarr_joined(lky_func_bundle *bundle)
     stlarr_data *data = self->data;
     arraylist list = data->container;
 
-    char *joiner = lobj_stringify((lky_object *)args->value);
+    char *joiner = lobj_stringify((lky_object *)args->value, BUW_INTERP(bundle));
 
     if(!joiner)
         return &lky_nil;
@@ -355,7 +355,7 @@ lky_object *stlarr_joined(lky_func_bundle *bundle)
         }
         else
         {
-            lky_func_bundle b = MAKE_BUNDLE(f, NULL);
+            lky_func_bundle b = MAKE_BUNDLE(f, NULL, BUW_INTERP(bundle));
             strobj = (lky_object_custom *)(f->callable.function)(&b);
         }
         
@@ -409,8 +409,8 @@ lky_object *stlarr_reverse(lky_func_bundle *bundle)
 
 arr_sort_result stlarr_wrap_sort(void *left, void *right, void *data)
 {
-    lky_object *lto = lobjb_binary_lessthan(left, right);
-    lky_object *eqo = lobjb_binary_equals(left, right);
+    lky_object *lto = lobjb_binary_lessthan(left, right, NULL);
+    lky_object *eqo = lobjb_binary_equals(left, right, NULL);
 
     int lt = (int)OBJ_NUM_UNWRAP(lto);
     int eq = (int)OBJ_NUM_UNWRAP(eqo);
@@ -526,7 +526,7 @@ lky_object *stlarr_stringify(lky_func_bundle *bundle)
     for(i = 0; i < list.count; i++)
     {
         lky_object *obj = arr_get(&list, i);
-        char *str = lobjb_stringify(obj);
+        char *str = lobjb_stringify(obj, BUW_INTERP(bundle));
         
         innards[i] = str;
         tlen += strlen(str);

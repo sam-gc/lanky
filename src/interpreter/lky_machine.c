@@ -72,7 +72,7 @@
 \
         if(!frame->catch_pointer && !frame->prev)\
         {\
-            char *errtxt = lobj_stringify(exc);\
+            char *errtxt = lobj_stringify(exc, frame->interp);\
             printf("Fatal error--\n%s\n\nHalting.\n", errtxt);\
             free(errtxt);\
             frame->ret = &lky_nil;\
@@ -209,7 +209,7 @@ lky_object *mach_interrupt_exec(lky_object_function *func)
     lky_object *err = frame->prev->thrown;
     if(err)
     { 
-        char *txt = lobjb_stringify(err);
+        char *txt = lobjb_stringify(err, frame->interp);
         printf("Interrupt caught exception.\n%s\n", txt);
         free(txt);
         frame->prev->thrown = NULL;
@@ -290,18 +290,9 @@ lky_object *mach_execute(lky_object_function *func)
     return ret;
 }
 
-void print_stack(stackframe *frame)
-{
-    printf("printing frame\n");
-    int i = 0;
-    for(i = 0; i <= frame->stack_pointer; i++)
-    {
-        lobjb_print(frame->data_stack[i]);
-    }
-}
-
 void mach_eval(stackframe *frame)
 {
+    struct interp *interp = frame->interp;
 #ifdef COMPUTED_GOTO
 static void *dispatch_table_[] = {
     &&LI_BINARY_ADD, &&LI_BINARY_SUBTRACT, &&LI_BINARY_MULTIPLY, &&LI_BINARY_DIVIDE, 
@@ -328,7 +319,7 @@ _opcode_whiplash_:
 
         if(!frame->catch_pointer && !frame->prev)
         {
-            char *errtxt = lobj_stringify(exc);
+            char *errtxt = lobj_stringify(exc, frame->interp);
             printf("Fatal error--\n%s\n\nHalting.\n", errtxt);
             free(errtxt);
             frame->ret = &lky_nil;
@@ -354,127 +345,127 @@ _opcode_whiplash_:
         )
         vmop(BINARY_ADD,
             POP_TWO();
-            lky_object *obj = lobjb_binary_add(b, a);
+            lky_object *obj = lobjb_binary_add(b, a, interp);
 
             PUSH(obj);
         )
         vmop(BINARY_SUBTRACT,
             POP_TWO();
-            lky_object *obj = lobjb_binary_subtract(b, a);
+            lky_object *obj = lobjb_binary_subtract(b, a, interp);
 
             PUSH(obj);
         )
         vmop(BINARY_MULTIPLY,
             POP_TWO();
-            lky_object *obj = lobjb_binary_multiply(b, a);
+            lky_object *obj = lobjb_binary_multiply(b, a, interp);
 
             PUSH(obj);
         )
         vmop(BINARY_DIVIDE,
             POP_TWO();
-            lky_object *obj = lobjb_binary_divide(b, a);
+            lky_object *obj = lobjb_binary_divide(b, a, interp);
 
             PUSH(obj);
         )
         vmop(BINARY_MODULO,
             POP_TWO();
-            lky_object *obj = lobjb_binary_modulo(b, a);
+            lky_object *obj = lobjb_binary_modulo(b, a, interp);
 
             PUSH(obj);
         )
         vmop(BINARY_POWER,
             POP_TWO();
-            lky_object *obj = lobjb_binary_power(b, a);
+            lky_object *obj = lobjb_binary_power(b, a, interp);
 
             PUSH(obj);
         )
         vmop(BINARY_LT,
             POP_TWO();
-            lky_object *obj = lobjb_binary_lessthan(b, a);
+            lky_object *obj = lobjb_binary_lessthan(b, a, interp);
 
             PUSH(obj);
         )
         vmop(BINARY_GT,
             POP_TWO();
-            lky_object *obj = lobjb_binary_greaterthan(b, a);
+            lky_object *obj = lobjb_binary_greaterthan(b, a, interp);
 
             PUSH(obj);
         )
         vmop(BINARY_LTE,
             POP_TWO();
-            lky_object *obj = lobjb_binary_lessequal(b, a);
+            lky_object *obj = lobjb_binary_lessequal(b, a, interp);
 
             PUSH(obj);
         )
         vmop(BINARY_GTE,
             POP_TWO();
-            lky_object *obj = lobjb_binary_greatequal(b, a);
+            lky_object *obj = lobjb_binary_greatequal(b, a, interp);
 
             PUSH(obj);
         )
         vmop(BINARY_EQUAL,
             POP_TWO();
-            lky_object *obj = lobjb_binary_equals(b, a);
+            lky_object *obj = lobjb_binary_equals(b, a, interp);
 
             PUSH(obj);
         )
         vmop(BINARY_NE,
             POP_TWO();
-            lky_object *obj = lobjb_binary_notequal(b, a);
+            lky_object *obj = lobjb_binary_notequal(b, a, interp);
 
             PUSH(obj);
         )
         vmop(BINARY_AND,
             POP_TWO();
-            lky_object *obj = lobjb_binary_and(b, a);
+            lky_object *obj = lobjb_binary_and(b, a, interp);
 
             PUSH(obj);
         )
         vmop(BINARY_OR,
             POP_TWO();
-            lky_object *obj = lobjb_binary_or(b, a);
+            lky_object *obj = lobjb_binary_or(b, a, interp);
 
             PUSH(obj);
         )
         vmop(BINARY_NC,
             POP_TWO();
-            lky_object *obj = lobjb_binary_nc(b, a);
+            lky_object *obj = lobjb_binary_nc(b, a, interp);
 
             PUSH(obj);
         )
         vmop(BINARY_BAND,
             POP_TWO();
-            lky_object *obj = lobjb_binary_band(b, a);
+            lky_object *obj = lobjb_binary_band(b, a, interp);
 
             PUSH(obj);
         )
         vmop(BINARY_BOR,
             POP_TWO();
-            lky_object *obj = lobjb_binary_bor(b, a);
+            lky_object *obj = lobjb_binary_bor(b, a, interp);
 
             PUSH(obj);
         )
         vmop(BINARY_BXOR,
             POP_TWO();
-            lky_object *obj = lobjb_binary_bxor(b, a);
+            lky_object *obj = lobjb_binary_bxor(b, a, interp);
 
             PUSH(obj);
         )
         vmop(BINARY_BLSHIFT,
             POP_TWO();
-            lky_object *obj = lobjb_binary_blshift(b, a);
+            lky_object *obj = lobjb_binary_blshift(b, a, interp);
 
             PUSH(obj);
         )
         vmop(BINARY_BRSHIFT,
             POP_TWO();
-            lky_object *obj = lobjb_binary_brshift(b, a);
+            lky_object *obj = lobjb_binary_brshift(b, a, interp);
 
             PUSH(obj);
         )
         vmop(UNARY_NOT,
             lky_object *a = POP();
-            lky_object *obj = lobjb_unary_not(a);
+            lky_object *obj = lobjb_unary_not(a, frame->interp);
 
             PUSH(obj);
         )
@@ -486,7 +477,7 @@ _opcode_whiplash_:
         )
         vmop(PRINT,
             lky_object *a = POP();
-            lobjb_print(a);
+            lobjb_print(a, frame->interp);
         )
         vmop(POP,
             POP();
@@ -602,7 +593,7 @@ _opcode_whiplash_:
                 }
             }
 
-            lky_object *ret = lobjb_call(obj, seq);
+            lky_object *ret = lobjb_call(obj, seq, frame->interp);
             if(frame->thrown)
             {
                 mach_halt_with_err(frame->thrown);
@@ -802,14 +793,14 @@ _opcode_whiplash_:
             lky_object *idx = POP();
             lky_object *targ = POP();
 
-            PUSH(lobjb_unary_load_index(targ, idx));
+            PUSH(lobjb_unary_load_index(targ, idx, frame->interp));
         )
         vmop(SAVE_INDEX,
             lky_object *idx = POP();
             lky_object *targ = POP();
             lky_object *nobj = TOP();
 
-            lobjb_unary_save_index(targ, idx, nobj);
+            lobjb_unary_save_index(targ, idx, nobj, frame->interp);
 
         )
         vmop(SDUPLICATE,
@@ -844,7 +835,7 @@ _opcode_whiplash_:
         )
         vmop(MAKE_ITER,
             lky_object *obj = POP();
-            lky_object *it  = lobjb_build_iterable(obj);
+            lky_object *it  = lobjb_build_iterable(obj, frame->interp);
 
             PUSH(it);
 
@@ -897,7 +888,7 @@ _opcode_whiplash_:
                 }
             }
 
-            lky_object *loaded = md_load(name, lobjb_stringify(obj), frame->interp);
+            lky_object *loaded = md_load(name, lobjb_stringify(obj, frame->interp), frame->interp);
             if(!loaded)
                 loaded = &lky_nil;
 

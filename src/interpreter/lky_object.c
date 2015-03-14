@@ -99,13 +99,13 @@ char lobj_have_same_class(lky_object *a, lky_object *b)
     return lobj_is_of_class(b, (void *)a->cls);
 }
 
-char *lobj_stringify(lky_object *obj)
+char *lobj_stringify(lky_object *obj, struct interp *interp)
 {
     lky_object_function *func = (lky_object_function *)lobj_get_member(obj, "stringify_");
     if(!func)
         return NULL;
     
-    lky_func_bundle b = MAKE_BUNDLE(func, NULL);
+    lky_func_bundle b = MAKE_BUNDLE(func, NULL, interp);
     lky_object *strobj = (lky_object *)(func->callable.function)(&b);
     if(!strobj)
         return NULL;

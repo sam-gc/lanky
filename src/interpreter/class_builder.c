@@ -36,7 +36,7 @@ lky_object *clb_super_init_wrapper(lky_func_bundle *bundle)
 
         lky_object_seq *nx = lobjb_make_seq_node(self);
         nx->next = args;
-        lobjb_call(init, nx);
+        lobjb_call(init, nx, BUW_INTERP(bundle));
     }
 
     return &lky_nil;
@@ -63,7 +63,7 @@ lky_object *clb_new_wrapper(lky_func_bundle *bundle)
         lky_object_seq *nx = lobjb_make_seq_node(nobj);
         nx->next = args;
 
-        lobjb_call(init, nx);
+        lobjb_call(init, nx, BUW_INTERP(bundle));
     }
 
     return nobj;

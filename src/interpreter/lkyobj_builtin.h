@@ -157,25 +157,23 @@ typedef struct {
 
 extern int lobjb_uses_pointer_tags_;
 
-lky_object *lobjb_call(lky_object *func, lky_object_seq *args);
+lky_object *lobjb_call(lky_object *func, lky_object_seq *args, struct interp *interp);
 lky_object *lobjb_build_int(long value);
 lky_object *lobjb_build_float(double value);
 lky_object *lobjb_build_error(char *name, char *text);
-lky_object *lobjb_build_iterable(lky_object *owner);
+lky_object *lobjb_build_iterable(lky_object *owner, struct interp *interp);
 lky_object_custom *lobjb_build_custom(size_t extra_size);
 lky_object *lobjb_build_func(lky_object_code *code, int argc, arraylist inherited, mach_interp *interp);
 lky_object *lobjb_build_func_ex(lky_object *owner, int argc, lky_function_ptr ptr);
-lky_object *lobjb_build_class(lky_object_function *builder, char *refname, lky_object *parent_class);
 lky_object *lobjb_alloc(lky_builtin_type t, lky_builtin_value v);
 lky_object *lobjb_default_callable(lky_func_bundle *bundle);
-lky_object *lobjb_default_class_callable(lky_func_bundle *bundle);
 
 lky_object *lobjb_get_exception_class();
 
-char *lobjb_stringify(lky_object *a);
+char *lobjb_stringify(lky_object *a, struct interp *interp);
 
-lky_object *lobjb_unary_load_index(lky_object *obj, lky_object *indexer);
-lky_object *lobjb_unary_save_index(lky_object *obj, lky_object *indexer, lky_object *newobj);
+lky_object *lobjb_unary_load_index(lky_object *obj, lky_object *indexer, struct interp *interp);
+lky_object *lobjb_unary_save_index(lky_object *obj, lky_object *indexer, lky_object *newobj, struct interp *interp);
 lky_object *lobjb_unary_negative(lky_object *obj);
 
 lky_object *lobjb_iterable_get_next(lky_object *obj);
@@ -183,8 +181,8 @@ lky_object *lobjb_iterable_get_next(lky_object *obj);
 lky_object_seq *lobjb_make_seq_node(lky_object *value);
 void lobjb_free_seq(lky_object_seq *seq);
 
-void lobjb_print_object(lky_object *a);
-void lobjb_print(lky_object *a);
+void lobjb_print_object(lky_object *a, struct interp *interp);
+void lobjb_print(lky_object *a, struct interp *interp);
 char lobjb_quick_compare(lky_object *a, lky_object *b);
 lky_object *lobjb_num_to_string(lky_object *a);
 

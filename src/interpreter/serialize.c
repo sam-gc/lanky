@@ -125,7 +125,7 @@ char *srl_serialize_number(lky_object *obj, size_t *len)
 
 char *srl_serialize_string(lky_object *obj, size_t *len)
 {
-    char *tex = lobjb_stringify(obj);    
+    char *tex = lobjb_stringify(obj, NULL);    
     *len = 5 + strlen(tex);
     char *data = malloc(*len);
 

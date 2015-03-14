@@ -73,6 +73,8 @@ typedef struct {
 typedef struct lky_func_bundle {
     lky_object *func;
     lky_object_seq *args;
+
+    struct interp *interp;
 } lky_func_bundle;
 
 lky_object *lobj_alloc();
@@ -83,18 +85,20 @@ void print_alloced();
 void lobj_set_class(lky_object *obj, lky_object *cls);
 char lobj_is_of_class(lky_object *obj, void *cls);
 char lobj_have_same_class(lky_object *a, lky_object *b);
-char *lobj_stringify(lky_object *obj);
+char *lobj_stringify(lky_object *obj, struct interp *interp);
 
 extern lky_object lky_nil;
 extern lky_object lky_yes;
 extern lky_object lky_no;
 
-#define MAKE_BUNDLE(f, a) {\
+#define MAKE_BUNDLE(f, a, i) {\
     .func = (lky_object *)(f),\
-    .args = (lky_object_seq *)(a)\
+    .args = (lky_object_seq *)(a),\
+    .interp = i\
 }
 
 #define BUW_FUNC(b) ((lky_object_function *)b->func)
 #define BUW_ARGS(b) ((lky_object_seq *)b->args)
+#define BUW_INTERP(b) ((struct interp *)b->interp)
 
 #endif

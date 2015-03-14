@@ -34,7 +34,7 @@ lky_object *stlio_input(lky_func_bundle *bundle)
     lky_object_seq *args = BUW_ARGS(bundle);
 
     lky_object *prompt = (lky_object *)args->value;
-    lobjb_print_object(prompt);
+    lobjb_print_object(prompt, BUW_INTERP(bundle));
 
     char *buf = NULL;
     size_t sz = 0;
@@ -53,7 +53,7 @@ lky_object *stlio_put(lky_func_bundle *bundle)
     lky_object_seq *args = BUW_ARGS(bundle);
 
     lky_object *obj = (lky_object *)args->value;
-    lobjb_print_object(obj);
+    lobjb_print_object(obj, BUW_INTERP(bundle));
 
     return &lky_nil;
 }
@@ -63,7 +63,7 @@ lky_object *stlio_putln(lky_func_bundle *bundle)
     lky_object_seq *args = BUW_ARGS(bundle);
 
     lky_object *obj = (lky_object *)args->value;
-    lobjb_print(obj);
+    lobjb_print(obj, BUW_INTERP(bundle));
 
     return &lky_nil;
 }
@@ -74,7 +74,7 @@ lky_object *stlio_printf(lky_func_bundle *bundle)
 
     arraylist list = arr_create(10);
     MAKE_VA_ARGS(args, list, 1);
-    lobjb_print_object(stlstr_fmt_ext(((lky_object_custom *)args->value)->data, list));
+    lobjb_print_object(stlstr_fmt_ext(((lky_object_custom *)args->value)->data, list), BUW_INTERP(bundle));
 
     return &lky_nil;
 }
@@ -222,7 +222,7 @@ lky_object *stlio_file_write(lky_func_bundle *bundle)
     FILE *f = data->f;
 
     lky_object *b = (lky_object *)args->value;
-    char *line = lobjb_stringify(b);
+    char *line = lobjb_stringify(b, BUW_INTERP(bundle));
 
     fprintf(f, "%s", line);
 
@@ -242,7 +242,7 @@ lky_object *stlio_file_writeline(lky_func_bundle *bundle)
     FILE *f = data->f;
 
     lky_object *b = (lky_object *)args->value;
-    char *line = lobjb_stringify(b);
+    char *line = lobjb_stringify(b, BUW_INTERP(bundle));
     
     fprintf(f, "%s\n", line);
 

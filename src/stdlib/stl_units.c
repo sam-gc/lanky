@@ -159,7 +159,7 @@ lky_object *stlun_build(lky_object_seq *args, lky_object_function *caller)
     lky_object_custom *strobj = (lky_object_custom *)args->next->value;
 
     double val = OBJ_NUM_UNWRAP(numobj);
-    char *str = lobjb_stringify((lky_object *)strobj);
+    char *str = lobjb_stringify((lky_object *)strobj, NULL);
 
     lky_object *ret = stlun_cinit(val, str);
     free(str);

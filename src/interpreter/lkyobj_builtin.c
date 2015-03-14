@@ -142,12 +142,13 @@ lky_object *lobjb_build_error(char *name, char *text)
 lky_object *lobjb_make_exception(lky_func_bundle *bundle)
 {
     lky_object_seq *args = BUW_ARGS(bundle);
+    struct interp *in = BUW_INTERP(bundle);
 
     lky_object *first = (lky_object *)args->value;
     lky_object *second = (lky_object *)args->next->value;
 
-    char *name = lobjb_stringify(first);
-    char *text = lobjb_stringify(second);
+    char *name = lobjb_stringify(first, in);
+    char *text = lobjb_stringify(second, in);
 
     lky_object *ret = lobjb_build_error(name, text);
     free(name);
@@ -161,7 +162,7 @@ lky_object *lobjb_get_exception_class()
     return lobjb_build_func_ex(NULL, 2, (lky_function_ptr)lobjb_make_exception);
 }
 
-lky_object *lobjb_build_iterable(lky_object *owner)
+lky_object *lobjb_build_iterable(lky_object *owner, struct interp *interp)
 {
     lky_object_iterable *it = aqua_request_next_block(sizeof(lky_object_iterable));
     it->type = LBI_ITERABLE;
@@ -176,7 +177,7 @@ lky_object *lobjb_build_iterable(lky_object *owner)
             if(!func)
                 return NULL;
 
-            owner = lobjb_call(func, NULL);
+            owner = lobjb_call(func, NULL, interp);
         }
         else
         {
@@ -291,28 +292,7 @@ lky_object *lobjb_build_func_ex(lky_object *owner, int argc, lky_function_ptr pt
     return (lky_object *)func;
 }
 
-lky_object *lobjb_build_class(lky_object_function *builder, char *refname, lky_object *parent_class)
-{
-    lky_object_class *cls = aqua_request_next_block(sizeof(lky_object_class));
-    cls->type = LBI_CLASS;
-    cls->mem_count = 0;
-    cls->size = sizeof(lky_object_class);
-    cls->members = hst_create();
-    cls->members.duplicate_keys = 1;
-
-    cls->builder = builder;
-    cls->refname = refname;
-    gc_add_object((lky_object *)cls);
-
-    lky_callable c;
-    c.function = (lky_function_ptr)&lobjb_default_class_callable;
-    c.argc = builder->callable.argc;
-    cls->callable = c;
-
-    return (lky_object *)cls;
-}
-
-char *lobjb_stringify(lky_object *a)
+char *lobjb_stringify(lky_object *a, struct interp *interp)
 {
     char *ret = NULL;
 
@@ -362,7 +342,7 @@ char *lobjb_stringify(lky_object *a)
                 sprintf(ret, "%p", b);
                 break;
             }
-            lky_func_bundle b = MAKE_BUNDLE(func, NULL);
+            lky_func_bundle b = MAKE_BUNDLE(func, NULL, interp);
             lky_object_custom *s = (lky_object_custom *)(func->callable.function)(&b);
 
             ret = malloc(strlen(s->data) + 1);
@@ -436,7 +416,7 @@ lky_object *lobjb_num_to_string(lky_object *a)
     return stlstr_cinit(str);
 }
 
-lky_object *lobjb_call(lky_object *func, lky_object_seq *args)
+lky_object *lobjb_call(lky_object *func, lky_object_seq *args, struct interp *interp)
 {
     if(func->type != LBI_FUNCTION && func->type != LBI_CLASS && func->type != LBI_CUSTOM_EX && func->type != LBI_CUSTOM)
         return NULL;
@@ -456,7 +436,7 @@ lky_object *lobjb_call(lky_object *func, lky_object_seq *args)
             return NULL;
     }
     
-    lky_func_bundle b = MAKE_BUNDLE(func, args);
+    lky_func_bundle b = MAKE_BUNDLE(func, args, interp);
     return (lky_object *)c.function(&b);
 }
 
@@ -508,46 +488,7 @@ lky_object *lobjb_default_callable(lky_func_bundle *bundle)
     return ret;
 }
 
-lky_object *lobjb_default_class_callable(lky_func_bundle *bundle)
-{
-    lky_object_seq *args = BUW_ARGS(bundle);
-    lky_object *self = (lky_object *)BUW_FUNC(bundle);
-    lky_object_class *cls = (lky_object_class *)self;
-
-    lky_object_function *func = cls->builder;
-    func->bucket = lobj_alloc();
-
-    lky_object *outobj = lobj_alloc();
-    outobj->cls = (struct lky_object *)cls;
-
-    stlobj_seed(outobj);
-    lobj_set_member(func->bucket, cls->refname, outobj);
-
-    if(args)
-        gc_add_root_object((lky_object *)args);
-    lky_object *returned = mach_execute(func);
-
-    if(args)
-        gc_remove_root_object((lky_object *)args);
-
-    if(returned)
-    {
-        // TODO: This should not happen... Runtime error?
-    }
-
-    lky_object *init = lobj_get_member(outobj, "build_");
-    if(init)
-    {
-        lky_func_bundle b = MAKE_BUNDLE(init, args);
-        lobjb_default_callable(&b);
-    }
-    
-    lobj_set_class(outobj, (lky_object *)cls);
-
-    return outobj;
-}
-
-lky_object *lobjb_unary_load_index(lky_object *obj, lky_object *indexer)
+lky_object *lobjb_unary_load_index(lky_object *obj, lky_object *indexer, struct interp *interp)
 {
     lky_object_function *func = (lky_object_function *)lobj_get_member(obj, "op_get_index_");
 
@@ -557,13 +498,13 @@ lky_object *lobjb_unary_load_index(lky_object *obj, lky_object *indexer)
         return &lky_nil;
     }
 
-    lky_func_bundle b = MAKE_BUNDLE(func, lobjb_make_seq_node(indexer));
+    lky_func_bundle b = MAKE_BUNDLE(func, lobjb_make_seq_node(indexer), interp);
     lky_object *ret = (lky_object *)func->callable.function(&b);
 
     return ret;
 }
 
-lky_object *lobjb_unary_save_index(lky_object *obj, lky_object *indexer, lky_object *newobj)
+lky_object *lobjb_unary_save_index(lky_object *obj, lky_object *indexer, lky_object *newobj, struct interp *interp)
 {
     lky_object_function *func = (lky_object_function *)lobj_get_member(obj, "op_set_index_");
 
@@ -576,7 +517,7 @@ lky_object *lobjb_unary_save_index(lky_object *obj, lky_object *indexer, lky_obj
     lky_object_seq *args = lobjb_make_seq_node(indexer);
     args->next = lobjb_make_seq_node(newobj);
 
-    lky_func_bundle b = MAKE_BUNDLE(func, args);
+    lky_func_bundle b = MAKE_BUNDLE(func, args, interp);
     lky_object *ret = (lky_object *)func->callable.function(&b);
 
     return ret;
@@ -649,17 +590,17 @@ char lobjb_quick_compare(lky_object *a, lky_object *b)
     return OBJ_NUM_UNWRAP(ab) == OBJ_NUM_UNWRAP(bb);
 }
 
-void lobjb_print_object(lky_object *a)
+void lobjb_print_object(lky_object *a, struct interp *interp)
 {
     
-    char *txt = lobjb_stringify(a);
+    char *txt = lobjb_stringify(a, interp);
     printf("%s", txt);
     free(txt);
 }
 
-void lobjb_print(lky_object *a)
+void lobjb_print(lky_object *a, struct interp *interp)
 {
-    lobjb_print_object(a);
+    lobjb_print_object(a, interp);
     printf("\n");
 }
 

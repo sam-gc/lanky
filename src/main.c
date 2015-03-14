@@ -191,7 +191,7 @@ void exec_from_code(lky_object_code *code, char *file, int exec)
         mach_execute((lky_object_function *)func);
     else
     {
-        lky_func_bundle b = MAKE_BUNDLE(NULL, lobjb_make_seq_node((lky_object *)func));
+        lky_func_bundle b = MAKE_BUNDLE(NULL, lobjb_make_seq_node((lky_object *)func), &interp);
         stlmeta_examine(&b);
     }
 }

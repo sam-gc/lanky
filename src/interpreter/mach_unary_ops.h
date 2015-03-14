@@ -21,6 +21,6 @@
 
 #include "lkyobj_builtin.h"
 
-lky_object *lobjb_unary_not(lky_object *a);
+lky_object *lobjb_unary_not(lky_object *a, struct interp *interp);
 
 #endif

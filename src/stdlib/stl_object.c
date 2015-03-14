@@ -134,7 +134,7 @@ void stlobj_members_set_each(void *key, void *val, void *data)
 {
     lky_object *o = (lky_object *)data;
     
-    char *ch = lobjb_stringify((lky_object *)key);
+    char *ch = lobjb_stringify((lky_object *)key, NULL);
     lobj_set_member(o, ch, (lky_object *)val);
 }
 

@@ -19,7 +19,7 @@
 #include "mach_unary_ops.h"
 
 #define IS_TAGGED(a) ((uintptr_t)(a) & 1)
-#define CHECK_EXEC_CUSTOM_IMPL(a, name) \
+#define CHECK_EXEC_CUSTOM_IMPL(a, name, interp) \
     do { \
         if((!(IS_TAGGED(a)) && a->type == LBI_CUSTOM) || (!(IS_TAGGED(a)) && a->type == LBI_CUSTOM_EX)) {\
             lky_object *func = lobj_get_member(a, name); \
@@ -28,22 +28,22 @@
             lky_object_function *cfunc = (lky_object_function *)func;\
             if(cfunc->callable.argc && cfunc->callable.argc != 2) \
                 break;\
-            return un_op_exec_custom(cfunc); \
+            return un_op_exec_custom(cfunc, interp ); \
         } \
     } while(0)
 
-lky_object *un_op_exec_custom(lky_object_function *func)
+lky_object *un_op_exec_custom(lky_object_function *func, struct interp *interp)
 {
     lky_callable c = func->callable;
 
     //return (lky_object *)c.function(MAKE_BUNDLE(func, NULL));
-    lky_func_bundle b = MAKE_BUNDLE(func, NULL);
+    lky_func_bundle b = MAKE_BUNDLE(func, NULL, interp);
     return (lky_object *)c.function(&b);
 }
 
-lky_object *lobjb_unary_not(lky_object *a)
+lky_object *lobjb_unary_not(lky_object *a, struct interp *interp)
 {
-    CHECK_EXEC_CUSTOM_IMPL(a, "op_not_");   
+    CHECK_EXEC_CUSTOM_IMPL(a, "op_not_", interp);   
     lky_object_builtin *ac = (lky_object_builtin *)a;
 
     if(IS_TAGGED(a))

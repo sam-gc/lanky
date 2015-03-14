@@ -117,7 +117,7 @@ lky_object *stltime_date_format(lky_func_bundle *bundle)
 
     lky_object_custom *self = (lky_object_custom *)func->owner;
     stltime_copy_props_to_struct((lky_object *)self);
-    char *str = lobjb_stringify((lky_object *)args->value);
+    char *str = lobjb_stringify((lky_object *)args->value, BUW_INTERP(bundle));
 
     char buf[1000];
     time_data *data = self->data;

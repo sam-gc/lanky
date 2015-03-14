@@ -233,7 +233,7 @@ lky_object *stlstr_split(lky_func_bundle *bundle)
         // TODO: Error
     }
     
-    lky_func_bundle b = MAKE_BUNDLE(strf, NULL);
+    lky_func_bundle b = MAKE_BUNDLE(strf, NULL, BUW_INTERP(bundle));
     lky_object *ostr = (lky_object *)(strf->callable.function)(&b);
 
     if((void *)ostr->cls != (void *)stlstr_class())
@@ -342,7 +342,7 @@ lky_object *stlstr_fmt_ext(char *mestr, arraylist list)
             continue;
         }
 
-        char *ostr = lobjb_stringify(arr_get(&list, aidx));
+        char *ostr = lobjb_stringify(arr_get(&list, aidx), NULL);
         size_t len = strlen(ostr);
         if(len + buf_len + 1 > buf_size)
         {
@@ -398,7 +398,7 @@ lky_object *stlstr_add(lky_func_bundle *bundle)
     lky_object *other = (lky_object *)args->value;
     char sbf = OBJ_NUM_UNWRAP(((lky_object_builtin *)args->next->value));
     
-    char *chr = lobjb_stringify(other);
+    char *chr = lobjb_stringify(other, BUW_INTERP(bundle));
     
     size_t len = strlen(chr) + strlen(mestr) + 1;
     char *newstr = malloc(len);
