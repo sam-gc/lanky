@@ -32,6 +32,12 @@ typedef enum {
 lky_object *clb_init_class(lky_object *init_func, lky_object *super);
 void clb_add_member(lky_object *cls, char *refname, lky_object *obj, lky_class_prefix how);
 
+#ifdef __GNUC__
+#define ATTRIB_NO_USE __attribute__((unused))
+#else
+#define ATTRIB_NO_USE
+#endif
+
 #define CLASS_MAKE(name, super, init, argc, code)\
     lky_object *init_func_ = (lky_object *)lobjb_build_func_ex(NULL, argc, (lky_function_ptr)init);\
     lky_object *cls_ = clb_init_class(init_func_, super);\
@@ -42,11 +48,26 @@ void clb_add_member(lky_object *cls, char *refname, lky_object *obj, lky_class_p
 #define CLASS_STATIC(name, obj) clb_add_member(cls_, name, obj, LCP_STATIC)
 #define CLASS_PROTO_METHOD(name, ptr, argc) CLASS_PROTO(name, (lky_object *)lobjb_build_func_ex(NULL, argc, (lky_function_ptr)ptr))
 #define CLASS_STATIC_METHOD(name, ptr, argc) CLASS_STATIC(name, (lky_object *)lobjb_build_func_ex(NULL, argc, (lky_function_ptr)ptr))
-#define CLASS_MAKE_PROTO_METHOD(name, code) lky_object * name (lky_func_bundle *bundle_) {\
-    lky_object_seq *args_ = BUW_ARGS(bundle_);\
-    lky_object_function *func_ = BUW_FUNC(bundle_);\
-    mach_interp *interp_ = BUW_INTERP(bundle_);\
-    lky_object *self_ = func_->bound;\
-    do code while(0);\
+#define CLASS_MAKE_METHOD(name, ident, code) lky_object * name (lky_func_bundle *bundle_) {\
+    lky_object_seq *args_ ATTRIB_NO_USE = BUW_ARGS(bundle_);\
+    lky_object_function *func_ ATTRIB_NO_USE = BUW_FUNC(bundle_);\
+    mach_interp *interp_ ATTRIB_NO_USE = BUW_INTERP(bundle_);\
+    lky_object * ident ATTRIB_NO_USE = func_->bound;\
+    lky_object *$1 ATTRIB_NO_USE = args_ ? (lky_object *)args_->value : NULL;\
+    lky_object *$2 ATTRIB_NO_USE = args_ && args_->next ? (lky_object *)args_->next->value : NULL;\
+    lky_object *$3 ATTRIB_NO_USE = args_ && args_->next && args_->next->next ? (lky_object *) args_->next->next->value : NULL;\
+    code\
     return &lky_nil;}
+
+#define CLASS_MAKE_INIT(name, code) lky_object * name (lky_func_bundle *bundle_) {\
+    lky_object_seq *args_ ATTRIB_NO_USE = BUW_ARGS(bundle_);\
+    lky_object_function *func_ ATTRIB_NO_USE = BUW_FUNC(bundle_);\
+    mach_interp *interp_ ATTRIB_NO_USE = BUW_INTERP(bundle_);\
+    lky_object *self_ ATTRIB_NO_USE = (lky_object *)args_->value;\
+    lky_object *$1 ATTRIB_NO_USE = args_ && args_->next ? (lky_object *)args_->next->value : NULL;\
+    lky_object *$2 ATTRIB_NO_USE = args_ && args_->next && args_->next->next ? (lky_object *) args_->next->next->value : NULL;\
+    lky_object *$3 ATTRIB_NO_USE = args_ && args_->next && args_->next->next && args_->next->next->next ? (lky_object *) args_->next->next->next->value : NULL;\
+    code\
+    return &lky_nil;}
+
 #endif
