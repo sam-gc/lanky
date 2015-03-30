@@ -99,6 +99,7 @@ lky_object *clb_init_class(lky_object *init_func, lky_object *super)
     return cls;
 }
 
+
 void clb_add_member(lky_object *cls, char *refname, lky_object *obj, lky_class_prefix how)
 {
     switch(how)

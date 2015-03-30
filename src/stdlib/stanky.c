@@ -26,6 +26,7 @@
 #include "stl_time.h"
 #include "stl_os.h"
 #include "stl_table.h"
+#include "testnew.h"
 #include "lky_gc.h"
 #include "lkyobj_builtin.h"
 
@@ -43,6 +44,7 @@ hashtable get_stdlib_objects()
     hst_put(&t, "OS", stlos_get_class(), NULL, NULL);
     hst_put(&t, "Table", stltab_get_class(), NULL, NULL);
     hst_put(&t, "Error", lobjb_get_exception_class(), NULL, NULL);
+    hst_put(&t, "TN", tn_get_class(), NULL, NULL);
     return t;
 }
 
