@@ -50,7 +50,7 @@ typedef void(*lobjb_gc_save_function)(lky_object *o);
 typedef union {
     double d;
     long i;
-    char *s;
+    void *b;
 } lky_builtin_value;
 
 typedef struct {
@@ -160,6 +160,7 @@ extern int lobjb_uses_pointer_tags_;
 lky_object *lobjb_call(lky_object *func, lky_object_seq *args, struct interp *interp);
 lky_object *lobjb_build_int(long value);
 lky_object *lobjb_build_float(double value);
+lky_object *lobjb_build_blob(void *ptr);
 lky_object *lobjb_build_error(char *name, char *text);
 lky_object *lobjb_build_iterable(lky_object *owner, struct interp *interp);
 lky_object_custom *lobjb_build_custom(size_t extra_size);

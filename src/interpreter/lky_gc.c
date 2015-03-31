@@ -167,6 +167,14 @@ void gc_collect()
         {
             bundle.cur_size -= o->size;
             // TODO: This will need to change.
+
+            if(o->type == LBI_CUSTOM)
+            {
+                lky_object *func = lobj_get_member(o, "on_destroy_");
+                if(func)
+                    lobjb_call(func, NULL, NULL);
+            }
+
             lobj_dealloc(o);
             gchs_remove(&bundle.pool, o);
         }

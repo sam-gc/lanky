@@ -39,7 +39,8 @@ typedef enum {
     LBI_CUSTOM,
     LBI_CUSTOM_EX,
     LBI_ERROR,
-    LBI_BOOL
+    LBI_BOOL,
+    LBI_BLOB
 } lky_builtin_type;
 
 struct lky_func_bundle;

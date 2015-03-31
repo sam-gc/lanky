@@ -80,6 +80,13 @@ lky_object *lobjb_build_float(double value)
     return lobjb_alloc(LBI_FLOAT, v);
 }
 
+lky_object *lobjb_build_blob(void *ptr)
+{
+    lky_builtin_value v;
+    v.b = ptr;
+    return lobjb_alloc(LBI_BLOB, v);
+}
+
 lky_object *lobjb_error_print(lky_func_bundle *bundle)
 {
     lky_object_function *func = BUW_FUNC(bundle);
@@ -322,9 +329,6 @@ char *lobjb_stringify(lky_object *a, struct interp *interp)
         case LBI_BOOL:
             ret = malloc(4);
             sprintf(ret, "%s", a == &lky_yes ? "yes" : "no");
-        break;
-        case LBI_STRING:
-            printf("%s", b->value.s);
         break;
         case LBI_NIL:
             ret = malloc(6);
@@ -666,9 +670,6 @@ void lobjb_clean(lky_object *a)
 
     switch(obj->type)
     {
-        case LBI_STRING:
-            free(obj->value.s);
-        break;
         case LBI_FUNCTION:
             arr_free(&((lky_object_function *)a)->parent_stack);
         break;
