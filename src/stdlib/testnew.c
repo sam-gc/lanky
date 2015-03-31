@@ -9,6 +9,11 @@ typedef struct {
     int y;
 } tn_blob;
 
+CLASS_MAKE_BLOB_DESTRUCTOR(tn_blob_destruct, tn_blob *, b, {
+    printf("Freeing blob...\n");
+    free(b);
+})
+
 CLASS_MAKE_INIT(tn_init, {
     lobj_set_member(self_, "name", $1);
     
@@ -16,8 +21,9 @@ CLASS_MAKE_INIT(tn_init, {
     b->x = 11;
     b->y = 22;
 
-    CLASS_SET_BLOB(self_, "tn_blob_", b);
+    CLASS_SET_BLOB(self_, "tn_blob_", b, tn_blob_destruct);
 })
+
 // The above replaces:
 /*
 lky_object *tn_init(lky_func_bundle *bundle)
@@ -57,6 +63,10 @@ CLASS_MAKE_METHOD_EX(tn_print_blob_ifo, self, tn_blob *, tn_blob_, {
     printf("<%d, %d>\n", tn_blob_->x, tn_blob_->y);
 })
 
+CLASS_MAKE_METHOD(tn_on_destroy, self, {
+    printf("Destroying TN...\n");
+})
+
 lky_object *tn_get_class()
 {
     CLASS_MAKE(cls, NULL, tn_init, 1, {
@@ -66,6 +76,7 @@ lky_object *tn_get_class()
         CLASS_PROTO_METHOD("test2", tn_test2, 0);
         CLASS_PROTO_METHOD("stringify_", tn_stringify, 0);
         CLASS_PROTO_METHOD("printBlob", tn_print_blob_ifo, 0);
+        CLASS_PROTO_METHOD("on_destroy_", tn_on_destroy, 0);
         CLASS_STATIC_METHOD("name_me", tn_name_me, 0);
     });
 
