@@ -2,9 +2,21 @@
 #include "class_builder.h"
 #include "stl_string.h"
 #include <stdio.h>
+#include <stdlib.h>
+
+typedef struct {
+    int x;
+    int y;
+} tn_blob;
 
 CLASS_MAKE_INIT(tn_init, {
     lobj_set_member(self_, "name", $1);
+    
+    tn_blob *b = malloc(sizeof(*b));
+    b->x = 11;
+    b->y = 22;
+
+    CLASS_SET_BLOB(self_, "tn_blob_", b);
 })
 // The above replaces:
 /*
@@ -41,6 +53,10 @@ CLASS_MAKE_METHOD(tn_stringify, self, {
     return stlstr_cinit(name);
 })
 
+CLASS_MAKE_METHOD_EX(tn_print_blob_ifo, self, tn_blob *, tn_blob_, {
+    printf("<%d, %d>\n", tn_blob_->x, tn_blob_->y);
+})
+
 lky_object *tn_get_class()
 {
     CLASS_MAKE(cls, NULL, tn_init, 1, {
@@ -49,6 +65,7 @@ lky_object *tn_get_class()
         CLASS_PROTO_METHOD("test1", tn_test1, 0);
         CLASS_PROTO_METHOD("test2", tn_test2, 0);
         CLASS_PROTO_METHOD("stringify_", tn_stringify, 0);
+        CLASS_PROTO_METHOD("printBlob", tn_print_blob_ifo, 0);
         CLASS_STATIC_METHOD("name_me", tn_name_me, 0);
     });
 

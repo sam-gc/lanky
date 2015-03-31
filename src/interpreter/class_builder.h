@@ -58,6 +58,19 @@ void clb_add_member(lky_object *cls, char *refname, lky_object *obj, lky_class_p
     lky_object *$3 ATTRIB_NO_USE = args_ && args_->next && args_->next->next ? (lky_object *) args_->next->next->value : NULL;\
     code\
     return &lky_nil;}
+#define CLASS_MAKE_METHOD_EX(name, ident, type, key, code) lky_object * name (lky_func_bundle *bundle_) {\
+    lky_object_seq *args_ ATTRIB_NO_USE = BUW_ARGS(bundle_);\
+    lky_object_function *func_ ATTRIB_NO_USE = BUW_FUNC(bundle_);\
+    mach_interp *interp_ ATTRIB_NO_USE = BUW_INTERP(bundle_);\
+    lky_object * ident ATTRIB_NO_USE = func_->bound;\
+    lky_object *$1 ATTRIB_NO_USE = args_ ? (lky_object *)args_->value : NULL;\
+    lky_object *$2 ATTRIB_NO_USE = args_ && args_->next ? (lky_object *)args_->next->value : NULL;\
+    lky_object *$3 ATTRIB_NO_USE = args_ && args_->next && args_->next->next ? (lky_object *) args_->next->next->value : NULL;\
+    type key ATTRIB_NO_USE = (type) ((lky_object_builtin *)lobj_get_member(ident, #key ))->value.b;\
+    code\
+    return &lky_nil;}
+
+#define CLASS_SET_BLOB(obj, key, ptr) (lobj_set_member(obj, key, lobjb_build_blob(ptr)))
 
 #define CLASS_MAKE_INIT(name, code) lky_object * name (lky_func_bundle *bundle_) {\
     lky_object_seq *args_ ATTRIB_NO_USE = BUW_ARGS(bundle_);\
