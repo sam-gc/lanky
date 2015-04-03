@@ -682,6 +682,7 @@ void stlarr_manual_init(lky_object *nobj, lky_object *cls, void *data)
     memcpy(&b->container, data, sizeof(*b));
 
     CLASS_SET_BLOB(nobj, "ab_", b, stlarr_bl_manage);
+    lobj_set_member(nobj, "count", lobjb_build_int(b->container.count));
 }
 
 lky_object *stlarr_cinit(arraylist list)

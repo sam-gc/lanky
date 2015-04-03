@@ -125,7 +125,7 @@ void lobj_dealloc(lky_object *obj)
     }
 
     if(obj->type != LBI_INTEGER && obj->type != LBI_FLOAT &&
-            obj->type != LBI_SEQUENCE && obj->type != LBI_CODE && obj->type != LBI_ITERABLE)// && obj->type != LBI_BLOB)
+            obj->type != LBI_SEQUENCE && obj->type != LBI_CODE && obj->type != LBI_ITERABLE && obj->type != LBI_BLOB)
         hst_free(&obj->members);
 
     aqua_release(obj);
