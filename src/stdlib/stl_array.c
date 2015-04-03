@@ -16,6 +16,10 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#define OLD_STYLE
+
+#ifdef OLD_STYLE
+
 #include <stdlib.h>
 #include <string.h>
 #include "stl_array.h"
@@ -633,3 +637,276 @@ lky_object *stlarr_get_class()
     return clsobj;
 }
 
+#else
+
+#include <stdlib.h>
+#include <string.h>
+#include "stl_array.h"
+#include "lky_gc.h"
+#include "lky_machine.h"
+#include "stl_string.h"
+#include "mach_binary_ops.h"
+#include "class_builder.h"
+
+#define IS_TAGGED(a) ((uintptr_t)(a) & 1)
+
+static lky_object *stlarr_class_ = NULL;
+
+typedef struct {
+    arraylist container;
+} stlarr_bl;
+
+CLASS_MAKE_BLOB_FUNCTION(stlarr_bl_destruct, stlarr_bl *, blob, 
+    arr_free(&blob->container);
+    free(blob);    
+)
+
+CLASS_MAKE_BLOB_FUNCTION(stlarr_bl_mark, stlarr_bl *, blob,
+    long i;
+    for(i = 0; i < blob->container.count; i++)
+        gc_mark_object((lky_object *)blob->container.items[i]);
+)
+
+CLASS_MAKE_INIT(stlarr_init, 
+    stlarr_bl *b = malloc(sizeof(*b));
+    b->container = arr_create(10);
+
+    CLASS_SET_BLOB(self_, "ab_", b, stlarr_bl_destruct, stlarr_bl_mark);
+)
+
+void stlarr_manual_init(lky_object *nobj, lky_object *cls, void *data)
+{
+    stlarr_bl *b = malloc(sizeof(*b));
+    memcpy(&b->container, data, sizeof(*b));
+
+    CLASS_SET_BLOB(nobj, "ab_", b, stlarr_bl_destruct, stlarr_bl_mark);
+}
+
+lky_object *stlarr_cinit(arraylist list)
+{
+    return clb_instantiate(stlarr_get_class(), stlarr_manual_init, &list);
+}
+
+CLASS_MAKE_METHOD_EX(stlarr_append, self, stlarr_bl *, ab_, 
+    arr_append(&ab_->container, $1);
+    lobj_set_member(self, "count", lobjb_build_int(ab_->container.count));
+    return self;
+)
+
+CLASS_MAKE_METHOD_EX(stlarr_insert, self, stlarr_bl *, ab_, 
+    int idx = OBJ_NUM_UNWRAP($2);
+    arr_insert(&ab_->container, $1, idx);
+    lobj_set_member(self, "count", lobjb_build_int(ab_->container.count));
+    return self;
+)
+
+CLASS_MAKE_METHOD_EX(stlarr_set, self, stlarr_bl *, ab_,
+    arraylist *list = &ab_->container;
+
+    int idx = (int)OBJ_NUM_UNWRAP($1);
+    list->items[idx] = $2;
+)
+
+CLASS_MAKE_METHOD_EX(stlarr_get, self, stlarr_bl *, ab_,
+    int idx = OBJ_NUM_UNWRAP($1);
+    return arr_get(&ab_->container, idx);
+)
+
+CLASS_MAKE_METHOD_EX(stlarr_contains, self, stlarr_bl *, ab_,
+    arraylist list = ab_->container;
+    
+    int toret = 0;
+    long i;
+    for(i = 0; i < list.count; i++)
+    {
+        lky_object *b = arr_get(&list, i);
+        lky_object *result = lobjb_binary_equals($1, b, interp_);
+        if(IS_TAGGED(result) || result->type == LBI_INTEGER || result->type == LBI_FLOAT)
+        {
+            toret = !!OBJ_NUM_UNWRAP(result);
+            if(toret)
+                break;
+        }
+        else if(result == &lky_yes)
+            return result;
+    }
+
+    return LKY_TESTC_FAST(toret); 
+)
+
+CLASS_MAKE_METHOD_EX(stlarr_for_each, self, stlarr_bl *, ab_,
+    arraylist list = ab_->container;
+    lky_object_function *callback = (lky_object_function *)$1;
+
+    char useidx = 0;
+    if(callback->callable.argc == 2)
+        useidx = 1;
+
+    long i;
+    for(i = 0; i < list.count; i++)
+    {
+        lky_object_seq *seq = lobjb_make_seq_node(arr_get(&list, i));
+        if(useidx)
+            seq->next = lobjb_make_seq_node(lobjb_build_int(i));
+
+        lobjb_call((lky_object *)callback, seq, interp_);
+    }
+)
+
+CLASS_MAKE_METHOD_EX(stlarr_index_of, self, stlarr_bl *, ab_,
+    arraylist list = ab_->container;
+    long i;
+    for(i = 0; i < list.count; i++)
+    {
+        lky_object *t = arr_get(&list, i);
+        lky_object *result = lobjb_binary_equals($1, t, interp_);
+        if(IS_TAGGED(result) || OBJ_IS_NUMBER(result))
+        {
+            if(OBJ_NUM_UNWRAP(result))
+                return lobjb_build_int(i);
+            continue;
+        }
+
+        if(result == &lky_nil || result == &lky_no)
+            continue;
+
+        return lobjb_build_int(i);
+    }
+
+    return lobjb_build_int(-1);
+)
+
+CLASS_MAKE_METHOD_EX(stlarr_remove_at, self, stlarr_bl *, ab_,
+    arraylist *list = &ab_->container;
+
+    long idx = OBJ_NUM_UNWRAP($1);
+    lky_object *obj = arr_get(list, idx);
+    arr_remove(list, NULL, idx);
+
+    lobj_set_member(self, "count", lobjb_build_int(list->count));
+
+    return obj;
+)
+
+CLASS_MAKE_METHOD_EX(stlarr_joined, self, stlarr_bl *, ab_,
+    arraylist *list = &ab_->container;
+    char *joiner = lobjb_stringify($1, interp_);
+
+    if(!joiner)
+        return &lky_nil;
+
+    if(list->count == 0)
+        return stlstr_cinit("");
+
+    char *innards[list->count];
+    size_t lens[list->count];
+    size_t tlen = 0;
+
+    int i;
+    for(i = 0; i < list->count; i++)
+    {
+        char *text = lobjb_stringify(arr_get(list, i), interp_);
+        innards[i] = text;
+
+        size_t il = strlen(text);
+        lens[i] = il;
+        tlen += il;
+    }
+
+    size_t jlen = strlen(joiner);
+    // Adding to the total length:
+    tlen += jlen * (list->count ? list->count - 1 : 0) + 1;
+
+    char *str = malloc(tlen);
+    char *cur = str;
+    for(i = 0; i < list->count - 1; i++)
+    {
+        memcpy(cur, innards[i], lens[i]);
+        cur += lens[i];
+        free(innards[i]);
+        memcpy(cur, joiner, jlen);
+        cur += jlen;
+    }
+
+    memcpy(cur, innards[i], lens[i]);
+    str[tlen - 1] = '\0';
+
+    lky_object *ret = stlstr_cinit(str);
+    free(str);
+    free(joiner);
+    free(innards[i]);
+
+    return ret;
+)
+
+/*
+CLASS_MAKE_METHOD_EX(stlarr_copy, self, stlarr_bl *, ab_,
+    arraylist *list = &ab_->container;
+    arraylist
+)*/
+
+CLASS_MAKE_METHOD(stlarr_stringify, self,
+    $1 = stlstr_cinit(", ");
+    lky_object_seq *ar = lobjb_make_seq_node($1);
+    lky_object_function *func = (lky_object_function *)lobjb_build_func_ex(NULL, 0, NULL);
+    func->bound = self;
+    lky_func_bundle b = MAKE_BUNDLE(func, ar, interp_);
+    lky_object *res = stlarr_joined(&b);
+    char *tmp = lobjb_stringify(res, interp_);
+    char *out = malloc(strlen(tmp) + 5);
+    sprintf(out, "[ %s ]", tmp);
+
+    lky_object *ret = stlstr_cinit(out);
+    free(out);
+    free(tmp);
+
+    return ret;
+)
+
+lky_object *stlarr_get_class()
+{
+    if(stlarr_class_)
+        return stlarr_class_;
+
+    CLASS_MAKE(cls, NULL, stlarr_init, 0,
+        CLASS_PROTO("count", lobjb_build_int(0));
+        CLASS_PROTO_METHOD("stringify_", stlarr_stringify, 0);
+        CLASS_PROTO_METHOD("append", stlarr_append, 1);
+        CLASS_PROTO_METHOD("get", stlarr_get, 1);
+        CLASS_PROTO_METHOD("set", stlarr_set, 2);
+        CLASS_PROTO_METHOD("op_get_index_", stlarr_get, 1);
+        CLASS_PROTO_METHOD("op_set_index_", stlarr_set, 2);
+        CLASS_PROTO_METHOD("forEach", stlarr_for_each, 1);
+        CLASS_PROTO_METHOD("contains", stlarr_contains, 1);
+        CLASS_PROTO_METHOD("indexOf", stlarr_index_of, 1);
+        CLASS_PROTO_METHOD("removeAt", stlarr_remove_at, 1);
+        CLASS_PROTO_METHOD("joined", stlarr_joined, 1);
+        CLASS_PROTO_METHOD("insert", stlarr_insert, 2);
+    );
+
+    stlarr_class_ = cls;
+    return cls;
+}
+
+arraylist stlarr_unwrap(lky_object *a)
+{
+    lky_object_builtin *blob = (lky_object_builtin *)lobj_get_member(a, "ab_");
+    stlarr_bl *bl = blob->value.b;
+   
+    return bl->container; 
+}
+
+arraylist *stlarr_get_store(lky_object *a)
+{
+    lky_object_builtin *blob = (lky_object_builtin *)lobj_get_member(a, "ab_");
+    stlarr_bl *bl = blob->value.b;
+   
+    return &bl->container; 
+}
+
+lky_object *stlarr_get_proto()
+{
+    return lobj_get_member(stlarr_get_class(), "model_");
+}
+
+#endif

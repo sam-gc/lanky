@@ -69,6 +69,31 @@ lky_object *clb_new_wrapper(lky_func_bundle *bundle)
     return nobj;
 }
 
+lky_object *clb_instantiate(lky_object *cls, clb_custom_init_func func, void *data)
+{
+    lky_object *nobj = lobj_alloc();
+    lobj_set_member(nobj, "proto_", lobj_get_member(cls, "model_"));
+    lobj_set_member(nobj, "class_", cls);
+
+    if(func)
+        func(nobj, cls, data);
+    else
+    {
+        lky_object *init = lobj_get_member(cls, "init_");
+        if(init)
+        {
+            lky_object *sinit = lobj_get_member(cls, "super_init_");
+            if(sinit)
+                lobj_set_member(nobj, "superInit", sinit);
+
+            lky_object_seq *nx = lobjb_make_seq_node(nobj);
+            lobjb_call(init, nx, NULL);
+        }
+    } 
+
+    return nobj;
+}
+
 lky_object *clb_init_class(lky_object *init_func, lky_object *super)
 {
     lky_object_function *fobj = (lky_object_function *)init_func;

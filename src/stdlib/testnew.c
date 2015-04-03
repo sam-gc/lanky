@@ -9,7 +9,7 @@ typedef struct {
     int y;
 } tn_blob;
 
-CLASS_MAKE_BLOB_DESTRUCTOR(tn_blob_destruct, tn_blob *, b, {
+CLASS_MAKE_BLOB_FUNCTION(tn_blob_destruct, tn_blob *, b, {
     printf("Freeing blob...\n");
     free(b);
 })
@@ -21,7 +21,7 @@ CLASS_MAKE_INIT(tn_init, {
     b->x = 11;
     b->y = 22;
 
-    CLASS_SET_BLOB(self_, "tn_blob_", b, tn_blob_destruct);
+    CLASS_SET_BLOB(self_, "tn_blob_", b, tn_blob_destruct, NULL);
 })
 
 // The above replaces:

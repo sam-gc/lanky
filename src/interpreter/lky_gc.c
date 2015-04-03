@@ -168,6 +168,7 @@ void gc_collect()
             bundle.cur_size -= o->size;
             // TODO: This will need to change.
 
+            
             if(o->type == LBI_CUSTOM)
             {
                 lky_object *func = lobj_get_member(o, "on_destroy_");
@@ -262,6 +263,13 @@ void gc_mark_object(lky_object *o)
         {
             lky_object_iterable *it = (lky_object_iterable *)o;
             gc_mark_object(it->owner);
+        }
+            break;
+        case LBI_BLOB:
+        {
+            lky_object_builtin *bl = (lky_object_builtin *)o;
+            if(bl->on_mark)
+                bl->on_mark(bl->value.b);
         }
             break;
         default:

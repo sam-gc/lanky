@@ -59,6 +59,7 @@ lky_object *lobjb_alloc(lky_builtin_type t, lky_builtin_value v)
     obj->mem_count = 0;
     obj->value = v;
     obj->on_release = NULL;
+    obj->on_mark = NULL;
     gc_add_object((lky_object *)obj);
 
     return (lky_object *)obj;
@@ -81,13 +82,14 @@ lky_object *lobjb_build_float(double value)
     return lobjb_alloc(LBI_FLOAT, v);
 }
 
-lky_object *lobjb_build_blob(void *ptr, lobjb_void_ptr_function rel)
+lky_object *lobjb_build_blob(void *ptr, lobjb_void_ptr_function rel, lobjb_void_ptr_function mark)
 {
     lky_builtin_value v;
     v.b = ptr;
     lky_object_builtin *b = (lky_object_builtin *)lobjb_alloc(LBI_BLOB, v);
     
     b->on_release = rel;
+    b->on_mark = mark;
     return (lky_object *)b;
 }
 

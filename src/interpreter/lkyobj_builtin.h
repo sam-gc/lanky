@@ -61,6 +61,7 @@ typedef struct {
     
     lky_builtin_value value;
     lobjb_void_ptr_function on_release;
+    lobjb_void_ptr_function on_mark;
 } lky_object_builtin;
 
 typedef struct {
@@ -162,7 +163,7 @@ extern int lobjb_uses_pointer_tags_;
 lky_object *lobjb_call(lky_object *func, lky_object_seq *args, struct interp *interp);
 lky_object *lobjb_build_int(long value);
 lky_object *lobjb_build_float(double value);
-lky_object *lobjb_build_blob(void *ptr, lobjb_void_ptr_function rel);
+lky_object *lobjb_build_blob(void *ptr, lobjb_void_ptr_function rel, lobjb_void_ptr_function mark);
 lky_object *lobjb_build_error(char *name, char *text);
 lky_object *lobjb_build_iterable(lky_object *owner, struct interp *interp);
 lky_object_custom *lobjb_build_custom(size_t extra_size);

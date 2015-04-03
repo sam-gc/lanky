@@ -29,7 +29,10 @@ typedef enum {
     LCP_INIT
 } lky_class_prefix;
 
+typedef void (*clb_custom_init_func)(lky_object *obj, lky_object *cls, void *data);
+
 lky_object *clb_init_class(lky_object *init_func, lky_object *super);
+lky_object *clb_instantiate(lky_object *cls, clb_custom_init_func, void *data);
 void clb_add_member(lky_object *cls, char *refname, lky_object *obj, lky_class_prefix how);
 
 #ifdef __GNUC__
@@ -41,14 +44,14 @@ void clb_add_member(lky_object *cls, char *refname, lky_object *obj, lky_class_p
 #define CLASS_MAKE(name, super, init, argc, code)\
     lky_object *init_func_ = (lky_object *)lobjb_build_func_ex(NULL, argc, (lky_function_ptr)init);\
     lky_object *cls_ = clb_init_class(init_func_, super);\
-    do code while(0);\
+    code\
     lky_object *name = cls_
 
 #define CLASS_PROTO(name, obj) clb_add_member(cls_, name, obj, LCP_PROTO)
 #define CLASS_STATIC(name, obj) clb_add_member(cls_, name, obj, LCP_STATIC)
 #define CLASS_PROTO_METHOD(name, ptr, argc) CLASS_PROTO(name, (lky_object *)lobjb_build_func_ex(NULL, argc, (lky_function_ptr)ptr))
 #define CLASS_STATIC_METHOD(name, ptr, argc) CLASS_STATIC(name, (lky_object *)lobjb_build_func_ex(NULL, argc, (lky_function_ptr)ptr))
-#define CLASS_MAKE_METHOD(name, ident, code) lky_object * name (lky_func_bundle *bundle_) {\
+#define CLASS_MAKE_METHOD(name, ident, code...) lky_object * name (lky_func_bundle *bundle_) {\
     lky_object_seq *args_ ATTRIB_NO_USE = BUW_ARGS(bundle_);\
     lky_object_function *func_ ATTRIB_NO_USE = BUW_FUNC(bundle_);\
     mach_interp *interp_ ATTRIB_NO_USE = BUW_INTERP(bundle_);\
@@ -58,7 +61,7 @@ void clb_add_member(lky_object *cls, char *refname, lky_object *obj, lky_class_p
     lky_object *$3 ATTRIB_NO_USE = args_ && args_->next && args_->next->next ? (lky_object *) args_->next->next->value : NULL;\
     code\
     return &lky_nil;}
-#define CLASS_MAKE_METHOD_EX(name, ident, type, key, code) lky_object * name (lky_func_bundle *bundle_) {\
+#define CLASS_MAKE_METHOD_EX(name, ident, type, key, code...) lky_object * name (lky_func_bundle *bundle_) {\
     lky_object_seq *args_ ATTRIB_NO_USE = BUW_ARGS(bundle_);\
     lky_object_function *func_ ATTRIB_NO_USE = BUW_FUNC(bundle_);\
     mach_interp *interp_ ATTRIB_NO_USE = BUW_INTERP(bundle_);\
@@ -70,9 +73,9 @@ void clb_add_member(lky_object *cls, char *refname, lky_object *obj, lky_class_p
     code\
     return &lky_nil;}
 
-#define CLASS_SET_BLOB(obj, key, ptr, rel) (lobj_set_member(obj, key, lobjb_build_blob(ptr, (lobjb_void_ptr_function)rel)))
+#define CLASS_SET_BLOB(obj, key, ptr, rel, mark) (lobj_set_member(obj, key, lobjb_build_blob(ptr, (lobjb_void_ptr_function)rel, (lobjb_void_ptr_function)mark)))
 
-#define CLASS_MAKE_INIT(name, code) lky_object * name (lky_func_bundle *bundle_) {\
+#define CLASS_MAKE_INIT(name, code...) lky_object * name (lky_func_bundle *bundle_) {\
     lky_object_seq *args_ ATTRIB_NO_USE = BUW_ARGS(bundle_);\
     lky_object_function *func_ ATTRIB_NO_USE = BUW_FUNC(bundle_);\
     mach_interp *interp_ ATTRIB_NO_USE = BUW_INTERP(bundle_);\
@@ -83,7 +86,7 @@ void clb_add_member(lky_object *cls, char *refname, lky_object *obj, lky_class_p
     code\
     return &lky_nil;}
 
-#define CLASS_MAKE_BLOB_DESTRUCTOR(name, type, ident, code) void name (void *obj_) {\
+#define CLASS_MAKE_BLOB_FUNCTION(name, type, ident, code...) void name (void *obj_) {\
     type ident = (type)obj_; code}
 
 #endif
