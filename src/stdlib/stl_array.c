@@ -16,7 +16,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#define OLD_STYLE
+//#define OLD_STYLE
 
 #ifdef OLD_STYLE
 
@@ -656,12 +656,14 @@ typedef struct {
     arraylist container;
 } stlarr_bl;
 
-CLASS_MAKE_BLOB_FUNCTION(stlarr_bl_destruct, stlarr_bl *, blob, 
-    arr_free(&blob->container);
-    free(blob);    
-)
+CLASS_MAKE_BLOB_FUNCTION(stlarr_bl_manage, stlarr_bl *, blob, how, 
+    if(how == CGC_FREE)
+    {
+        arr_free(&blob->container);
+        free(blob);    
+        return;
+    }
 
-CLASS_MAKE_BLOB_FUNCTION(stlarr_bl_mark, stlarr_bl *, blob,
     long i;
     for(i = 0; i < blob->container.count; i++)
         gc_mark_object((lky_object *)blob->container.items[i]);
@@ -671,7 +673,7 @@ CLASS_MAKE_INIT(stlarr_init,
     stlarr_bl *b = malloc(sizeof(*b));
     b->container = arr_create(10);
 
-    CLASS_SET_BLOB(self_, "ab_", b, stlarr_bl_destruct, stlarr_bl_mark);
+    CLASS_SET_BLOB(self_, "ab_", b, stlarr_bl_manage);
 )
 
 void stlarr_manual_init(lky_object *nobj, lky_object *cls, void *data)
@@ -679,7 +681,7 @@ void stlarr_manual_init(lky_object *nobj, lky_object *cls, void *data)
     stlarr_bl *b = malloc(sizeof(*b));
     memcpy(&b->container, data, sizeof(*b));
 
-    CLASS_SET_BLOB(nobj, "ab_", b, stlarr_bl_destruct, stlarr_bl_mark);
+    CLASS_SET_BLOB(nobj, "ab_", b, stlarr_bl_manage);
 }
 
 lky_object *stlarr_cinit(arraylist list)

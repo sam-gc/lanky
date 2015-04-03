@@ -268,8 +268,8 @@ void gc_mark_object(lky_object *o)
         case LBI_BLOB:
         {
             lky_object_builtin *bl = (lky_object_builtin *)o;
-            if(bl->on_mark)
-                bl->on_mark(bl->value.b);
+            if(bl->on_gc)
+                bl->on_gc(bl->value.b, CGC_MARK);
         }
             break;
         default:

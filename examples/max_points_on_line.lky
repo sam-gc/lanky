@@ -199,6 +199,8 @@ timeRun(plist, maxPointsSq, "maxPointsSq");
 timeRun(plist, maxPoints, "maxPoints");
 timeRun(plist, maxPointsIn, "maxPointsIn");
 
+ret nil;
+
 -- Example of the Io.prompt function
 if Io.prompt("\nView dissassembly? (y/n): ") == 'y' {
     Io.putln("\nmaxPoints:\n======================================");

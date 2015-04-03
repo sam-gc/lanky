@@ -89,10 +89,6 @@ void lobj_set_class(lky_object *obj, lky_object *cls)
 char lobj_is_of_class(lky_object *obj, void *cls)
 {
     return lobj_get_member(obj, "class_") == cls;
-    /*if(obj->type != LBI_CUSTOM && obj->type != LBI_CUSTOM_EX)
-        return 0;
-
-    return ((void *)obj->cls) == cls;*/
 }
 
 char lobj_have_same_class(lky_object *a, lky_object *b)
@@ -129,7 +125,7 @@ void lobj_dealloc(lky_object *obj)
     }
 
     if(obj->type != LBI_INTEGER && obj->type != LBI_FLOAT &&
-            obj->type != LBI_SEQUENCE && obj->type != LBI_CODE && obj->type != LBI_ITERABLE && obj->type != LBI_BLOB)
+            obj->type != LBI_SEQUENCE && obj->type != LBI_CODE && obj->type != LBI_ITERABLE)// && obj->type != LBI_BLOB)
         hst_free(&obj->members);
 
     aqua_release(obj);

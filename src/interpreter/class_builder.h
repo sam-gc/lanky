@@ -73,7 +73,7 @@ void clb_add_member(lky_object *cls, char *refname, lky_object *obj, lky_class_p
     code\
     return &lky_nil;}
 
-#define CLASS_SET_BLOB(obj, key, ptr, rel, mark) (lobj_set_member(obj, key, lobjb_build_blob(ptr, (lobjb_void_ptr_function)rel, (lobjb_void_ptr_function)mark)))
+#define CLASS_SET_BLOB(obj, key, ptr, gc) (lobj_set_member(obj, key, lobjb_build_blob(ptr, (lobjb_void_ptr_function)gc)))
 
 #define CLASS_MAKE_INIT(name, code...) lky_object * name (lky_func_bundle *bundle_) {\
     lky_object_seq *args_ ATTRIB_NO_USE = BUW_ARGS(bundle_);\
@@ -86,7 +86,7 @@ void clb_add_member(lky_object *cls, char *refname, lky_object *obj, lky_class_p
     code\
     return &lky_nil;}
 
-#define CLASS_MAKE_BLOB_FUNCTION(name, type, ident, code...) void name (void *obj_) {\
+#define CLASS_MAKE_BLOB_FUNCTION(name, type, ident, how, code...) void name (void *obj_, lky_class_gc_type how ) {\
     type ident = (type)obj_; code}
 
 #endif
