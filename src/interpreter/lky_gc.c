@@ -201,7 +201,7 @@ void gc_mark_object(lky_object *o)
     
     o->mem_count = 1;
 
-    if(o->type != LBI_INTEGER && o->type != LBI_FLOAT &&
+    if(o->type != LBI_INTEGER && o->type != LBI_FLOAT && o->type != LBI_BLOB &&
             o->type != LBI_SEQUENCE && o->type != LBI_CODE && o->type != LBI_ITERABLE)
         hst_for_each(&o->members, gc_mark_for_each, NULL);
     //gc_mark_object(&o->parent);
