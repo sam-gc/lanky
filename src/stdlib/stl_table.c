@@ -47,8 +47,8 @@ long stltab_autohash(void *key, void *data)
     
     // Even though string has a hash function, we want
     // to quickly be able to perform this calculation
-    if((void *)k->cls == (void *)stlstr_class())
-        return hst_djb2(((lky_object_custom *)k)->data, NULL);
+    if(lobj_is_of_class(k, stlstr_get_class()))
+        return hst_djb2(stlstr_unwrap(k), NULL);
 
     lky_object *hf = lobj_get_member((lky_object *)key, "hash_");
     

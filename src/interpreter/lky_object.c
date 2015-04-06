@@ -58,6 +58,9 @@ lky_object *lobj_get_member(lky_object *obj, char *member)
 {
     if(!obj || ((uintptr_t)(obj) & 1) || obj->type == LBI_FLOAT || obj->type == LBI_INTEGER)
         return NULL;
+    //if(obj->type != LBI_INTEGER || obj->type != LBI_FLOAT ||
+    //        obj->type != LBI_SEQUENCE || obj->type != LBI_CODE || obj->type != LBI_ITERABLE || obj->type != LBI_BLOB)
+    //    return NULL;
 
     lky_object *val = hst_get(&obj->members, member, NULL, NULL);
     if(!val && obj->type != LBI_FUNCTION && obj->type != LBI_CLASS && !!strcmp(member, "proto_"))
@@ -88,6 +91,10 @@ void lobj_set_class(lky_object *obj, lky_object *cls)
 
 char lobj_is_of_class(lky_object *obj, void *cls)
 {
+    if(OBJ_IS_NUMBER(obj))
+        return 0;
+    if(obj->type != LBI_CUSTOM)
+        return 0;
     return lobj_get_member(obj, "class_") == cls;
 }
 
@@ -107,7 +114,7 @@ char *lobj_stringify(lky_object *obj, struct interp *interp)
     if(!strobj)
         return NULL;
 
-    if((void *)strobj->cls != (void *)stlstr_class())
+    if(lobj_is_of_class(strobj, stlstr_get_class()))
         return NULL;
 
     return ((lky_object_custom *)strobj)->data;

@@ -25,6 +25,8 @@
 
 lky_object *stltab_get_class();
 lky_object *stltab_cinit(arraylist *keys, arraylist *vals);
+lky_object *stltab_cget(lky_object *table, lky_object *key);
+void stltab_cput(lky_object *table, lky_object *key, lky_object *val);
 hashtable stltab_unwrap(lky_object *obj);
 long stltab_autohash(void *key, void *data);
 int stltab_autoequ(void *a, void *b);

@@ -352,10 +352,11 @@ char *lobjb_stringify(lky_object *a, struct interp *interp)
                 break;
             }
             lky_func_bundle b = MAKE_BUNDLE(func, NULL, interp);
-            lky_object_custom *s = (lky_object_custom *)(func->callable.function)(&b);
+            lky_object *s = (lky_object *)(func->callable.function)(&b);
 
-            ret = malloc(strlen(s->data) + 1);
-            strcpy(ret, s->data);
+            char *data = stlstr_unwrap(s);
+            ret = malloc(strlen(data) + 1);
+            strcpy(ret, data);
             break;
         }
         case LBI_CLASS:
@@ -578,14 +579,12 @@ char lobjb_quick_compare(lky_object *a, lky_object *b)
     BI_CAST(a, ab);
     BI_CAST(b, bb);
 
-    if((void *)a->cls == (void *)stlstr_class() || (void *)b->cls == (void *)stlstr_class())
+    if(lobj_is_of_class(a, stlstr_get_class()) || lobj_is_of_class(b, stlstr_get_class()))
     {
-        if((void *)a->cls != (void *)stlstr_class() || (void *)b->cls != (void *)stlstr_class())
+        if(!lobj_is_of_class(a, stlstr_get_class()) || !lobj_is_of_class(b, stlstr_get_class()))
             return 0;
 
-        lky_object_custom *ac = (lky_object_custom *)a;
-        lky_object_custom *bc = (lky_object_custom *)b;
-        return !strcmp((char *)bc->data, (char *)ac->data);
+        return !strcmp(stlstr_unwrap(a), stlstr_unwrap(b));
     }
 
     if(a == &lky_nil || b == &lky_nil)

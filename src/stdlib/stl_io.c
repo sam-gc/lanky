@@ -24,6 +24,7 @@
 #include "stl_array.h"
 #include "stl_string.h"
 #include "arraylist.h"
+#include "class_builder.h"
 
 typedef struct {
     FILE *f;
@@ -68,6 +69,7 @@ lky_object *stlio_putln(lky_func_bundle *bundle)
     return &lky_nil;
 }
 
+/*
 lky_object *stlio_printf(lky_func_bundle *bundle)
 {
     lky_object_seq *args = BUW_ARGS(bundle);
@@ -78,6 +80,7 @@ lky_object *stlio_printf(lky_func_bundle *bundle)
 
     return &lky_nil;
 }
+*/
 
 void stlio_file_dealloc(lky_object_custom *obj)
 {
@@ -103,9 +106,9 @@ lky_object *stlio_file_read_raw(lky_func_bundle *bundle)
     buffer = malloc((filelen + 1) * sizeof(char));
     fread(buffer, filelen, 1, f);
 
-    lky_object_custom *str = (lky_object_custom *)stlstr_cinit("");
-    free(str->data);
-    str->data = buffer;
+    lky_object *str = stlstr_cinit("");
+    free(stlstr_unwrap(str));
+    CLASS_SET_BLOB(str, "sb_", buffer, stlstr_blob_func); 
 
     lobj_set_member((lky_object *)self, "EOF", lobjb_build_int(1));
     lobj_set_member((lky_object *)str, "length", lobjb_build_int(filelen));
@@ -276,10 +279,7 @@ lky_object *stlio_make_file_object(lky_func_bundle *bundle)
         // TODO: Error
     }
 
-    lky_object_custom *nb = (lky_object_custom *)name;
-    lky_object_custom *nt = (lky_object_custom *)type;
-
-    FILE *f = fopen(nb->data, nt->data);
+    FILE *f = fopen(stlstr_unwrap(name), stlstr_unwrap(type));
 
     stlio_file_object_data *data = malloc(sizeof(stlio_file_object_data));
     data->f = f;
@@ -308,7 +308,7 @@ lky_object *stlio_get_class()
     lobj_set_member(obj, "prompt", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlio_input));
     lobj_set_member(obj, "put", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlio_put));
     lobj_set_member(obj, "putln", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlio_putln));
-    lobj_set_member(obj, "printf", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlio_printf));
+    //lobj_set_member(obj, "printf", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlio_printf));
     lobj_set_member(obj, "fopen", lobjb_build_func_ex(obj, 2, (lky_function_ptr)stlio_make_file_object));
     return obj;
 }

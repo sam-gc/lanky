@@ -89,4 +89,6 @@ void clb_add_member(lky_object *cls, char *refname, lky_object *obj, lky_class_p
 #define CLASS_MAKE_BLOB_FUNCTION(name, type, ident, how, code...) void name (void *obj_, lky_class_gc_type how ) {\
     type ident = (type)obj_; code}
 
+#define CLASS_GET_BLOB(obj, key, type) ((type) ((lky_object_builtin *)lobj_get_member(obj, key))->value.b)
+
 #endif

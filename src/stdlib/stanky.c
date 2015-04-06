@@ -25,6 +25,7 @@
 #include "stl_object.h"
 #include "stl_time.h"
 #include "stl_os.h"
+#include "stl_string.h"
 #include "stl_table.h"
 #include "testnew.h"
 #include "lky_gc.h"
@@ -34,6 +35,7 @@ hashtable get_stdlib_objects()
 {
     hashtable t = hst_create();
     t.duplicate_keys = 1;
+    hst_put(&t, "String", stlstr_get_class(), NULL, NULL);
     hst_put(&t, "Array", stlarr_get_class(), NULL, NULL);
     hst_put(&t, "Time", stltime_get_class(), NULL, NULL);
     hst_put(&t, "Math", stlmath_get_class(), NULL, NULL);

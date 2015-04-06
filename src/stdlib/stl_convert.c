@@ -35,15 +35,8 @@ lky_object *stlcon_to_int(lky_func_bundle *bundle)
     if(from->type == LBI_FLOAT)
         return lobjb_build_int(OBJ_NUM_UNWRAP(from));
 
-    lky_object_custom *b = (lky_object_custom *)from;
-//    if(from->type == LBI_FLOAT)
-//        return(lobjb_build_int((long)b->value.d));
-
-//    if(from->type != LBI_STRING)
-//        return &lky_nil;
-
     long val;
-    sscanf(b->data, "%ld", &val);
+    sscanf(stlstr_unwrap(from), "%ld", &val);
 
     return lobjb_build_int(val);
 }
@@ -60,10 +53,8 @@ lky_object *stlcon_to_float(lky_func_bundle *bundle)
     if(from->type == LBI_FLOAT)
         return from;
 
-    lky_object_custom *b = (lky_object_custom *)from;
-
     double val;
-    sscanf(b->data, "%lf", &val);
+    sscanf(stlstr_unwrap(from), "%lf", &val);
 
     return lobjb_build_float(val);
 }

@@ -19,6 +19,7 @@
 #include "stl_time.h"
 #include "hashtable.h"
 #include "stl_string.h"
+#include "stl_table.h"
 #include <sys/timeb.h>
 #include <string.h>
 #include <time.h>

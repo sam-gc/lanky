@@ -21,71 +21,52 @@
 #include "stl_string.h"
 #include "stl_array.h"
 #include "hashtable.h"
+#include "class_builder.h"
 
-lky_object *stlstr_stringify(lky_func_bundle *bundle)
-{
-    lky_object_function *func = BUW_FUNC(bundle);
+CLASS_MAKE_BLOB_FUNCTION(stlstr_blob_func, char *, str, how,
+    if(how == CGC_FREE)
+        free(str);
+)
 
-    return func->owner;
-}
+CLASS_MAKE_INIT(stlstr_init,
+    char *str = NULL; 
+    if($1)
+        str = lobjb_stringify($1, interp_);
+    else
+        str = calloc(1, 1);
 
-void stlstr_free(lky_object *obj)
-{
-    lky_object_custom *self = (lky_object_custom *)obj;
+    CLASS_SET_BLOB(self_, "sb_", str, stlstr_blob_func);
+)
+
+CLASS_MAKE_METHOD(stlstr_stringify, self,
+    return self;
+)
+
+CLASS_MAKE_METHOD_EX(stlstr_get_index, self, char *, sb_,
+    long idx = OBJ_NUM_UNWRAP($1);
     
-    free(self->data);
-}
-
-lky_object *stlstr_get_index(lky_func_bundle *bundle)
-{
-    lky_object_function *func = BUW_FUNC(bundle);
-    lky_object_seq *args = BUW_ARGS(bundle);
-
-    lky_object_custom *self = (lky_object_custom *)func->owner;
-    
-    lky_object *obj = (lky_object *)args->value;
-    long idx = OBJ_NUM_UNWRAP(obj);
-    
-    char *str = self->data;
     char s[2];
-    sprintf(s, "%c", str[idx]);
+    sprintf(s, "%c", sb_[idx]);
     
     return stlstr_cinit(s);
-}
+)
 
-lky_object *stlstr_hash(lky_func_bundle *bundle)
-{
-    lky_object_function *func = BUW_FUNC(bundle);
+CLASS_MAKE_METHOD_EX(stlstr_hash, self, char *, sb_,
+    return lobjb_build_int(hst_djb2(sb_, NULL));
+)
 
-    lky_object_custom *self = (lky_object_custom *)func->owner;
-    
-    return lobjb_build_int(hst_djb2(self->data, NULL));
-}
-
-lky_object *stlstr_equals(lky_func_bundle *bundle)
-{
-    lky_object_function *func = BUW_FUNC(bundle);
-    lky_object_seq *args = BUW_ARGS(bundle);
-
-    lky_object_custom *self = (lky_object_custom *)func->owner;
-    
-    lky_object_custom *obj = (lky_object_custom *)args->value;
-    
-    if((void *)obj->cls != (void *)stlstr_class())
+CLASS_MAKE_METHOD_EX(stlstr_equals, self, char *, sb_,
+    if(!lobj_is_of_class($1, stlstr_get_class()))
         return &lky_nil;
 
-    char *stra = self->data;
-    char *strb = obj->data;
+    char *stra = sb_;
+    char *strb = CLASS_GET_BLOB($1, "sb_", char *);
     
     return lobjb_build_int(!strcmp(stra, strb));
-}
+)
 
-lky_object *stlstr_reverse(lky_func_bundle *bundle)
-{
-    lky_object_function *func = BUW_FUNC(bundle);
-
-    lky_object_custom *self = (lky_object_custom *)func->owner;
-    char *str = self->data;
+CLASS_MAKE_METHOD_EX(stlstr_reverse, self, char *, sb_,
+    char *str = sb_;
     size_t len = strlen(str);
 
     char nstr[len + 1];
@@ -98,69 +79,40 @@ lky_object *stlstr_reverse(lky_func_bundle *bundle)
     nstr[i] = 0;
 
     return stlstr_cinit(nstr);
-}
+)
 
-lky_object *stlstr_not_equals(lky_func_bundle *bundle)
-{
-    lky_object_function *func = BUW_FUNC(bundle);
-    lky_object_seq *args = BUW_ARGS(bundle);
-
-    lky_object_custom *self = (lky_object_custom *)func->owner;
-
-    lky_object_custom *obj = (lky_object_custom *)args->value;
-
-    if((void *)obj->cls != (void *)stlstr_class())
+CLASS_MAKE_METHOD_EX(stlstr_not_equals, self, char *, sb_,
+    if(!lobj_is_of_class($1, stlstr_get_class()))
         return &lky_nil;
 
-    char *stra = self->data;
-    char *strb = obj->data;
+    char *stra = sb_;
+    char *strb = CLASS_GET_BLOB($1, "sb_", char *);
 
     return lobjb_build_int(!!strcmp(stra, strb));
-}
+)
 
-lky_object *stlstr_greater_than(lky_func_bundle *bundle)
-{
-    lky_object_function *func = BUW_FUNC(bundle);
-    lky_object_seq *args = BUW_ARGS(bundle);
-
-    lky_object_custom *self = (lky_object_custom *)func->owner;
-
-    lky_object_custom *obj = (lky_object_custom *)args->value;
-
-    if((void *)obj->cls != (void *)stlstr_class())
+CLASS_MAKE_METHOD_EX(stlstr_greater_than, self, char *, sb_,
+    if(!lobj_is_of_class($1, stlstr_get_class()))
         return &lky_nil;
 
-    char *stra = self->data;
-    char *strb = obj->data;
+    char *stra = sb_;
+    char *strb = CLASS_GET_BLOB($1, "sb_", char *);
 
     return lobjb_build_int(strcmp(stra, strb) > 0);
-}
+)
 
-lky_object *stlstr_lesser_than(lky_func_bundle *bundle)
-{
-    lky_object_function *func = BUW_FUNC(bundle);
-    lky_object_seq *args = BUW_ARGS(bundle);
-
-    lky_object_custom *self = (lky_object_custom *)func->owner;
-
-    lky_object_custom *obj = (lky_object_custom *)args->value;
-
-    if((void *)obj->cls != (void *)stlstr_class())
+CLASS_MAKE_METHOD_EX(stlstr_lesser_than, self, char *, sb_,
+    if(!lobj_is_of_class($1, stlstr_get_class()))
         return &lky_nil;
 
-    char *stra = self->data;
-    char *strb = obj->data;
+    char *stra = sb_;
+    char *strb = CLASS_GET_BLOB($1, "sb_", char *);
 
     return lobjb_build_int(strcmp(stra, strb) < 0);
-}
+)
 
-lky_object *stlstr_multiply(lky_func_bundle *bundle)
-{
-    lky_object_function *func = BUW_FUNC(bundle);
-    lky_object_seq *args = BUW_ARGS(bundle);
-
-    lky_object_custom *self = (lky_object_custom *)func->owner;
-    lky_object_builtin *other = (lky_object_builtin *)args->value;
+CLASS_MAKE_METHOD_EX(stlstr_multiply, self, char *, sb_,
+    lky_object *other = $1;
 
     if(!((uintptr_t)(other) & 1) && other->type != LBI_INTEGER)
     {
@@ -168,7 +120,7 @@ lky_object *stlstr_multiply(lky_func_bundle *bundle)
         return &lky_nil;
     }
 
-    char *str = self->data;
+    char *str = sb_;
     long ct = OBJ_NUM_UNWRAP(other);
 
     // If the count is 0, we should just
@@ -196,52 +148,34 @@ lky_object *stlstr_multiply(lky_func_bundle *bundle)
     free(nstr);
 
     return ret;
-}
+)
 
-lky_object *stlstr_set_index(lky_func_bundle *bundle)
-{
-    lky_object_function *func = BUW_FUNC(bundle);
-    lky_object_seq *args = BUW_ARGS(bundle);
-
-    lky_object_custom *self = (lky_object_custom *)func->owner;
+CLASS_MAKE_METHOD_EX(stlstr_set_index, self, char *, sb_,
+    long i = OBJ_NUM_UNWRAP($1);
     
-    lky_object *idx = (lky_object *)args->value;
-    lky_object_custom *nobj = (lky_object_custom *)args->next->value;
+    char ch = (CLASS_GET_BLOB($2, "sb_", char *))[0];
     
-    long i = OBJ_NUM_UNWRAP(idx);
-    
-    char ch = ((char *)nobj->data)[0];
-    
-    char *str = self->data;
-    
-    str[i] = ch;
+    sb_[i] = ch;
     
     return &lky_nil;
-}
+)
 
-lky_object *stlstr_split(lky_func_bundle *bundle)
-{
-    lky_object_function *func = BUW_FUNC(bundle);
-    lky_object_seq *args = BUW_ARGS(bundle);
-
-    lky_object_custom *self = (lky_object_custom *)func->owner;
-    lky_object *other = (lky_object *)args->value;
-    
-    lky_object_function *strf = (lky_object_function *)lobj_get_member(other, "stringify_");
+CLASS_MAKE_METHOD_EX(stlstr_split, self, char *, sb_,
+    lky_object_function *strf = (lky_object_function *)lobj_get_member($1, "stringify_");
     if(!strf)
     {
         // TODO: Error
     }
     
-    lky_func_bundle b = MAKE_BUNDLE(strf, NULL, BUW_INTERP(bundle));
+    lky_func_bundle b = MAKE_BUNDLE(strf, NULL, interp_);
     lky_object *ostr = (lky_object *)(strf->callable.function)(&b);
 
-    if((void *)ostr->cls != (void *)stlstr_class())
+    if(!lobj_is_of_class(ostr, stlstr_get_class()))
         return &lky_nil;
 
-    char *delim = ((lky_object_custom *)ostr)->data;
+    char *delim = CLASS_GET_BLOB(ostr, "sb_", char *);
 
-    char *loc = self->data;
+    char *loc = sb_;
     size_t delen = strlen(delim);
     
     arraylist list = arr_create(10);
@@ -275,102 +209,10 @@ lky_object *stlstr_split(lky_func_bundle *bundle)
     }
     
     return stlarr_cinit(list);
-}
+)
 
-lky_object *stlstr_fmt_func(lky_func_bundle *bundle)
-{
-    lky_object_function *func = BUW_FUNC(bundle);
-    lky_object_seq *args = BUW_ARGS(bundle);
-
-    lky_object_custom *self = (lky_object_custom *)func->owner;
-    char *mestr = self->data;
-
-    arraylist list = arr_create(10);
-
-    for(; args; args = args->next)
-        arr_append(&list, args->value);
-
-    lky_object *ret = stlstr_fmt_ext(mestr, list);
-
-    arr_free(&list);
-    return ret;
-}
-
-lky_object *stlstr_fmt_modulo(lky_func_bundle *bundle)
-{
-    lky_object_function *func = BUW_FUNC(bundle);
-    lky_object_seq *args = BUW_ARGS(bundle);
-
-    lky_object_custom *self = (lky_object_custom *)func->owner;
-    char *mestr = self->data;
-
-    lky_object_custom *arg = (lky_object_custom *)args->value;
-    arraylist list = stlarr_unwrap((lky_object *)arg);
-
-    return stlstr_fmt_ext(mestr, list);
-}
-
-lky_object *stlstr_fmt_ext(char *mestr, arraylist list)
-{
-    char *buf = malloc(100);
-    size_t buf_size = 100;
-    size_t buf_len = 0;
-    strcpy(buf, "");
-
-    int aidx = 0;
-    
-    int i;
-    for(i = 0; i < mestr[i]; i++)
-    {
-        if(mestr[i] != '@')
-        {
-            if(buf_len + 2 > buf_size)
-            {
-                buf_size *= 2;
-                char *nb = malloc(buf_size);
-                strcpy(nb, buf);
-                free(buf);
-                buf = nb;
-            }
-
-            char cc[2];
-            sprintf(cc, "%c", mestr[i]);
-
-            buf_len += 1;
-
-            strcat(buf, cc);
-            continue;
-        }
-
-        char *ostr = lobjb_stringify(arr_get(&list, aidx), NULL);
-        size_t len = strlen(ostr);
-        if(len + buf_len + 1 > buf_size)
-        {
-            buf_size *= 2;
-            char *nb = malloc(buf_size);
-            strcpy(nb, buf);
-            free(buf);
-            buf = nb;
-        }
-
-        aidx++;
-        strcat(buf, ostr);
-        free(ostr);
-        buf_len += len;
-    }
-
-    lky_object *toret = stlstr_cinit(buf);
-    free(buf);
-
-    return toret;
-}
-
-lky_object *stlstr_iterable(lky_func_bundle *bundle)
-{
-    lky_object_function *func = BUW_FUNC(bundle);
-
-    lky_object_custom *self = (lky_object_custom *)func->owner;
-    char *mestr = self->data;
+CLASS_MAKE_METHOD_EX(stlstr_iterable, self, char *, sb_,
+    char *mestr = sb_;
     int i;
     size_t len = strlen(mestr);
     arraylist list = arr_create(len + 1);
@@ -385,20 +227,15 @@ lky_object *stlstr_iterable(lky_func_bundle *bundle)
     }
 
     return stlarr_cinit(list);
-}
+)
 
-lky_object *stlstr_add(lky_func_bundle *bundle)
-{
-    lky_object_function *func = BUW_FUNC(bundle);
-    lky_object_seq *args = BUW_ARGS(bundle);
-
-    lky_object_custom *self = (lky_object_custom *)func->owner;
-    char *mestr = self->data;
+CLASS_MAKE_METHOD_EX(stlstr_add, self, char *, sb_,
+    char *mestr = sb_;
     
-    lky_object *other = (lky_object *)args->value;
-    char sbf = OBJ_NUM_UNWRAP(((lky_object_builtin *)args->next->value));
+    lky_object *other = $1;
+    char sbf = OBJ_NUM_UNWRAP($2);
     
-    char *chr = lobjb_stringify(other, BUW_INTERP(bundle));
+    char *chr = lobjb_stringify(other, interp_);
     
     size_t len = strlen(chr) + strlen(mestr) + 1;
     char *newstr = malloc(len);
@@ -414,7 +251,7 @@ lky_object *stlstr_add(lky_func_bundle *bundle)
     free(chr);
     
     return ret;
-}
+)
 
 char stlstr_escape_for(char i)
 {
@@ -450,12 +287,8 @@ char *stlstr_copy_and_escape(char *str)
     return cop;
 }
 
-lky_object *stlstr_to_lower(lky_func_bundle *bundle)
-{
-    lky_object_function *func = BUW_FUNC(bundle);
-
-    lky_object_custom *self = (lky_object_custom *)func->owner;
-    char *me = self->data;
+CLASS_MAKE_METHOD_EX(stlstr_to_lower, self, char *, sb_,
+    char *me = sb_;
     size_t len = strlen(me);
     char n[len + 1];
     int i;
@@ -471,8 +304,25 @@ lky_object *stlstr_to_lower(lky_func_bundle *bundle)
     n[i] = '\0';
 
     return stlstr_cinit(n);
+)
+
+void stlstr_manual_init(lky_object *nobj, lky_object *cls, void *data)
+{
+    char *copied = stlstr_copy_and_escape((char *)data);
+    CLASS_SET_BLOB(nobj, "sb_", copied, stlstr_blob_func);
+    lobj_set_member(nobj, "length", lobjb_build_int(strlen(copied)));
 }
 
+lky_object *stlstr_cinit(char *str)
+{
+    return clb_instantiate(stlstr_get_class(), stlstr_manual_init, str);
+}
+
+char *stlstr_unwrap(lky_object *o)
+{
+    return CLASS_GET_BLOB(o, "sb_", char *);
+}
+/*
 lky_object *stlstr_cinit(char *str)
 {
     lky_object_custom *cobj = lobjb_build_custom(0);
@@ -506,11 +356,32 @@ lky_object *stlstr_cinit(char *str)
     
     return (lky_object *)obj;
 }
+*/
 
-static lky_object *_stlstr_class = NULL;
-lky_object *stlstr_class()
+static lky_object *stlstr_class_ = NULL;
+lky_object *stlstr_get_class()
 {
-    if(!_stlstr_class)
-        _stlstr_class = lobjb_build_int((long)&stlstr_cinit);
-    return _stlstr_class;
+    if(stlstr_class_)
+        return stlstr_class_;
+
+    CLASS_MAKE(cls, NULL, stlstr_init, 1,
+        CLASS_PROTO("length", lobjb_build_int(-1));
+        CLASS_PROTO_METHOD("reverse", stlstr_reverse, 0);
+        CLASS_PROTO_METHOD("stringify_", stlstr_stringify, 0);
+        CLASS_PROTO_METHOD("split", stlstr_split, 1);
+        CLASS_PROTO_METHOD("toLower", stlstr_to_lower, 0);
+        CLASS_PROTO_METHOD("op_get_index_", stlstr_get_index, 1);
+        CLASS_PROTO_METHOD("op_set_index_", stlstr_set_index, 2);
+        CLASS_PROTO_METHOD("op_equals_", stlstr_equals, 1);
+        CLASS_PROTO_METHOD("op_add_", stlstr_add, 2);
+        CLASS_PROTO_METHOD("op_notequal_", stlstr_not_equals, 1);
+        CLASS_PROTO_METHOD("op_gt_", stlstr_greater_than, 1);
+        CLASS_PROTO_METHOD("op_lt_", stlstr_lesser_than, 1);
+        CLASS_PROTO_METHOD("op_multiply_", stlstr_multiply, 1);
+        CLASS_PROTO_METHOD("hash_", stlstr_hash, 0);
+        CLASS_PROTO_METHOD("iterable_", stlstr_iterable, 0);
+    );
+
+    stlstr_class_ = cls;
+    return cls;
 }
