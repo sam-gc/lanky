@@ -36,6 +36,7 @@ CLASS_MAKE_INIT(stlstr_init,
         str = calloc(1, 1);
 
     CLASS_SET_BLOB(self_, "sb_", str, stlstr_blob_func);
+    lobj_set_member(self_, "length", lobjb_build_int(strlen(str)));
 )
 
 CLASS_MAKE_METHOD(stlstr_stringify, self,
