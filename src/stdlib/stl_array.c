@@ -219,13 +219,7 @@ lky_object *stlarr_for_each(lky_func_bundle *bundle)
 
     long i;
     for(i = 0; i < list.count; i++)
-    {
-        lky_object_seq *seq = lobjb_make_seq_node(arr_get(&list, i));
-        if(useidx)
-            seq->next = lobjb_make_seq_node(lobjb_build_int(i));
-
-        lobjb_call((lky_object *)callback, seq, BUW_INTERP(bundle));
-    }
+        lobjb_call((lky_object *)callback, LKY_ARGS(arr_get(&list, i), useidx ? lobjb_build_int(i) : NULL), BUW_INTERP(bundle));
 
     return &lky_nil;
 }
@@ -747,13 +741,7 @@ CLASS_MAKE_METHOD_EX(stlarr_for_each, self, stlarr_bl *, ab_,
 
     long i;
     for(i = 0; i < list.count; i++)
-    {
-        lky_object_seq *seq = lobjb_make_seq_node(arr_get(&list, i));
-        if(useidx)
-            seq->next = lobjb_make_seq_node(lobjb_build_int(i));
-
-        lobjb_call((lky_object *)callback, seq, interp_);
-    }
+        lobjb_call($1, LKY_ARGS(arr_get(&list, i), useidx ? lobjb_build_int(i) : NULL), interp_);
 )
 
 CLASS_MAKE_METHOD_EX(stlarr_index_of, self, stlarr_bl *, ab_,
@@ -842,18 +830,42 @@ CLASS_MAKE_METHOD_EX(stlarr_joined, self, stlarr_bl *, ab_,
     return ret;
 )
 
-/*
+
 CLASS_MAKE_METHOD_EX(stlarr_copy, self, stlarr_bl *, ab_,
     arraylist *list = &ab_->container;
-    arraylist
-)*/
+    arraylist copy = arr_create(list->count + 10);
+    memcpy(copy.items, list->items, list->count * sizeof(void *));
+    copy.count = list->count;
+
+    return stlarr_cinit(copy);
+)
+
+CLASS_MAKE_METHOD_EX(stlarr_map, self, stlarr_bl *, ab_,
+    arraylist *list = &ab_->container;
+    arraylist mapped = arr_create(list->count + 10);
+    int i;
+    for(i = 0; i < list->count; i++)
+        mapped.items[i] = lobjb_call($1, lobjb_make_seq_node(list->items[i]), interp_);
+
+    mapped.count = list->count;
+    return stlarr_cinit(mapped);
+)
+
+CLASS_MAKE_METHOD_EX(stlarr_reduce, self, stlarr_bl *, ab_,
+    arraylist *list = &ab_->container;
+    lky_object *prev = &lky_nil;
+    int i;
+    for(i = 0; i < list->count; i++)
+        prev = lobjb_call($1, LKY_ARGS(prev, list->items[i]), interp_);
+
+    return prev;
+)
 
 CLASS_MAKE_METHOD(stlarr_stringify, self,
     $1 = stlstr_cinit(", ");
-    lky_object_seq *ar = lobjb_make_seq_node($1);
     lky_object_function *func = (lky_object_function *)lobjb_build_func_ex(NULL, 0, NULL);
     func->bound = self;
-    lky_func_bundle b = MAKE_BUNDLE(func, ar, interp_);
+    lky_func_bundle b = MAKE_BUNDLE(func, LKY_ARGS($1), interp_);
     lky_object *res = stlarr_joined(&b);
     char *tmp = lobjb_stringify(res, interp_);
     char *out = malloc(strlen(tmp) + 5);
@@ -885,6 +897,9 @@ lky_object *stlarr_get_class()
         CLASS_PROTO_METHOD("removeAt", stlarr_remove_at, 1);
         CLASS_PROTO_METHOD("joined", stlarr_joined, 1);
         CLASS_PROTO_METHOD("insert", stlarr_insert, 2);
+        CLASS_PROTO_METHOD("copy", stlarr_copy, 0);
+        CLASS_PROTO_METHOD("map", stlarr_map, 1);
+        CLASS_PROTO_METHOD("reduce", stlarr_reduce, 1);
     );
 
     stlarr_class_ = cls;

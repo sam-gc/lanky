@@ -25,6 +25,7 @@
 #include "tools.h"
 #include "aquarium.h"
 #include <stdlib.h>
+#include <stdarg.h>
 #include <string.h>
 #include <math.h>
 
@@ -632,6 +633,28 @@ void lobjb_free_seq(lky_object_seq *seq)
         lky_object_seq *next = seq->next;
         seq = next;
     }
+}
+
+lky_object_seq *lobjb_build_args(lky_object *arg, ...)
+{
+    lky_object *cur = arg;
+
+    if(!arg)
+        return NULL;
+
+    lky_object_seq *head = lobjb_make_seq_node(arg);
+    lky_object_seq *last = head;
+
+    va_list ap;
+    va_start(ap, arg);
+    while((cur = va_arg(ap, lky_object *)))
+    {
+        last->next = lobjb_make_seq_node(cur);
+        last = last->next;
+    }
+    va_end(ap);
+
+    return head;
 }
 
 lky_object *lobjb_test(lky_object *cond)

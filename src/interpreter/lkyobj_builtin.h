@@ -35,6 +35,7 @@
 #define LKY_CTEST_FAST(cond)\
     (!cond || cond == &lky_nil ? 0 : (OBJ_IS_NUMBER(cond) ? !!OBJ_NUM_UNWRAP(cond) : (cond->type == LBI_BOOL ? cond == &lky_yes : 1)))
 #define LKY_TESTC_FAST(val) (val ? &lky_yes : &lky_no)
+#define LKY_ARGS(...) lobjb_build_args(__VA_ARGS__, NULL)
 
 #include "lky_object.h"
 #include "arraylist.h"
@@ -189,6 +190,7 @@ lky_object *lobjb_iterable_get_next(lky_object *obj);
 
 lky_object_seq *lobjb_make_seq_node(lky_object *value);
 void lobjb_free_seq(lky_object_seq *seq);
+lky_object_seq *lobjb_build_args(lky_object *arg, ...);
 
 void lobjb_print_object(lky_object *a, struct interp *interp);
 void lobjb_print(lky_object *a, struct interp *interp);
