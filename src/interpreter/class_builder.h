@@ -32,6 +32,7 @@ typedef enum {
 typedef void (*clb_custom_init_func)(lky_object *obj, lky_object *cls, void *data);
 
 lky_object *clb_init_class(lky_object *init_func, lky_object *super);
+lky_object *clb_init_class_ex(lky_object *init_func, lky_object *super, int static_only);
 lky_object *clb_instantiate(lky_object *cls, clb_custom_init_func, void *data);
 void clb_add_member(lky_object *cls, char *refname, lky_object *obj, lky_class_prefix how);
 
@@ -44,9 +45,12 @@ void clb_add_member(lky_object *cls, char *refname, lky_object *obj, lky_class_p
 #define CLASS_MAKE(name, super, init, argc, code)\
     lky_object *init_func_ = (lky_object *)lobjb_build_func_ex(NULL, argc, (lky_function_ptr)init);\
     lky_object *cls_ = clb_init_class(init_func_, super);\
+    int static_only_ = 0;\
     code\
+    if(static_only_) hst_remove_key(&cls_->members, "new", NULL, NULL);\
     lky_object *name = cls_
 
+#define CLASS_STATIC_ONLY static_only_ = 1
 #define CLASS_PROTO(name, obj) clb_add_member(cls_, name, obj, LCP_PROTO)
 #define CLASS_STATIC(name, obj) clb_add_member(cls_, name, obj, LCP_STATIC)
 #define CLASS_PROTO_METHOD(name, ptr, argc) CLASS_PROTO(name, (lky_object *)lobjb_build_func_ex(NULL, argc, (lky_function_ptr)ptr))

@@ -323,41 +323,6 @@ char *stlstr_unwrap(lky_object *o)
 {
     return CLASS_GET_BLOB(o, "sb_", char *);
 }
-/*
-lky_object *stlstr_cinit(char *str)
-{
-    lky_object_custom *cobj = lobjb_build_custom(0);
-    
-    char *copied = stlstr_copy_and_escape(str);
-    
-    cobj->data = copied;
-    
-    lky_object *obj = (lky_object *)cobj;
-    
-    lobj_set_class(obj, stlstr_class());
-    lobj_set_member(obj, "length", lobjb_build_int(strlen(copied)));
-    lobj_set_member(obj, "reverse", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlstr_reverse));
-    lobj_set_member(obj, "stringify_", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlstr_stringify));
-    lobj_set_member(obj, "split", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlstr_split));
-    lobj_set_member(obj, "fmt", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlstr_fmt_func));
-    lobj_set_member(obj, "toLower", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlstr_to_lower));
-    lobj_set_member(obj, "op_get_index_", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlstr_get_index));
-    lobj_set_member(obj, "op_set_index_", lobjb_build_func_ex(obj, 2, (lky_function_ptr)stlstr_set_index));
-    lobj_set_member(obj, "op_equals_", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlstr_equals));
-    lobj_set_member(obj, "op_add_", lobjb_build_func_ex(obj, 2, (lky_function_ptr)stlstr_add));
-    lobj_set_member(obj, "op_notequal_", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlstr_not_equals));
-    lobj_set_member(obj, "op_gt_", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlstr_greater_than));
-    lobj_set_member(obj, "op_lt_", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlstr_lesser_than));
-    lobj_set_member(obj, "op_multiply_", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlstr_multiply));
-    lobj_set_member(obj, "op_modulo_", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlstr_fmt_modulo));
-    lobj_set_member(obj, "hash_", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlstr_hash));
-    lobj_set_member(obj, "iterable_", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlstr_iterable));
-    
-    cobj->freefunc = stlstr_free;
-    
-    return (lky_object *)obj;
-}
-*/
 
 static lky_object *stlstr_class_ = NULL;
 lky_object *stlstr_get_class()

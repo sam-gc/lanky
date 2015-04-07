@@ -96,6 +96,11 @@ lky_object *clb_instantiate(lky_object *cls, clb_custom_init_func func, void *da
 
 lky_object *clb_init_class(lky_object *init_func, lky_object *super)
 {
+    return clb_init_class_ex(init_func, super, 0);
+}
+
+lky_object *clb_init_class_ex(lky_object *init_func, lky_object *super, int static_only)
+{
     lky_object_function *fobj = (lky_object_function *)init_func;
     lky_object *cls = lobj_alloc();
 
@@ -114,7 +119,8 @@ lky_object *clb_init_class(lky_object *init_func, lky_object *super)
         lobj_set_member(cls, "super_init_", lobjb_build_func_ex(cls, argc, (lky_function_ptr)clb_super_init_wrapper));
     }
 
-    lobj_set_member(cls, "new", lobjb_build_func_ex(cls, argc, (lky_function_ptr)clb_new_wrapper));
+    if(!static_only)
+        lobj_set_member(cls, "new", lobjb_build_func_ex(cls, argc, (lky_function_ptr)clb_new_wrapper));
 
     lky_object *model = lobj_alloc();
     if(super)
