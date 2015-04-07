@@ -242,7 +242,7 @@ char *srl_serialize_object(lky_object *obj, size_t *len)
             return srl_serialize_number(obj, targ_len);
         case LBI_CODE:
             return srl_serialize_code(obj, targ_len);
-        case LBI_CUSTOM_EX:
+        case LBI_CUSTOM:
             return srl_serialize_string(obj, targ_len);
         default: break;
     }
