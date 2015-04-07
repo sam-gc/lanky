@@ -138,8 +138,12 @@ classmember : TPROTO TIDENTIFIER TCOLON expression { $$ = create_class_member_no
     | TSTATIC TIDENTIFIER TCOLON expression { $$ = create_class_member_node(LCP_STATIC, $2, $4); }
     | TINIT TIDENTIFIER TCOLON funcdecl { $$ = create_class_member_node(LCP_INIT, $2, $4); }
     ;
-classdecl : TCLASS TLBRACE classmemberlist TRBRACE { $$ = create_class_decl_node($3, NULL); }
-    | TCLASS TLPAREN expression TRPAREN TLBRACE classmemberlist TRBRACE { $$ = create_class_decl_node($6, $3); }
+classdecl : TCLASS TLBRACE classmemberlist TRBRACE { $$ = create_class_decl_node($3, NULL, NULL, NULL); }
+    | TCLASS TLPAREN expression TRPAREN TLBRACE classmemberlist TRBRACE { $$ = create_class_decl_node($6, $3, NULL, NULL); }
+    | TCLASS TARROW TIDENTIFIER TOR TIDENTIFIER TLBRACE classmemberlist TRBRACE { $$ = create_class_decl_node($7, NULL, $3, $5); }
+    | TCLASS TARROW TIDENTIFIER TLBRACE classmemberlist TRBRACE { $$ = create_class_decl_node($5, NULL, $3, NULL); }
+    | TCLASS TLPAREN expression TRPAREN TARROW TIDENTIFIER TOR TIDENTIFIER TLBRACE classmemberlist TRBRACE { $$ = create_class_decl_node($10, $3, $6, $8); }
+    | TCLASS TLPAREN expression TRPAREN TARROW TIDENTIFIER TLBRACE classmemberlist TRBRACE { $$ = create_class_decl_node($8, $3, $6, NULL); }
     ;
 stmt : expression TSEMI
     | TRET TSEMI { $$ = create_unary_node(NULL, 'r'); } 

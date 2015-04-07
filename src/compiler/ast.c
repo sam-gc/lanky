@@ -364,7 +364,7 @@ ast_node *create_func_decl_node(ast_node *params, ast_node *payload, char *refna
 }
 
 
-ast_node *create_class_decl_node(ast_node *members, ast_node *super)
+ast_node *create_class_decl_node(ast_node *members, ast_node *super, char *instrefname, char *classrefname)
 {
     ast_node *col = MALLOC(sizeof(ast_node));
     ast_class_decl_node *node = MALLOC(sizeof(ast_class_decl_node));
@@ -385,6 +385,18 @@ ast_node *create_class_decl_node(ast_node *members, ast_node *super)
             node->init = members;
         else
         {
+            if(instrefname && m->prefix == LCP_PROTO && m->payload->type == AFUNC_DECL)
+            {
+                ast_func_decl_node *f = (ast_func_decl_node *)m->payload;
+                if(!f->refname)
+                    f->refname = instrefname;
+            }
+            else if(classrefname && m->prefix == LCP_STATIC && m->payload->type == AFUNC_DECL)
+            {
+                ast_func_decl_node *f = (ast_func_decl_node *)m->payload;
+                if(!f->refname)
+                    f->refname = classrefname;
+            }
             cur->next = members;
             cur = cur->next;
         }

@@ -230,12 +230,66 @@ lky_object *lobjb_bind_func(lky_func_bundle *bundle)
 {
     lky_object_seq *args = BUW_ARGS(bundle);
 
-    lky_object_function *func = (lky_object_function *)BUW_FUNC(bundle)->owner;
+    lky_object_function *func = (lky_object_function *)BUW_FUNC(bundle)->bound;
 
     lky_object *obj = (lky_object *)args->value;
     func->bound = obj;
 
     return (lky_object *)func;
+}
+
+static lky_object *lobjb_func_proto_ = NULL;
+lky_object *lobjb_get_func_proto()
+{
+    if(lobjb_func_proto_)
+        return lobjb_func_proto_;
+
+    // We have to build the object manually so as to avoid
+    // recursive blocks. This way, though we say stlobj_seed
+    // later, lobjb_func_proto_ will already have a valid memory
+    // address, even if the object isn't completed, and this
+    // function will return immediately and we avoid a stack overflow.
+    lobjb_func_proto_ = aqua_request_next_block(sizeof(lky_object));
+    lobjb_func_proto_->type = LBI_CUSTOM;
+    lobjb_func_proto_->mem_count = 0;
+    lobjb_func_proto_->size = sizeof(lky_object);
+    lobjb_func_proto_->members = hst_create();
+    lobjb_func_proto_->members.duplicate_keys = 1;
+    gc_add_object(lobjb_func_proto_);
+
+    stlobj_seed(lobjb_func_proto_);
+
+    // We have to manually specify the bind function
+    lky_object_function *func = aqua_request_next_block(sizeof(lky_object_function));
+    func->type = LBI_FUNCTION;
+    func->mem_count = 0;
+    func->size = sizeof(lky_object_function);
+    func->members = hst_create();
+    func->members.duplicate_keys = 1;
+    func->owner = NULL;
+    func->bound = NULL;
+    func->refname = NULL;
+    
+    func->code = NULL;
+    func->bucket = NULL;
+    func->refname = NULL;
+
+    func->parent_stack = arr_create(1);
+
+    gc_add_object((lky_object *)func);
+
+    lky_callable c;
+    c.function = (lky_function_ptr)lobjb_bind_func;
+    c.argc = 1;
+
+    func->callable = c;
+
+    lobj_set_member((lky_object *)func, "argc", (lky_object *)lobjb_build_int(1)); 
+    lobj_set_member((lky_object *)func, "proto_", lobjb_func_proto_);
+
+    lobj_set_member(lobjb_func_proto_, "bind", (lky_object *)func);
+
+    return lobjb_func_proto_;
 }
 
 lky_object *lobjb_build_func(lky_object_code *code, int argc, arraylist inherited, mach_interp *interp)
@@ -267,7 +321,7 @@ lky_object *lobjb_build_func(lky_object_code *code, int argc, arraylist inherite
     // Add some members to the function argument
     lobj_set_member((lky_object *)func, "argc", (lky_object *)lobjb_build_int(argc)); 
     lobj_set_member((lky_object *)func, "code_", (lky_object *)code);
-    lobj_set_member((lky_object *)func, "bind", lobjb_build_func_ex((lky_object *)func, 1, (lky_function_ptr)lobjb_bind_func));
+    lobj_set_member((lky_object *)func, "proto_", lobjb_get_func_proto());
     
     return (lky_object *)func;
 }
@@ -280,7 +334,6 @@ lky_object *lobjb_build_func_ex(lky_object *owner, int argc, lky_function_ptr pt
     func->size = sizeof(lky_object_function);
     func->members = hst_create();
     func->members.duplicate_keys = 1;
-    func->owner = NULL;
     func->bound = NULL;
     func->refname = NULL;
     
@@ -300,6 +353,7 @@ lky_object *lobjb_build_func_ex(lky_object *owner, int argc, lky_function_ptr pt
     func->owner = owner;
 
     lobj_set_member((lky_object *)func, "argc", (lky_object *)lobjb_build_int(argc)); 
+    lobj_set_member((lky_object *)func, "proto_", lobjb_get_func_proto());
     
     return (lky_object *)func;
 }

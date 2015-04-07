@@ -63,7 +63,7 @@ lky_object *lobj_get_member(lky_object *obj, char *member)
     //    return NULL;
 
     lky_object *val = hst_get(&obj->members, member, NULL, NULL);
-    if(!val && obj->type != LBI_FUNCTION && obj->type != LBI_CLASS && !!strcmp(member, "proto_"))
+    if(!val && !!strcmp(member, "proto_"))
     {
         lky_object *proto = hst_get(&obj->members, "proto_", NULL, NULL);
         if(proto)
