@@ -783,6 +783,8 @@ CLASS_MAKE_METHOD_EX(stlarr_joined, self, stlarr_bl *, ab_,
     arraylist *list = &ab_->container;
     char *joiner = lobjb_stringify($1, interp_);
 
+    int put_strings = LKY_CTEST_FAST($2);
+
     if(!joiner)
         return &lky_nil;
 
@@ -796,7 +798,17 @@ CLASS_MAKE_METHOD_EX(stlarr_joined, self, stlarr_bl *, ab_,
     int i;
     for(i = 0; i < list->count; i++)
     {
-        char *text = lobjb_stringify(arr_get(list, i), interp_);
+        lky_object *obj = arr_get(list, i);
+        char *text = lobjb_stringify(obj, interp_);
+
+        if(put_strings && lobj_is_of_class(obj, stlstr_get_class())) 
+        {
+            char *tmp = malloc(strlen(text) + 3);
+            sprintf(tmp, "'%s'", text);
+            free(text);
+            text = tmp;
+        }
+
         innards[i] = text;
 
         size_t il = strlen(text);
@@ -865,7 +877,7 @@ CLASS_MAKE_METHOD(stlarr_stringify, self,
     $1 = stlstr_cinit(", ");
     lky_object_function *func = (lky_object_function *)lobjb_build_func_ex(NULL, 0, NULL);
     func->bound = self;
-    lky_func_bundle b = MAKE_BUNDLE(func, LKY_ARGS($1), interp_);
+    lky_func_bundle b = MAKE_BUNDLE(func, LKY_ARGS($1, &lky_yes), interp_);
     lky_object *res = stlarr_joined(&b);
     char *tmp = lobjb_stringify(res, interp_);
     char *out = malloc(strlen(tmp) + 5);
@@ -895,7 +907,7 @@ lky_object *stlarr_get_class()
         CLASS_PROTO_METHOD("contains", stlarr_contains, 1);
         CLASS_PROTO_METHOD("indexOf", stlarr_index_of, 1);
         CLASS_PROTO_METHOD("removeAt", stlarr_remove_at, 1);
-        CLASS_PROTO_METHOD("joined", stlarr_joined, 1);
+        CLASS_PROTO_METHOD("joined", stlarr_joined, 2);
         CLASS_PROTO_METHOD("insert", stlarr_insert, 2);
         CLASS_PROTO_METHOD("copy", stlarr_copy, 0);
         CLASS_PROTO_METHOD("map", stlarr_map, 1);

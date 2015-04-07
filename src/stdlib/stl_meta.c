@@ -140,14 +140,21 @@ void run_repl(mach_interp *interp)
             bmulti += needs_multiline(buf);
             print_indents(bmulti);
             prompt = "    \001" DEFAULT "\002";
+            add_history(buf);
             continue;
         }
         
-//        printf(WHITE);
         lky_object *ret = compile_and_exec(line, interp);
 
-        printf(DEFAULT);
-        lobjb_print(ret, interp);
+        printf(YELLOW);
+        char *str = lobjb_stringify(ret, interp);
+        if(lobj_is_of_class(ret, stlstr_get_class()))
+            printf("'%s'\n", str);
+        else
+            printf("%s\n", str);
+
+        free(str);
+        //lobjb_print(ret, interp);
         
         if (buf[0] != 0)
             add_history(buf);
