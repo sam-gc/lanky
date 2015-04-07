@@ -63,7 +63,7 @@ CLASS_MAKE_METHOD_EX(stlstr_equals, self, char *, sb_,
     char *stra = sb_;
     char *strb = CLASS_GET_BLOB($1, "sb_", char *);
     
-    return lobjb_build_int(!strcmp(stra, strb));
+    return LKY_TESTC_FAST(!strcmp(stra, strb));
 )
 
 CLASS_MAKE_METHOD_EX(stlstr_reverse, self, char *, sb_,
@@ -89,7 +89,7 @@ CLASS_MAKE_METHOD_EX(stlstr_not_equals, self, char *, sb_,
     char *stra = sb_;
     char *strb = CLASS_GET_BLOB($1, "sb_", char *);
 
-    return lobjb_build_int(!!strcmp(stra, strb));
+    return LKY_TESTC_FAST(!!strcmp(stra, strb));
 )
 
 CLASS_MAKE_METHOD_EX(stlstr_greater_than, self, char *, sb_,
@@ -99,7 +99,7 @@ CLASS_MAKE_METHOD_EX(stlstr_greater_than, self, char *, sb_,
     char *stra = sb_;
     char *strb = CLASS_GET_BLOB($1, "sb_", char *);
 
-    return lobjb_build_int(strcmp(stra, strb) > 0);
+    return LKY_TESTC_FAST(strcmp(stra, strb) > 0);
 )
 
 CLASS_MAKE_METHOD_EX(stlstr_lesser_than, self, char *, sb_,
@@ -109,7 +109,7 @@ CLASS_MAKE_METHOD_EX(stlstr_lesser_than, self, char *, sb_,
     char *stra = sb_;
     char *strb = CLASS_GET_BLOB($1, "sb_", char *);
 
-    return lobjb_build_int(strcmp(stra, strb) < 0);
+    return LKY_TESTC_FAST(strcmp(stra, strb) < 0);
 )
 
 CLASS_MAKE_METHOD_EX(stlstr_multiply, self, char *, sb_,
@@ -159,6 +159,13 @@ CLASS_MAKE_METHOD_EX(stlstr_set_index, self, char *, sb_,
     sb_[i] = ch;
     
     return &lky_nil;
+)
+
+CLASS_MAKE_METHOD_EX(stlstr_copy, self, char *, sb_,
+    char nw[strlen(sb_) + 1];
+    strcpy(nw, sb_);
+
+    return stlstr_cinit(nw);
 )
 
 CLASS_MAKE_METHOD_EX(stlstr_split, self, char *, sb_,
@@ -307,6 +314,25 @@ CLASS_MAKE_METHOD_EX(stlstr_to_lower, self, char *, sb_,
     return stlstr_cinit(n);
 )
 
+CLASS_MAKE_METHOD_EX(stlstr_to_upper, self, char *, sb_,
+    char *me = sb_;
+    size_t len = strlen(me);
+    char n[len + 1];
+    int i;
+    for(i = 0; i < len; i++)
+    {
+        char c = me[i];
+        if(c >= 'a' && c <= 'z')
+            c = (c - 'a') + 'A';
+
+        n[i] = c;
+    }
+
+    n[i] = '\0';
+
+    return stlstr_cinit(n);
+)
+
 void stlstr_manual_init(lky_object *nobj, lky_object *cls, void *data)
 {
     char *copied = stlstr_copy_and_escape((char *)data);
@@ -335,7 +361,9 @@ lky_object *stlstr_get_class()
         CLASS_PROTO_METHOD("reverse", stlstr_reverse, 0);
         CLASS_PROTO_METHOD("stringify_", stlstr_stringify, 0);
         CLASS_PROTO_METHOD("split", stlstr_split, 1);
-        CLASS_PROTO_METHOD("toLower", stlstr_to_lower, 0);
+        CLASS_PROTO_METHOD("lower", stlstr_to_lower, 0);
+        CLASS_PROTO_METHOD("upper", stlstr_to_upper, 0);
+        CLASS_PROTO_METHOD("copy", stlstr_copy, 0);
         CLASS_PROTO_METHOD("op_get_index_", stlstr_get_index, 1);
         CLASS_PROTO_METHOD("op_set_index_", stlstr_set_index, 2);
         CLASS_PROTO_METHOD("op_equals_", stlstr_equals, 1);

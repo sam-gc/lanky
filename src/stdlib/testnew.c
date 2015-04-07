@@ -80,7 +80,6 @@ lky_object *tn_get_class()
         CLASS_PROTO_METHOD("printBlob", tn_print_blob_ifo, 0);
         CLASS_PROTO_METHOD("on_destroy_", tn_on_destroy, 0);
         CLASS_STATIC_METHOD("name_me", tn_name_me, 0);
-        CLASS_STATIC_ONLY;
     });
 
     return cls;

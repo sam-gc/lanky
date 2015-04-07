@@ -119,7 +119,7 @@ lky_object *stlobj_equals(lky_func_bundle *bundle)
 
     func->bound = NULL;
 
-    return lobjb_build_int(is_equal);
+    return LKY_TESTC_FAST(is_equal);
 }
 
 void stlobj_members_each(void *key, void *val, void *data)
