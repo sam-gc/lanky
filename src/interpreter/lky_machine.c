@@ -1,6 +1,5 @@
 /* Lanky -- Scripting Language and Virtual Machine
- * Copyright (C) 2014  Sam Olsen
- *
+ * Copyright (C) 2014  Sam Olsen *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -337,7 +336,7 @@ _opcode_whiplash_:
 
     gc_gc();
 #endif
-    dispatch_();
+    vmvm(
         vmop(LOAD_CONST,
             unsigned int idx = *(unsigned int *)(frame->ops + (++frame->pc));
             frame->pc += 3;
@@ -932,6 +931,6 @@ _opcode_whiplash_:
         )
         vmop(JUMP_TRUE,
         )
-
+    )
 }
 
