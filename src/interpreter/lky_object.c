@@ -27,9 +27,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-lky_object lky_nil = {LBI_NIL, 0, sizeof(lky_object), {0, 0, 0, NULL}, NULL, {0, NULL}};
-lky_object lky_yes = {LBI_BOOL, 1, sizeof(lky_object), {0, 0, 0, NULL}, NULL, {0, NULL}};
-lky_object lky_no = {LBI_BOOL, 1, sizeof(lky_object), {0, 0, 0, NULL}, NULL, {0, NULL}};
+lky_object lky_nil = {LBI_NIL, 0, {0, 0, 0, NULL}, NULL, {0, NULL}};
+lky_object lky_yes = {LBI_BOOL, 1, {0, 0, 0, NULL}, NULL, {0, NULL}};
+lky_object lky_no = {LBI_BOOL, 1, {0, 0, 0, NULL}, NULL, {0, NULL}};
 
 int alloced = 0;
 lky_object *lobj_alloc()
@@ -37,7 +37,6 @@ lky_object *lobj_alloc()
     lky_object *obj = aqua_request_next_block(sizeof(lky_object));
     obj->type = LBI_CUSTOM;
     obj->mem_count = 0;
-    obj->size = sizeof(lky_object);
     obj->members = hst_create();
     obj->members.duplicate_keys = 1;
     gc_add_object(obj);

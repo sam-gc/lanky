@@ -62,18 +62,16 @@ typedef union {
 } lky_builtin_value;
 
 typedef struct {
-    lky_builtin_type type;
-    int mem_count;
-    size_t size;
+    unsigned type : 4;
+    unsigned mem_count : 1;
     
     lky_builtin_value value;
     lobjb_void_ptr_function on_gc;
 } lky_object_builtin;
 
 typedef struct {
-    lky_builtin_type type;
-    int mem_count;
-    size_t size;
+    unsigned type : 4;
+    unsigned mem_count : 1;
 
     int index;
     arraylist *store;
@@ -81,9 +79,9 @@ typedef struct {
 } lky_object_iterable;
 
 typedef struct {
-    lky_builtin_type type;
-    int mem_count;
-    size_t size;
+    unsigned type : 4;
+    unsigned mem_count : 1;
+
     hashtable members;
     lky_object *cls;
 
@@ -95,9 +93,8 @@ typedef struct {
 } lky_object_custom;
 
 typedef struct {
-    lky_builtin_type type;
-    int mem_count;
-    size_t size;
+    unsigned type : 4;
+    unsigned mem_count : 1;
 
     long num_constants;
     long num_locals;
@@ -121,9 +118,9 @@ typedef struct {
 } lky_class_member_wrapper;
 
 struct lky_object_function {
-    lky_builtin_type type;
-    int mem_count;
-    size_t size;
+    unsigned type : 4;
+    unsigned mem_count : 1;
+
     hashtable members;
 
     lky_callable callable;
@@ -140,9 +137,9 @@ struct lky_object_function {
 };
 
 typedef struct {
-    lky_builtin_type type;
-    int mem_count;
-    size_t size;
+    unsigned type : 4;
+    unsigned mem_count : 1;
+
     hashtable members;
 
     lky_callable callable;
@@ -154,9 +151,9 @@ typedef struct {
 } lky_object_class;
 
 typedef struct {
-    lky_builtin_type type;
-    int mem_count;
-    size_t size;
+    unsigned type : 4;
+    unsigned mem_count : 1;
+
     hashtable members;
     lky_object *cls;
 

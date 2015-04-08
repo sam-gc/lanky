@@ -52,18 +52,17 @@ typedef struct {
 } lky_callable;
 
 typedef struct lky_object_seq {
-    lky_builtin_type type;
-    int mem_count;
-    size_t size;
+    unsigned type : 4;
+    unsigned mem_count : 1;
 
     struct lky_object *value;
     struct lky_object_seq *next;
 } lky_object_seq;
 
 typedef struct {
-    lky_builtin_type type;
-    int mem_count;
-    size_t size;
+    unsigned type : 4;
+    unsigned mem_count : 1;
+
     hashtable members;
 
     struct lky_object *cls;

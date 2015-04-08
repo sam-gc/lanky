@@ -1551,7 +1551,6 @@ lky_object_code *compile_ast_ext(ast_node *root, compiler_wrapper *incw)
     code->constants = make_cons_array(&cw);
     code->num_constants = cw.rcon.count;
     code->num_locals = cw.local_idx;
-    code->size = sizeof(lky_object_code);
     code->mem_count = 0;
     code->type = LBI_CODE;
     code->num_names = cw.rnames.count;

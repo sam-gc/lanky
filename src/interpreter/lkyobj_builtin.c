@@ -56,7 +56,6 @@ lky_object *lobjb_alloc(lky_builtin_type t, lky_builtin_value v)
 
     lky_object_builtin *obj = aqua_request_next_block(sizeof(lky_object_builtin));
     obj->type = t;
-    obj->size = sizeof(lky_object_builtin);
     obj->mem_count = 0;
     obj->value = v;
     obj->on_gc = NULL;
@@ -126,7 +125,6 @@ lky_object *lobjb_build_error(char *name, char *text)
 {
     lky_object_error *err = aqua_request_next_block(sizeof(lky_object_error));
     err->type = LBI_ERROR;
-    err->size = sizeof(lky_object_error);
     err->mem_count = 0;
     err->members = hst_create();
     err->members.duplicate_keys = 1;
@@ -178,7 +176,6 @@ lky_object *lobjb_build_iterable(lky_object *owner, struct interp *interp)
 {
     lky_object_iterable *it = aqua_request_next_block(sizeof(lky_object_iterable));
     it->type = LBI_ITERABLE;
-    it->size = sizeof(lky_object_iterable);
     it->mem_count = 0;
 
     if(!lobj_is_of_class(owner, stlarr_get_class()))
@@ -210,7 +207,6 @@ lky_object_custom *lobjb_build_custom(size_t extra_size)
 {
     lky_object_custom *obj = aqua_request_next_block(sizeof(lky_object_custom));
     obj->type = LBI_CUSTOM_EX;
-    obj->size = sizeof(lky_object_custom) + extra_size;
     obj->mem_count = 0;
     obj->members = hst_create();
     obj->members.duplicate_keys = 1;
@@ -252,7 +248,6 @@ lky_object *lobjb_get_func_proto()
     lobjb_func_proto_ = aqua_request_next_block(sizeof(lky_object));
     lobjb_func_proto_->type = LBI_CUSTOM;
     lobjb_func_proto_->mem_count = 0;
-    lobjb_func_proto_->size = sizeof(lky_object);
     lobjb_func_proto_->members = hst_create();
     lobjb_func_proto_->members.duplicate_keys = 1;
     gc_add_object(lobjb_func_proto_);
@@ -263,7 +258,6 @@ lky_object *lobjb_get_func_proto()
     lky_object_function *func = aqua_request_next_block(sizeof(lky_object_function));
     func->type = LBI_FUNCTION;
     func->mem_count = 0;
-    func->size = sizeof(lky_object_function);
     func->members = hst_create();
     func->members.duplicate_keys = 1;
     func->owner = NULL;
@@ -297,7 +291,6 @@ lky_object *lobjb_build_func(lky_object_code *code, int argc, arraylist inherite
     lky_object_function *func = aqua_request_next_block(sizeof(lky_object_function));
     func->type = LBI_FUNCTION;
     func->mem_count = 0;
-    func->size = sizeof(lky_object_function);
     func->members = hst_create();
     func->members.duplicate_keys = 1;
     
@@ -331,7 +324,6 @@ lky_object *lobjb_build_func_ex(lky_object *owner, int argc, lky_function_ptr pt
     lky_object_function *func = aqua_request_next_block(sizeof(lky_object_function));
     func->type = LBI_FUNCTION;
     func->mem_count = 0;
-    func->size = sizeof(lky_object_function);
     func->members = hst_create();
     func->members.duplicate_keys = 1;
     func->bound = NULL;
@@ -671,7 +663,6 @@ lky_object_seq *lobjb_make_seq_node(lky_object *value)
     lky_object_seq *seq = aqua_request_next_block(sizeof(lky_object_seq));
     seq->type = LBI_SEQUENCE;
     seq->mem_count = 0;
-    seq->size = sizeof(lky_object_seq);
     gc_add_object((lky_object *)seq);
 
     seq->value = (struct lky_object *)value;

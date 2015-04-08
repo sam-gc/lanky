@@ -125,13 +125,34 @@ void gc_remove_root_object(lky_object *obj)
     
 }
 
+#define TYPE_SIZE_CASE(type, obj) case LBI_ ## type : return sizeof(obj)
+
+size_t gc_determine_size_of(lky_object *obj)
+{
+    switch(obj->type)
+    {
+        TYPE_SIZE_CASE(INTEGER, lky_object_builtin);
+        TYPE_SIZE_CASE(FLOAT, lky_object_builtin);
+        TYPE_SIZE_CASE(BLOB, lky_object_builtin);
+        TYPE_SIZE_CASE(CUSTOM, lky_object);
+        TYPE_SIZE_CASE(CUSTOM_EX, lky_object_custom);
+        TYPE_SIZE_CASE(CLASS, lky_object_class);
+        TYPE_SIZE_CASE(FUNCTION, lky_object_function);
+        TYPE_SIZE_CASE(CODE, lky_object_code);
+        TYPE_SIZE_CASE(ITERABLE, lky_object_iterable);
+        TYPE_SIZE_CASE(ERROR, lky_object_error);
+        TYPE_SIZE_CASE(SEQUENCE, lky_object_seq);
+        default: return 0;
+    }
+}
+
 void gc_add_object(lky_object *obj)
 {
     if(!gc_started || !obj)
         return;
     
     gchs_add(&bundle.pool, obj);
-    bundle.cur_size += obj->size;
+    bundle.cur_size += gc_determine_size_of(obj);
 }
 
 size_t gc_alloced()
@@ -165,7 +186,7 @@ void gc_collect()
         lky_object *o = objs[i];
         if(!o->mem_count)
         {
-            bundle.cur_size -= o->size;
+            bundle.cur_size -= gc_determine_size_of(o);
             // TODO: This will need to change.
 
             
@@ -181,7 +202,7 @@ void gc_collect()
         }
         else
         {
-            bundle.marked_size += o->size;
+            bundle.marked_size += gc_determine_size_of(o);
             o->mem_count = 0;
         }
     }

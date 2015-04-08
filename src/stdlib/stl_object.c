@@ -208,7 +208,6 @@ lky_object *stlobj_get_proto()
     lky_object *obj = aqua_request_next_block(sizeof(lky_object));
     obj->type = LBI_CUSTOM;
     obj->mem_count = 0;
-    obj->size = sizeof(lky_object);
     obj->members = hst_create();
     obj->members.duplicate_keys = 1;
     gc_add_object(obj);

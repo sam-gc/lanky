@@ -321,7 +321,6 @@ lky_object *srl_deserialize_code(unsigned char *bytes)
 
     lky_object_code *code = malloc(sizeof(lky_object_code));
     code->type = LBI_CODE;
-    code->size = sizeof(lky_object_code);
     code->mem_count = 0;
     code->ops = ops;
     code->constants = cons;
