@@ -1,4 +1,12 @@
 Io = <"Io">;
+Table = <"Table">;
+
+Table.model_.prt = func() -> self {
+    Io.putln('-------');
+    for key in self.keys() {
+        Io.putln(' ' + key + ' | ' + self[key]);
+    }
+};
 
 build_shift_table = func(str) {
     tab = [:]; -- Create a new hashtable
@@ -9,16 +17,6 @@ build_shift_table = func(str) {
     }
 
     ret tab;
-};
-
-print_shift_table = func(shifts) {
-    Io.putln('-------');
-
-    for shift in shifts.keys() {
-        val = shifts[shift];
-
-        Io.putln(' ' + shift + ' | ' + val);
-    }
 };
 
 horspool = func(search, text) {
@@ -58,5 +56,5 @@ Io.putln(text);
 Io.putln((" " * idx) + search);
 
 if Io.prompt('\nPrint shift table? (y/n): ') == 'y' {
-    print_shift_table(build_shift_table(search));
+    build_shift_table(search).prt();
 }

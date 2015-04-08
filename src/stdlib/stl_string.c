@@ -356,8 +356,12 @@ lky_object *stlstr_get_class()
     if(stlstr_class_)
         return stlstr_class_;
 
+    char *proto_bl = calloc(1, 1);
+    lky_object *proto_blob = lobjb_build_blob(proto_bl, stlstr_blob_func);
+
     CLASS_MAKE(cls, NULL, stlstr_init, 1,
         CLASS_PROTO("length", lobjb_build_int(-1));
+        CLASS_PROTO("sb_", proto_blob);
         CLASS_PROTO_METHOD("reverse", stlstr_reverse, 0);
         CLASS_PROTO_METHOD("stringify_", stlstr_stringify, 0);
         CLASS_PROTO_METHOD("split", stlstr_split, 1);
