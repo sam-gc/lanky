@@ -890,6 +890,32 @@ CLASS_MAKE_METHOD(stlarr_stringify, self,
     return ret;
 )
 
+CLASS_MAKE_METHOD(stlarr_alloc, self,
+    long size = OBJ_NUM_UNWRAP($1);
+    return stlarr_cinit(arr_create(size));
+)
+
+CLASS_MAKE_METHOD(stlarr_memcpy, self,
+    stlarr_bl *a = CLASS_GET_BLOB($1, "ab_", stlarr_bl *);
+    stlarr_bl *b = CLASS_GET_BLOB($2, "ab_", stlarr_bl *);
+
+    arraylist *al = &a->container;
+    arraylist *bl = &b->container;
+
+    long size = OBJ_NUM_UNWRAP($3);
+    if(size > al->allocated || size > bl->count)
+        // TODO: This should be an error
+        return lobjb_build_int(-1);
+    memcpy(al->items, bl->items, size * sizeof(void *));
+
+    al->count = al->count < size ? size : al->count;
+    lobj_set_member($1, "count", lobjb_build_int(al->count));
+)
+
+CLASS_MAKE_METHOD_EX(stlarr_size, self, stlarr_bl *, ab_,
+    return lobjb_build_int(ab_->container.allocated);
+)
+
 lky_object *stlarr_get_class()
 {
     if(stlarr_class_)
@@ -912,6 +938,9 @@ lky_object *stlarr_get_class()
         CLASS_PROTO_METHOD("copy", stlarr_copy, 0);
         CLASS_PROTO_METHOD("map", stlarr_map, 1);
         CLASS_PROTO_METHOD("reduce", stlarr_reduce, 1);
+        CLASS_PROTO_METHOD("size_", stlarr_size, 0);
+        CLASS_STATIC_METHOD("memcpy", stlarr_memcpy, 3);
+        CLASS_STATIC_METHOD("alloc", stlarr_alloc, 1);
     );
 
     stlarr_class_ = cls;

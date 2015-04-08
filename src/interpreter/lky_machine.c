@@ -618,7 +618,12 @@ _opcode_whiplash_:
             lky_object *val = lobj_get_member(obj, name);
             
             if(!val)
-                mach_halt_with_err(lobjb_build_error("UndeclaredIdentifier", "The provided object does not have a member with the provided name."));
+            {
+                char str[200 + strlen(name)];
+                sprintf(str, "Object has no member named '%s'.", name);
+                mach_halt_with_err(lobjb_build_error("UndeclaredIdentifier", str));
+            }
+
 
             PUSH(val);
         )
@@ -722,8 +727,11 @@ _opcode_whiplash_:
             if(obj)
                 PUSH(obj);
             else
-                mach_halt_with_err(lobjb_build_error("UndeclaredIdentifier", "A bad name was used..."));
-
+            {
+                char str[200 + strlen(name)];
+                sprintf(str, "Could not load closure variable '%s'.", name);
+                mach_halt_with_err(lobjb_build_error("UndeclaredIdentifier", str));
+            }
         )
         vmop(MAKE_ARRAY,
             unsigned int ct = *(unsigned int *)(frame->ops + (++frame->pc));
