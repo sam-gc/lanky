@@ -1,0 +1,101 @@
+body {
+    font-family: sans;
+    font-size: 12pt;
+}
+
+.header {
+
+}
+
+.title {
+    
+}
+
+.description {
+
+}
+
+.maintitle {
+    color: red;
+}
+
+.class-header {
+
+}
+
+.class-title {
+
+}
+
+.class-description {
+
+}
+
+.return-link {
+
+}
+
+.field-container {
+
+}
+
+.method-container {
+
+}
+
+.field-list {
+
+}
+
+.method-list {
+    margin-top: 10px;
+}
+
+.method-name {
+    font-weight: bold;
+    margin-right: 10px;
+    font-family: monospace;
+    font-size: 13pt;
+}
+
+.method-func {
+    font-family: monospace;
+}
+
+.method-description {
+    margin-left: 20px;
+}
+
+.method-params {
+    margin-left: 35px;
+}
+
+.method-discussion {
+    margin-left: 20px;
+}
+
+.param-name {
+    font-family: monospace;
+    margin-right: 10px;
+}
+
+.param-descrip {
+
+}
+
+.field-name {
+    font-weight: bold;
+    margin-right: 10px;
+    font-family: monospace;
+    font-size: 13pt;
+}
+
+.field-description {
+
+}
+
+.mono {
+    font-family: monospace;
+}
+
+

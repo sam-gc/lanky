@@ -1,0 +1,53 @@
+<!DOCTYPE html><html><head><link rel="stylesheet" href="main.css"></head><body>
+<div class="maintitle">Lanky Standard Library</div>
+<div class="class-header">
+<div class="class-title">Array</div>
+<div class="class-description">The wrapper around the interpreter's arraylist implementation.</div></div>
+<div class="return-link"><a href="index.html">Back</a></div>
+<div class="field-container"><ul class="field-list">
+<li><span class="field-name">count:</span><span class="field-description">The number of elements contained in the array</span></li>
+<li><span class="field-name">ab_:</span><span class="field-description">The binary blob that contains the actual C arraylist</span></li>
+</ul></div>
+<div class="method-container"><ul class="method-list">
+<li><span class="method-name">get:</span><span class="method-func">func(index)</span><br/><div class="method-description">Gets the item at the given index</div></li>
+<table class="method-params">
+<tr>
+<td><span class="param-name">index</span></td>
+<td><span class="param-descrip">The index to get</span></li></td>
+</tr>
+</table>
+<div class="method-discussion">Like the <span class="mono">set</span> method, this is a very fast operation as we are dealing with an arraylist implementation, rather than a linked list. The method will throw and error if the index is out of bounds or not a valid integer.</div>
+</li>
+<li><span class="method-name">set:</span><span class="method-func">func(index, nval)</span><br/><div class="method-description">Sets the item at the given index</div></li>
+<table class="method-params">
+<tr>
+<td><span class="param-name">index</span></td>
+<td><span class="param-descrip">The index to set</span></li></td>
+</tr>
+<tr>
+<td><span class="param-name">nval</span></td>
+<td><span class="param-descrip">The new value to set</span></li></td>
+</tr>
+</table>
+<div class="method-discussion">Like the <span class="mono">get</span> method, this is a very fast operation (should be O(1)). The method will throw an error if the index is out of bounds or is not a valid integer.</div>
+</li>
+<li><span class="method-name">forEach:</span><span class="method-func">func(callback)</span><br/><div class="method-description">Iteratively executes a callback</div></li>
+<table class="method-params">
+<tr>
+<td><span class="param-name">callback</span></td>
+<td><span class="param-descrip">A callback function taking 1 or 2 arguments</span></li></td>
+</tr>
+</table>
+<div class="method-discussion"><span class="mono">callback</span> will be called for each element in the array. If the callback takes only one argument, only the element will be passed in. If two, the second argument will be set to the index.</div>
+</li>
+<li><span class="method-name">contains:</span><span class="method-func">func(e)</span><br/><div class="method-description">Returns <span class="mono">yes</span> if and only if the given element is in the array</div></li>
+<table class="method-params">
+<tr>
+<td><span class="param-name">e</span></td>
+<td><span class="param-descrip">The element to find</span></li></td>
+</tr>
+</table>
+<div class="method-discussion">Each element will be checked until <span class="mono">e</span> is found. The array is aware of overloaded == methods, so values will be compared correctly.</div>
+</li>
+</ul></div>
+</body></html>

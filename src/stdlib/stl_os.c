@@ -22,6 +22,15 @@
 
 static lky_object *_stl_os_class_ = NULL;
 
+lky_object *stlos_system(lky_func_bundle *b)
+{
+    lky_object_seq *args = BUW_ARGS(b);
+    char *msg = lobjb_stringify((lky_object *)args->value, BUW_INTERP(b));
+    system(msg);
+    free(msg);
+    return &lky_nil;
+}
+
 void stlos_init(int argc, char *argv[])
 {
     _stl_os_class_ = lobj_alloc();
@@ -33,6 +42,7 @@ void stlos_init(int argc, char *argv[])
 
     lobj_set_member(_stl_os_class_, "argc", lobjb_build_int(argc));
     lobj_set_member(_stl_os_class_, "argv", stlarr_cinit(list));
+    lobj_set_member(_stl_os_class_, "system", lobjb_build_func_ex(_stl_os_class_, 1, (lky_function_ptr)stlos_system));
 }
 
 lky_object *stlos_get_class()

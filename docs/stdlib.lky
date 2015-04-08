@@ -1,0 +1,26 @@
+Documentation = load '../examples/Documentation.lky';
+Time = load 'Time';
+String = load 'String';
+
+String.model_.mono = func() -> self { ret '<span class="mono">' + self + '</span>'; };
+
+Documentation.new().
+    Title("Lanky Standard Library").
+    Description("Official documentation for the lanky standard library as of " + Time.create().format('%b %d %Y')).
+    Class("Array", "The wrapper around the interpreter's arraylist implementation.").
+        ProtoField("count", "The number of elements contained in the array").
+        ProtoField("ab_", "The binary blob that contains the actual C arraylist").
+        ProtoMethod("get", 1, "Gets the item at the given index",
+                ["index", "The index to get"],
+                "Like the " + "set".mono() + " method, this is a very fast operation as we are dealing with an arraylist implementation, rather than a linked list. The method will throw and error if the index is out of bounds or not a valid integer.").
+        ProtoMethod("set", 2, "Sets the item at the given index",
+                ["index", "The index to set", "nval", "The new value to set"],
+                "Like the " + "get".mono() + " method, this is a very fast operation (should be O(1)). The method will throw an error if the index is out of bounds or is not a valid integer.").
+        ProtoMethod("forEach", 1, "Iteratively executes a callback",
+                ["callback", "A callback function taking 1 or 2 arguments"],
+                "callback".mono() + " will be called for each element in the array. If the callback takes only one argument, only the element will be passed in. If two, the second argument will be set to the index.").
+        ProtoMethod("contains", 1, "Returns " + "yes".mono() + " if and only if the given element is in the array",
+                ["e", "The element to find"],
+                "Each element will be checked until " + "e".mono() + " is found. The array is aware of overloaded == methods, so values will be compared correctly.").
+    EndClass().
+Render();

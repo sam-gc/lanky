@@ -1,0 +1,160 @@
+Io = load 'Io';
+
+HTML_FIRST = '<!DOCTYPE html><html><head><link rel="stylesheet" href="main.css"></head><body>';
+HTML_LAST  = '</body></html>';
+
+ProtoField = class -> self | cls {
+    init self: func(name, descrip, owner) {
+        self.name = name;
+        self.descrip = descrip;
+        self.owner = owner;
+    }
+
+    proto render: func(file) {
+        file.put('<li>');
+        file.put('<span class="field-name">' + self.name + ':</span>');
+        file.put('<span class="field-description">' + self.descrip + '</span>');
+        file.putln('</li>');
+    }
+};
+
+ProtoMethod = class -> self | cls {
+    init self: func(name, argc, descrip, vals, discussion, owner) {
+        self.name = name;
+        self.argc = argc;
+        self.descrip = descrip;
+        self.owner = owner;
+
+        self.args = [];
+        self.discussion = discussion;
+        
+        for i = 0; i < vals.count; i += 2 {
+            self.args.append({
+                .name : vals[i],
+                .descrip : vals[i + 1]
+            });
+        }
+    }
+
+    proto render: func(file) {
+        file.put('<li>');
+        file.put('<span class="method-name">' + self.name + ':</span>');
+        file.put('<span class="method-func">func(');
+        for a, i in self.args { 
+            file.put(a.name);
+            if i != self.args.count - 1 {
+                file.put(', ');
+            }
+        }
+        file.put(')</span>');
+        file.put('<br/><div class="method-description">' + self.descrip + '</div>');
+        file.putln('</li>');
+        file.putln('<table class="method-params">');
+
+        for a in self.args {
+            file.putln('<tr>');
+            file.putln('<td><span class="param-name">' + a.name + '</span></td>'); 
+            file.putln('<td><span class="param-descrip">' + a.descrip + '</span></li></td>'); 
+            file.putln('</tr>');
+        }
+        file.putln('</table>');
+        file.putln('<div class="method-discussion">' + self.discussion + '</div>');
+        file.putln('</li>');
+    }
+};
+
+Class = class -> self | cls {
+    init self: func(name, descrip, owner) {
+        self.name = name;
+        self.descrip = descrip;
+        self.owner = owner;
+
+        self.protoFields = [];
+        self.protoMethods = [];
+
+        self.fileName = name + '.html';
+    }
+
+    proto ProtoField: func(name, descrip) {
+        self.protoFields.append(ProtoField.new(name, descrip, self));
+        ret self;
+    }
+
+    proto ProtoMethod: func(name, argc, descrip, vals, discussion) {
+        self.protoMethods.append(ProtoMethod.new(name, argc, descrip, vals, discussion, self));
+        ret self;
+    }
+
+    proto EndClass: func() {
+        ret self.owner;
+    }
+
+    proto render: func() { 
+        clf = Io.fopen(self.fileName, 'w');
+        clf.putln(HTML_FIRST);
+        clf.putln('<div class="maintitle">' + self.owner.title + '</div>');
+        clf.putln('<div class="class-header">');
+        clf.putln('<div class="class-title">' + self.name + '</div>');
+        clf.putln('<div class="class-description">' + self.descrip + '</div></div>');
+        clf.putln('<div class="return-link"><a href="index.html">Back</a></div>');
+
+        clf.putln('<div class="field-container"><ul class="field-list">');
+        for f in self.protoFields {
+            f.render(clf);
+        }
+        clf.putln('</ul></div>');
+
+        clf.putln('<div class="method-container"><ul class="method-list">');
+        for m in self.protoMethods {
+            m.render(clf);
+        }
+        clf.putln('</ul></div>');
+
+        clf.putln(HTML_LAST);
+        clf.close();
+    }
+};
+
+Documentation = class -> self | cls {
+    init self: func() {
+        self.classes = [];
+        self.title = '[no title]';
+        self.descrip = '[no description]';
+    }
+
+    proto Title: func(text) {
+        self.title = text;
+        ret self;
+    }
+
+    proto Description: func(text) {
+        self.descrip = text;
+        ret self;
+    }
+
+    proto Class: func(name, descrip) {
+        c = Class.new(name, descrip, self);
+        self.classes.append(c);
+        ret c;
+    }
+
+    proto Render: func() {
+        inf = Io.fopen('index.html', 'w');
+        inf.putln(HTML_FIRST);
+        inf.putln('<div class="header"><div class="title">' + self.title + '</div><div class="description">' +
+                self.descrip + "</div>");
+        inf.putln('<ul>');
+        for c in self.classes {
+            inf.putln('<li><a href="' + c.fileName + '">' + c.name + '</a></li>');
+        }
+        inf.putln('</ul>');
+        inf.putln(HTML_LAST);
+        inf.close();
+
+        for c in self.classes {
+            c.render();
+        }
+    }
+};
+
+ret Documentation;
