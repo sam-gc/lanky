@@ -402,17 +402,25 @@ void stlmeta_print_dissassembly(lky_object_code *code)
         switch(instr)
         {
             case LI_LOAD_CONST:
-                printf("\t%d\t(", code->ops[++i]);
+            {
+                unsigned int idx = *(unsigned int *)(code->ops + (++i));
+                printf("\t%d\t(", idx);
+                i += 3;
                 lobjb_print_object(code->constants[code->ops[i]], NULL);
                 printf(")");
                 break;
+            }
             case LI_LOAD_CLOSE:
             case LI_SAVE_CLOSE:
             case LI_LOAD_MEMBER:
             case LI_SAVE_MEMBER:
-                printf("\t%d\t", code->ops[++i]);
+            {
+                unsigned int idx = *(unsigned int *)(code->ops + (++i));
+                printf("\t%d\t", idx);
+                i += 3;
                 //printf("\t%d\t(\"%s\")", code->ops[++i], code->names[code->ops[i]]);
                 break;
+            }
             case LI_CALL_FUNC:
                 printf("\t%d\t[argc]", code->ops[++i]);
                 break;
@@ -432,8 +440,12 @@ void stlmeta_print_dissassembly(lky_object_code *code)
             }
             case LI_LOAD_LOCAL:
             case LI_SAVE_LOCAL:
-                printf("\t%d\t[local index]", *(code->ops + (++i)));
+            {
+                unsigned int idx = *(unsigned int *)(code->ops + (++i));
+                printf("\t%d\t[local index]", idx);
+                i += 3;
                 break;
+            }
             case LI_MAKE_ARRAY:
             {
                 unsigned int idx = *(unsigned int *)(code->ops + (++i));

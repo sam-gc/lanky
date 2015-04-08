@@ -8,7 +8,7 @@ expose = func(command) {
 };
 
 greeter3 = func() {
-    self = <'Object'>();
+    self = <'Object'>.new();
     self.default = 'World';
     self.version = 3;
 

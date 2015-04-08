@@ -173,7 +173,13 @@ char switch_to_close(compiler_wrapper *cw, char *sid, int idx)
         arr_append(&cw->rnames, nsid);
     }
 
-    cw->rops.items[idx + 1] = lobjb_build_int(i);
+    unsigned char buf[4];
+    int_to_byte_array(buf, i);
+
+    cw->rops.items[idx + 1] = lobjb_build_int(buf[0]);
+    cw->rops.items[idx + 2] = lobjb_build_int(buf[1]);
+    cw->rops.items[idx + 3] = lobjb_build_int(buf[2]);
+    cw->rops.items[idx + 4] = lobjb_build_int(buf[3]);
     return 1;
 }
 
@@ -227,7 +233,12 @@ void append_var_info(compiler_wrapper *cw, char *ch, char load)
         }
 
         append_op(cw, istr);
-        append_op(cw, i);
+        unsigned char buf[4];
+        int_to_byte_array(buf, i);
+        append_op(cw, buf[0]);
+        append_op(cw, buf[1]);
+        append_op(cw, buf[2]);
+        append_op(cw, buf[3]);
 
         return;
     }
@@ -248,11 +259,16 @@ void append_var_info(compiler_wrapper *cw, char *ch, char load)
         idx = OBJ_NUM_UNWRAP(o);
 
     append_op(cw, istr);
-    append_op(cw, idx);
+    unsigned char buf[4];
+    int_to_byte_array(buf, idx);
+    append_op(cw, buf[0]);
+    append_op(cw, buf[1]);
+    append_op(cw, buf[2]);
+    append_op(cw, buf[3]);
 
     name_wrapper *wrap = malloc(sizeof(name_wrapper));
     pool_add(&ast_memory_pool, wrap);
-    wrap->idx = cw->rops.count - 2;
+    wrap->idx = cw->rops.count - 5;
     wrap->name = ch;
     wrap->owner = cw;
     arr_append(&cw->used_names, wrap);
@@ -813,7 +829,12 @@ void compile_object_simple(compiler_wrapper *cw, ast_object_decl_node *node)
             arr_append(&cw->rnames, nsid);
         }
 
-        append_op(cw, i);
+        unsigned char buf[4];
+        int_to_byte_array(buf, i);
+        append_op(cw, buf[0]);
+        append_op(cw, buf[1]);
+        append_op(cw, buf[2]);
+        append_op(cw, buf[3]);
     }
 
     arr_free(&names);
@@ -860,10 +881,14 @@ void compile_object(compiler_wrapper *cw, ast_node *n)
     }
 
     append_op(cw, LI_LOAD_CLOSE);
-    append_op(cw, i);
-
-
     unsigned char buf[4];
+    int_to_byte_array(buf, i);
+    append_op(cw, buf[0]);
+    append_op(cw, buf[1]);
+    append_op(cw, buf[2]);
+    append_op(cw, buf[3]);
+
+
     int_to_byte_array(buf, ct);
 
     append_op(cw, LI_MAKE_OBJECT);
@@ -885,7 +910,12 @@ void compile_object(compiler_wrapper *cw, ast_node *n)
             arr_append(&cw->rnames, nsid);
         }
 
-        append_op(cw, i);
+        unsigned char buf[4];
+        int_to_byte_array(buf, i);
+        append_op(cw, buf[0]);
+        append_op(cw, buf[1]);
+        append_op(cw, buf[2]);
+        append_op(cw, buf[3]);
     }
 
     arr_free(&names);
@@ -952,13 +982,23 @@ void compile_triple_set(compiler_wrapper *cw, ast_node *n)
         compile(cw, man->object);
         append_op(cw, LI_SDUPLICATE);
         append_op(cw, LI_LOAD_MEMBER);
-        append_op(cw, idx);
+        unsigned char buf[4];
+        int_to_byte_array(buf, idx);
+        append_op(cw, buf[0]);
+        append_op(cw, buf[1]);
+        append_op(cw, buf[2]);
+        append_op(cw, buf[3]);
+
         compile(cw, node->new_val);
         append_op(cw, instr_for_char(node->op));
         
         append_op(cw, LI_FLIP_TWO);
         append_op(cw, LI_SAVE_MEMBER);
-        append_op(cw, idx);
+        int_to_byte_array(buf, idx);
+        append_op(cw, buf[0]);
+        append_op(cw, buf[1]);
+        append_op(cw, buf[2]);
+        append_op(cw, buf[3]);
     }
 }
 
@@ -1010,7 +1050,12 @@ void compile_load(compiler_wrapper *cw, ast_node *n)
     }
 
     append_op(cw, LI_LOAD_MODULE);
-    append_op(cw, idx);
+    unsigned char buf[4];
+    int_to_byte_array(buf, idx);
+    append_op(cw, buf[0]);
+    append_op(cw, buf[1]);
+    append_op(cw, buf[2]);
+    append_op(cw, buf[3]);
 }
 
 void compile_member_access(compiler_wrapper *cw, ast_node *n)
@@ -1029,7 +1074,12 @@ void compile_member_access(compiler_wrapper *cw, ast_node *n)
 
     compile(cw, node->object);
     append_op(cw, LI_LOAD_MEMBER);
-    append_op(cw, idx);
+    unsigned char buf[4];
+    int_to_byte_array(buf, idx);
+    append_op(cw, buf[0]);
+    append_op(cw, buf[1]);
+    append_op(cw, buf[2]);
+    append_op(cw, buf[3]);
 }
 
 void compile_set_member(compiler_wrapper *cw, ast_node *root)
@@ -1051,7 +1101,12 @@ void compile_set_member(compiler_wrapper *cw, ast_node *root)
     }
 
     append_op(cw, LI_SAVE_MEMBER);
-    append_op(cw, idx);
+    unsigned char buf[4];
+    int_to_byte_array(buf, idx);
+    append_op(cw, buf[0]);
+    append_op(cw, buf[1]);
+    append_op(cw, buf[2]);
+    append_op(cw, buf[3]);
 }
 
 void compile_set_index(compiler_wrapper *cw, ast_node *root)
@@ -1153,7 +1208,12 @@ void compile_var(compiler_wrapper *cw, ast_value_node *node)
     }
 
     append_op(cw, LI_LOAD_CLOSE);
-    append_op(cw, idx);
+    unsigned char buf[4];
+    int_to_byte_array(buf, idx);
+    append_op(cw, buf[0]);
+    append_op(cw, buf[1]);
+    append_op(cw, buf[2]);
+    append_op(cw, buf[3]);
 }
 
 // Used to compile constants and variables
@@ -1178,7 +1238,14 @@ void compile_value(compiler_wrapper *cw, ast_node *root)
     }
 
     append_op(cw, LI_LOAD_CONST);
-    append_op(cw, (char)idx);
+
+    unsigned char buf[4];
+    int_to_byte_array(buf, idx);
+
+    append_op(cw, buf[0]);
+    append_op(cw, buf[1]);
+    append_op(cw, buf[2]);
+    append_op(cw, buf[3]);
 }
 
 // Compile special unit syntax
@@ -1190,7 +1257,13 @@ void compile_unit_value(compiler_wrapper *cw, ast_node *root)
     arr_append(&cw->rcon, stlun_cinit(node->val, node->fmt));
 
     append_op(cw, LI_LOAD_CONST);
-    append_op(cw, (char)idx);
+    unsigned char buf[4];
+    int_to_byte_array(buf, idx);
+
+    append_op(cw, buf[0]);
+    append_op(cw, buf[1]);
+    append_op(cw, buf[2]);
+    append_op(cw, buf[3]);
 }
 
 // Compiles a function declaration
@@ -1236,7 +1309,13 @@ void compile_function(compiler_wrapper *cw, ast_node *root)
     arr_append(&cw->rcon, code);
     
     append_op(cw, LI_LOAD_CONST);
-    append_op(cw, idx);
+    unsigned char buf[4];
+    int_to_byte_array(buf, idx);
+
+    append_op(cw, buf[0]);
+    append_op(cw, buf[1]);
+    append_op(cw, buf[2]);
+    append_op(cw, buf[3]);
     append_op(cw, LI_MAKE_FUNCTION);
     append_op(cw, argc);
 }
@@ -1287,7 +1366,13 @@ void compile_class_decl(compiler_wrapper *cw, ast_node *root)
             arr_append(&cw->rnames, nid);
         }
 
-        append_op(cw, idx);
+        unsigned char buf[4];
+        int_to_byte_array(buf, idx);
+
+        append_op(cw, buf[0]);
+        append_op(cw, buf[1]);
+        append_op(cw, buf[2]);
+        append_op(cw, buf[3]);
     }
 }
 

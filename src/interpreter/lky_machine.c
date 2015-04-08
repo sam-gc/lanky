@@ -337,9 +337,10 @@ _opcode_whiplash_:
 
     gc_gc();
 #endif
-    vmvm(
+    dispatch_();
         vmop(LOAD_CONST,
-            int idx = frame->ops[++frame->pc];
+            unsigned int idx = *(unsigned int *)(frame->ops + (++frame->pc));
+            frame->pc += 3;
             lky_object *obj = frame->constants[idx];
             PUSH(obj);
         )
@@ -550,12 +551,14 @@ _opcode_whiplash_:
         )
         vmop(SAVE_LOCAL,
             lky_object *obj = TOP();
-            int idx = frame->ops[++frame->pc];
+            unsigned int idx = *(unsigned int *)(frame->ops + (++frame->pc));
+            frame->pc += 3;
 
             frame->locals[idx] = obj;
         )
         vmop(LOAD_LOCAL,
-            int idx = frame->ops[++frame->pc];
+            unsigned int idx = *(unsigned int *)(frame->ops + (++frame->pc));
+            frame->pc += 3;
             lky_object *obj = frame->locals[idx];
             PUSH(obj);
         )
@@ -613,7 +616,8 @@ _opcode_whiplash_:
         vmop(LOAD_MEMBER,
             lky_object *obj = POP();
 
-            int idx = frame->ops[++frame->pc];
+            unsigned int idx = *(unsigned int *)(frame->ops + (++frame->pc));
+            frame->pc += 3;
             char *name = frame->names[idx];
             lky_object *val = lobj_get_member(obj, name);
             
@@ -631,7 +635,8 @@ _opcode_whiplash_:
             lky_object *obj = POP();
             lky_object *val = TOP();
 
-            int idx = frame->ops[++frame->pc];
+            unsigned int idx = *(unsigned int *)(frame->ops + (++frame->pc));
+            frame->pc += 3;
             char *name = frame->names[idx];
 
             lobj_set_member(obj, name, val);
@@ -670,7 +675,8 @@ _opcode_whiplash_:
             for(i = 0; i < count; i++)
             {
                 lky_class_prefix prfx = frame->ops[++frame->pc];
-                int idx = frame->ops[++frame->pc];
+                unsigned int idx = *(unsigned int *)(frame->ops + (++frame->pc));
+                frame->pc += 3;
                 
                 char *name = frame->names[idx];
                 clb_add_member(cls, name, POP(), prfx);
@@ -680,7 +686,8 @@ _opcode_whiplash_:
         )
         vmop(SAVE_CLOSE,
             lky_object *obj = TOP();
-            int idx = frame->ops[++frame->pc];
+            unsigned int idx = *(unsigned int *)(frame->ops + (++frame->pc));
+            frame->pc += 3;
 
             char *name = frame->names[idx];
 
@@ -704,7 +711,8 @@ _opcode_whiplash_:
             
         )
         vmop(LOAD_CLOSE,
-            int idx = frame->ops[++frame->pc];
+            unsigned int idx = *(unsigned int *)(frame->ops + (++frame->pc));
+            frame->pc += 3;
             char *name = frame->names[idx];
 
             lky_object *bk = NULL;
@@ -790,7 +798,9 @@ _opcode_whiplash_:
             while(0 <=-- ct)
             {
                 lky_object *member = POP();
-                char *name = frame->names[(int)(*(char *)(frame->ops + (++frame->pc)))];
+                unsigned int idx = *(unsigned int *)(frame->ops + (++frame->pc));
+                frame->pc += 3;
+                char *name = frame->names[idx];
                 lobj_set_member(obj, name, member);
             }
              
@@ -876,7 +886,8 @@ _opcode_whiplash_:
 
         )
         vmop(LOAD_MODULE,
-            int idx = (frame->ops[++frame->pc]);
+            unsigned int idx = *(unsigned int *)(frame->ops + (++frame->pc));
+            frame->pc += 3;
             char *name = frame->names[idx];
 
             lky_object *bk = NULL;
@@ -921,6 +932,6 @@ _opcode_whiplash_:
         )
         vmop(JUMP_TRUE,
         )
-    )
+
 }
 
