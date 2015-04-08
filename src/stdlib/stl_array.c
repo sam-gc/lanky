@@ -921,8 +921,14 @@ lky_object *stlarr_get_class()
     if(stlarr_class_)
         return stlarr_class_;
 
+    stlarr_bl *proto_bl = malloc(sizeof(*proto_bl));
+    proto_bl->container = arr_create(2);
+    
+    lky_object *proto_blob = lobjb_build_blob(proto_bl, stlarr_bl_manage);
+
     CLASS_MAKE(cls, NULL, stlarr_init, 0,
         CLASS_PROTO("count", lobjb_build_int(0));
+        CLASS_PROTO("ab_", proto_blob);
         CLASS_PROTO_METHOD("stringify_", stlarr_stringify, 0);
         CLASS_PROTO_METHOD("append", stlarr_append, 1);
         CLASS_PROTO_METHOD("get", stlarr_get, 1);
