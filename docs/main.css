@@ -2,6 +2,8 @@ body {
     font-family: sans;
     font-size: 12pt;
     background: gray;
+    padding: 0;
+    margin: 0;
 }
 
 .header {
@@ -18,23 +20,33 @@ body {
 
 .whole-body {
     background: white;
-    width: 75%;
+    width: 70%;
+    margin-left: 15%;
+    border-left: 1px solid #424242;
+    border-right: 1px solid #424242;
+    padding-bottom: 10px;
 }
 
 .maintitle {
-    color: red;
+    text-align: center;
+    padding-top: 6px;
+    font-size: 13pt;
+    font-style: italic;
+    font-family: serif;
 }
 
 .class-header {
+    padding: 10px;
 }
 
 .class-title {
-    font-size: 15pt;
+    font-size: 24pt;
 }
 
 .class-description {
     margin-left: 20px;
-    margin-bottom: 30px;
+    margin-bottom: 15px;
+    font-size: 13pt;
 }
 
 .static-method-header {
@@ -43,6 +55,9 @@ body {
     background: #98D1E3;
     border-top: 1px solid #13A5D1;
     border-bottom: 1px solid #13A5D1;
+    padding-left: 10px;
+    padding-top: 3px;
+    padding-bottom: 3px;
 }
 
 .static-field-header {
@@ -51,6 +66,9 @@ body {
     background: #98D1E3;
     border-top: 1px solid #13A5D1;
     border-bottom: 1px solid #13A5D1;
+    padding-left: 10px;
+    padding-top: 3px;
+    padding-bottom: 3px;
 }
 
 .proto-method-header {
@@ -59,6 +77,9 @@ body {
     background: #98D1E3;
     border-top: 1px solid #13A5D1;
     border-bottom: 1px solid #13A5D1;
+    padding-left: 10px;
+    padding-top: 3px;
+    padding-bottom: 3px;
 }
 
 .proto-field-header {
@@ -67,6 +88,9 @@ body {
     background: #98D1E3;
     border-top: 1px solid #13A5D1;
     border-bottom: 1px solid #13A5D1;
+    padding-left: 10px;
+    padding-top: 3px;
+    padding-bottom: 3px;
 }
 
 .return-link {
@@ -99,6 +123,7 @@ body {
 }
 
 .static-method-list {
+    margin-top: 10px;
 }
 
 .method-name {
@@ -119,17 +144,25 @@ body {
 
 .method-description {
     margin-left: 20px;
+    margin-right: 20px;
 }
 
 .method-params {
-    border: 1px solid black;
     margin-left: 35px;
     margin-top: 5px;
     margin-bottom: 10px;
+    border-collapse: collapse;
+}
+
+tr {
+    border-bottom: solid;
+    border-color: rgb(230, 230, 230);
+    border-width: 1px 0;
 }
 
 .method-discussion {
     margin-left: 20px;
+    margin-right: 20px;
 }
 
 .param-name {

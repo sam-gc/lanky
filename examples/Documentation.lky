@@ -1,4 +1,20 @@
 Io = load 'Io';
+String = load 'String';
+
+String.model_.process = func() -> self {
+    pts = self.split('`');
+    if pts.count == 1 | !(pts.count % 2) {
+        ret self;
+    }
+
+    nstr = pts[0] + '<span class="mono">';
+    for i = 1; i < pts.count - 1; i += 1 {
+        nstr += pts[i] + (i % 2 == 0 ? '<span class="mono">' : '</span>');
+    }
+
+    ret nstr + pts[i];
+};
+
 
 HTML_FIRST = '<!DOCTYPE html><html><head><link rel="stylesheet" href="main.css"></head><body>';
 HTML_LAST  = '</body></html>';
@@ -6,7 +22,7 @@ HTML_LAST  = '</body></html>';
 Field = class -> self | cls {
     init self: func(name, descrip, owner) {
         self.name = name;
-        self.descrip = descrip;
+        self.descrip = descrip.process();
         self.owner = owner;
     }
 
@@ -22,11 +38,11 @@ Method = class -> self | cls {
     init self: func(name, argc, descrip, vals, discussion, owner) {
         self.name = name;
         self.argc = argc;
-        self.descrip = descrip;
+        self.descrip = descrip.process();
         self.owner = owner;
 
         self.args = [];
-        self.discussion = discussion;
+        self.discussion = discussion.process();
         
         for i = 0; i < vals.count; i += 2 {
             self.args.append({
@@ -72,7 +88,7 @@ Method = class -> self | cls {
 Class = class -> self | cls {
     init self: func(name, descrip, owner) {
         self.name = name;
-        self.descrip = descrip;
+        self.descrip = descrip.process();
         self.owner = owner;
 
         self.protoFields = [];
@@ -135,18 +151,18 @@ Class = class -> self | cls {
 
         if self.staticMethods.count {
             clf.putln('<div class="static-method-container"><div class="static-method-header">Static Methods</div><ul class="static-method-list">');
-            for m in self.staticMethods {
+            for m, i in self.staticMethods {
                 m.render(clf);
-                clf.putln('<hr/>');
+                if i != self.staticMethods.count - 1 { clf.putln('<hr/>'); }
             }
             clf.putln('</ul></div>');
         }
 
         if self.protoMethods.count {
             clf.putln('<div class="proto-method-container"><div class="proto-method-header">Prototype Methods</div><ul class="proto-method-list">');
-            for m in self.protoMethods {
+            for m, i in self.protoMethods {
                 m.render(clf);
-                clf.putln('<hr/>');
+                if i != self.protoMethods.count - 1 { clf.putln('<hr/>'); }
             }
             clf.putln('</ul></div>');
         }

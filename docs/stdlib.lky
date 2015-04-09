@@ -2,8 +2,6 @@ Documentation = load '../examples/Documentation.lky';
 Time = load 'Time';
 String = load 'String';
 
-String.model_.mono = func() -> self { ret '<span class="mono">' + self + '</span>'; };
-
 Documentation.new().
     Title("Lanky Standard Library").
     Description("Official documentation for the lanky standard library as of " + Time.create().format('%b %d %Y')).
@@ -12,42 +10,42 @@ Documentation.new().
         ProtoField("ab_", "The binary blob that contains the actual C arraylist").
         ProtoMethod("get", 1, "Gets the item at the given index",
                 ["index", "The index to get"],
-                "Like the " + "set".mono() + " method, this is a very fast operation as we are dealing with an arraylist implementation, rather than a linked list. The method will throw and error if the index is out of bounds or not a valid integer.").
+                "Like the `set` method, this is a very fast operation as we are dealing with an arraylist implementation, rather than a linked list. The method will throw and error if the index is out of bounds or not a valid integer.").
         ProtoMethod("set", 2, "Sets the item at the given index",
                 ["index", "The index to set", "nval", "The new value to set"],
-                "Like the " + "get".mono() + " method, this is a very fast operation (should be O(1)). The method will throw an error if the index is out of bounds or is not a valid integer.").
+                "Like the `get` method, this is a very fast operation (should be O(1)). The method will throw an error if the index is out of bounds or is not a valid integer.").
         ProtoMethod("forEach", 1, "Iteratively executes a callback",
                 ["callback", "A callback function taking 1 or 2 arguments"],
-                "callback".mono() + " will be called for each element in the array. If the callback takes only one argument, only the element will be passed in. If two, the second argument will be set to the index.").
-        ProtoMethod("contains", 1, "Returns " + "yes".mono() + " if and only if the given element is in the array",
+                "`callback` will be called for each element in the array. If the callback takes only one argument, only the element will be passed in. If two, the second argument will be set to the index.").
+        ProtoMethod("contains", 1, "Returns `yes` if and only if the given element is in the array",
                 ["e", "The element to find"],
-                "Each element will be checked until " + "e".mono() + " is found. The array is aware of overloaded == methods, so values will be compared correctly.").
-        ProtoMethod("indexOf", 1, "Returns the index of an element or " + "-1".mono() + " if it can't be found.",
+                "Each element will be checked until `e` is found. The array is aware of overloaded == methods, so values will be compared correctly.").
+        ProtoMethod("indexOf", 1, "Returns the index of an element or `-1` if it can't be found.",
                 ["e", "The element to find"],
-                "Same as " + "contains".mono() + ".").
+                "Same as `contains`.").
         ProtoMethod("removeAt", 1, "Removes the object at a given index, returning the object to the caller",
                 ["index", "The index to remove"], "This can be a slow operation since the list is abstracted over an arraylist.").
         ProtoMethod("joined", 2, "Joins the elements of the array as a string",
-                ["joiner", 'The string to use to join the elements', '[quotes]', 'Should strings have quotes included? (defaults to ' + 'no'.mono() + ")"],
-                "This implementation is relatively fast. Elements will be either natively turned to strings or will have their " + "stringify_".mono() + " method called if they have one.").
+                ["joiner", 'The string to use to join the elements', '[quotes]', 'Should strings have quotes included? (defaults to `no`)'],
+                "This implementation is relatively fast. Elements will be either natively turned to strings or will have their `stringify_` method called if they have one.").
         ProtoMethod("insert", 2, "Inserts an element at an arbitrary position in the array",
                 ['e', 'The element to insert', 'index', 'The position where the new element will end up'],
-                'All elements at position ' + 'index'.mono() + ' and after will be pushed down. This is an expensive operation.').
+                'All elements at position `index` and after will be pushed down. This is an expensive operation.').
         ProtoMethod('copy', 0, 'Creates a new array with the same contents', [], '').
         ProtoMethod('map', 1, 'Creates a new array whose elements are determined by using a callback',
                 ['callback', 'The function that will map each element'],
                 'The new array will have elements returned by the callback. The callback should have only one parameter, the incoming element.').
         ProtoMethod('reduce', 1, 'Iterates over the array using a callback to accumulate a variable',
                 ['callback', 'The function that will reduce the array'],
-                'The function should take two parameters, the first being the accumulator, the second being the current element. When the function is first called, the accumulator will be ' + 'nil'.mono() + '. After the first call, the accumulator is whatever was returned from the previous call. At the end the accumulator is returned.').
+                'The function should take two parameters, the first being the accumulator, the second being the current element. When the function is first called, the accumulator will be `nil`. After the first call, the accumulator is whatever was returned from the previous call. At the end the accumulator is returned.').
         ProtoMethod('size_', 0, 'Returns the number of elements currently allocated for the list', [], '').
         ProtoMethod('stringify_', 0, 'Returns the array as a string', [], '').
-        ProtoMethod('op_get_index_', 1, 'For square bracket indexing syntactic sugar. See ' + 'get'.mono() + ' method above', [], '').
-        ProtoMethod('op_set_index_', 2, 'For square bracket setting. See ' + 'set'.mono() + ' method above', [], '').
-        StaticMethod('new', 0, 'Standard init method; returns an empty array', [], 'Has same effect as typing the literal ' + '[]'.mono() + '.').
-        StaticMethod('memcpy', 3, "Light wrapper around C's " + 'memcpy'.mono(),
+        ProtoMethod('op_get_index_', 1, 'For square bracket indexing syntactic sugar. See `get` method above', [], '').
+        ProtoMethod('op_set_index_', 2, 'For square bracket setting. See `set` method above', [], '').
+        StaticMethod('new', 0, 'Standard init method; returns an empty array', [], 'Has same effect as typing the literal `[]`.').
+        StaticMethod('memcpy', 3, "Light wrapper around C's `memcpy`",
                 ['dest', 'The destination array', 'src', 'The source array', 'num', 'The number of members to copy'],
-                "This is a fast way to duplicate arrays. The size copied is not actually " + 'num'.mono() + ' as it would be with memcpy. Rather it is ' + 'num * sizeof(void *)'.mono() + '. This method will return an error value if the size of the destination or the source do not match the count required.').
+                "This is a fast way to duplicate arrays. The size copied is not actually `num` as it would be with memcpy. Rather it is `num * sizeof(void *)`. This method will return an error value if the size of the destination or the source do not match the count required.").
         StaticMethod('alloc', 1, 'Returns a new array allocated to contain some number of elements',
                 ['num', 'The number of elements for which to allocate'],
                 'Arrays are normally initialized to contain 10 elements. With this method you can request an array pre-allocated to contain some set number of elements. Recommended for performance-critical applications').
@@ -68,6 +66,73 @@ Documentation.new().
         StaticMethod('toChar', 1, 'Converts a numerical value to a character',
                 ['num', 'The number to convert'],
                 'Method will return a string with one character that represents the number passed in.').
+    EndClass().
+    Class('Io', 'Interface for standard IO behavior with the terminal').
+        StaticMethod('put', 1, 'Prints the argument with no trailing newline',
+                ['obj', 'The object to print'],
+                "The printed value will be a stringified version of the object. If `obj` is a native type, it will be directly converted. Otherwise the object's `stringify_` method will be called. Depending on your configuration, the standard out buffer may not be flushed by this operation.").
+        StaticMethod('putln', 1, 'Prints the argument with a trailing newline',
+                ['obj', 'The object to print'],
+                "Functions exactly as `put` above, but adds a newline. Note that this will also flush the buffer").
+        StaticMethod('prompt', 1, 'Gets a line of user input, first printing the argument as a prompt',
+                ['obj', 'The object to print as a prompt'],
+                "First the object is printed, then the method waits for the user to type input and press the return key. The method returns this input as a string, without the trailing newline.").
+        StaticMethod('fopen', 2, 'Wrapper around the standard C `fopen` function',
+                ['path', 'The relative or absolute path to the file', 'flags', 'The read/write flags (r, w, b, etc..)'],
+                "This method will attempt to open the file. If the file is not found, the interpreter will segfault (don't be stupid). If the file is found and the requested mode is valid, a file object will be returned. Please see the `File` class for more information of applicable methods.").
+    EndClass().
+    Class('File', 'The standard file interface. Note that this class may not be instantiated directly. Rather a file object can be requested using the `Io.fopen(...)` method.').
+        ProtoField('EOF', 'A flag that is set to `yes` or `no`, depending on whether or not the end of the file has been reached.').
+        ProtoMethod('getln', 0, 'Reads a line of input for files in "r" mode', [],
+                'This method will segfault if the file mode is incorrect. If the end of the file has been reached (`EOF` will be set in this case), then the method returns `nil`. Otherwise, it will return a string stripped of the newline containing the contents of the line at the current position in the file.').
+        ProtoMethod('getlns', 0, 'Reads the contents of the file into an array', [],
+                'The method will return an array of strings representing lines in the file (this is implemented in C and is therefore faster than calling `getall().split(...)`). The strings in the array will have been stripped of their newlines. Note that this will not rewind the file; rather it will return all of the lines from the current position. `EOF` will be set to `yes`.').
+        ProtoMethod('getall', 0, 'Reads the contents of the file into a string', [],
+                'This method will read the entire file into a string, newlines included. `EOF` will be set to `yes`.').
+        ProtoMethod('put', 1, 'Outputs the argument to the file',
+                ['obj', 'The object to print'],
+                'Stringifies the object and prints the result into the file, incrementing the position (note that no newline is added). This is the `File` counterpart of the `Io.put(...)` method.').
+        ProtoMethod('putln', 1, 'Outputs the argument to the file and appends a newline',
+                ['obj', 'The object to print'],
+                'Same as the `put` method above, but includes a newline').
+        ProtoMethod('close', 0, 'Closes the output stream and cleans up resources', [], '').
+        ProtoMethod('readBytes', 0, 'Deprecated. Reads all of the bytes into a byte buffer (implemented as a `String`)',
+                [], 'This should not be used.').
+    EndClass().
+    Class('Math', 'A common class to aggregate mathematical functions. All of the static methods below can be used standalone (i.e. they are not bound to the Math class).').
+        StaticField('pi', 'A floating-point constant representing <i>&pi;</i>').
+        StaticField('e', 'A floating-point constant representing <i>e</i>').
+        StaticMethod('rand', 0, "Simple wrapper for C's `rand` function", [], 'The random number generator is initialized when the interpreter spins up.').
+        StaticMethod('randInt', 2, "Generates a random number between two bounds",
+                ['min', 'The minimum value (inclusive) for the generator', 'max', 'The maximum value (exclusive)'],
+                'This function will return a random number between `min` and `max`. Mathematically the range of this function can be expressed as `[min, max)`.').
+        StaticMethod('shuffle', 1, 'Shuffles the given array',
+                ['arr', 'The array to shuffle'],
+                'This method will return an array that contains the shuffled elements of the input.').
+        StaticMethod('range', 1, 'Returns an array of a range of numbers',
+                ['max', 'The max value in the range (exclusive)'],
+                'This method will return an array containing the range of numbers `[0, max)`.').
+        StaticMethod('atan2', 2, "Wrapper around C's `atan2` function",
+                ['y', 'The arctangent y value', 'x', 'The arctangent x value'], '').
+        StaticMethod('abs', 1, "Wrapper around C's `fabs` function", ['x', 'The numeric input to the function'], '').
+        StaticMethod('sin', 1, "Wrapper around C's `sin` function", ['x', 'The numeric input to the function'], '').
+        StaticMethod('cos', 1, "Wrapper around C's `cos` function", ['x', 'The numeric input to the function'], '').
+        StaticMethod('tan', 1, "Wrapper around C's `tan` function", ['x', 'The numeric input to the function'], '').
+        StaticMethod('acos', 1, "Wrapper around C's `acos` function", ['x', 'The numeric input to the function'], '').
+        StaticMethod('asin', 1, "Wrapper around C's `asin` function", ['x', 'The numeric input to the function'], '').
+        StaticMethod('atan', 1, "Wrapper around C's `atan` function", ['x', 'The numeric input to the function'], '').
+        StaticMethod('cosh', 1, "Wrapper around C's `cosh` function", ['x', 'The numeric input to the function'], '').
+        StaticMethod('sinh', 1, "Wrapper around C's `sinh` function", ['x', 'The numeric input to the function'], '').
+        StaticMethod('tanh', 1, "Wrapper around C's `tanh` function", ['x', 'The numeric input to the function'], '').
+        StaticMethod('acosh', 1, "Wrapper around C's `acosh` function", ['x', 'The numeric input to the function'], '').
+        StaticMethod('asinh', 1, "Wrapper around C's `asinh` function", ['x', 'The numeric input to the function'], '').
+        StaticMethod('atanh', 1, "Wrapper around C's `atanh` function", ['x', 'The numeric input to the function'], '').
+        StaticMethod('exp', 1, "Wrapper around C's `exp` function", ['x', 'The numeric input to the function'], '').
+        StaticMethod('log', 1, "Wrapper around C's `log` function", ['x', 'The numeric input to the function'], '').
+        StaticMethod('sqrt', 1, "Wrapper around C's `sqrt` function", ['x', 'The numeric input to the function'], '').
+        StaticMethod('ceil', 1, "Wrapper around C's `ceil` function", ['x', 'The numeric input to the function'], '').
+        StaticMethod('floor', 1, "Wrapper around C's `floor` function", ['x', 'The numeric input to the function'], '').
+        StaticMethod('round', 1, "Wrapper around C's `round` function", ['x', 'The numeric input to the function'], '').
     EndClass().
 Render();
 
