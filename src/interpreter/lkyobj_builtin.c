@@ -234,6 +234,19 @@ lky_object *lobjb_bind_func(lky_func_bundle *bundle)
     return (lky_object *)func;
 }
 
+lky_object *lobjb_arg_names(lky_func_bundle *bundle)
+{
+    lky_object_function *func = (lky_object_function *)BUW_FUNC(bundle)->bound;
+
+    int argc = func->callable.argc;
+    arraylist list = arr_create(argc + 1);
+    int i;
+    for(i = 0; i < argc; i++)
+        arr_append(&list, stlstr_cinit(func->code->names[i]));
+
+    return stlarr_cinit(list);
+}
+
 static lky_object *lobjb_func_proto_ = NULL;
 lky_object *lobjb_get_func_proto()
 {
@@ -282,6 +295,7 @@ lky_object *lobjb_get_func_proto()
     lobj_set_member((lky_object *)func, "proto_", lobjb_func_proto_);
 
     lobj_set_member(lobjb_func_proto_, "bind", (lky_object *)func);
+    lobj_set_member(lobjb_func_proto_, "args_", lobjb_build_func_ex(NULL, 0, (lky_function_ptr)lobjb_arg_names));
 
     return lobjb_func_proto_;
 }

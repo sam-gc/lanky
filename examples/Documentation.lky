@@ -3,7 +3,7 @@ Io = load 'Io';
 HTML_FIRST = '<!DOCTYPE html><html><head><link rel="stylesheet" href="main.css"></head><body>';
 HTML_LAST  = '</body></html>';
 
-ProtoField = class -> self | cls {
+Field = class -> self | cls {
     init self: func(name, descrip, owner) {
         self.name = name;
         self.descrip = descrip;
@@ -18,7 +18,7 @@ ProtoField = class -> self | cls {
     }
 };
 
-ProtoMethod = class -> self | cls {
+Method = class -> self | cls {
     init self: func(name, argc, descrip, vals, discussion, owner) {
         self.name = name;
         self.argc = argc;
@@ -37,7 +37,7 @@ ProtoMethod = class -> self | cls {
     }
 
     proto render: func(file) {
-        file.put('<li>');
+        file.put('<li class="method-chunk">');
         file.put('<span class="method-name">' + self.name + ':</span>');
         file.put('<span class="method-func">func(');
         for a, i in self.args { 
@@ -48,7 +48,6 @@ ProtoMethod = class -> self | cls {
         }
         file.put(')</span>');
         file.put('<br/><div class="method-description">' + self.descrip + '</div>');
-        file.putln('</li>');
         file.putln('<table class="method-params">');
 
         for a in self.args {
@@ -71,17 +70,29 @@ Class = class -> self | cls {
 
         self.protoFields = [];
         self.protoMethods = [];
+        self.staticFields = [];
+        self.staticMethods = [];
 
         self.fileName = name + '.html';
     }
 
     proto ProtoField: func(name, descrip) {
-        self.protoFields.append(ProtoField.new(name, descrip, self));
+        self.protoFields.append(Field.new(name, descrip, self));
         ret self;
     }
 
     proto ProtoMethod: func(name, argc, descrip, vals, discussion) {
-        self.protoMethods.append(ProtoMethod.new(name, argc, descrip, vals, discussion, self));
+        self.protoMethods.append(Method.new(name, argc, descrip, vals, discussion, self));
+        ret self;
+    }
+
+    proto StaticField: func(name, descrip) {
+        self.staticFields.append(Field.new(name, descrip, self));
+        ret self;
+    }
+
+    proto StaticMethod: func(name, argc, descrip, vals, discussion) {
+        self.staticMethods.append(Method.new(name, argc, descrip, vals, discussion, self));
         ret self;
     }
 
@@ -98,13 +109,21 @@ Class = class -> self | cls {
         clf.putln('<div class="class-description">' + self.descrip + '</div></div>');
         clf.putln('<div class="return-link"><a href="index.html">Back</a></div>');
 
-        clf.putln('<div class="field-container"><ul class="field-list">');
+        clf.putln('<div class="static-field-container"><div class="static-field-header">Static Fields</div><ul class="static-field-list">');
+        for f in self.staticFields {
+            f.render(clf);
+        }
+        clf.putln('</ul></div><div class="proto-field-container"><div class="proto-field-header">Prototype Fields</div><ul class="proto-field-list">');
         for f in self.protoFields {
             f.render(clf);
         }
         clf.putln('</ul></div>');
 
-        clf.putln('<div class="method-container"><ul class="method-list">');
+        clf.putln('<div class="static-method-container"><div class="static-method-header">Static Methods</div><ul class="static-method-list">');
+        for m in self.staticMethods {
+            m.render(clf);
+        }
+        clf.putln('</ul></div><div class="proto-method-container"><div class="proto-,ethod-header">Prototype Methods</div><ul class="proto-method-list">');
         for m in self.protoMethods {
             m.render(clf);
         }

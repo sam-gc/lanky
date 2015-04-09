@@ -22,5 +22,52 @@ Documentation.new().
         ProtoMethod("contains", 1, "Returns " + "yes".mono() + " if and only if the given element is in the array",
                 ["e", "The element to find"],
                 "Each element will be checked until " + "e".mono() + " is found. The array is aware of overloaded == methods, so values will be compared correctly.").
+        ProtoMethod("indexOf", 1, "Returns the index of an element or " + "-1".mono() + " if it can't be found.",
+                ["e", "The element to find"],
+                "Same as " + "contains".mono() + ".").
+        ProtoMethod("removeAt", 1, "Removes the object at a given index, returning the object to the caller",
+                ["index", "The index to remove"], "This can be a slow operation since the list is abstracted over an arraylist.").
+        ProtoMethod("joined", 2, "Joins the elements of the array as a string",
+                ["joiner", 'The string to use to join the elements', '[quotes]', 'Should strings have quotes included? (defaults to ' + 'no'.mono() + ")"],
+                "This implementation is relatively fast. Elements will be either natively turned to strings or will have their " + "stringify_".mono() + " method called if they have one.").
+        ProtoMethod("insert", 2, "Inserts an element at an arbitrary position in the array",
+                ['e', 'The element to insert', 'index', 'The position where the new element will end up'],
+                'All elements at position ' + 'index'.mono() + ' and after will be pushed down. This is an expensive operation.').
+        ProtoMethod('copy', 0, 'Creates a new array with the same contents', [], '').
+        ProtoMethod('map', 1, 'Creates a new array whose elements are determined by using a callback',
+                ['callback', 'The function that will map each element'],
+                'The new array will have elements returned by the callback. The callback should have only one parameter, the incoming element.').
+        ProtoMethod('reduce', 1, 'Iterates over the array using a callback to accumulate a variable',
+                ['callback', 'The function that will reduce the array'],
+                'The function should take two parameters, the first being the accumulator, the second being the current element. When the function is first called, the accumulator will be ' + 'nil'.mono() + '. After the first call, the accumulator is whatever was returned from the previous call. At the end the accumulator is returned.').
+        ProtoMethod('size_', 0, 'Returns the number of elements currently allocated for the list', [], '').
+        ProtoMethod('stringify_', 0, 'Returns the array as a string', [], '').
+        ProtoMethod('op_get_index_', 1, 'For square bracket indexing syntactic sugar. See ' + 'get'.mono() + ' method above', [], '').
+        ProtoMethod('op_set_index_', 2, 'For square bracket setting. See ' + 'set'.mono() + ' method above', [], '').
+        StaticMethod('new', 0, 'Standard init method; returns an empty array', [], 'Has same effect as typing the literal ' + '[]'.mono() + '.').
+        StaticMethod('memcpy', 3, "Light wrapper around C's " + 'memcpy'.mono(),
+                ['dest', 'The destination array', 'src', 'The source array', 'num', 'The number of members to copy'],
+                "This is a fast way to duplicate arrays. The size copied is not actually " + 'num'.mono() + ' as it would be with memcpy. Rather it is ' + 'num * sizeof(void *)'.mono() + '. This method will return an error value if the size of the destination or the source do not match the count required.').
+        StaticMethod('alloc', 1, 'Returns a new array allocated to contain some number of elements',
+                ['num', 'The number of elements for which to allocate'],
+                'Arrays are normally initialized to contain 10 elements. With this method you can request an array pre-allocated to contain some set number of elements. Recommended for performance-critical applications').
+    EndClass().
+    Class('Convert', 'A standard library to convert between various native types').
+        StaticMethod('toInt', 1, 'Converts an element to an integer type',
+                ['obj', 'The object to convert'],
+                'This method will try all conversions. It can handle floats and strings by default.').
+        StaticMethod('toFloat', 1, 'Converts an element to a floating point type',
+                ['obj', 'The object to convert'],
+                'Method will do its best to convert to a float and return.').
+        StaticMethod('toString', 1, 'Converts an element to a string',
+                ['obj', 'The object to convert'],
+                'Method will convert objects to string by using the default stringify function.').
+        StaticMethod('toOrd', 1, 'Converts a string value to a character number',
+                ['str', 'The string to convert'],
+                'Method will return the numerical value represented by the first char in the string.').
+        StaticMethod('toChar', 1, 'Converts a numerical value to a character',
+                ['num', 'The number to convert'],
+                'Method will return a string with one character that represents the number passed in.').
     EndClass().
 Render();
+
