@@ -116,7 +116,8 @@ void exec_in_repl()
     gc_init();
     arraylist list = arr_create(1);
 
-    mach_interp interp = {NULL, get_stdlib_objects()};
+    hashtable stdl = get_stdlib_objects();
+    mach_interp interp = {NULL, stdl};
     hst_put(&interp.stdlib, "Meta", stlmeta_get_class(&interp), NULL, NULL);
     
     gc_init();
@@ -138,6 +139,7 @@ void exec_in_repl()
     getcwd(path, 1000);
 
     lobj_set_member(frame.bucket, "dirname_", stlstr_cinit(path));
+    hst_add_all_from(&frame.bucket->members, &stdl, NULL, NULL); 
     
     run_repl(&interp);
     printf("\nGoodbye!\n");
