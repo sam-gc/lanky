@@ -199,6 +199,7 @@ Documentation = class -> self | cls {
     proto Render: func() {
         inf = Io.fopen('index.html', 'w');
         inf.putln(HTML_FIRST);
+        inf.putln('<div class="whole-body-index">');
         inf.putln('<div class="header"><div class="title">' + self.title + '</div><div class="description">' +
                 self.descrip + "</div>");
         inf.putln('<ul>');
@@ -206,6 +207,7 @@ Documentation = class -> self | cls {
             inf.putln('<li><a href="' + c.fileName + '">' + c.name + '</a></li>');
         }
         inf.putln('</ul>');
+        inf.putln('</div>');
         inf.putln(HTML_LAST);
         inf.close();
 

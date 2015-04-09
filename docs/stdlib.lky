@@ -134,5 +134,21 @@ Documentation.new().
         StaticMethod('floor', 1, "Wrapper around C's `floor` function", ['x', 'The numeric input to the function'], '').
         StaticMethod('round', 1, "Wrapper around C's `round` function", ['x', 'The numeric input to the function'], '').
     EndClass().
+    Class('Meta', 'An in-context interface for the interpreter').
+        StaticMethod('exec', 1, 'Compiles and executes the given string',
+                ['codestr', 'The string to execute'],
+                'This function will compile `codestr` and execute it in the current interpreter context.').
+        StaticMethod('repl', 0, 'Launches the standard REPL', [], 'The REPL that runs under this method is the same as the one used when the interpreter is run without file arguments. When the session ends (i.e. with the user typing Ctrl^d), control is returned to the program.').
+        StaticMethod('examine', 1, 'Provides an overview of the given object',
+                ['obj', 'The object to examine'],
+                'In most cases, this will just give cursory information. If a function is supplied, this method will decompile and print the opcodes in a pleasing fashion. Useful for debugging and learning about the interpreter.').
+        StaticMethod('addressOf', 1, 'Returns the address of the given object',
+                ['obj', 'The object whose address we wish to retrieve'],
+                'This method will return a string representing the address of the given object in hexadecimal form').
+        StaticMethod('allowIntTags', 1, 'Sets whether or not to allow tagged integers',
+                ['allow', 'Boolean value'],
+                'If `allow` is set to `yes`, the interpreter will be allowed to use tagged integers in place of actual objects (this is the default behavior). If `no`, all new integers created will be full-fledged objects.').
+        StaticMethod('audit', 0, 'Prints the size in bytes of the various C object structs', [], 'Used exclusively for debugging purposes').
+    EndClass().
 Render();
 
