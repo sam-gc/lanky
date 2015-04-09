@@ -100,6 +100,13 @@ Documentation.new().
         ProtoMethod('readBytes', 0, 'Deprecated. Reads all of the bytes into a byte buffer (implemented as a `String`)',
                 [], 'This should not be used.').
     EndClass().
+    Class('Function', 'The nebulous function type; cannot be directly instantiated. The following methods work on any Lanky function in the interpreter context').
+        ProtoField('argc', 'The number of arguments the function takes').
+        ProtoMethod('bind', 1, 'Binds the function to some object',
+                ['obj', 'The object to bind on'],
+                'When you write a function as `func() -> self {}`, `self` is considered the bound variable. Unlike in JavaScript, the `self` is not implicit. You will get an error if you try to bind a function that does not have a refname set. When a method is retrieved through dot notation (i.e. `obj.method()`), the `method` func is automatically bound to `obj`. This method is merely a manual way of doing the same thing. Thus, `obj.method()` is the same as `method.bind(obj)()`. The method returns the original function to make this kind of calling possible.').
+        ProtoMethod('args_', 0, 'Returns an array of the names of the arguments', [], 'This method will fail on functions using native code; it is only valid if the function is compiled as Lanky bytecode.').
+    EndClass().
     Class('Math', 'A common class to aggregate mathematical functions. All of the static methods below can be used standalone (i.e. they are not bound to the Math class).').
         StaticField('pi', 'A floating-point constant representing <i>&pi;</i>').
         StaticField('e', 'A floating-point constant representing <i>e</i>').
@@ -212,5 +219,53 @@ Documentation.new().
         ProtoMethod('op_multiply_', 1, 'Works with `*`; duplicates the string',
                 ['count', 'The number of times to multiply the string'],
                 'Returns a concatination of the string `count` times (i.e. `"a" * 5 == "aaaaa"`). This method will fail if `count` is not an integer.').
+    EndClass().
+    Class('Table', 'A quick hashtable implementation; wraps the interpreter hashtable (which is used for storing members). Custom objects can override default hash behavior by implementing their own `hash_` method. Note that if you use your own `hash_` method, you should also specify your own `op_equals_` method.').
+        ProtoField('count', 'The number of elements in the table').
+        ProtoField('size_', 'The number of buckets allocated for the table').
+        ProtoField('hb_', 'The binary blob holding a reference to the actual hashtable').
+        ProtoMethod('put', 2, 'Inserts a value into the table',
+                ['key', 'The key to use', 'value', 'The value to insert'],
+                'Hashes key and puts value in the table at the proper location').
+        ProtoMethod('get', 1, 'Gets a value from the table',
+                ['key', 'The key to use'],
+                'Hashes key and returns a value if found, otherwise returns `nil`.').
+        ProtoMethod('hasKey', 1, 'Returns `yes` if the table contains a given key',
+                ['key', 'The key to look for'], '').
+        ProtoMethod('hasValue', 1, 'Returns `yes` if the table contains a given value',
+                ['value', 'The value to look for'], 'This is an expensive operation.').
+        ProtoMethod('keys', 0, 'Returns an array of keys', [], '').
+        ProtoMethod('values', 0, 'Returns an array of values', [], '').
+        ProtoMethod('remove', 1, 'Removes the key-value pair with a given key',
+                ['key', 'The key to remove'], '').
+        ProtoMethod('removeValue', 1, 'Removes all key-value pairs with a given value',
+                ['value', 'The value to remove'], 'This is a more costly operation than `remove`. All values that match `value` in the table will be removed.').
+        ProtoMethod('addAll', 1, 'Adds all the elements from another table',
+                ['other', 'The table whose elements you wish to add'],
+                'Copies all of the key-value pairs from `other` to `self`, modifying `self` while leaving `other` unmodified.').
+        ProtoMethod('op_get_index_', 1, 'Syntactic sugar around `[]`; see `get` above',
+                ['key', 'The key to get'], '').
+        ProtoMethod('op_set_index_', 2, 'Syntactic sugar for `[] =`; see `put` above',
+                ['key', 'The key to use', 'value', 'The value to insert'], '').
+        StaticMethod('new', 2, 'The main constructor; same as `[:]` literal',
+                ['[keys]', 'An array of keys to add', '[values]', 'An array of values to add'],
+                'This method, if provided with no arguments, will return an empty table. If two arguments are provided, they are interpreted to be an array of keys and an array of values respectively. In that case, a new table will be created by matching/building key-value pairs; `keys.count == values.count` must be true.').
+    EndClass().
+    Class('Time', 'A standard (not yet fully implemented) way to deal with times.').
+        ProtoField('second', 'The current second value').
+        ProtoField('minute', 'The current minute value').
+        ProtoField('hour', 'The current hour value, 0-23').
+        ProtoField('month', 'The current month of the year, 0-11').
+        ProtoField('dayOfWeek', 'The current day of the week, 0-6').
+        ProtoField('dayOfYear', 'The current day of the year, 0-364').
+        ProtoField('year', 'The current year').
+        ProtoMethod('format', 1, 'Formats the time object according to a format string',
+                ['format', 'The format string'],
+                'The format string should be useable by the C standard `strftime` function.').
+        ProtoMethod('stringify_', 0, 'Custom stringification function', [], '').
+        StaticMethod('create', 1, 'Creates a new time object',
+                ['[table]', 'Optional initial values'],
+                'If no argument is supplied, a new time object is returned as the current time and date. Otherwise, it is initialized based on the keys in `table`. The names of the keys should be the same as the names of the Prototype Fields above.').
+        StaticMethod('unix', 0, 'Returns the number of milliseconds since the epoch', [], '').
     EndClass().
 Render();
