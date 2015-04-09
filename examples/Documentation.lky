@@ -39,24 +39,31 @@ Method = class -> self | cls {
     proto render: func(file) {
         file.put('<li class="method-chunk">');
         file.put('<span class="method-name">' + self.name + ':</span>');
-        file.put('<span class="method-func">func(');
+        file.put('<span class="method-func">func(</span>');
         for a, i in self.args { 
+            file.put('<span class="method-func-arg">');
             file.put(a.name);
+            file.put('</span>');
             if i != self.args.count - 1 {
+                file.put('<span class="method-func">');
                 file.put(', ');
+                file.put('</span>');
             }
         }
-        file.put(')</span>');
+        file.put('<span class="method-func">)</span>');
         file.put('<br/><div class="method-description">' + self.descrip + '</div>');
-        file.putln('<table class="method-params">');
 
-        for a in self.args {
-            file.putln('<tr>');
-            file.putln('<td><span class="param-name">' + a.name + '</span></td>'); 
-            file.putln('<td><span class="param-descrip">' + a.descrip + '</span></li></td>'); 
-            file.putln('</tr>');
+        if self.args.count {
+            file.putln('<table class="method-params">');
+
+            for a in self.args {
+                file.putln('<tr>');
+                file.putln('<td><span class="param-name">' + a.name + '</span></td>'); 
+                file.putln('<td><span class="param-descrip">' + a.descrip + '</span></li></td>'); 
+                file.putln('</tr>');
+            }
+            file.putln('</table>');
         }
-        file.putln('</table>');
         file.putln('<div class="method-discussion">' + self.discussion + '</div>');
         file.putln('</li>');
     }
@@ -109,25 +116,38 @@ Class = class -> self | cls {
         clf.putln('<div class="class-description">' + self.descrip + '</div></div>');
         clf.putln('<div class="return-link"><a href="index.html">Back</a></div>');
 
-        clf.putln('<div class="static-field-container"><div class="static-field-header">Static Fields</div><ul class="static-field-list">');
-        for f in self.staticFields {
-            f.render(clf);
+        if self.staticFields.count {
+            clf.putln('<div class="static-field-container"><div class="static-field-header">Static Fields</div><ul class="static-field-list">');
+            for f in self.staticFields {
+                f.render(clf);
+            }
+            clf.putln('</ul></div>');
         }
-        clf.putln('</ul></div><div class="proto-field-container"><div class="proto-field-header">Prototype Fields</div><ul class="proto-field-list">');
-        for f in self.protoFields {
-            f.render(clf);
+        if self.protoFields.count {
+            clf.putln('<div class="proto-field-container"><div class="proto-field-header">Prototype Fields</div><ul class="proto-field-list">');
+            for f in self.protoFields {
+                f.render(clf);
+            }
+            clf.putln('</ul></div>');
         }
-        clf.putln('</ul></div>');
 
-        clf.putln('<div class="static-method-container"><div class="static-method-header">Static Methods</div><ul class="static-method-list">');
-        for m in self.staticMethods {
-            m.render(clf);
+        if self.staticMethods.count {
+            clf.putln('<div class="static-method-container"><div class="static-method-header">Static Methods</div><ul class="static-method-list">');
+            for m in self.staticMethods {
+                m.render(clf);
+                clf.putln('<hr/>');
+            }
+            clf.putln('</ul></div>');
         }
-        clf.putln('</ul></div><div class="proto-method-container"><div class="proto-,ethod-header">Prototype Methods</div><ul class="proto-method-list">');
-        for m in self.protoMethods {
-            m.render(clf);
+
+        if self.protoMethods.count {
+            clf.putln('<div class="proto-method-container"><div class="proto-method-header">Prototype Methods</div><ul class="proto-method-list">');
+            for m in self.protoMethods {
+                m.render(clf);
+                clf.putln('<hr/>');
+            }
+            clf.putln('</ul></div>');
         }
-        clf.putln('</ul></div>');
 
         clf.putln(HTML_LAST);
         clf.close();

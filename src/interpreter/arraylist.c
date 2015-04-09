@@ -44,10 +44,7 @@ void arr_manage_size(arraylist *list)
     if(count == alloc)
     {
         long nl = alloc * 2 < 10000 ? alloc * 2 : alloc + 10000;
-        void **new_list = malloc(sizeof(void *) * nl);
-        memcpy(new_list, list->items, sizeof(void *) * alloc);
-        free(list->items);
-        list->items = new_list;
+        list->items = realloc(list->items, sizeof(void *) * nl);
         list->allocated = nl;
     }
 }

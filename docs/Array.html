@@ -4,17 +4,15 @@
 <div class="class-title">Array</div>
 <div class="class-description">The wrapper around the interpreter's arraylist implementation.</div></div>
 <div class="return-link"><a href="index.html">Back</a></div>
-<div class="static-field-container"><div class="static-field-header">Static Fields</div><ul class="static-field-list">
-</ul></div><div class="proto-field-container"><div class="proto-field-header">Prototype Fields</div><ul class="proto-field-list">
+<div class="proto-field-container"><div class="proto-field-header">Prototype Fields</div><ul class="proto-field-list">
 <li><span class="field-name">count:</span><span class="field-description">The number of elements contained in the array</span></li>
 <li><span class="field-name">ab_:</span><span class="field-description">The binary blob that contains the actual C arraylist</span></li>
 </ul></div>
 <div class="static-method-container"><div class="static-method-header">Static Methods</div><ul class="static-method-list">
-<li class="method-chunk"><span class="method-name">new:</span><span class="method-func">func()</span><br/><div class="method-description">Standard init method; returns an empty array</div><table class="method-params">
-</table>
-<div class="method-discussion">Has same effect as typing the literal <span class="mono">[]</span>.</div>
+<li class="method-chunk"><span class="method-name">new:</span><span class="method-func">func(</span><span class="method-func">)</span><br/><div class="method-description">Standard init method; returns an empty array</div><div class="method-discussion">Has same effect as typing the literal <span class="mono">[]</span>.</div>
 </li>
-<li class="method-chunk"><span class="method-name">memcpy:</span><span class="method-func">func(dest, src, num)</span><br/><div class="method-description">Light wrapper around C's <span class="mono">memcpy</span></div><table class="method-params">
+<hr/>
+<li class="method-chunk"><span class="method-name">memcpy:</span><span class="method-func">func(</span><span class="method-func-arg">dest</span><span class="method-func">, </span><span class="method-func-arg">src</span><span class="method-func">, </span><span class="method-func-arg">num</span><span class="method-func">)</span><br/><div class="method-description">Light wrapper around C's <span class="mono">memcpy</span></div><table class="method-params">
 <tr>
 <td><span class="param-name">dest</span></td>
 <td><span class="param-descrip">The destination array</span></li></td>
@@ -30,7 +28,8 @@
 </table>
 <div class="method-discussion">This is a fast way to duplicate arrays. The size copied is not actually <span class="mono">num</span> as it would be with memcpy. Rather it is <span class="mono">num * sizeof(void *)</span>. This method will return an error value if the size of the destination or the source do not match the count required.</div>
 </li>
-<li class="method-chunk"><span class="method-name">alloc:</span><span class="method-func">func(num)</span><br/><div class="method-description">Returns a new array allocated to contain some number of elements</div><table class="method-params">
+<hr/>
+<li class="method-chunk"><span class="method-name">alloc:</span><span class="method-func">func(</span><span class="method-func-arg">num</span><span class="method-func">)</span><br/><div class="method-description">Returns a new array allocated to contain some number of elements</div><table class="method-params">
 <tr>
 <td><span class="param-name">num</span></td>
 <td><span class="param-descrip">The number of elements for which to allocate</span></li></td>
@@ -38,8 +37,10 @@
 </table>
 <div class="method-discussion">Arrays are normally initialized to contain 10 elements. With this method you can request an array pre-allocated to contain some set number of elements. Recommended for performance-critical applications</div>
 </li>
-</ul></div><div class="proto-method-container"><div class="proto-,ethod-header">Prototype Methods</div><ul class="proto-method-list">
-<li class="method-chunk"><span class="method-name">get:</span><span class="method-func">func(index)</span><br/><div class="method-description">Gets the item at the given index</div><table class="method-params">
+<hr/>
+</ul></div>
+<div class="proto-method-container"><div class="proto-method-header">Prototype Methods</div><ul class="proto-method-list">
+<li class="method-chunk"><span class="method-name">get:</span><span class="method-func">func(</span><span class="method-func-arg">index</span><span class="method-func">)</span><br/><div class="method-description">Gets the item at the given index</div><table class="method-params">
 <tr>
 <td><span class="param-name">index</span></td>
 <td><span class="param-descrip">The index to get</span></li></td>
@@ -47,7 +48,8 @@
 </table>
 <div class="method-discussion">Like the <span class="mono">set</span> method, this is a very fast operation as we are dealing with an arraylist implementation, rather than a linked list. The method will throw and error if the index is out of bounds or not a valid integer.</div>
 </li>
-<li class="method-chunk"><span class="method-name">set:</span><span class="method-func">func(index, nval)</span><br/><div class="method-description">Sets the item at the given index</div><table class="method-params">
+<hr/>
+<li class="method-chunk"><span class="method-name">set:</span><span class="method-func">func(</span><span class="method-func-arg">index</span><span class="method-func">, </span><span class="method-func-arg">nval</span><span class="method-func">)</span><br/><div class="method-description">Sets the item at the given index</div><table class="method-params">
 <tr>
 <td><span class="param-name">index</span></td>
 <td><span class="param-descrip">The index to set</span></li></td>
@@ -59,7 +61,8 @@
 </table>
 <div class="method-discussion">Like the <span class="mono">get</span> method, this is a very fast operation (should be O(1)). The method will throw an error if the index is out of bounds or is not a valid integer.</div>
 </li>
-<li class="method-chunk"><span class="method-name">forEach:</span><span class="method-func">func(callback)</span><br/><div class="method-description">Iteratively executes a callback</div><table class="method-params">
+<hr/>
+<li class="method-chunk"><span class="method-name">forEach:</span><span class="method-func">func(</span><span class="method-func-arg">callback</span><span class="method-func">)</span><br/><div class="method-description">Iteratively executes a callback</div><table class="method-params">
 <tr>
 <td><span class="param-name">callback</span></td>
 <td><span class="param-descrip">A callback function taking 1 or 2 arguments</span></li></td>
@@ -67,7 +70,8 @@
 </table>
 <div class="method-discussion"><span class="mono">callback</span> will be called for each element in the array. If the callback takes only one argument, only the element will be passed in. If two, the second argument will be set to the index.</div>
 </li>
-<li class="method-chunk"><span class="method-name">contains:</span><span class="method-func">func(e)</span><br/><div class="method-description">Returns <span class="mono">yes</span> if and only if the given element is in the array</div><table class="method-params">
+<hr/>
+<li class="method-chunk"><span class="method-name">contains:</span><span class="method-func">func(</span><span class="method-func-arg">e</span><span class="method-func">)</span><br/><div class="method-description">Returns <span class="mono">yes</span> if and only if the given element is in the array</div><table class="method-params">
 <tr>
 <td><span class="param-name">e</span></td>
 <td><span class="param-descrip">The element to find</span></li></td>
@@ -75,7 +79,8 @@
 </table>
 <div class="method-discussion">Each element will be checked until <span class="mono">e</span> is found. The array is aware of overloaded == methods, so values will be compared correctly.</div>
 </li>
-<li class="method-chunk"><span class="method-name">indexOf:</span><span class="method-func">func(e)</span><br/><div class="method-description">Returns the index of an element or <span class="mono">-1</span> if it can't be found.</div><table class="method-params">
+<hr/>
+<li class="method-chunk"><span class="method-name">indexOf:</span><span class="method-func">func(</span><span class="method-func-arg">e</span><span class="method-func">)</span><br/><div class="method-description">Returns the index of an element or <span class="mono">-1</span> if it can't be found.</div><table class="method-params">
 <tr>
 <td><span class="param-name">e</span></td>
 <td><span class="param-descrip">The element to find</span></li></td>
@@ -83,7 +88,8 @@
 </table>
 <div class="method-discussion">Same as <span class="mono">contains</span>.</div>
 </li>
-<li class="method-chunk"><span class="method-name">removeAt:</span><span class="method-func">func(index)</span><br/><div class="method-description">Removes the object at a given index, returning the object to the caller</div><table class="method-params">
+<hr/>
+<li class="method-chunk"><span class="method-name">removeAt:</span><span class="method-func">func(</span><span class="method-func-arg">index</span><span class="method-func">)</span><br/><div class="method-description">Removes the object at a given index, returning the object to the caller</div><table class="method-params">
 <tr>
 <td><span class="param-name">index</span></td>
 <td><span class="param-descrip">The index to remove</span></li></td>
@@ -91,7 +97,8 @@
 </table>
 <div class="method-discussion">This can be a slow operation since the list is abstracted over an arraylist.</div>
 </li>
-<li class="method-chunk"><span class="method-name">joined:</span><span class="method-func">func(joiner, [quotes])</span><br/><div class="method-description">Joins the elements of the array as a string</div><table class="method-params">
+<hr/>
+<li class="method-chunk"><span class="method-name">joined:</span><span class="method-func">func(</span><span class="method-func-arg">joiner</span><span class="method-func">, </span><span class="method-func-arg">[quotes]</span><span class="method-func">)</span><br/><div class="method-description">Joins the elements of the array as a string</div><table class="method-params">
 <tr>
 <td><span class="param-name">joiner</span></td>
 <td><span class="param-descrip">The string to use to join the elements</span></li></td>
@@ -103,7 +110,8 @@
 </table>
 <div class="method-discussion">This implementation is relatively fast. Elements will be either natively turned to strings or will have their <span class="mono">stringify_</span> method called if they have one.</div>
 </li>
-<li class="method-chunk"><span class="method-name">insert:</span><span class="method-func">func(e, index)</span><br/><div class="method-description">Inserts an element at an arbitrary position in the array</div><table class="method-params">
+<hr/>
+<li class="method-chunk"><span class="method-name">insert:</span><span class="method-func">func(</span><span class="method-func-arg">e</span><span class="method-func">, </span><span class="method-func-arg">index</span><span class="method-func">)</span><br/><div class="method-description">Inserts an element at an arbitrary position in the array</div><table class="method-params">
 <tr>
 <td><span class="param-name">e</span></td>
 <td><span class="param-descrip">The element to insert</span></li></td>
@@ -115,11 +123,11 @@
 </table>
 <div class="method-discussion">All elements at position <span class="mono">index</span> and after will be pushed down. This is an expensive operation.</div>
 </li>
-<li class="method-chunk"><span class="method-name">copy:</span><span class="method-func">func()</span><br/><div class="method-description">Creates a new array with the same contents</div><table class="method-params">
-</table>
-<div class="method-discussion"></div>
+<hr/>
+<li class="method-chunk"><span class="method-name">copy:</span><span class="method-func">func(</span><span class="method-func">)</span><br/><div class="method-description">Creates a new array with the same contents</div><div class="method-discussion"></div>
 </li>
-<li class="method-chunk"><span class="method-name">map:</span><span class="method-func">func(callback)</span><br/><div class="method-description">Creates a new array whose elements are determined by using a callback</div><table class="method-params">
+<hr/>
+<li class="method-chunk"><span class="method-name">map:</span><span class="method-func">func(</span><span class="method-func-arg">callback</span><span class="method-func">)</span><br/><div class="method-description">Creates a new array whose elements are determined by using a callback</div><table class="method-params">
 <tr>
 <td><span class="param-name">callback</span></td>
 <td><span class="param-descrip">The function that will map each element</span></li></td>
@@ -127,7 +135,8 @@
 </table>
 <div class="method-discussion">The new array will have elements returned by the callback. The callback should have only one parameter, the incoming element.</div>
 </li>
-<li class="method-chunk"><span class="method-name">reduce:</span><span class="method-func">func(callback)</span><br/><div class="method-description">Iterates over the array using a callback to accumulate a variable</div><table class="method-params">
+<hr/>
+<li class="method-chunk"><span class="method-name">reduce:</span><span class="method-func">func(</span><span class="method-func-arg">callback</span><span class="method-func">)</span><br/><div class="method-description">Iterates over the array using a callback to accumulate a variable</div><table class="method-params">
 <tr>
 <td><span class="param-name">callback</span></td>
 <td><span class="param-descrip">The function that will reduce the array</span></li></td>
@@ -135,21 +144,18 @@
 </table>
 <div class="method-discussion">The function should take two parameters, the first being the accumulator, the second being the current element. When the function is first called, the accumulator will be <span class="mono">nil</span>. After the first call, the accumulator is whatever was returned from the previous call. At the end the accumulator is returned.</div>
 </li>
-<li class="method-chunk"><span class="method-name">size_:</span><span class="method-func">func()</span><br/><div class="method-description">Returns the number of elements currently allocated for the list</div><table class="method-params">
-</table>
-<div class="method-discussion"></div>
+<hr/>
+<li class="method-chunk"><span class="method-name">size_:</span><span class="method-func">func(</span><span class="method-func">)</span><br/><div class="method-description">Returns the number of elements currently allocated for the list</div><div class="method-discussion"></div>
 </li>
-<li class="method-chunk"><span class="method-name">stringify_:</span><span class="method-func">func()</span><br/><div class="method-description">Returns the array as a string</div><table class="method-params">
-</table>
-<div class="method-discussion"></div>
+<hr/>
+<li class="method-chunk"><span class="method-name">stringify_:</span><span class="method-func">func(</span><span class="method-func">)</span><br/><div class="method-description">Returns the array as a string</div><div class="method-discussion"></div>
 </li>
-<li class="method-chunk"><span class="method-name">op_get_index_:</span><span class="method-func">func()</span><br/><div class="method-description">For square bracket indexing syntactic sugar. See <span class="mono">get</span> method above</div><table class="method-params">
-</table>
-<div class="method-discussion"></div>
+<hr/>
+<li class="method-chunk"><span class="method-name">op_get_index_:</span><span class="method-func">func(</span><span class="method-func">)</span><br/><div class="method-description">For square bracket indexing syntactic sugar. See <span class="mono">get</span> method above</div><div class="method-discussion"></div>
 </li>
-<li class="method-chunk"><span class="method-name">op_set_index_:</span><span class="method-func">func()</span><br/><div class="method-description">For square bracket setting. See <span class="mono">set</span> method above</div><table class="method-params">
-</table>
-<div class="method-discussion"></div>
+<hr/>
+<li class="method-chunk"><span class="method-name">op_set_index_:</span><span class="method-func">func(</span><span class="method-func">)</span><br/><div class="method-description">For square bracket setting. See <span class="mono">set</span> method above</div><div class="method-discussion"></div>
 </li>
+<hr/>
 </ul></div>
 </body></html>

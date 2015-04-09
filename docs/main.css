@@ -1,6 +1,8 @@
 body {
     font-family: sans;
     font-size: 12pt;
+    padding-left: 20px;
+    padding-top: 10px;
 }
 
 .header {
@@ -20,46 +22,95 @@ body {
 }
 
 .class-header {
-
 }
 
 .class-title {
-
+    font-size: 15pt;
 }
 
 .class-description {
+    margin-left: 20px;
+    margin-bottom: 30px;
+}
 
+.static-method-header {
+    font-weight: bold;
+    font-size: 13pt;
+    background: #98D1E3;
+    border-top: 1px solid #13A5D1;
+    border-bottom: 1px solid #13A5D1;
+}
+
+.static-field-header {
+    font-weight: bold;
+    font-size: 13pt;
+    background: #98D1E3;
+    border-top: 1px solid #13A5D1;
+    border-bottom: 1px solid #13A5D1;
+}
+
+.proto-method-header {
+    font-weight: bold;
+    font-size: 13pt;
+    background: #98D1E3;
+    border-top: 1px solid #13A5D1;
+    border-bottom: 1px solid #13A5D1;
+}
+
+.proto-field-header {
+    font-weight: bold;
+    font-size: 13pt;
+    background: #98D1E3;
+    border-top: 1px solid #13A5D1;
+    border-bottom: 1px solid #13A5D1;
 }
 
 .return-link {
 
 }
 
-.field-container {
+.proto-field-container {
 
 }
 
-.method-container {
+.static-field-container {
+}
+
+.proto-method-container {
 
 }
 
-.field-list {
+.static-method-container {
+}
+
+.proto-field-list {
 
 }
 
-.method-list {
+.static-field-list {
+}
+
+.proto-method-list {
     margin-top: 10px;
+}
+
+.static-method-list {
 }
 
 .method-name {
     font-weight: bold;
     margin-right: 10px;
     font-family: monospace;
-    font-size: 13pt;
 }
 
 .method-func {
     font-family: monospace;
+    color: rgb(40, 40, 40);
+}
+
+.method-func-arg {
+    font-family: monospace;
+    color: #AB2918;
 }
 
 .method-description {
@@ -67,7 +118,10 @@ body {
 }
 
 .method-params {
+    border: 1px solid black;
     margin-left: 35px;
+    margin-top: 5px;
+    margin-bottom: 10px;
 }
 
 .method-discussion {
@@ -77,6 +131,7 @@ body {
 .param-name {
     font-family: monospace;
     margin-right: 10px;
+    color: #AB2918;
 }
 
 .param-descrip {
@@ -87,7 +142,6 @@ body {
     font-weight: bold;
     margin-right: 10px;
     font-family: monospace;
-    font-size: 13pt;
 }
 
 .field-description {
@@ -98,4 +152,10 @@ body {
     font-family: monospace;
 }
 
+.proto-method-list li {
+    margin-top: 10px;
+}
 
+.static-method-list li {
+    margin-top: 10px;
+}
