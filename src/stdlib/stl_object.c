@@ -58,10 +58,11 @@ lky_object *stlobj_responds_to(lky_func_bundle *bundle)
     lky_object *self = func->bound ? func->bound : _stlobj_proto;
 
     // TODO: There should be some checking here...
-    lky_object_custom *c = (lky_object_custom *)args->value;
-    char *str = c->data;
+    char *str = lobjb_stringify((lky_object *)args->value, BUW_INTERP(bundle));
 
     lky_object *o = lobj_get_member(self, str);
+
+    free(str);
     if(!o)
         return &lky_no;
 
@@ -80,10 +81,11 @@ lky_object *stlobj_has(lky_func_bundle *bundle)
     lky_object *self = func->bound ? func->bound : _stlobj_proto;
 
     // TODO: There should be some checking here...
-    lky_object_custom *c = (lky_object_custom *)args->value;
-    char *str = c->data;
+    char *str = lobjb_stringify((lky_object *)args->value, BUW_INTERP(bundle));
 
-    return LKY_TESTC_FAST(!!lobj_get_member(self, str));
+    lky_object *ret = LKY_TESTC_FAST(!!lobj_get_member(self, str));
+    free(str);
+    return ret;
 }
 
 lky_object *stlobj_remove(lky_func_bundle *bundle)
@@ -93,10 +95,11 @@ lky_object *stlobj_remove(lky_func_bundle *bundle)
 
     lky_object *self = func->bound;
 
-    lky_object_custom *c = (lky_object_custom *)args->value;
-    char *str = c->data;
+    char *str = lobjb_stringify((lky_object *)args->value, BUW_INTERP(bundle));
 
     hst_remove_key(&self->members, str, NULL, NULL);
+
+    free(str);
 
     return &lky_nil;
 }

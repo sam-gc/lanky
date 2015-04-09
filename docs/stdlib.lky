@@ -154,5 +154,63 @@ Documentation.new().
                 'If `allow` is set to `yes`, the interpreter will be allowed to use tagged integers in place of actual objects (this is the default behavior). If `no`, all new integers created will be full-fledged objects.').
         StaticMethod('audit', 0, 'Prints the size in bytes of the various C object structs', [], 'Used exclusively for debugging purposes').
     EndClass().
+    Class('Object', 'The root object class that from which everything else inherits').
+        StaticMethod('new', 0, 'The basic constructior', [],
+                'This method has the same effect as using the object literal `{.}`').
+        ProtoMethod('has', 1, 'Returns true if the object has a member with the given name',
+                ['name', 'The name of the member to check for'], 'This method will return `yes` if the object has any member with the given name. Note that this checks for any object, unlike `responds_to`, so if the object has a field or a method whose name matches, the method returns in the affirmative.').
+        ProtoMethod('responds_to', 1, 'Returns true only if the object responds to a method of the given name',
+                ['name', 'The name of the method to check for'],
+                'Unlike `has`, this method will only respond true if the object has a member `name` and that member is a function.').
+        ProtoMethod('remove_member', 1, 'Removes the member of the specified name if it exists',
+                ['name', 'The name of the member to remove'],
+                "This is the only way to actively remove a member of an object (simply setting its value to nil will not have the same effect). Note that this will not effect any of the object's prototypes; only members of the object itself can be removed.").
+        ProtoMethod('stringify_', 0, 'Turns the object into a string', [],
+                'This is the default stringification function for all objects. Its form is as follows: `(lky_object | %p)` where `%p` is the pointer to the object. Individual objects can and should override this method.').
+        ProtoMethod('op_equals_', 1, 'Returns `yes` if and only if the object and the argument are equal',
+                ['other', 'The object to compare to'],
+                'This is the default equals implementation. This method is only concerned with whether or not the pointer values match.').
+    EndClass().
+    Class('OS', 'A static class used for interfacing with the operating system').
+        StaticField('argc', 'The number of arguments passed to the script').
+        StaticField('argv', 'An array of arguments (as strings) passed to the script').
+        StaticMethod('system', 1, 'Wrapper around the C `system` function',
+                ['command', 'The command to run in the shell'],
+                'This method just wraps the C `system` function, so this is very much OS dependant. Generally the `command` will be executed in the local shell.').
+    EndClass().
+    Class('String', 'The standard (builtin) string library. All strings are fixed-width single character arrays. If you want unicode, look elsewhere.').
+        ProtoField('length', 'The length of the string').
+        ProtoField('sb_', 'The binary blob containing the pointer to the C string').
+        StaticMethod('new', 0, 'Basic initializer; returns an empty string. Same as the string literal `""`', [], '').
+        ProtoMethod('reverse', 0, 'Reverses the string', [], 'A new string is created whose contents are the reverse of the original string. This is then returned.').
+        ProtoMethod('split', 1, 'Splits the string based on some delimeter',
+                ['delim', 'The delimeter to use to split'],
+                'This method will split the string into an `Array` by scanning for the delimeters. Regexes are not accepted or recognized by the method. The strings in the returned array do not have the delimeter attached. If the delimeter is not contained in the string, an array of count 1 is returned.').
+        ProtoMethod('lower', 0, 'Returns the string with all characters in miniscule form', [], '').
+        ProtoMethod('upper', 0, 'Returns the string with all characters in majuscule form', [], '').
+        ProtoMethod('copy', 0, 'Returns a newly-allocated replica string', [], '').
+        ProtoMethod('stringify_', 0, 'Returns itself (mostly just a formality)', [], '').
+        ProtoMethod('hash_', 0, 'Returns a hash value of the string (using the `djb2` algorithm)', [],
+                'Note that, unlike most objects, the `Table` methods do not actually use this method on string. Since strings are such a common case, it handles them directly in its hashing delegate.').
+        ProtoMethod('iterable_', 0, 'Returns an array where each character has its own position', [], 'Used with the `for .. in .. {}` construct.').
+        ProtoMethod('op_get_index_', 1, 'Gets the character at the given index',
+                ['index', 'The index to get'], 'This is to be used with the array indexing syntactic sugar.').
+        ProtoMethod('op_set_index_', 2, 'Sets the character at the given index',
+                ['index', 'The index to set', 'char', 'The character to use'],
+                'Used for the syntactic sugar. Note that this means that the string is not immutable.').
+        ProtoMethod('op_equals_', 1, 'Works with `==`; returns `yes` if objects are equivalent',
+                ['other', 'The object to test against'], 'Implemented using `strcmp`.').
+        ProtoMethod('op_notequal_', 1, 'Works with `!=`; opposite of `op_equals_` above.',
+                ['other', 'The object to test against'], '').
+        ProtoMethod('op_add_', 1, 'Works with `+`; combines strings',
+                ['other', 'Object to append'],
+                'Returns a new string that is the combination of `self` and `other`. If `other` is a string, great; otherwise `other` is stringified according to stringification rules and appended.').
+        ProtoMethod('op_gt_', 1, 'Works with `>`; compares strings',
+                ['other', 'Object to test against'], '').
+        ProtoMethod('op_lt_', 1, 'Works with `<`; compares strings',
+                ['other', 'Object to test against'], '').
+        ProtoMethod('op_multiply_', 1, 'Works with `*`; duplicates the string',
+                ['count', 'The number of times to multiply the string'],
+                'Returns a concatination of the string `count` times (i.e. `"a" * 5 == "aaaaa"`). This method will fail if `count` is not an integer.').
+    EndClass().
 Render();
-
