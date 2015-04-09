@@ -26,6 +26,7 @@
 #include "lky_gc.h"
 #include "instruction_set.h"
 #include "colors.h"
+#include "info.h"
 #include <string.h>
 
 #include <readline/readline.h>
@@ -633,6 +634,9 @@ lky_object *stlmeta_get_class(mach_interp *interp)
     lobj_set_member(obj, "addressOf", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlmeta_address_of));
     lobj_set_member(obj, "allowIntTags", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlmeta_allow_int_tags));
     lobj_set_member(obj, "audit", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlmeta_audit));
+    lobj_set_member(obj, "version", stlstr_cinit(LKY_VERSION_NUM));
+    lobj_set_member(obj, "versionTag", stlstr_cinit(LKY_VERSION_TAG));
+    lobj_set_member(obj, "copyright", stlstr_cinit(LKY_COPYRIGHT));
     
     return obj;
 }

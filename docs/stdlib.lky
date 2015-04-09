@@ -1,10 +1,11 @@
 Documentation = load '../examples/Documentation.lky';
 Time = load 'Time';
 String = load 'String';
+Meta = load 'Meta';
 
 Documentation.new().
     Title("Lanky Standard Library").
-    Description("Official documentation for the lanky standard library as of " + Time.create().format('%b %d %Y')).
+    Description("Official documentation for the lanky standard library. Auto generated on " + Time.create().format('%b %d %Y') + ". Interpreter version at time of generation: " + Meta.version + ".").
     Class("Array", "The wrapper around the interpreter's arraylist implementation.").
         ProtoField("count", "The number of elements contained in the array").
         ProtoField("ab_", "The binary blob that contains the actual C arraylist").
@@ -135,6 +136,9 @@ Documentation.new().
         StaticMethod('round', 1, "Wrapper around C's `round` function", ['x', 'The numeric input to the function'], '').
     EndClass().
     Class('Meta', 'An in-context interface for the interpreter').
+        StaticField('version', 'The current version number (major, minor, and revision) of the interpreter').
+        StaticField('versionTag', 'The tagline that accompanies the current version').
+        StaticField('copyright', 'The standard copyright tag').
         StaticMethod('exec', 1, 'Compiles and executes the given string',
                 ['codestr', 'The string to execute'],
                 'This function will compile `codestr` and execute it in the current interpreter context.').
