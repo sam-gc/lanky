@@ -110,12 +110,14 @@ Class = class -> self | cls {
     proto render: func() { 
         clf = Io.fopen(self.fileName, 'w');
         clf.putln(HTML_FIRST);
+        clf.putln('<div class="whole-body">');
         clf.putln('<div class="maintitle">' + self.owner.title + '</div>');
         clf.putln('<div class="class-header">');
         clf.putln('<div class="class-title">' + self.name + '</div>');
         clf.putln('<div class="class-description">' + self.descrip + '</div></div>');
         clf.putln('<div class="return-link"><a href="index.html">Back</a></div>');
 
+        clf.putln('<div class="class-contents">');
         if self.staticFields.count {
             clf.putln('<div class="static-field-container"><div class="static-field-header">Static Fields</div><ul class="static-field-list">');
             for f in self.staticFields {
@@ -149,6 +151,7 @@ Class = class -> self | cls {
             clf.putln('</ul></div>');
         }
 
+        clf.putln('</div></div>');
         clf.putln(HTML_LAST);
         clf.close();
     }

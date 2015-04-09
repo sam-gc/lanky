@@ -1,8 +1,7 @@
 body {
     font-family: sans;
     font-size: 12pt;
-    padding-left: 20px;
-    padding-top: 10px;
+    background: gray;
 }
 
 .header {
@@ -15,6 +14,11 @@ body {
 
 .description {
 
+}
+
+.whole-body {
+    background: white;
+    width: 75%;
 }
 
 .maintitle {
