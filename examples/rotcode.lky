@@ -2,6 +2,7 @@ Io = <"Io">;
 OS = <"OS">;
 Time = <"Time">;
 Convert = <"Convert">;
+Array = <"Array">;
 
 make_rand = func(seed) {
     val = seed; -- Right so this is a bug... We shouldn't need this step.
@@ -20,8 +21,8 @@ shuffle = func(array, rand) {
     ret new;
 };
 
-Crypto = class () -> self {
-    self.build_ = func(key) {
+Crypto = class -> self {
+    init self: func(key) {
         self.key = key;
         rand = make_rand(key);
         shuffled_letters = shuffle('abcdefghijklmnopqrstuvwxyz'.split(''), rand);
@@ -29,39 +30,42 @@ Crypto = class () -> self {
         self.X = shuffled_letters[0];
         self.P = shuffled_letters[1];
         self.S = shuffled_letters[2];
-        self.wheel = shuffled_letters + 13;
+
+        arr = Array.alloc(14);
+        Array.memcpy(arr, shuffled_letters, 13);
+        self.wheel = arr;
 
         self.verbose = 0;
-    };
+    }
 
-    self.encodeChar = func(char) {
+    proto encodeChar: func(char) {
         idx = (Convert.toOrd(char) - 97) % 13; -- 97 is the ord' value of 'a'.
         if idx > 12 | idx < 0 {
             ret char;
         }
 
         ret self.wheel[idx];
-    };
+    }
 
-    self.levelFor = func(char) {
+    proto levelFor: func(char) {
         ret (Convert.toOrd(char) - 97) >= 13;
-    };
+    }
 
-    self.isEncodable = func(char) {
+    proto isEncodable: func(char) {
         ord = Convert.toOrd(char) - 97;
         ret ord >= 0 & ord < 26;
-    };
+    }
 
-    self.decodeChar = func(char, level) {
+    proto decodeChar: func(char, level) {
         idx = self.wheel.indexOf(char);   
         if idx < 0 {
             ret char;
         }
 
         ret Convert.toChar(idx + 97 + (level ? 13 : 0));
-    };
+    }
 
-    self.encode = func(str) {
+    proto encode: func(str) {
         words = str.split(' ');
         encoded = [];
         for word, count in words {
@@ -98,9 +102,9 @@ Crypto = class () -> self {
         }
 
         ret encoded.joined('');
-    };
+    }
 
-    self.decode = func(str) {
+    proto decode: func(str) {
         if !str.length {
             ret '';
         }
@@ -129,23 +133,23 @@ Crypto = class () -> self {
         }
 
         ret out;
-    };
+    }
 
-    self.encodeFromFile = func(fname) {
+    proto encodeFromFile: func(fname) {
         f = Io.fopen(fname, 'r');
         text = f.getall();
         f.close();
 
         ret self.encode(text.toLower());
-    };
+    }
 
-    self.decodeFromFile = func(fname) {
+    proto decodeFromFile: func(fname) {
         f = Io.fopen(fname, 'r');
         text = f.getall();
         f.close();
 
         ret self.decode(text);
-    };
+    }
 };
 
 build_arg_dict = func() {
@@ -167,7 +171,7 @@ if OS.argc > 1 {
         key = Convert.toInt(args['-k']);
     }
 
-    crypt = Crypto(key);
+    crypt = Crypto.new(key);
 
     if args.hasKey('-v') {
         crypt.verbose = 1;
@@ -191,7 +195,7 @@ if OS.argc > 1 {
 }
 
 then = Time.unix();
-crypt = Crypto(111);
+crypt = Crypto.new(111);
 encoded = crypt.encode("the quick brown fox jumps over-the lazy dog");
 decoded = crypt.decode(encoded);
 
