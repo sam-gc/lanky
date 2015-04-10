@@ -692,6 +692,7 @@ CLASS_MAKE_METHOD_EX(stlarr_append, self, stlarr_bl *, ab_,
 
 CLASS_MAKE_METHOD_EX(stlarr_insert, self, stlarr_bl *, ab_, 
     int idx = OBJ_NUM_UNWRAP($2);
+    CLASS_ERROR_ASSERT(idx < ab_->container.count, "OutOfBounds", "The specified index is out of bounds.");
     arr_insert(&ab_->container, $1, idx);
     lobj_set_member(self, "count", lobjb_build_int(ab_->container.count));
     return self;
@@ -699,13 +700,14 @@ CLASS_MAKE_METHOD_EX(stlarr_insert, self, stlarr_bl *, ab_,
 
 CLASS_MAKE_METHOD_EX(stlarr_set, self, stlarr_bl *, ab_,
     arraylist *list = &ab_->container;
-
     int idx = (int)OBJ_NUM_UNWRAP($1);
+    CLASS_ERROR_ASSERT(idx < list->count, "OutOfBounds", "The specified index is out of bounds.");
     list->items[idx] = $2;
 )
 
 CLASS_MAKE_METHOD_EX(stlarr_get, self, stlarr_bl *, ab_,
     int idx = OBJ_NUM_UNWRAP($1);
+    CLASS_ERROR_ASSERT(idx < ab_->container.count, "OutOfBounds", "The specified index is out of bounds.");
     return arr_get(&ab_->container, idx);
 )
 
@@ -903,9 +905,10 @@ CLASS_MAKE_METHOD(stlarr_memcpy, self,
     arraylist *bl = &b->container;
 
     long size = OBJ_NUM_UNWRAP($3);
-    if(size > al->allocated || size > bl->count)
-        // TODO: This should be an error
-        return lobjb_build_int(-1);
+
+    CLASS_ERROR_TEST(size > al->allocated, "OutOfBounds", "The destination does not have enough memory allocated");
+    CLASS_ERROR_TEST(size > bl->count, "OutOfBounds", "The source does not have enough elements to copy");
+
     memcpy(al->items, bl->items, size * sizeof(void *));
 
     al->count = al->count < size ? size : al->count;

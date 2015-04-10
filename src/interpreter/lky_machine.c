@@ -64,10 +64,10 @@
     code_\
     if(frame->pc >= frame->tape_len || frame->ret)\
         return;\
-    if(thrown_exception)\
+    if(interp->error)\
     {\
-        lky_object *exc = thrown_exception;\
-        thrown_exception = NULL;\
+        lky_object *exc = interp->error;\
+        interp->error = NULL;\
 \
         if(!frame->catch_pointer && !frame->prev)\
         {\
@@ -101,7 +101,6 @@
 void mach_eval(stackframe *frame);
 
 int pushes = 0;
-lky_object *thrown_exception = NULL;
 
 void push_node(stackframe *frame, void *data)
 {
@@ -133,11 +132,6 @@ void *pop_node(stackframe *frame)
     frame->stack_pointer--;
 
     return data;
-}
-
-void mach_halt_with_err(lky_object *err)
-{
-    thrown_exception = err;
 }
 
 lky_object *mach_interrupt_exec(lky_object_function *func)
@@ -598,7 +592,7 @@ _opcode_whiplash_:
             lky_object *ret = lobjb_call(obj, seq, frame->interp);
             if(frame->thrown)
             {
-                mach_halt_with_err(frame->thrown);
+                interp->error = frame->thrown;
                 frame->thrown = NULL;
                 dispatch_();
             }
@@ -624,7 +618,7 @@ _opcode_whiplash_:
             {
                 char str[200 + strlen(name)];
                 sprintf(str, "Object has no member named '%s'.", name);
-                mach_halt_with_err(lobjb_build_error("UndeclaredIdentifier", str));
+                interp->error = lobjb_build_error("UndeclaredIdentifier", str);
             }
 
 
@@ -737,7 +731,7 @@ _opcode_whiplash_:
             {
                 char str[200 + strlen(name)];
                 sprintf(str, "Could not load closure variable '%s'.", name);
-                mach_halt_with_err(lobjb_build_error("UndeclaredIdentifier", str));
+                interp->error = lobjb_build_error("UndeclaredIdentifier", str);
             }
         )
         vmop(MAKE_ARRAY,
@@ -924,7 +918,7 @@ _opcode_whiplash_:
             frame->catch_stack[frame->catch_pointer--] = 0;
         )
         vmop(RAISE,
-            mach_halt_with_err(POP());
+            interp->error = POP();
         )
         // Unused...
         vmop(IGNORE,

@@ -117,7 +117,7 @@ void exec_in_repl()
     arraylist list = arr_create(1);
 
     hashtable stdl = get_stdlib_objects();
-    mach_interp interp = {NULL, stdl};
+    mach_interp interp = {NULL, stdl, NULL};
     hst_put(&interp.stdlib, "Meta", stlmeta_get_class(&interp), NULL, NULL);
     
     gc_init();
