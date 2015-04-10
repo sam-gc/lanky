@@ -155,6 +155,11 @@ CLASS_MAKE_METHOD_EX(stlio_file_write, self, stlio_blob *, fb_,
     free(line);
 )
 
+CLASS_MAKE_METHOD_EX(stlio_file_rewind, self, stlio_blob *, fb_,
+    CLASS_ERROR_ASSERT(fb_->open, "FileStreamClosed", "The file stream has already been closed");
+    rewind(fb_->f);
+)
+
 CLASS_MAKE_METHOD_EX(stlio_file_writeline, self, stlio_blob *, fb_,
     CLASS_ERROR_ASSERT(fb_->write, "FileModeInvalid", "Attempting to write to file in read-only mode");
     CLASS_ERROR_ASSERT(fb_->open, "FileStreamClosed", "The file stream has already been closed");
@@ -194,6 +199,7 @@ lky_object *stlio_get_file_class()
         CLASS_PROTO_METHOD("getall", stlio_file_readall, 0);
         CLASS_PROTO_METHOD("put", stlio_file_write, 1);
         CLASS_PROTO_METHOD("putln", stlio_file_writeline, 1);
+        CLASS_PROTO_METHOD("rewind", stlio_file_rewind, 0);
     );
 
     stlio_file_class_ = cls;

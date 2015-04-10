@@ -84,6 +84,7 @@ Documentation.new().
     EndClass().
     Class('File', 'The standard file interface. Note that this class may not be instantiated directly. Rather a file object can be requested using the `Io.fopen(...)` method.').
         ProtoField('EOF', 'A flag that is set to `yes` or `no`, depending on whether or not the end of the file has been reached.').
+        ProtoField('fb_', 'The binary blob containing the file information').
         ProtoMethod('getln', 0, 'Reads a line of input for files in "r" mode', [],
                 'This method will throw an error if the file mode is incorrect. If the end of the file has been reached (`EOF` will be set in this case), then the method returns `nil`. Otherwise, it will return a string stripped of the newline containing the contents of the line at the current position in the file.').
         ProtoMethod('getlns', 0, 'Reads the contents of the file into an array', [],
@@ -96,6 +97,7 @@ Documentation.new().
         ProtoMethod('putln', 1, 'Outputs the argument to the file and appends a newline',
                 ['obj', 'The object to print'],
                 'Same as the `put` method above, but includes a newline.').
+        ProtoMethod('rewind', 0, 'Sets the file pointer to the beginning of the file', [], '').
         ProtoMethod('close', 0, 'Closes the output stream and cleans up resources', [], '').
     EndClass().
     Class('Function', 'The nebulous function type; cannot be directly instantiated. The following methods work on any Lanky function in the interpreter context').
@@ -257,6 +259,7 @@ Documentation.new().
         ProtoField('dayOfWeek', 'The current day of the week, 0-6').
         ProtoField('dayOfYear', 'The current day of the year, 0-364').
         ProtoField('year', 'The current year').
+        ProtoField('db_', 'The binary blob containing C structure information').
         ProtoMethod('format', 1, 'Formats the time object according to a format string',
                 ['format', 'The format string'],
                 'The format string should be useable by the C standard `strftime` function.').
