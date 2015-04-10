@@ -20,6 +20,7 @@
 #include "hashtable.h"
 #include "stl_string.h"
 #include "stl_table.h"
+#include "class_builder.h"
 #include <sys/timeb.h>
 #include <string.h>
 #include <time.h>
@@ -43,93 +44,7 @@ long millis()
     return (long)(tb.time * 1000 + tb.millitm);
 }
 
-lky_object *stltime_millis(lky_func_bundle *bundle)
-{
-    return lobjb_build_int(millis());
-}
-
-lky_object *stltime_date_stringify(lky_func_bundle *bundle)
-{
-    lky_object_function *func = BUW_FUNC(bundle);
-
-    lky_object_custom *self = (lky_object_custom *)func->owner;
-    time_data *d = self->data;
-    struct tm td = d->time;
-    char buf[500];
-    asctime_r(&td, buf + 7);
-    memcpy(buf, "(Time: ", 7);
-    buf[strlen(buf) - 1] = ')';
-
-    return stlstr_cinit(buf);
-}
-
-void stltime_date_free(lky_object *o)
-{
-    lky_object_custom *obj = (lky_object_custom *)o;
-    free(obj->data);
-}
-
-void stltime_copy_props_from_struct(lky_object *o)
-{
-    lky_object_custom *obj = (lky_object_custom *)o;
-    time_data *data = obj->data;
-    struct tm tm = data->time;
-    
-    SET_INT_MEMBER(obj, "second", tm.tm_sec);   
-    SET_INT_MEMBER(obj, "minute", tm.tm_min);
-    SET_INT_MEMBER(obj, "hour", tm.tm_hour);
-    SET_INT_MEMBER(obj, "day", tm.tm_mday);
-    SET_INT_MEMBER(obj, "month", tm.tm_mon);
-    SET_INT_MEMBER(obj, "year", tm.tm_year + 1900);
-    SET_INT_MEMBER(obj, "dayOfWeek", tm.tm_wday);
-    SET_INT_MEMBER(obj, "dayOfYear", tm.tm_yday);
-#ifdef _GNU_SOURCE
-    lobj_set_member((lky_object *)obj, "timeZone", stlstr_cinit((char *)tm.tm_zone));
-    SET_INT_MEMBER((lky_object *)obj, "offset", tm.tm_gmtoff);
-#else
-    lobj_set_member((lky_object *)obj, "timeZone", &lky_nil);
-    lobj_set_member((lky_object *)obj, "offset", &lky_nil);
-#endif
-}
-
-void stltime_copy_props_to_struct(lky_object *o)
-{
-    lky_object_custom *obj = (lky_object_custom *)o;
-    time_data *data = obj->data;
-    struct tm tm = data->time;
-
-    APPLY_INT_MEMBER(obj, "second", tm.tm_sec);
-    APPLY_INT_MEMBER(obj, "minute", tm.tm_min);
-    APPLY_INT_MEMBER(obj, "hour", tm.tm_hour);
-    APPLY_INT_MEMBER(obj, "day", tm.tm_mday);
-    APPLY_INT_MEMBER(obj, "month", tm.tm_mon);
-    APPLY_INT_MEMBER(obj, "year", tm.tm_year);
-    APPLY_INT_MEMBER(obj, "dayOfWeek", tm.tm_wday);
-    APPLY_INT_MEMBER(obj, "dayOfYear", tm.tm_yday);
-    tm.tm_year -= 1900;
-
-    data->time = tm;
-}
-
-lky_object *stltime_date_format(lky_func_bundle *bundle)
-{
-    lky_object_function *func = BUW_FUNC(bundle);
-    lky_object_seq *args = BUW_ARGS(bundle);
-
-    lky_object_custom *self = (lky_object_custom *)func->owner;
-    stltime_copy_props_to_struct((lky_object *)self);
-    char *str = lobjb_stringify((lky_object *)args->value, BUW_INTERP(bundle));
-
-    char buf[1000];
-    time_data *data = self->data;
-    struct tm tm = data->time;
-    strftime(buf, 1000, str, &tm);
-
-    free(str);
-    return stlstr_cinit(buf);
-}
-
-lky_object *stltime_build_date_object(lky_object *ht)
+time_data *stltime_make_blob(lky_object *ht)
 {
     struct tm td;
     time_t rt;
@@ -150,10 +65,11 @@ lky_object *stltime_build_date_object(lky_object *ht)
             td.tm_year = (int)(OBJ_NUM_UNWRAP(yobj)) - 1900;
     }
 
-    lky_object_custom *cobj = lobjb_build_custom(sizeof(time_data));
     time_data *data = malloc(sizeof(time_data));
     data->time = td;
-    cobj->data = data;
+
+    return data;
+    /*cobj->data = data;
 
     lky_object *obj = (lky_object *)cobj;
 
@@ -164,22 +80,104 @@ lky_object *stltime_build_date_object(lky_object *ht)
 
     stltime_copy_props_from_struct(obj);
 
-    return obj;
+    return obj;*/
 }
 
-lky_object *stltime_date_builder(lky_func_bundle *bundle)
+void stltime_copy_props_from_struct(lky_object *o)
 {
-    lky_object_seq *args = BUW_ARGS(bundle);
-
-    lky_object *indict = args ? (lky_object *)args->value : NULL;
-    return stltime_build_date_object(indict);
+    time_data *data = CLASS_GET_BLOB(o, "db_", time_data *);
+    struct tm tm = data->time;
+    
+    SET_INT_MEMBER(o, "second", tm.tm_sec);   
+    SET_INT_MEMBER(o, "minute", tm.tm_min);
+    SET_INT_MEMBER(o, "hour", tm.tm_hour);
+    SET_INT_MEMBER(o, "day", tm.tm_mday);
+    SET_INT_MEMBER(o, "month", tm.tm_mon);
+    SET_INT_MEMBER(o, "year", tm.tm_year + 1900);
+    SET_INT_MEMBER(o, "dayOfWeek", tm.tm_wday);
+    SET_INT_MEMBER(o, "dayOfYear", tm.tm_yday);
+#ifdef _GNU_SOURCE
+    lobj_set_member(o, "timeZone", stlstr_cinit((char *)tm.tm_zone));
+    SET_INT_MEMBER(o, "offset", tm.tm_gmtoff);
+#else
+    lobj_set_member(o, "timeZone", &lky_nil);
+    lobj_set_member(o, "offset", &lky_nil);
+#endif
 }
 
+void stltime_copy_props_to_struct(lky_object *obj)
+{
+    time_data *data = CLASS_GET_BLOB(obj, "db_", time_data *);
+    struct tm tm = data->time;
+
+    APPLY_INT_MEMBER(obj, "second", tm.tm_sec);
+    APPLY_INT_MEMBER(obj, "minute", tm.tm_min);
+    APPLY_INT_MEMBER(obj, "hour", tm.tm_hour);
+    APPLY_INT_MEMBER(obj, "day", tm.tm_mday);
+    APPLY_INT_MEMBER(obj, "month", tm.tm_mon);
+    APPLY_INT_MEMBER(obj, "year", tm.tm_year);
+    APPLY_INT_MEMBER(obj, "dayOfWeek", tm.tm_wday);
+    APPLY_INT_MEMBER(obj, "dayOfYear", tm.tm_yday);
+    tm.tm_year -= 1900;
+
+    data->time = tm;
+}
+
+CLASS_MAKE_BLOB_FUNCTION(stltime_on_gc, time_data *, data, how,
+    if(how == CGC_FREE)
+        free(data);    
+)
+
+CLASS_MAKE_INIT(stltime_init,
+    time_data *blob = stltime_make_blob($1);
+    CLASS_SET_BLOB(self_, "db_", blob, stltime_on_gc);
+    stltime_copy_props_from_struct(self_);
+)
+
+CLASS_MAKE_METHOD_EX(stltime_stringify, self, time_data *, db_, 
+    if(!db_)
+        return stlstr_cinit("(Time | Incomplete Object)");
+
+    time_data *d = db_;
+    struct tm td = d->time;
+    char buf[500];
+    asctime_r(&td, buf + 8);
+    memcpy(buf, "(Time | ", 8);
+    buf[strlen(buf) - 1] = ')';
+
+    return stlstr_cinit(buf);
+)
+
+CLASS_MAKE_METHOD_EX(stltime_format, self, time_data *, db_,
+    stltime_copy_props_to_struct(self);
+    char *str = lobjb_stringify($1, interp_);
+
+    char buf[1000];
+    time_data *data = CLASS_GET_BLOB(self, "db_", time_data *);
+    struct tm tm = data->time;
+    strftime(buf, 1000, str, &tm);
+
+    free(str);
+    return stlstr_cinit(buf);
+)
+
+CLASS_MAKE_METHOD(stltime_unix, self,
+    return lobjb_build_int(millis());
+)
+
+static lky_object *stltime_class_;
 lky_object *stltime_get_class()
 {
-    lky_object *obj = lobj_alloc();
-    lobj_set_member(obj, "unix", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stltime_millis));
-    lobj_set_member(obj, "create", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stltime_date_builder));
+    if(stltime_class_)
+        return stltime_class_;
 
-    return obj;
+    CLASS_MAKE(cls, NULL, stltime_init, 1,
+        CLASS_STATIC_METHOD("unix", stltime_unix, 0);
+        CLASS_PROTO_METHOD("format", stltime_format, 1);
+        CLASS_PROTO_METHOD("stringify_", stltime_stringify, 0);
+    );
+
+    stltime_class_ = cls;
+
+    return cls;
 }
