@@ -27,6 +27,7 @@ struct poolnode {
 typedef struct {
     struct poolnode *head;
     void (*free_func)(void *);
+    struct poolnode *tail;
 } lky_mempool;
 
 lky_mempool pool_create();

@@ -31,19 +31,17 @@ struct poolnode *gen_node(void *obj)
     return node;
 }
 
-void append_to_list(struct poolnode **head, struct poolnode *next)
+void append_to_list(struct poolnode **head, struct poolnode **tail, struct poolnode *next)
 {
     if(!*head)
     {
         *head = next;
+        *tail = next;
         return;
     }
 
-    struct poolnode *node = *head;
-    while(node->next)
-        node = node->next;
-
-    node->next = next;
+    (*tail)->next = next;
+    *tail = next;
 }
 
 lky_mempool pool_create()
@@ -51,6 +49,7 @@ lky_mempool pool_create()
     lky_mempool pool;
     pool.head = NULL;
     pool.free_func = NULL;
+    pool.tail = NULL;
 
     return pool;
 }
@@ -58,7 +57,7 @@ lky_mempool pool_create()
 void pool_add(lky_mempool *pool, void *obj)
 {
     struct poolnode *next = gen_node(obj);
-    append_to_list(&(pool->head), next);
+    append_to_list(&(pool->head), &(pool->tail), next);
 }
 
 void pool_drain(lky_mempool *pool)
