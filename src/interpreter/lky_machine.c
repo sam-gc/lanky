@@ -612,6 +612,15 @@ _opcode_whiplash_:
             unsigned int idx = *(unsigned int *)(frame->ops + (++frame->pc));
             frame->pc += 3;
             char *name = frame->names[idx];
+
+            if(obj == &lky_nil || obj == &lky_yes || obj == &lky_no || OBJ_IS_NUMBER(obj))
+            {
+                char str[200 + strlen(name)];
+                sprintf(str, "Requesting member '%s' from memberless-object.", name);
+                interp->error = lobjb_build_error(obj == &lky_nil ? "NullPointer" : "InvalidType", str);
+                dispatch_();
+            }
+
             lky_object *val = lobj_get_member(obj, name);
             
             if(!val)
@@ -619,6 +628,7 @@ _opcode_whiplash_:
                 char str[200 + strlen(name)];
                 sprintf(str, "Object has no member named '%s'.", name);
                 interp->error = lobjb_build_error("UndeclaredIdentifier", str);
+                dispatch_();
             }
 
 
