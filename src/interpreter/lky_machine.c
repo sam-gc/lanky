@@ -71,7 +71,7 @@
 \
         if(!frame->catch_pointer && !frame->prev)\
         {\
-            char *errtxt = lobj_stringify(exc, frame->interp);\
+            char *errtxt = lobjb_stringify(exc, frame->interp);\
             printf("Fatal error--\n%s\n\nHalting.\n", errtxt);\
             free(errtxt);\
             frame->ret = &lky_nil;\
