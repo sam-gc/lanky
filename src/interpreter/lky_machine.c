@@ -302,17 +302,18 @@ static void *dispatch_table_[] = {
     &&LI_ITER_INDEX, &&LI_LOAD_MODULE, &&LI_PUSH_CATCH, &&LI_POP_CATCH, &&LI_RAISE
 };
 #else
+lky_instruction op;
 _opcode_whiplash_:
     if(frame->pc >= frame->tape_len || frame->ret)
         return;
-    if(thrown_exception)
+    if(interp->error)
     {
-        lky_object *exc = thrown_exception;
-        thrown_exception = NULL;
+        lky_object *exc = interp->error;
+        interp->error = NULL;
 
         if(!frame->catch_pointer && !frame->prev)
         {
-            char *errtxt = lobj_stringify(exc, frame->interp);
+            char *errtxt = lobjb_stringify(exc, frame->interp);
             printf("Fatal error--\n%s\n\nHalting.\n", errtxt);
             free(errtxt);
             frame->ret = &lky_nil;
