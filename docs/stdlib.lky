@@ -5,7 +5,7 @@ Meta = load 'Meta';
 
 Documentation.new().
     Title("Lanky Standard Library").
-    Description("Official documentation for the lanky standard library. Auto generated on " + Time.create().format('%b %d %Y') + ". Interpreter version at time of generation: " + Meta.version + ".").
+    Description("Official documentation for the lanky standard library. Auto generated on " + Time.new().format('%b %d %Y') + ". Interpreter version at time of generation: " + Meta.version + ".").
     Class("Array", "The wrapper around the interpreter's arraylist implementation.").
         ProtoField("count", "The number of elements contained in the array").
         ProtoField("ab_", "The binary blob that contains the actual C arraylist").
@@ -80,25 +80,25 @@ Documentation.new().
                 "First the object is printed, then the method waits for the user to type input and press the return key. The method returns this input as a string, without the trailing newline.").
         StaticMethod('fopen', 2, 'Wrapper around the standard C `fopen` function',
                 ['path', 'The relative or absolute path to the file', 'flags', 'The read/write flags (r, w, b, etc..)'],
-                "This method will attempt to open the file. If the file is not found, the interpreter will segfault (don't be stupid). If the file is found and the requested mode is valid, a file object will be returned. Please see the `File` class for more information of applicable methods.").
+                "This method will attempt to open the file. If the file is not found or is invalid, this method will throw an error. If the file is found and the requested mode is valid, a file object will be returned. Please see the `File` class for more information of applicable methods.").
     EndClass().
     Class('File', 'The standard file interface. Note that this class may not be instantiated directly. Rather a file object can be requested using the `Io.fopen(...)` method.').
         ProtoField('EOF', 'A flag that is set to `yes` or `no`, depending on whether or not the end of the file has been reached.').
+        ProtoField('fb_', 'The binary blob containing the file information').
         ProtoMethod('getln', 0, 'Reads a line of input for files in "r" mode', [],
-                'This method will segfault if the file mode is incorrect. If the end of the file has been reached (`EOF` will be set in this case), then the method returns `nil`. Otherwise, it will return a string stripped of the newline containing the contents of the line at the current position in the file.').
+                'This method will throw an error if the file mode is incorrect. If the end of the file has been reached (`EOF` will be set in this case), then the method returns `nil`. Otherwise, it will return a string stripped of the newline containing the contents of the line at the current position in the file.').
         ProtoMethod('getlns', 0, 'Reads the contents of the file into an array', [],
-                'The method will return an array of strings representing lines in the file (this is implemented in C and is therefore faster than calling `getall().split(...)`). The strings in the array will have been stripped of their newlines. Note that this will not rewind the file; rather it will return all of the lines from the current position. `EOF` will be set to `yes`.').
+                'The method will return an array of strings representing lines in the file (this is implemented in C and is therefore faster than calling `getall().split(...)`). The strings in the array will have been stripped of their newlines. Note that this will not rewind the file; rather it will return all of the lines from the current position. `EOF` will be set to `yes`. If the file mode is incorrect, this method will throw an error.').
         ProtoMethod('getall', 0, 'Reads the contents of the file into a string', [],
-                'This method will read the entire file into a string, newlines included. `EOF` will be set to `yes`.').
+                'This method will read the entire file into a string, newlines included. `EOF` will be set to `yes`. If the file mode is incorrect, an error will be thrown.').
         ProtoMethod('put', 1, 'Outputs the argument to the file',
                 ['obj', 'The object to print'],
-                'Stringifies the object and prints the result into the file, incrementing the position (note that no newline is added). This is the `File` counterpart of the `Io.put(...)` method.').
+                'Stringifies the object and prints the result into the file, incrementing the position (note that no newline is added). This is the `File` counterpart of the `Io.put(...)` method. An error will be thrown if the file mode is incorrect.').
         ProtoMethod('putln', 1, 'Outputs the argument to the file and appends a newline',
                 ['obj', 'The object to print'],
-                'Same as the `put` method above, but includes a newline').
+                'Same as the `put` method above, but includes a newline.').
+        ProtoMethod('rewind', 0, 'Sets the file pointer to the beginning of the file', [], '').
         ProtoMethod('close', 0, 'Closes the output stream and cleans up resources', [], '').
-        ProtoMethod('readBytes', 0, 'Deprecated. Reads all of the bytes into a byte buffer (implemented as a `String`)',
-                [], 'This should not be used.').
     EndClass().
     Class('Function', 'The nebulous function type; cannot be directly instantiated. The following methods work on any Lanky function in the interpreter context').
         ProtoField('argc', 'The number of arguments the function takes').
@@ -259,11 +259,12 @@ Documentation.new().
         ProtoField('dayOfWeek', 'The current day of the week, 0-6').
         ProtoField('dayOfYear', 'The current day of the year, 0-364').
         ProtoField('year', 'The current year').
+        ProtoField('db_', 'The binary blob containing C structure information').
         ProtoMethod('format', 1, 'Formats the time object according to a format string',
                 ['format', 'The format string'],
                 'The format string should be useable by the C standard `strftime` function.').
         ProtoMethod('stringify_', 0, 'Custom stringification function', [], '').
-        StaticMethod('create', 1, 'Creates a new time object',
+        StaticMethod('new', 1, 'Standard initializer for time objects',
                 ['[table]', 'Optional initial values'],
                 'If no argument is supplied, a new time object is returned as the current time and date. Otherwise, it is initialized based on the keys in `table`. The names of the keys should be the same as the names of the Prototype Fields above.').
         StaticMethod('unix', 0, 'Returns the number of milliseconds since the epoch', [], '').

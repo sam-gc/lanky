@@ -73,9 +73,14 @@ void clb_add_member(lky_object *cls, char *refname, lky_object *obj, lky_class_p
     lky_object *$1 ATTRIB_NO_USE = args_ ? (lky_object *)args_->value : NULL;\
     lky_object *$2 ATTRIB_NO_USE = args_ && args_->next ? (lky_object *)args_->next->value : NULL;\
     lky_object *$3 ATTRIB_NO_USE = args_ && args_->next && args_->next->next ? (lky_object *) args_->next->next->value : NULL;\
-    type key ATTRIB_NO_USE = (type) ((lky_object_builtin *)lobj_get_member(ident, #key ))->value.b;\
+    lky_object_builtin *raw_blob_ = (lky_object_builtin *)lobj_get_member(ident, #key);\
+    type key ATTRIB_NO_USE = (type) raw_blob_ ? raw_blob_->value.b : NULL;\
     code\
     return &lky_nil;}
+
+#define CLASS_ERROR(name, description) do{(interp_->error = lobjb_build_error(name, descrip)); return &lky_nil;}while(0)
+#define CLASS_ERROR_ASSERT(test, name, description) do{if(!(test)){ (interp_->error = lobjb_build_error(name, description)); return &lky_nil;}}while(0) 
+#define CLASS_ERROR_TEST(test, name, description) do{if((test)){(interp_->error = lobjb_build_error(name, description)); return &lky_nil;}}while(0) 
 
 #define CLASS_SET_BLOB(obj, key, ptr, gc) (lobj_set_member(obj, key, lobjb_build_blob(ptr, (lobjb_void_ptr_function)gc)))
 

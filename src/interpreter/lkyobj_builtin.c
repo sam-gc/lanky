@@ -564,7 +564,7 @@ lky_object *lobjb_unary_load_index(lky_object *obj, lky_object *indexer, struct 
 
     if(!func)
     {
-        mach_halt_with_err(lobjb_build_error("MismatchedType", "The given type cannot be indexed."));
+        interp->error = lobjb_build_error("MismatchedType", "The given type cannot be indexed.");
         return &lky_nil;
     }
 
@@ -580,7 +580,7 @@ lky_object *lobjb_unary_save_index(lky_object *obj, lky_object *indexer, lky_obj
 
     if(!func)
     {
-        mach_halt_with_err(lobjb_build_error("MismatchedType", "The given type cannot be indexed."));
+        interp->error = lobjb_build_error("MismatchedType", "The given type cannot be indexed.");
         return &lky_nil;
     }
 

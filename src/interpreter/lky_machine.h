@@ -53,6 +53,7 @@ typedef struct stackframe {
 typedef struct interp {
     stackframe *stack;
     hashtable stdlib;
+    lky_object *error;
 } mach_interp;
 
 typedef struct lky_object_function lky_object_function;
@@ -62,5 +63,6 @@ mach_interp mach_make_interp();
 lky_object *mach_interrupt_exec(lky_object_function *func);
 lky_object *mach_execute(lky_object_function *func);
 void mach_halt_with_err(lky_object *err);
+void mach_throw(lky_object *err, mach_interp *interp);
 
 #endif
