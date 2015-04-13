@@ -41,6 +41,13 @@ extern YY_BUFFER_STATE yy_scan_string(char * str);
 extern void yy_delete_buffer(YY_BUFFER_STATE buffer);
 extern char yyyhad_error;
 
+static int use_console_colors = 1;
+
+void stlmeta_no_console_colors()
+{
+    use_console_colors = 0;
+}
+
 int needs_multiline(char *line)
 {
     int b = 0;
