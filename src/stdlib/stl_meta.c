@@ -154,7 +154,9 @@ void run_repl(mach_interp *interp)
         
         lky_object *ret = compile_and_exec(line, interp);
 
+#ifdef USE_COLOR
         printf(YELLOW);
+#endif
         char *str = lobjb_stringify(ret, interp);
         if(lobj_is_of_class(ret, stlstr_get_class()))
             printf("'%s'\n", str);

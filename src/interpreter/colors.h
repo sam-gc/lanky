@@ -16,6 +16,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#ifdef USE_COLOR
 #define BLACK		   "\033[0;30m"
 #define BLUE	       "\033[0;34m"
 #define GREEN	       "\033[0;32m"
@@ -33,3 +34,22 @@
 #define LIGHT_YELLOW   "\033[1;33m"
 #define WHITE          "\033[1;37m"
 #define DEFAULT		   "\033[0m"
+#else
+#define BLACK
+#define BLUE
+#define GREEN	
+#define CYAN
+#define RED	
+#define PURPLE 
+#define YELLOW 
+#define LIGHT_GREY 
+#define DARK_GREY 
+#define LIGHT_BLUE 
+#define LIGHT_GREEN  
+#define LIGHT_CYAN   
+#define LIGHT_RED    
+#define LIGHT_PURPLE 
+#define LIGHT_YELLOW 
+#define WHITE        
+#define DEFAULT		
+#endif
