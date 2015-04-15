@@ -119,8 +119,23 @@ lky_object *compile_and_exec(char *str, mach_interp *interp)
     return ret;
 }
 
+lky_object *stl_meta_clear(lky_func_bundle *bundle)
+{
+#ifdef __GNUC__
+    system("clear");
+#elif defined __APPLE__
+    system("clear");
+#endif
+
+    return &lky_nil;
+}
+
 void run_repl(mach_interp *interp)
 {
+    // Load the REPL-specific functions
+    lobj_set_member(interp->stack->bucket, "clear",
+            lobjb_build_func_ex(NULL, 0, (lky_function_ptr)stl_meta_clear));
+
     char *prompt = "\001" LIGHT_BLUE "\002" "> " "\001" DEFAULT "\002";
 
     char *buf;
