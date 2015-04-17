@@ -1,0 +1,21 @@
+Meta = load 'Meta';
+Io = load 'Io';
+
+Meta.timeout(10, func() {
+    Io.putln("We're getting crazy now...");
+});
+
+Meta.timeout(5, func() {
+    Io.putln("If this is reached at least something works...");
+});
+
+func() {
+    i = "Another test...";
+    Meta.timeout(2, func() {
+        Io.putln(i);
+    });
+}();
+
+for i = 0.0; i < 100000; i += 1 {}
+
+Io.putln("End execution?");

@@ -90,10 +90,11 @@ set(SOURCE_FILES
     src/stdlib/units.h
     src/main.c)
 
-add_executable(lanky ${SOURCE_FILES})
+add_executable(lanky ${SOURCE_FILES} src/interpreter/runtime.h src/interpreter/runtime.c)
 
 target_link_libraries(lanky
     readline
     m
     dl
+    pthread
 )

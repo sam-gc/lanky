@@ -47,6 +47,7 @@
 #include "stl_table.h"
 #include "hashmap.h"
 #include "module.h"
+#include "runtime.h"
 #include "class_builder.h"
 
 //#define COMPUTED_GOTO
@@ -269,6 +270,14 @@ lky_object *mach_execute(lky_object_function *func)
 
     mach_eval(frame);
 
+    if(!interp->stack->prev)
+    {
+        lky_object *callback;
+        while((callback = rt_next((runtime *)interp->rtime)))
+        {
+            lobjb_call(callback, NULL, interp);
+        }
+    }
 
     gc_remove_root_object((lky_object *)func);
     func->bucket = NULL;

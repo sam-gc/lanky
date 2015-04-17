@@ -20,6 +20,8 @@
 #include <string.h>
 #include <unistd.h>
 #include <libgen.h>
+#include <runtime.h>
+#include <stdlib.h>
 #include "ast.h"
 #include "parser.h"
 #include "tools.h"
@@ -130,8 +132,11 @@ void exec_in_repl()
     frame.stack_size = 0;
     frame.locals_count = 0;
     frame.thrown = NULL;
+
+    runtime rt = rt_make();
     
     interp.stack = &frame;
+    interp.rtime = &rt;
     
     gc_add_func_stack(&frame);
     
@@ -143,6 +148,8 @@ void exec_in_repl()
     
     run_repl(&interp);
     printf("\nGoodbye!\n");
+
+    rt_clean(&rt);
 }
 
 lky_object_code *compile_from_file(char *file)
@@ -179,7 +186,9 @@ void exec_from_code(lky_object_code *code, char *file, int exec)
 
     char *path = dirname(codeloc);
 
+    runtime rt = rt_make();
     interp.stdlib = get_stdlib_objects();
+    interp.rtime = &rt;
     hst_put(&interp.stdlib, "Meta", stlmeta_get_class(&interp), NULL, NULL);
     
     gc_init();
@@ -196,6 +205,8 @@ void exec_from_code(lky_object_code *code, char *file, int exec)
         lky_func_bundle b = MAKE_BUNDLE(NULL, lobjb_make_seq_node((lky_object *)func), &interp);
         stlmeta_examine(&b);
     }
+
+    rt_clean(&rt);
 }
 
 int main(int argc, char *argv[])

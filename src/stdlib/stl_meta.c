@@ -27,10 +27,12 @@
 #include "instruction_set.h"
 #include "colors.h"
 #include "info.h"
+#include "runtime.h"
 #include <string.h>
 
 #include <readline/readline.h>
 #include <readline/history.h>
+
 
 #define META_AUDIT(type) (printf(" -> %lu\t%s\n", sizeof(type), #type))
 
@@ -642,7 +644,7 @@ lky_object *stlmeta_get_class(mach_interp *interp)
     custom->freefunc = NULL;
     custom->savefunc = NULL;
     custom->data = interp;
-    
+
     lky_object *obj = (lky_object *)custom;
 
     lobj_set_member(obj, "exec", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlmeta_exec));
@@ -659,6 +661,7 @@ lky_object *stlmeta_get_class(mach_interp *interp)
     lobj_set_member(obj, "allowIntTags", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlmeta_allow_int_tags));
     lobj_set_member(obj, "audit", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlmeta_audit));
     lobj_set_member(obj, "clear", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stl_meta_clear));
+    lobj_set_member(obj, "timeout", lobjb_build_func_ex(obj, 1, (lky_function_ptr)rt_timeout));
     lobj_set_member(obj, "version", stlstr_cinit(LKY_VERSION_NUM));
     lobj_set_member(obj, "versionTag", stlstr_cinit(LKY_VERSION_TAG));
     lobj_set_member(obj, "copyright", stlstr_cinit(LKY_COPYRIGHT));

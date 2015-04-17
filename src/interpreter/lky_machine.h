@@ -54,6 +54,7 @@ typedef struct interp {
     stackframe *stack;
     hashtable stdlib;
     lky_object *error;
+    void *rtime;
 } mach_interp;
 
 typedef struct lky_object_function lky_object_function;
