@@ -1,6 +1,15 @@
 Io = <"Io">;
 Time = <"Time">;
 
+Io.printf = func(fmt) -> self {
+    pts = fmt.split('@');
+    for p, i in pts {
+        self.put(p); 
+        if i == pts.count - 1 {break;}
+        self.put(va_args_[i]);
+    }
+};
+
 fib_brute_force = func(n) {
     if n == 0 | n == 1 {
         ret n;
