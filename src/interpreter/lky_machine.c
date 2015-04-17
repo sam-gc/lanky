@@ -270,12 +270,20 @@ lky_object *mach_execute(lky_object_function *func)
 
     mach_eval(frame);
 
+    // Poll the runtime callbacks if we have nothing else to do.
     if(!interp->stack->prev)
     {
         lky_object *callback;
         while((callback = rt_next((runtime *)interp->rtime)))
         {
             lobjb_call(callback, NULL, interp);
+            if(interp->stack->thrown)
+            {
+                char *errtxt = lobjb_stringify(interp->stack->thrown, interp);
+                printf("Fatal error--\n%s\n\nHalting.\n", errtxt);
+                free(errtxt);
+                return NULL;
+            }
         }
     }
 
