@@ -24,6 +24,11 @@
 #include "lky_object.h"
 
 typedef struct {
+    arraylist list;
+    pthread_mutex_t lock;
+} concurrent_arraylist;
+
+typedef struct {
     arraylist events;
     arraylist event_queue;
 } runtime;
@@ -33,10 +38,14 @@ typedef struct {
     lky_object *callback;
     pthread_t thread;
     void *data;
+
+    lky_object_seq *args;
+
+    concurrent_arraylist save_list;
 } rt_event;
 
 runtime rt_make();
-lky_object *rt_next(runtime *rt);
+rt_event *rt_next(runtime *rt);
 lky_object *rt_timeout(lky_func_bundle *bundle);
 
 void rt_clean(runtime *rt);

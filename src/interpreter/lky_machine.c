@@ -273,10 +273,10 @@ lky_object *mach_execute(lky_object_function *func)
     // Poll the runtime callbacks if we have nothing else to do.
     if(!interp->stack->prev)
     {
-        lky_object *callback;
-        while((callback = rt_next((runtime *)interp->rtime)))
+        rt_event *event;
+        while((event = rt_next((runtime *)interp->rtime)))
         {
-            lobjb_call(callback, NULL, interp);
+            lobjb_call(event->callback, event->args, interp);
             if(interp->stack->thrown)
             {
                 char *errtxt = lobjb_stringify(interp->stack->thrown, interp);
@@ -284,6 +284,8 @@ lky_object *mach_execute(lky_object_function *func)
                 free(errtxt);
                 return NULL;
             }
+
+            free(event);
         }
     }
 

@@ -21,13 +21,13 @@
 #include "runtime.h"
 #include "lkyobj_builtin.h"
 #include "lky_gc.h"
-#include "arraylist.h"
 
 rt_event *rt_make_event(lky_object *callback)
 {
     rt_event *event = malloc(sizeof(*event));
     event->callback = callback;
     event->fire = 0;
+    event->args = NULL;
 
     return event;
 }
@@ -53,11 +53,11 @@ rt_event *rt_register(runtime *rt, lky_object *callback, void *(*start_routine)(
     return event;
 }
 
-lky_object *rt_poll(runtime *rt)
+rt_event *rt_poll(runtime *rt)
 {
     if(rt->event_queue.count)
     {
-        lky_object *ret = rt->event_queue.items[rt->event_queue.count - 1];
+        rt_event *ret = rt->event_queue.items[rt->event_queue.count - 1];
         arr_remove(&rt->event_queue, NULL, rt->event_queue.count - 1);
         return ret;
     }
@@ -74,23 +74,22 @@ void rt_scan(runtime *rt)
         if(event->fire)
         {
             arr_remove(&rt->events, NULL, i);
-            arr_insert(&rt->event_queue, event->callback, 0);
-            free(event);
+            arr_insert(&rt->event_queue, event, 0);
         }
     }
 }
 
-lky_object *rt_next(runtime *rt)
+rt_event *rt_next(runtime *rt)
 {
     while(rt->events.count || rt->event_queue.count)
     {
         rt_scan(rt);
-        lky_object *callback = rt_poll(rt);
+        rt_event *event = rt_poll(rt);
 
-        if(callback)
+        if(event)
         {
-            gc_remove_root_object(callback);
-            return callback;
+            gc_remove_root_object(event->callback);
+            return event;
         }
         
         usleep(10000);
