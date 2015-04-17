@@ -20,7 +20,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <libgen.h>
-#include <runtime.h>
+#include "runtime.h"
 #include <stdlib.h>
 #include "ast.h"
 #include "parser.h"
