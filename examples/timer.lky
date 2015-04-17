@@ -1,0 +1,33 @@
+Meta = load 'Meta';
+Io = load 'Io';
+
+Timer = class -> self {
+    init self: func(callback) {
+        self.callback = callback;
+        self.valid = yes;
+    }
+
+    proto run: func(interval) {
+        self.worker = func() {
+            self.callback(self);
+            if !self.valid { ret; }
+            Meta.timeout(interval, self.worker);
+        };
+
+        Meta.timeout(interval, self.worker);
+    }
+};
+
+glbl = {
+    .count: 0
+};
+
+Timer.new(func(t) {
+    glbl.count += 1;
+    Io.putln(glbl.count);
+
+    if glbl.count == 10 {
+        t.valid = no;
+    }
+}).run(1);
+
