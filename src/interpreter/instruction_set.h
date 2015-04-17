@@ -82,10 +82,4 @@ typedef enum {
     LI_RAISE
 } lky_instruction;
 
-typedef enum {
-    LT_DOUBLE,
-    LT_LONG,
-    LT_STRING
-} lky_type;
-
 #endif

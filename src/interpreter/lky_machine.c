@@ -49,7 +49,7 @@
 #include "module.h"
 #include "class_builder.h"
 
-#define COMPUTED_GOTO
+//#define COMPUTED_GOTO
 
 // Macros to abstract the notion of "pushing"
 // and "popping" from the state machine

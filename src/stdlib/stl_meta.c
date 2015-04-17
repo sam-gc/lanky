@@ -111,7 +111,7 @@ lky_object *compile_and_exec(char *str, mach_interp *interp)
         }
     }
     
-    arraylist t;
+    arraylist t = arr_create(10);
     lky_object_function *tor = (lky_object_function *)lobjb_build_func(code, 0, t, interp);
     
     lky_object *ret = mach_interrupt_exec(tor);
@@ -658,6 +658,7 @@ lky_object *stlmeta_get_class(mach_interp *interp)
     lobj_set_member(obj, "addressOf", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlmeta_address_of));
     lobj_set_member(obj, "allowIntTags", lobjb_build_func_ex(obj, 1, (lky_function_ptr)stlmeta_allow_int_tags));
     lobj_set_member(obj, "audit", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stlmeta_audit));
+    lobj_set_member(obj, "clear", lobjb_build_func_ex(obj, 0, (lky_function_ptr)stl_meta_clear));
     lobj_set_member(obj, "version", stlstr_cinit(LKY_VERSION_NUM));
     lobj_set_member(obj, "versionTag", stlstr_cinit(LKY_VERSION_TAG));
     lobj_set_member(obj, "copyright", stlstr_cinit(LKY_COPYRIGHT));

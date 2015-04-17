@@ -100,4 +100,13 @@ void clb_add_member(lky_object *cls, char *refname, lky_object *obj, lky_class_p
 
 #define CLASS_GET_BLOB(obj, key, type) ((type) ((lky_object_builtin *)lobj_get_member(obj, key))->value.b)
 
+#define OBJECT_MAKE(name, code...) do {\
+lky_object *obj_ = lobj_alloc();\
+code\
+name = obj_;\
+} while(0)
+
+#define OBJECT_MEMBER(name, obj) lobj_set_member(obj_, name, (lky_object *)obj)
+#define OBJECT_METHOD(name, ptr, argc) OBJECT_MEMBER(name, lobjb_build_func_ex(NULL, argc, (lky_function_ptr)ptr))
+
 #endif

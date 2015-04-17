@@ -1,0 +1,99 @@
+cmake_minimum_required(VERSION 3.1)
+project(lanky)
+
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99")
+
+include_directories(
+    src/interpreter
+    src/compiler
+    src/stdlib
+    src/grammar
+)
+
+set(SOURCE_FILES
+    src/compiler/ast.c
+    src/compiler/ast.h
+    src/compiler/ast_compiler.c
+    src/compiler/ast_compiler.h
+    src/compiler/bytecode_analyzer.c
+    src/compiler/bytecode_analyzer.h
+    src/compiler/exporter.c
+    src/compiler/exporter.h
+    src/compiler/mempool.c
+    src/compiler/mempool.h
+    src/compiler/tools.c
+    src/compiler/tools.h
+    src/grammar/parser.c
+    src/grammar/parser.h
+    src/grammar/tokens.c
+    src/interpreter/aquarium.c
+    src/interpreter/aquarium.h
+    src/interpreter/arraylist.c
+    src/interpreter/arraylist.h
+    src/interpreter/class_builder.c
+    src/interpreter/class_builder.h
+    src/interpreter/colors.h
+    src/interpreter/gc_hashset.c
+    src/interpreter/gc_hashset.h
+    src/interpreter/hashmap.c
+    src/interpreter/hashmap.h
+    src/interpreter/info.h
+    src/interpreter/instruction_set.h
+    src/interpreter/lky_gc.c
+    src/interpreter/lky_gc.h
+    src/interpreter/lky_gc_mk2.h
+    src/interpreter/lky_machine.c
+    src/interpreter/lky_machine.h
+    src/interpreter/lky_object.c
+    src/interpreter/lky_object.h
+    src/interpreter/lkyobj_builtin.c
+    src/interpreter/lkyobj_builtin.h
+    src/interpreter/mach_binary_ops.c
+    src/interpreter/mach_binary_ops.h
+    src/interpreter/mach_unary_ops.c
+    src/interpreter/mach_unary_ops.h
+    src/interpreter/module.c
+    src/interpreter/module.h
+    src/interpreter/serialize.c
+    src/interpreter/serialize.h
+    src/stdlib/hashtable.c
+    src/stdlib/hashtable.h
+    src/stdlib/stanky.c
+    src/stdlib/stanky.h
+    src/stdlib/stl_array.c
+    src/stdlib/stl_array.h
+    src/stdlib/stl_convert.c
+    src/stdlib/stl_convert.h
+    src/stdlib/stl_io.c
+    src/stdlib/stl_io.h
+    src/stdlib/stl_math.c
+    src/stdlib/stl_math.h
+    src/stdlib/stl_meta.c
+    src/stdlib/stl_meta.h
+    src/stdlib/stl_object.c
+    src/stdlib/stl_object.h
+    src/stdlib/stl_os.c
+    src/stdlib/stl_os.h
+    src/stdlib/stl_requisitions.c
+    src/stdlib/stl_requisitions.h
+    src/stdlib/stl_string.c
+    src/stdlib/stl_string.h
+    src/stdlib/stl_table.c
+    src/stdlib/stl_table.h
+    src/stdlib/stl_time.c
+    src/stdlib/stl_time.h
+    src/stdlib/stl_units.c
+    src/stdlib/stl_units.h
+    src/stdlib/testnew.c
+    src/stdlib/testnew.h
+    src/stdlib/units.c
+    src/stdlib/units.h
+    src/main.c)
+
+add_executable(lanky ${SOURCE_FILES})
+
+target_link_libraries(lanky
+    readline
+    m
+    dl
+)
