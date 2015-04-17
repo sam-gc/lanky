@@ -711,6 +711,11 @@ CLASS_MAKE_METHOD_EX(stlarr_get, self, stlarr_bl *, ab_,
     return arr_get(&ab_->container, idx);
 )
 
+CLASS_MAKE_METHOD_EX(stlarr_last, self, stlarr_bl *, ab_,
+    CLASS_ERROR_ASSERT(0 < ab_->container.count, "OutOfBounds", "Calling last on empty array.");
+    return arr_get(&ab_->container, ab_->container.count - 1);        
+)
+
 CLASS_MAKE_METHOD_EX(stlarr_contains, self, stlarr_bl *, ab_,
     arraylist list = ab_->container;
     
@@ -938,6 +943,7 @@ lky_object *stlarr_get_class()
         CLASS_PROTO_METHOD("set", stlarr_set, 2);
         CLASS_PROTO_METHOD("op_get_index_", stlarr_get, 1);
         CLASS_PROTO_METHOD("op_set_index_", stlarr_set, 2);
+        CLASS_PROTO_METHOD("last", stlarr_last, 0);
         CLASS_PROTO_METHOD("forEach", stlarr_for_each, 1);
         CLASS_PROTO_METHOD("contains", stlarr_contains, 1);
         CLASS_PROTO_METHOD("indexOf", stlarr_index_of, 1);
