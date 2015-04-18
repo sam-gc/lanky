@@ -719,7 +719,7 @@ void compile_if(compiler_wrapper *cw, ast_node *root)
         node = (ast_if_node *)node->next_if;
     }
 
-    append_op(cw, tagOut, node->lineno);
+    append_op(cw, tagOut, root->lineno);
 
     cw->save_val = 1;
 }
