@@ -46,6 +46,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <lkyobj_builtin.h>
 
 
 // A compiler wrapper to reduce global state.
@@ -65,6 +66,7 @@ typedef struct {
     int name_idx; // The index of the current name
     int classargc; // The number of arguments for class instantiation.
     arraylist used_names; // A list of used names (to distinguish between LI_LOAD_CLOSE and LI_LOAD_LOCAL
+    arraylist rindices;
     int repl;
 } compiler_wrapper;
 
@@ -83,7 +85,7 @@ void compile_set_member(compiler_wrapper *cw, ast_node *root);
 void compile_set_index(compiler_wrapper *cw, ast_node *root);
 int find_prev_name(compiler_wrapper *cw, char *name);
 void int_to_byte_array(unsigned char *buffer, int val);
-void append_op(compiler_wrapper *cw, long ins);
+void append_op(compiler_wrapper *cw, long ins, long lineno);
 
 // A struct used to represent 'tags' in the
 // intermediate code; we use this struct to
@@ -191,7 +193,7 @@ char is_close(compiler_wrapper *cw, int idx)
     return istr == LI_LOAD_CLOSE || istr == LI_SAVE_CLOSE;
 }
 
-void append_var_info(compiler_wrapper *cw, char *ch, char load)
+void append_var_info(compiler_wrapper *cw, char *ch, char load, int lineno)
 {
     char needs_close = cw->repl;
     char already_defined = 0;
@@ -232,13 +234,13 @@ void append_var_info(compiler_wrapper *cw, char *ch, char load)
             arr_append(&cw->rnames, nsid);
         }
 
-        append_op(cw, istr);
+        append_op(cw, istr, lineno);
         unsigned char buf[4];
         int_to_byte_array(buf, i);
-        append_op(cw, buf[0]);
-        append_op(cw, buf[1]);
-        append_op(cw, buf[2]);
-        append_op(cw, buf[3]);
+        append_op(cw, buf[0], lineno);
+        append_op(cw, buf[1], lineno);
+        append_op(cw, buf[2], lineno);
+        append_op(cw, buf[3], lineno);
 
         return;
     }
@@ -258,13 +260,13 @@ void append_var_info(compiler_wrapper *cw, char *ch, char load)
     else
         idx = OBJ_NUM_UNWRAP(o);
 
-    append_op(cw, istr);
+    append_op(cw, istr, lineno);
     unsigned char buf[4];
     int_to_byte_array(buf, idx);
-    append_op(cw, buf[0]);
-    append_op(cw, buf[1]);
-    append_op(cw, buf[2]);
-    append_op(cw, buf[3]);
+    append_op(cw, buf[0], lineno);
+    append_op(cw, buf[1], lineno);
+    append_op(cw, buf[2], lineno);
+    append_op(cw, buf[3], lineno);
 
     name_wrapper *wrap = malloc(sizeof(name_wrapper));
     pool_add(&ast_memory_pool, wrap);
@@ -332,14 +334,30 @@ unsigned char *finalize_ops(compiler_wrapper *cw)
     return ops;
 }
 
+long *finalize_indices(compiler_wrapper *cw)
+{
+    long *idcs = malloc(cw->rindices.count * sizeof(long));
+
+    long i;
+    for(i = 0; i < cw->rindices.count; i++)
+    {
+        lky_object_builtin *obj = arr_get(&cw->rindices, i);
+        idcs[i] = (long)(OBJ_NUM_UNWRAP(obj));
+    }
+
+    return idcs;
+}
+
 // Helper function to add an instruction/tag to
 // the running operations list. This should be
 // the only function that appends to that list.
-void append_op(compiler_wrapper *cw, long ins)
+void append_op(compiler_wrapper *cw, long ins, long lineno)
 {
     lky_object *obj = lobjb_build_int(ins);
+    lky_object *idx = lobjb_build_int(lineno);
     pool_add(&ast_memory_pool, obj);
     arr_append(&cw->rops, obj);
+    arr_append(&cw->rindices, idx);
 }
 
 arraylist copy_arraylist(arraylist in)
@@ -429,11 +447,11 @@ void compile_binary(compiler_wrapper *cw, ast_node *root)
     if(node->opt == '=')
     {
             // Deal with the weirdness of the '=' case.
-        append_var_info(cw, ((ast_value_node *)(node->left))->value.s, 0);
+        append_var_info(cw, ((ast_value_node *)(node->left))->value.s, 0, node->lineno);
         return;
     }
 
-    append_op(cw, instr_for_char(node->opt));
+    append_op(cw, instr_for_char(node->opt), node->lineno);
 }
 
 // Helper function to return the next tag for the
@@ -451,30 +469,30 @@ void compile_try_catch(compiler_wrapper *cw, ast_node *root)
     int tagOut = next_if_tag(cw);
 
     // Begin try
-    append_op(cw, LI_PUSH_CATCH);
-    append_op(cw, tagCatch);
-    append_op(cw, -1);
-    append_op(cw, -1);
-    append_op(cw, -1);
+    append_op(cw, LI_PUSH_CATCH, node->lineno);
+    append_op(cw, tagCatch, node->lineno);
+    append_op(cw, -1, node->lineno);
+    append_op(cw, -1, node->lineno);
+    append_op(cw, -1, node->lineno);
 
     compile_compound(cw, node->tryblock->next);
 
-    append_op(cw, LI_POP_CATCH);
-    append_op(cw, LI_JUMP);
-    append_op(cw, tagOut);
-    append_op(cw, -1);
-    append_op(cw, -1);
-    append_op(cw, -1);
+    append_op(cw, LI_POP_CATCH, node->lineno);
+    append_op(cw, LI_JUMP, node->lineno);
+    append_op(cw, tagOut, node->lineno);
+    append_op(cw, -1, node->lineno);
+    append_op(cw, -1, node->lineno);
+    append_op(cw, -1, node->lineno);
     // End try
 
     // Begin catch
-    append_op(cw, tagCatch);
-    append_var_info(cw, ((ast_value_node *)(node->exception_name))->value.s, 0);
-    append_op(cw, LI_POP);
+    append_op(cw, tagCatch, node->lineno);
+    append_var_info(cw, ((ast_value_node *)(node->exception_name))->value.s, 0, node->lineno);
+    append_op(cw, LI_POP, node->lineno);
 
     compile_compound(cw, node->catchblock->next);
 
-    append_op(cw, tagOut);
+    append_op(cw, tagOut, node->lineno);
     cw->save_val = 1;
     // End catch
 }
@@ -484,27 +502,27 @@ void compile_iter_loop(compiler_wrapper *cw, ast_node *root)
     ast_loop_node *node = (ast_loop_node *)root;
 
     compile(cw, node->onloop);
-    append_op(cw, LI_MAKE_ITER);
+    append_op(cw, LI_MAKE_ITER, node->lineno);
 
     int tagOut = next_if_tag(cw);
     int tagLoop = next_if_tag(cw);
 
     int start = (int)cw->rops.count;
 
-    append_op(cw, LI_NEXT_ITER_OR_JUMP);
-    append_op(cw, tagOut);
-    append_op(cw, -1);
-    append_op(cw, -1);
-    append_op(cw, -1);
+    append_op(cw, LI_NEXT_ITER_OR_JUMP, node->lineno);
+    append_op(cw, tagOut, node->lineno);
+    append_op(cw, -1, node->lineno);
+    append_op(cw, -1, node->lineno);
+    append_op(cw, -1, node->lineno);
 
-    append_var_info(cw, ((ast_value_node *)(node->init))->value.s, 0);
-    append_op(cw, LI_POP);
+    append_var_info(cw, ((ast_value_node *)(node->init))->value.s, 0, node->lineno);
+    append_op(cw, LI_POP, node->lineno);
 
     if(node->condition)
     {
-        append_op(cw, LI_ITER_INDEX);
-        append_var_info(cw, ((ast_value_node *)(node->condition))->value.s, 0);
-        append_op(cw, LI_POP);
+        append_op(cw, LI_ITER_INDEX, node->lineno);
+        append_var_info(cw, ((ast_value_node *)(node->condition))->value.s, 0, node->lineno);
+        append_op(cw, LI_POP, node->lineno);
     }
 
     lky_object *wrapLoop = lobjb_build_int(tagLoop);    
@@ -520,18 +538,18 @@ void compile_iter_loop(compiler_wrapper *cw, ast_node *root)
     arr_remove(&cw->loop_start_stack, NULL, cw->loop_start_stack.count - 1);
     arr_remove(&cw->loop_end_stack, NULL, cw->loop_end_stack.count - 1);
 
-    append_op(cw, tagLoop);
+    append_op(cw, tagLoop, node->lineno);
 
-    append_op(cw, LI_JUMP); // Add the jump to the start location
+    append_op(cw, LI_JUMP, node->lineno); // Add the jump to the start location
     unsigned char buf[4];
     int_to_byte_array(buf, start);
-    append_op(cw, buf[0]);
-    append_op(cw, buf[1]);
-    append_op(cw, buf[2]);
-    append_op(cw, buf[3]);
+    append_op(cw, buf[0], node->lineno);
+    append_op(cw, buf[1], node->lineno);
+    append_op(cw, buf[2], node->lineno);
+    append_op(cw, buf[3], node->lineno);
 
-    append_op(cw, tagOut);
-    append_op(cw, LI_POP);
+    append_op(cw, tagOut, node->lineno);
+    append_op(cw, LI_POP, node->lineno);
 
     cw->save_val = 1;
 }
@@ -552,18 +570,18 @@ void compile_loop(compiler_wrapper *cw, ast_node *root)
         cw->save_val = 0;
         compile(cw, node->init);
         if(!cw->save_val)
-            append_op(cw, LI_POP);
+            append_op(cw, LI_POP, node->lineno);
         cw->save_val = save;
     }
 
     int start = (int)cw->rops.count; // The start location (for loop jumps)
 
     compile(cw, node->condition); // Append the tag for the unknown end location
-    append_op(cw, LI_JUMP_FALSE);
-    append_op(cw, tagOut);
-    append_op(cw, -1); // Note that we use for bytes to represent jump locations.
-    append_op(cw, -1); // This allows us to index locations beyond 255 in the
-    append_op(cw, -1); // interpreter.
+    append_op(cw, LI_JUMP_FALSE, node->lineno);
+    append_op(cw, tagOut, node->lineno);
+    append_op(cw, -1, node->lineno); // Note that we use for bytes to represent jump locations.
+    append_op(cw, -1, node->lineno); // This allows us to index locations beyond 255 in the
+    append_op(cw, -1, node->lineno); // interpreter.
     
     lky_object *wrapLoop = lobjb_build_int(tagLoop);
     lky_object *wrapOut = lobjb_build_int(tagOut);
@@ -577,7 +595,7 @@ void compile_loop(compiler_wrapper *cw, ast_node *root)
     arr_remove(&cw->loop_start_stack, NULL, cw->loop_start_stack.count - 1);
     arr_remove(&cw->loop_end_stack, NULL, cw->loop_end_stack.count - 1);
 
-    append_op(cw, tagLoop);
+    append_op(cw, tagLoop, node->lineno);
 
     if(node->onloop) // If a for loop, compile the onloop.
     {
@@ -585,20 +603,20 @@ void compile_loop(compiler_wrapper *cw, ast_node *root)
         cw->save_val = 0;
         compile(cw, node->onloop);
         if(!cw->save_val)
-            append_op(cw, LI_POP);
+            append_op(cw, LI_POP, node->lineno);
         cw->save_val = save;
     }
 
-    append_op(cw, LI_JUMP); // Add the jump to the start location
+    append_op(cw, LI_JUMP, node->lineno); // Add the jump to the start location
     unsigned char buf[4];
     int_to_byte_array(buf, start);
 
-    append_op(cw, buf[0]);
-    append_op(cw, buf[1]);
-    append_op(cw, buf[2]);
-    append_op(cw, buf[3]);
+    append_op(cw, buf[0], node->lineno);
+    append_op(cw, buf[1], node->lineno);
+    append_op(cw, buf[2], node->lineno);
+    append_op(cw, buf[3], node->lineno);
 
-    append_op(cw, tagOut);
+    append_op(cw, tagOut, node->lineno);
 
     cw->save_val = 1;
 }
@@ -619,11 +637,11 @@ void compile_one_off(compiler_wrapper *cw, ast_node *root)
             break;
     }
 
-    append_op(cw, LI_JUMP);
-    append_op(cw, jix);
-    append_op(cw, -1);
-    append_op(cw, -1);
-    append_op(cw, -1);
+    append_op(cw, LI_JUMP, node->lineno);
+    append_op(cw, jix, node->lineno);
+    append_op(cw, -1, node->lineno);
+    append_op(cw, -1, node->lineno);
+    append_op(cw, -1, node->lineno);
 }
 
 void compile_cond_ex(compiler_wrapper *cw, ast_node *root, int tagOut)
@@ -646,11 +664,11 @@ void compile_cond_ex(compiler_wrapper *cw, ast_node *root, int tagOut)
             break;
     }
 
-    append_op(cw, opt);
-    append_op(cw, tagOut);
-    append_op(cw, -1);
-    append_op(cw, -1);
-    append_op(cw, -1);
+    append_op(cw, opt, node->lineno);
+    append_op(cw, tagOut, node->lineno);
+    append_op(cw, -1, node->lineno);
+    append_op(cw, -1, node->lineno);
+    append_op(cw, -1, node->lineno);
 
     if(node->right->type == ACOND_CHAIN)
     {
@@ -659,7 +677,7 @@ void compile_cond_ex(compiler_wrapper *cw, ast_node *root, int tagOut)
     else
     {
         compile(cw, node->right);
-        append_op(cw, tagOut);
+        append_op(cw, tagOut, node->lineno);
     }
 }
 
@@ -684,7 +702,7 @@ void compile_if(compiler_wrapper *cw, ast_node *root)
     if(!node->next_if) // If we have only one if statement
     {
         compile_single_if(cw, node, tagNext, tagNext);
-        append_op(cw, tagNext);
+        append_op(cw, tagNext, node->lineno);
         cw->save_val = 1;
         return;
     }
@@ -695,13 +713,13 @@ void compile_if(compiler_wrapper *cw, ast_node *root)
     node = (ast_if_node *)node->next_if;
     while(node)
     {
-        append_op(cw, tagNext);
+        append_op(cw, tagNext, node->lineno);
         tagNext = node->next_if ? next_if_tag(cw) : tagOut;
         compile_single_if(cw, node, tagOut, tagNext);
         node = (ast_if_node *)node->next_if;
     }
 
-    append_op(cw, tagOut);
+    append_op(cw, tagOut, node->lineno);
 
     cw->save_val = 1;
 }
@@ -713,11 +731,11 @@ void compile_single_if(compiler_wrapper *cw, ast_if_node *node, int tagOut, int 
     {
         compile(cw, node->condition);
 
-        append_op(cw, LI_JUMP_FALSE);
-        append_op(cw, tagNext);
-        append_op(cw, -1);
-        append_op(cw, -1);
-        append_op(cw, -1);
+        append_op(cw, LI_JUMP_FALSE, node->lineno);
+        append_op(cw, tagNext, node->lineno);
+        append_op(cw, -1, node->lineno);
+        append_op(cw, -1, node->lineno);
+        append_op(cw, -1, node->lineno);
     }
 
     compile_compound(cw, node->payload->next);
@@ -730,11 +748,11 @@ void compile_single_if(compiler_wrapper *cw, ast_if_node *node, int tagOut, int 
 
     if(tagOut != tagNext && node->condition)
     {
-        append_op(cw, LI_JUMP);
-        append_op(cw, tagOut);
-        append_op(cw, -1);
-        append_op(cw, -1);
-        append_op(cw, -1);
+        append_op(cw, LI_JUMP, node->lineno);
+        append_op(cw, tagOut, node->lineno);
+        append_op(cw, -1, node->lineno);
+        append_op(cw, -1, node->lineno);
+        append_op(cw, -1, node->lineno);
     }
 }
 
@@ -751,15 +769,15 @@ void compile_array(compiler_wrapper *cw, ast_node *n)
         ct++;
     }
 
-    append_op(cw, LI_MAKE_ARRAY);
+    append_op(cw, LI_MAKE_ARRAY, node->lineno);
 
     unsigned char buf[4];
     int_to_byte_array(buf, ct);
 
-    append_op(cw, buf[0]);
-    append_op(cw, buf[1]);
-    append_op(cw, buf[2]);
-    append_op(cw, buf[3]);
+    append_op(cw, buf[0], node->lineno);
+    append_op(cw, buf[1], node->lineno);
+    append_op(cw, buf[2], node->lineno);
+    append_op(cw, buf[3], node->lineno);
 }
 
 // Compiles table literals
@@ -777,15 +795,15 @@ void compile_table(compiler_wrapper *cw, ast_node *n)
         ct++;
     }
 
-    append_op(cw, LI_MAKE_TABLE);
+    append_op(cw, LI_MAKE_TABLE, node->lineno);
 
     unsigned char buf[4];
     int_to_byte_array(buf, ct);
 
-    append_op(cw, buf[0]);
-    append_op(cw, buf[1]);
-    append_op(cw, buf[2]);
-    append_op(cw, buf[3]);
+    append_op(cw, buf[0], node->lineno);
+    append_op(cw, buf[1], node->lineno);
+    append_op(cw, buf[2], node->lineno);
+    append_op(cw, buf[3], node->lineno);
 }
 
 void compile_object_simple(compiler_wrapper *cw, ast_object_decl_node *node)
@@ -804,16 +822,16 @@ void compile_object_simple(compiler_wrapper *cw, ast_object_decl_node *node)
     if(node->obj)
         compile(cw, node->obj);
     else
-        append_op(cw, LI_PUSH_NEW_OBJECT);
+        append_op(cw, LI_PUSH_NEW_OBJECT, node->lineno);
 
     unsigned char buf[4];
     int_to_byte_array(buf, ct);
 
-    append_op(cw, LI_MAKE_OBJECT);
-    append_op(cw, buf[0]);
-    append_op(cw, buf[1]);
-    append_op(cw, buf[2]);
-    append_op(cw, buf[3]);
+    append_op(cw, LI_MAKE_OBJECT, node->lineno);
+    append_op(cw, buf[0], node->lineno);
+    append_op(cw, buf[1], node->lineno);
+    append_op(cw, buf[2], node->lineno);
+    append_op(cw, buf[3], node->lineno);
 
     int i;
     for(i = ct - 1; i >= 0; i--)
@@ -831,10 +849,10 @@ void compile_object_simple(compiler_wrapper *cw, ast_object_decl_node *node)
 
         unsigned char buf[4];
         int_to_byte_array(buf, i);
-        append_op(cw, buf[0]);
-        append_op(cw, buf[1]);
-        append_op(cw, buf[2]);
-        append_op(cw, buf[3]);
+        append_op(cw, buf[0], node->lineno);
+        append_op(cw, buf[1], node->lineno);
+        append_op(cw, buf[2], node->lineno);
+        append_op(cw, buf[3], node->lineno);
     }
 
     arr_free(&names);
@@ -880,22 +898,22 @@ void compile_object(compiler_wrapper *cw, ast_node *n)
         arr_append(&cw->rnames, nsid);
     }
 
-    append_op(cw, LI_LOAD_CLOSE);
+    append_op(cw, LI_LOAD_CLOSE, node->lineno);
     unsigned char buf[4];
     int_to_byte_array(buf, i);
-    append_op(cw, buf[0]);
-    append_op(cw, buf[1]);
-    append_op(cw, buf[2]);
-    append_op(cw, buf[3]);
+    append_op(cw, buf[0], node->lineno);
+    append_op(cw, buf[1], node->lineno);
+    append_op(cw, buf[2], node->lineno);
+    append_op(cw, buf[3], node->lineno);
 
 
     int_to_byte_array(buf, ct);
 
-    append_op(cw, LI_MAKE_OBJECT);
-    append_op(cw, buf[0]);
-    append_op(cw, buf[1]);
-    append_op(cw, buf[2]);
-    append_op(cw, buf[3]);
+    append_op(cw, LI_MAKE_OBJECT, node->lineno);
+    append_op(cw, buf[0], node->lineno);
+    append_op(cw, buf[1], node->lineno);
+    append_op(cw, buf[2], node->lineno);
+    append_op(cw, buf[3], node->lineno);
 
     for(i = ct - 1; i >= 0; i--)
     {
@@ -912,10 +930,10 @@ void compile_object(compiler_wrapper *cw, ast_node *n)
 
         unsigned char buf[4];
         int_to_byte_array(buf, i);
-        append_op(cw, buf[0]);
-        append_op(cw, buf[1]);
-        append_op(cw, buf[2]);
-        append_op(cw, buf[3]);
+        append_op(cw, buf[0], node->lineno);
+        append_op(cw, buf[1], node->lineno);
+        append_op(cw, buf[2], node->lineno);
+        append_op(cw, buf[3], node->lineno);
     }
 
     arr_free(&names);
@@ -930,7 +948,7 @@ void compile_indx(compiler_wrapper *cw, ast_node *n)
     compile(cw, node->target);
     compile(cw, node->indexer);
 
-    append_op(cw, LI_LOAD_INDEX);
+    append_op(cw, LI_LOAD_INDEX, node->lineno);
 }
 
 // Used to lookup and reuse previous names/identifiers
@@ -957,13 +975,13 @@ void compile_triple_set(compiler_wrapper *cw, ast_node *n)
     
         compile(cw, idn->target);
         compile(cw, idn->indexer);
-        append_op(cw, LI_DDUPLICATE);
-        append_op(cw, LI_LOAD_INDEX);
+        append_op(cw, LI_DDUPLICATE, node->lineno);
+        append_op(cw, LI_LOAD_INDEX, node->lineno);
     
         compile(cw, node->new_val);
-        append_op(cw, instr_for_char(node->op));
-        append_op(cw, LI_SINK_FIRST);
-        append_op(cw, LI_SAVE_INDEX);
+        append_op(cw, instr_for_char(node->op), node->lineno);
+        append_op(cw, LI_SINK_FIRST, node->lineno);
+        append_op(cw, LI_SAVE_INDEX, node->lineno);
     }
     else
     {
@@ -980,25 +998,25 @@ void compile_triple_set(compiler_wrapper *cw, ast_node *n)
         }
         
         compile(cw, man->object);
-        append_op(cw, LI_SDUPLICATE);
-        append_op(cw, LI_LOAD_MEMBER);
+        append_op(cw, LI_SDUPLICATE, node->lineno);
+        append_op(cw, LI_LOAD_MEMBER, node->lineno);
         unsigned char buf[4];
         int_to_byte_array(buf, idx);
-        append_op(cw, buf[0]);
-        append_op(cw, buf[1]);
-        append_op(cw, buf[2]);
-        append_op(cw, buf[3]);
+        append_op(cw, buf[0], node->lineno);
+        append_op(cw, buf[1], node->lineno);
+        append_op(cw, buf[2], node->lineno);
+        append_op(cw, buf[3], node->lineno);
 
         compile(cw, node->new_val);
-        append_op(cw, instr_for_char(node->op));
+        append_op(cw, instr_for_char(node->op), node->lineno);
         
-        append_op(cw, LI_FLIP_TWO);
-        append_op(cw, LI_SAVE_MEMBER);
+        append_op(cw, LI_FLIP_TWO, node->lineno);
+        append_op(cw, LI_SAVE_MEMBER, node->lineno);
         int_to_byte_array(buf, idx);
-        append_op(cw, buf[0]);
-        append_op(cw, buf[1]);
-        append_op(cw, buf[2]);
-        append_op(cw, buf[3]);
+        append_op(cw, buf[0], node->lineno);
+        append_op(cw, buf[1], node->lineno);
+        append_op(cw, buf[2], node->lineno);
+        append_op(cw, buf[3], node->lineno);
     }
 }
 
@@ -1013,26 +1031,26 @@ void compile_ternary(compiler_wrapper *cw, ast_node *n)
 
     // Compile 'a'
     compile(cw, node->condition);
-    append_op(cw, LI_JUMP_FALSE);
-    append_op(cw, tagNext);
-    append_op(cw, -1);
-    append_op(cw, -1);
-    append_op(cw, -1);
+    append_op(cw, LI_JUMP_FALSE, node->lineno);
+    append_op(cw, tagNext, node->lineno);
+    append_op(cw, -1, node->lineno);
+    append_op(cw, -1, node->lineno);
+    append_op(cw, -1, node->lineno);
 
     // Compile 'b'
     compile(cw, node->first);
-    append_op(cw, LI_JUMP);
-    append_op(cw, tagOut);
-    append_op(cw, -1);
-    append_op(cw, -1);
-    append_op(cw, -1);
+    append_op(cw, LI_JUMP, node->lineno);
+    append_op(cw, tagOut, node->lineno);
+    append_op(cw, -1, node->lineno);
+    append_op(cw, -1, node->lineno);
+    append_op(cw, -1, node->lineno);
 
     // Compile 'c'
-    append_op(cw, tagNext);
+    append_op(cw, tagNext, node->lineno);
     compile(cw, node->second);
 
     // Jump out
-    append_op(cw, tagOut);
+    append_op(cw, tagOut, node->lineno);
 }
 
 void compile_load(compiler_wrapper *cw, ast_node *n)
@@ -1049,13 +1067,13 @@ void compile_load(compiler_wrapper *cw, ast_node *n)
         arr_append(&cw->rnames, f);
     }
 
-    append_op(cw, LI_LOAD_MODULE);
+    append_op(cw, LI_LOAD_MODULE, node->lineno);
     unsigned char buf[4];
     int_to_byte_array(buf, idx);
-    append_op(cw, buf[0]);
-    append_op(cw, buf[1]);
-    append_op(cw, buf[2]);
-    append_op(cw, buf[3]);
+    append_op(cw, buf[0], node->lineno);
+    append_op(cw, buf[1], node->lineno);
+    append_op(cw, buf[2], node->lineno);
+    append_op(cw, buf[3], node->lineno);
 }
 
 void compile_member_access(compiler_wrapper *cw, ast_node *n)
@@ -1073,13 +1091,13 @@ void compile_member_access(compiler_wrapper *cw, ast_node *n)
     }
 
     compile(cw, node->object);
-    append_op(cw, LI_LOAD_MEMBER);
+    append_op(cw, LI_LOAD_MEMBER, node->lineno);
     unsigned char buf[4];
     int_to_byte_array(buf, idx);
-    append_op(cw, buf[0]);
-    append_op(cw, buf[1]);
-    append_op(cw, buf[2]);
-    append_op(cw, buf[3]);
+    append_op(cw, buf[0], node->lineno);
+    append_op(cw, buf[1], node->lineno);
+    append_op(cw, buf[2], node->lineno);
+    append_op(cw, buf[3], node->lineno);
 }
 
 void compile_set_member(compiler_wrapper *cw, ast_node *root)
@@ -1100,13 +1118,13 @@ void compile_set_member(compiler_wrapper *cw, ast_node *root)
         arr_append(&cw->rnames, left->ident);
     }
 
-    append_op(cw, LI_SAVE_MEMBER);
+    append_op(cw, LI_SAVE_MEMBER, root->lineno);
     unsigned char buf[4];
     int_to_byte_array(buf, idx);
-    append_op(cw, buf[0]);
-    append_op(cw, buf[1]);
-    append_op(cw, buf[2]);
-    append_op(cw, buf[3]);
+    append_op(cw, buf[0], root->lineno);
+    append_op(cw, buf[1], root->lineno);
+    append_op(cw, buf[2], root->lineno);
+    append_op(cw, buf[3], root->lineno);
 }
 
 void compile_set_index(compiler_wrapper *cw, ast_node *root)
@@ -1119,7 +1137,7 @@ void compile_set_index(compiler_wrapper *cw, ast_node *root)
     compile(cw, left->target);
     compile(cw, left->indexer);
 
-    append_op(cw, LI_SAVE_INDEX);
+    append_op(cw, LI_SAVE_INDEX, root->lineno);
 }
 
 void compile_unary(compiler_wrapper *cw, ast_node *root)
@@ -1144,7 +1162,7 @@ void compile_unary(compiler_wrapper *cw, ast_node *root)
         break;
     case 'r':
         if(!node->target)
-            append_op(cw, LI_PUSH_NIL);
+            append_op(cw, LI_PUSH_NIL, node->lineno);
         istr = LI_RETURN;
         cw->save_val = 1;
         break;
@@ -1173,9 +1191,9 @@ void compile_unary(compiler_wrapper *cw, ast_node *root)
         extra = 0;
     }
 
-    append_op(cw, (char)istr);
+    append_op(cw, (char)istr, node->lineno);
     if(extra > -1)
-        append_op(cw, extra);
+        append_op(cw, extra, node->lineno);
 }
 
 // Used to find and reuse previous constants.
@@ -1194,7 +1212,7 @@ long find_prev_const(compiler_wrapper *cw, lky_object *obj)
 
 void compile_var(compiler_wrapper *cw, ast_value_node *node)
 {
-    append_var_info(cw, node->value.s, 1); 
+    append_var_info(cw, node->value.s, 1, node->lineno);
     return;
 
     int idx = find_prev_name(cw, node->value.s);
@@ -1207,13 +1225,13 @@ void compile_var(compiler_wrapper *cw, ast_value_node *node)
         arr_append(&cw->rnames, ns);
     }
 
-    append_op(cw, LI_LOAD_CLOSE);
+    append_op(cw, LI_LOAD_CLOSE, node->lineno);
     unsigned char buf[4];
     int_to_byte_array(buf, idx);
-    append_op(cw, buf[0]);
-    append_op(cw, buf[1]);
-    append_op(cw, buf[2]);
-    append_op(cw, buf[3]);
+    append_op(cw, buf[0], node->lineno);
+    append_op(cw, buf[1], node->lineno);
+    append_op(cw, buf[2], node->lineno);
+    append_op(cw, buf[3], node->lineno);
 }
 
 // Used to compile constants and variables
@@ -1237,15 +1255,15 @@ void compile_value(compiler_wrapper *cw, ast_node *root)
         arr_append(&cw->rcon, obj);
     }
 
-    append_op(cw, LI_LOAD_CONST);
+    append_op(cw, LI_LOAD_CONST, node->lineno);
 
     unsigned char buf[4];
     int_to_byte_array(buf, idx);
 
-    append_op(cw, buf[0]);
-    append_op(cw, buf[1]);
-    append_op(cw, buf[2]);
-    append_op(cw, buf[3]);
+    append_op(cw, buf[0], node->lineno);
+    append_op(cw, buf[1], node->lineno);
+    append_op(cw, buf[2], node->lineno);
+    append_op(cw, buf[3], node->lineno);
 }
 
 // Compile special unit syntax
@@ -1256,14 +1274,14 @@ void compile_unit_value(compiler_wrapper *cw, ast_node *root)
     long idx = cw->rcon.count;
     arr_append(&cw->rcon, stlun_cinit(node->val, node->fmt));
 
-    append_op(cw, LI_LOAD_CONST);
+    append_op(cw, LI_LOAD_CONST, node->lineno);
     unsigned char buf[4];
     int_to_byte_array(buf, idx);
 
-    append_op(cw, buf[0]);
-    append_op(cw, buf[1]);
-    append_op(cw, buf[2]);
-    append_op(cw, buf[3]);
+    append_op(cw, buf[0], node->lineno);
+    append_op(cw, buf[1], node->lineno);
+    append_op(cw, buf[2], node->lineno);
+    append_op(cw, buf[3], node->lineno);
 }
 
 // Compiles a function declaration
@@ -1277,6 +1295,7 @@ void compile_function(compiler_wrapper *cw, ast_node *root)
     nw.local_idx = 0;
     nw.saved_locals = hm_create(100, 1);
     nw.rnames = arr_create(10);
+    nw.rindices = arr_create(100);
     nw.used_names = copy_arraylist(cw->used_names);
     nw.repl = 0;
     
@@ -1308,16 +1327,16 @@ void compile_function(compiler_wrapper *cw, ast_node *root)
     long idx = cw->rcon.count;
     arr_append(&cw->rcon, code);
     
-    append_op(cw, LI_LOAD_CONST);
+    append_op(cw, LI_LOAD_CONST, node->lineno);
     unsigned char buf[4];
     int_to_byte_array(buf, idx);
 
-    append_op(cw, buf[0]);
-    append_op(cw, buf[1]);
-    append_op(cw, buf[2]);
-    append_op(cw, buf[3]);
-    append_op(cw, LI_MAKE_FUNCTION);
-    append_op(cw, argc);
+    append_op(cw, buf[0], node->lineno);
+    append_op(cw, buf[1], node->lineno);
+    append_op(cw, buf[2], node->lineno);
+    append_op(cw, buf[3], node->lineno);
+    append_op(cw, LI_MAKE_FUNCTION, node->lineno);
+    append_op(cw, argc, node->lineno);
 }
 
 void compile_class_decl(compiler_wrapper *cw, ast_node *root)
@@ -1347,14 +1366,14 @@ void compile_class_decl(compiler_wrapper *cw, ast_node *root)
         init_flag |= 1;
     }
 
-    append_op(cw, LI_MAKE_CLASS);
-    append_op(cw, list.count);
-    append_op(cw, init_flag);
+    append_op(cw, LI_MAKE_CLASS, node->lineno);
+    append_op(cw, list.count, node->lineno);
+    append_op(cw, init_flag, node->lineno);
     int i;
     for(i = list.count - 1; i >= 0; i--)
     {
         ast_class_member_node *m = (ast_class_member_node *)arr_get(&list, i);
-        append_op(cw, m->prefix);
+        append_op(cw, m->prefix, node->lineno);
         
         long idx = find_prev_name(cw, m->name);
 
@@ -1369,10 +1388,10 @@ void compile_class_decl(compiler_wrapper *cw, ast_node *root)
         unsigned char buf[4];
         int_to_byte_array(buf, idx);
 
-        append_op(cw, buf[0]);
-        append_op(cw, buf[1]);
-        append_op(cw, buf[2]);
-        append_op(cw, buf[3]);
+        append_op(cw, buf[0], node->lineno);
+        append_op(cw, buf[1], node->lineno);
+        append_op(cw, buf[2], node->lineno);
+        append_op(cw, buf[3], node->lineno);
     }
 }
 
@@ -1391,8 +1410,8 @@ void compile_function_call(compiler_wrapper *cw, ast_node *root)
     }
 
     compile(cw, node->ident);
-    append_op(cw, LI_CALL_FUNC);
-    append_op(cw, ct);
+    append_op(cw, LI_CALL_FUNC, node->lineno);
+    append_op(cw, ct, node->lineno);
 }
 
 // Main compiler dispatch system
@@ -1476,7 +1495,7 @@ void compile_compound(compiler_wrapper *cw, ast_node *root)
         cw->save_val = 0;
         compile(cw, root);
         if(!cw->save_val)
-            append_op(cw, LI_POP);
+            append_op(cw, LI_POP, root->lineno);
 
         root = root->next;
     }
@@ -1594,6 +1613,7 @@ lky_object_code *compile_ast_ext(ast_node *root, compiler_wrapper *incw)
     cw.rcon = arr_create(10);
     cw.loop_start_stack = arr_create(10);
     cw.loop_end_stack = arr_create(10);
+    cw.rindices = arr_create(100);
     cw.ifTag = 1000;
     cw.save_val = 0;
     cw.name_idx = 0;
@@ -1627,8 +1647,8 @@ lky_object_code *compile_ast_ext(ast_node *root, compiler_wrapper *incw)
     
     if(cw.rops.count == 0 || OBJ_NUM_UNWRAP(arr_get(&cw.rops, cw.rops.count - 1)) != LI_RETURN)
     {
-        append_op(&cw, LI_PUSH_NIL);
-        append_op(&cw, LI_RETURN);
+        append_op(&cw, LI_PUSH_NIL, root->lineno);
+        append_op(&cw, LI_RETURN, root->lineno);
     }
 
     // Build the resultant code object.
@@ -1639,6 +1659,7 @@ lky_object_code *compile_ast_ext(ast_node *root, compiler_wrapper *incw)
     code->mem_count = 0;
     code->type = LBI_CODE;
     code->num_names = cw.rnames.count;
+    code->indices = finalize_indices(&cw);
     code->ops = finalize_ops(&cw);
     code->op_len = cw.rops.count;
     code->locals = malloc(sizeof(void *) * cw.local_idx);

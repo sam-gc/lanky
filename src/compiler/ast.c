@@ -27,6 +27,14 @@
 // free the memory created.
 lky_mempool ast_memory_pool = {NULL, NULL};
 
+extern int yylineno;
+
+void set_line_no(void *n) // I know using a void pointer is hacky but I hate to have to cast
+{
+    ast_node *node = (ast_node *)n;
+    node->lineno = yylineno;
+}
+
 ast_node *create_root_node()
 {
     ast_node *node = MALLOC(sizeof(ast_block_node));
@@ -34,6 +42,7 @@ ast_node *create_root_node()
     node->type = ABLOCK;
     node->next = NULL;
 
+    set_line_no(node);
     return node;
 }
 
@@ -86,6 +95,7 @@ ast_node *create_value_node(ast_value_type type, void *data)
     node->value_type = type;
     node->value = u;
 
+    set_line_no(node);
     return (ast_node *)node;
 }
 
@@ -105,6 +115,7 @@ ast_node *create_unit_value_node(char *valstr, char *fmt)
     node->val = atof(valstr);
     node->fmt = str;
 
+    set_line_no(node);
     return (ast_node *)node;
 }
 
@@ -119,6 +130,7 @@ ast_node *create_binary_node(ast_node *left, ast_node *right, char opt)
     node->right = right;
     node->opt = opt;
 
+    set_line_no(node);
     return (ast_node *)node;
 }
 
@@ -132,6 +144,7 @@ ast_node *create_unary_node(ast_node *target, char opt)
     node->target = target;
     node->opt = opt;
 
+    set_line_no(node);
     return (ast_node *)node;
 }
 
@@ -150,6 +163,7 @@ ast_node *create_load_node(void *data)
     node->name = str;
     node->next = NULL;
 
+    set_line_no(node);
     return (ast_node *)node;
 }
 
@@ -165,6 +179,7 @@ ast_node *create_assignment_node(char *left, ast_node *right)
     node->right = right;
     node->opt = '=';
 
+    set_line_no(node);
     return (ast_node *)node;
 }
 
@@ -176,6 +191,8 @@ ast_node *create_block_node(ast_node *payload)
     node->next = NULL;
 
     node->payload = payload;
+
+    set_line_no(node);
     return (ast_node *)node;
 }
 
@@ -187,6 +204,8 @@ ast_node *create_array_node(ast_node *payload)
     node->next = NULL;
 
     node->list = payload;
+
+    set_line_no(node);
     return (ast_node *)node;
 }
 
@@ -198,6 +217,8 @@ ast_node *create_table_node(ast_node *payload)
     node->next = NULL;
 
     node->list = payload;
+
+    set_line_no(node);
     return (ast_node *)node;
 }
 
@@ -244,6 +265,7 @@ ast_node *create_object_decl_node(ast_node *payload, char *refname, ast_node *ob
     
     node->refname = NULL;
 
+    set_line_no(node);
     return (ast_node *)node;
 }
 
@@ -256,6 +278,8 @@ ast_node *create_index_node(ast_node *target, ast_node *indexer)
 
     node->target = target;
     node->indexer = indexer;
+
+    set_line_no(node);
     return (ast_node *)node;
 }
 
@@ -269,7 +293,8 @@ ast_node *create_triple_set_node(ast_node *index_node, ast_node *value, char typ
     node->index_node = index_node;
     node->new_val = value;
     node->op = type;
-    
+
+    set_line_no(node);
     return (ast_node *)node;
 }
 
@@ -284,6 +309,7 @@ ast_node *create_try_catch_node(ast_node *tryblock, ast_node *catchblock, ast_no
     node->catchblock = catchblock;
     node->exception_name = exception_name;
 
+    set_line_no(node);
     return (ast_node *)node;
 }
 
@@ -298,6 +324,7 @@ ast_node *create_if_node(ast_node *condition, ast_node *payload)
     node->payload = payload;
     node->condition = condition;
 
+    set_line_no(node);
     return (ast_node *)node;
 }
 
@@ -312,6 +339,7 @@ ast_node *create_cond_node(ast_node *left, ast_node *right, char type)
     node->right = right;
     node->opt = type;
 
+    set_line_no(node);
     return (ast_node *)node;
 }
 
@@ -329,6 +357,7 @@ ast_node *create_loop_node(ast_node *init, ast_node *condition, ast_node *onloop
 
     node->loop_type = init ? LFOR : LWHILE;
 
+    set_line_no(node);
     return (ast_node *)node;
 }
 
@@ -344,6 +373,7 @@ ast_node *create_iter_loop_node(ast_node *store, ast_node *index, ast_node *cond
     node->onloop = condition;
     node->payload = payload;
 
+    set_line_no(node);
     return (ast_node *)node;
 }
 
@@ -359,7 +389,8 @@ ast_node *create_func_decl_node(ast_node *params, ast_node *payload, char *refna
     node->payload = payload;
 
     node->refname = refname;
-    
+
+    set_line_no(node);
     return (ast_node *)node;
 }
 
@@ -404,6 +435,7 @@ ast_node *create_class_decl_node(ast_node *members, ast_node *super, char *instr
 
     node->members = col;
 
+    set_line_no(node);
     return (ast_node *)node;
 }
 
@@ -428,6 +460,7 @@ ast_node *create_class_member_node(lky_class_prefix p, char *refname, ast_node *
 
     node->payload = payload;
 
+    set_line_no(node);
     return (ast_node *)node;
 }
 /*
@@ -456,6 +489,7 @@ ast_node *create_func_call_node(ast_node *ident, ast_node *arguments)
     node->ident = ident;
     node->arguments = arguments;
 
+    set_line_no(node);
     return (ast_node *)node;
 }
 
@@ -471,6 +505,7 @@ ast_node *create_ternary_node(ast_node *condition, ast_node *first, ast_node *se
     node->first = first;
     node->second = second;
 
+    set_line_no(node);
     return (ast_node *)node;
 }
 
@@ -485,6 +520,7 @@ ast_node *create_member_access_node(ast_node *object, char *ident)
     node->object = object;
     node->ident = ident;
 
+    set_line_no(node);
     return (ast_node *)node;
 }
 
@@ -497,7 +533,8 @@ ast_node *create_one_off_node(char opt)
     node->next = NULL;
 
     node->opt = opt;
-    
+
+    set_line_no(node);
     return (ast_node *)node;
 }
 

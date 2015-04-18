@@ -104,6 +104,7 @@ typedef struct {
     void **locals;
     char **names;
     unsigned char *ops;
+    long *indices;
     long op_len;
     int stack_size;
     int catch_size;
@@ -159,6 +160,8 @@ typedef struct {
 
     char *name;
     char *text;
+
+    arraylist trace;
 } lky_object_error;
 
 extern int lobjb_uses_pointer_tags_;
@@ -167,7 +170,7 @@ lky_object *lobjb_call(lky_object *func, lky_object_seq *args, struct interp *in
 lky_object *lobjb_build_int(long value);
 lky_object *lobjb_build_float(double value);
 lky_object *lobjb_build_blob(void *ptr, lobjb_void_ptr_function gc);
-lky_object *lobjb_build_error(char *name, char *text);
+lky_object *lobjb_build_error(char *name, char *text, struct interp *interp);
 lky_object *lobjb_build_iterable(lky_object *owner, struct interp *interp);
 lky_object_custom *lobjb_build_custom(size_t extra_size);
 lky_object *lobjb_build_func(lky_object_code *code, int argc, arraylist inherited, mach_interp *interp);

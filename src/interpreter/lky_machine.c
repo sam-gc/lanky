@@ -135,6 +135,16 @@ void *pop_node(stackframe *frame)
     return data;
 }
 
+
+arraylist mach_build_trace(mach_interp *interp)
+{
+    stackframe *frame = interp->stack;
+    arraylist out = arr_create(10);
+    for(; frame; frame = frame->prev) arr_append(&out, lobjb_build_int(frame->indices[frame->pc]));
+
+    return out;
+}
+
 lky_object *mach_interrupt_exec(lky_object_function *func)
 {
     mach_interp *interp = func->interp;
@@ -238,6 +248,8 @@ lky_object *mach_execute(lky_object_function *func)
     frame->ret = NULL;
     frame->thrown = NULL;
     frame->catch_pointer = 0;
+
+    frame->indices = code->indices;
     
     frame->interp = interp;
     frame->locals_count = code->num_locals;
@@ -327,20 +339,20 @@ _opcode_whiplash_:
         return;
     if(interp->error)
     {
-        lky_object *exc = interp->error;
+        lky_object_error *exc = (lky_object_error *)interp->error;
         interp->error = NULL;
 
         if(!frame->catch_pointer && !frame->prev)
         {
-            char *errtxt = lobjb_stringify(exc, frame->interp);
-            printf("Fatal error--\n%s\n\nHalting.\n", errtxt);
+            char *errtxt = lobjb_stringify((lky_object *)exc, frame->interp);
+            printf("Fatal error on line %ld--\n%s\n\nHalting.\n", (long)OBJ_NUM_UNWRAP(arr_get(&exc->trace, 0)), errtxt);
             free(errtxt);
             frame->ret = &lky_nil;
             return;
         }
         else if(!frame->catch_pointer)
         {
-            frame->prev->thrown = exc;
+            frame->prev->thrown = (lky_object *)exc;
             return;
         }
 
@@ -637,7 +649,7 @@ _opcode_whiplash_:
             {
                 char str[200 + strlen(name)];
                 sprintf(str, "Requesting member '%s' from memberless-object.", name);
-                interp->error = lobjb_build_error(obj == &lky_nil ? "NullPointer" : "InvalidType", str);
+                interp->error = lobjb_build_error(obj == &lky_nil ? "NullPointer" : "InvalidType", str, interp);
                 dispatch_();
             }
 
@@ -647,7 +659,7 @@ _opcode_whiplash_:
             {
                 char str[200 + strlen(name)];
                 sprintf(str, "Object has no member named '%s'.", name);
-                interp->error = lobjb_build_error("UndeclaredIdentifier", str);
+                interp->error = lobjb_build_error("UndeclaredIdentifier", str, interp);
                 dispatch_();
             }
 
@@ -761,7 +773,7 @@ _opcode_whiplash_:
             {
                 char str[200 + strlen(name)];
                 sprintf(str, "Could not load closure variable '%s'.", name);
-                interp->error = lobjb_build_error("UndeclaredIdentifier", str);
+                interp->error = lobjb_build_error("UndeclaredIdentifier", str, interp);
             }
         )
         vmop(MAKE_ARRAY,
@@ -948,7 +960,8 @@ _opcode_whiplash_:
             frame->catch_stack[frame->catch_pointer--] = 0;
         )
         vmop(RAISE,
-            interp->error = POP();
+            interp->error = lobjb_build_error("", "", interp);
+            lobj_set_member(interp->error, "custom_", POP());
         )
         // Unused...
         vmop(IGNORE,

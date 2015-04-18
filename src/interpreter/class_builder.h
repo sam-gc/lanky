@@ -79,8 +79,8 @@ void clb_add_member(lky_object *cls, char *refname, lky_object *obj, lky_class_p
     return &lky_nil;}
 
 #define CLASS_ERROR(name, description) do{(interp_->error = lobjb_build_error(name, descrip)); return &lky_nil;}while(0)
-#define CLASS_ERROR_ASSERT(test, name, description) do{if(!(test)){ (interp_->error = lobjb_build_error(name, description)); return &lky_nil;}}while(0) 
-#define CLASS_ERROR_TEST(test, name, description) do{if((test)){(interp_->error = lobjb_build_error(name, description)); return &lky_nil;}}while(0) 
+#define CLASS_ERROR_ASSERT(test, name, description) do{if(!(test)){ (interp_->error = lobjb_build_error(name, description, interp_)); return &lky_nil;}}while(0)
+#define CLASS_ERROR_TEST(test, name, description) do{if((test)){(interp_->error = lobjb_build_error(name, description, interp_)); return &lky_nil;}}while(0)
 
 #define CLASS_SET_BLOB(obj, key, ptr, gc) (lobj_set_member(obj, key, lobjb_build_blob(ptr, (lobjb_void_ptr_function)gc)))
 

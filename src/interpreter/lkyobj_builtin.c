@@ -106,7 +106,18 @@ lky_object *lobjb_error_stringify(lky_func_bundle *bundle)
 {
     lky_object_function *func = BUW_FUNC(bundle);
 
-    lky_object_error *err = (lky_object_error *)func->owner;
+    lky_object *obj = func->owner;
+
+    lky_object *custom = lobj_get_member(obj, "custom_");
+    if(custom)
+    {
+        char *c = lobjb_stringify(custom, BUW_INTERP(bundle));
+        lky_object *ret = stlstr_cinit(c);
+        free(c);
+        return ret;
+    }
+
+    lky_object_error *err = (lky_object_error *)obj;
     char text[strlen(err->name) + strlen(err->text) + 5];
     sprintf(text, "%s: %s", err->name, err->text);
 
@@ -121,13 +132,14 @@ void lobjb_error_free(lky_object *o)
     free(err->text);
 }
 
-lky_object *lobjb_build_error(char *name, char *text)
+lky_object *lobjb_build_error(char *name, char *text, struct interp *interp)
 {
     lky_object_error *err = aqua_request_next_block(sizeof(lky_object_error));
     err->type = LBI_ERROR;
     err->mem_count = 0;
     err->members = hst_create();
     err->members.duplicate_keys = 1;
+    err->trace = mach_build_trace(interp);
 
     char *name_ = malloc(strlen(name) + 1);
     char *text_ = malloc(strlen(text) + 1);
@@ -160,7 +172,7 @@ lky_object *lobjb_make_exception(lky_func_bundle *bundle)
     char *name = lobjb_stringify(first, in);
     char *text = lobjb_stringify(second, in);
 
-    lky_object *ret = lobjb_build_error(name, text);
+    lky_object *ret = lobjb_build_error(name, text, in);
     free(name);
     free(text);
 
@@ -564,7 +576,7 @@ lky_object *lobjb_unary_load_index(lky_object *obj, lky_object *indexer, struct 
 
     if(!func)
     {
-        interp->error = lobjb_build_error("MismatchedType", "The given type cannot be indexed.");
+        interp->error = lobjb_build_error("MismatchedType", "The given type cannot be indexed.", interp);
         return &lky_nil;
     }
 
@@ -580,7 +592,7 @@ lky_object *lobjb_unary_save_index(lky_object *obj, lky_object *indexer, lky_obj
 
     if(!func)
     {
-        interp->error = lobjb_build_error("MismatchedType", "The given type cannot be indexed.");
+        interp->error = lobjb_build_error("MismatchedType", "The given type cannot be indexed.", interp);
         return &lky_nil;
     }
 

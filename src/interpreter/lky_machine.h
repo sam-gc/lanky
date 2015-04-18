@@ -30,6 +30,7 @@ typedef struct stackframe {
     
     arraylist parent_stack;
     lky_object *bucket;
+    long *indices;
     void **constants;
     void **locals;
     void **data_stack;
@@ -65,5 +66,6 @@ lky_object *mach_interrupt_exec(lky_object_function *func);
 lky_object *mach_execute(lky_object_function *func);
 void mach_halt_with_err(lky_object *err);
 void mach_throw(lky_object *err, mach_interp *interp);
+arraylist mach_build_trace(mach_interp *interp);
 
 #endif

@@ -99,6 +99,7 @@ typedef struct {
 typedef struct ast_node {
     ast_type type;
     struct ast_node *next;
+    int lineno;
 } ast_node;
 
 // A binary node, which can have
@@ -108,6 +109,7 @@ typedef struct ast_node {
 typedef struct ast_binary_node {
     ast_type type;
     struct ast_node *next;
+    int lineno;
 
     struct ast_node *left;
     struct ast_node *right;
@@ -119,6 +121,7 @@ typedef struct ast_binary_node {
 typedef struct {
     ast_type type;
     struct ast_node *next;
+    int lineno;
 
     struct ast_node *target;
     char opt;
@@ -129,6 +132,7 @@ typedef struct {
 typedef struct {
     ast_type type;
     struct ast_node *next;
+    int lineno;
 
     char *name;
 } ast_load_node;
@@ -138,6 +142,7 @@ typedef struct {
 typedef struct ast_value_node {
     ast_type type;
     struct ast_node *next;
+    int lineno;
 
     ast_value_type value_type;
     ast_value_union value;
@@ -148,6 +153,7 @@ typedef struct ast_value_node {
 typedef struct ast_unit_value_node {
     ast_type type;
     struct ast_node *next;
+    int lineno;
 
     double val;
     char *fmt;
@@ -159,6 +165,7 @@ typedef struct ast_unit_value_node {
 typedef struct ast_block_node {
     ast_type type;
     struct ast_node *next;
+    int lineno;
 
     struct ast_node *payload;
 } ast_block_node;
@@ -168,6 +175,7 @@ typedef struct ast_block_node {
 typedef struct ast_array_node {
     ast_type type;
     struct ast_node *next;
+    int lineno;
 
     struct ast_node *list;
 } ast_array_node;
@@ -177,6 +185,7 @@ typedef struct ast_array_node {
 typedef struct ast_table_node {
     ast_type type;
     struct ast_node *next;
+    int lineno;
 
     struct ast_node *list;
 } ast_table_node;
@@ -185,6 +194,7 @@ typedef struct ast_table_node {
 typedef struct ast_index_node {
     ast_type type;
     struct ast_node *next;
+    int lineno;
 
     struct ast_node *target;
     struct ast_node *indexer;
@@ -193,6 +203,7 @@ typedef struct ast_index_node {
 typedef struct ast_triple_set_node {
     ast_type type;
     struct ast_node *next;
+    int lineno;
     
     struct ast_node *index_node;
     struct ast_node *new_val;
@@ -203,6 +214,7 @@ typedef struct ast_triple_set_node {
 typedef struct ast_try_catch_node {
     ast_type type;
     struct ast_node *next;
+    int lineno;
 
     struct ast_node *tryblock;
     struct ast_node *catchblock;
@@ -214,6 +226,7 @@ typedef struct ast_try_catch_node {
 typedef struct {
     ast_type type;
     struct ast_node *next;
+    int lineno;
 
     struct ast_node *next_if;
     struct ast_node *condition;
@@ -223,6 +236,7 @@ typedef struct {
 typedef struct {
     ast_type type;
     struct ast_node *next;
+    int lineno;
 
     char opt;
     struct ast_node *left;
@@ -234,6 +248,7 @@ typedef struct {
 typedef struct {
     ast_type type;
     struct ast_node *next;
+    int lineno;
     
     struct ast_node *params;
     struct ast_node *payload;
@@ -264,6 +279,7 @@ typedef struct {
 typedef struct {
     ast_type type;
     struct ast_node *next;
+    int lineno;
 
     lky_class_prefix prefix;
     char *name;
@@ -273,6 +289,7 @@ typedef struct {
 typedef struct {
     ast_type type;
     struct ast_node *next;
+    int lineno;
 
     struct ast_node *members;
     struct ast_node *init;
@@ -291,6 +308,7 @@ typedef struct {
 typedef struct {
     ast_type type;
     struct ast_node *next;
+    int lineno;
 
     ast_loop_type loop_type;
     struct ast_node *init;
@@ -302,6 +320,7 @@ typedef struct {
 typedef struct {
     ast_type type;
     struct ast_node *next;
+    int lineno;
 
     struct ast_node *payload;
     char *refname;
@@ -312,6 +331,7 @@ typedef struct {
 typedef struct {
     ast_type type;
     struct ast_node *next;
+    int lineno;
 
     struct ast_node *ident;
     struct ast_node *arguments;
@@ -321,6 +341,7 @@ typedef struct {
 typedef struct {
     ast_type type;
     struct ast_node *next;
+    int lineno;
 
     struct ast_node *condition;
     struct ast_node *first;
@@ -333,6 +354,7 @@ typedef struct {
 typedef struct {
     ast_type type;
     struct ast_node *next;
+    int lineno;
 
     struct ast_node *object;
     char *ident;
@@ -343,6 +365,7 @@ typedef struct {
 typedef struct {
     ast_type type;
     struct ast_node *next;
+    int lineno;
 
     char opt;
 } ast_one_off_node;
