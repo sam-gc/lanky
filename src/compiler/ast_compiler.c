@@ -68,6 +68,7 @@ typedef struct {
     arraylist used_names; // A list of used names (to distinguish between LI_LOAD_CLOSE and LI_LOAD_LOCAL
     arraylist rindices;
     int repl;
+    char *impl_name;
 } compiler_wrapper;
 
 typedef struct {
@@ -1298,6 +1299,7 @@ void compile_function(compiler_wrapper *cw, ast_node *root)
     nw.rindices = arr_create(100);
     nw.used_names = copy_arraylist(cw->used_names);
     nw.repl = 0;
+    nw.impl_name = node->impl_name;
     
     // Deal with parameters
     int argc = 0;
@@ -1599,6 +1601,7 @@ lky_object_code *compile_ast_repl(ast_node *root)
     cw.rnames = arr_create(10);
     cw.used_names = arr_create(10);
     cw.repl = 1;
+    cw.impl_name = "main";
 
     return compile_ast_ext(root, &cw);
 }
@@ -1626,6 +1629,7 @@ lky_object_code *compile_ast_ext(ast_node *root, compiler_wrapper *incw)
         cw.rnames = incw->rnames;
         cw.used_names = incw->used_names;
         cw.repl = incw->repl;
+        cw.impl_name = incw->impl_name;
     }
     else
     {
@@ -1634,6 +1638,7 @@ lky_object_code *compile_ast_ext(ast_node *root, compiler_wrapper *incw)
         cw.rnames = arr_create(50);
         cw.used_names = arr_create(20);
         cw.repl = 0;
+        cw.impl_name = NULL;
     }
 
     compile_compound(&cw, root);
@@ -1667,6 +1672,10 @@ lky_object_code *compile_ast_ext(ast_node *root, compiler_wrapper *incw)
     code->refname = NULL;
     code->stack_size = calculate_max_stack_depth(code->ops, (int)code->op_len);
     code->catch_size = calculate_max_catch_depth(code->ops, (int)code->op_len);
+    
+    cw.impl_name = cw.impl_name ? cw.impl_name : "Anonymous Function";
+    code->impl_name = malloc(strlen(cw.impl_name) + 1);
+    strcpy(code->impl_name, cw.impl_name);
 
     int i;
     for(i = 0; i < cw.local_idx; i++)

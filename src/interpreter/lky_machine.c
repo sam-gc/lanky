@@ -140,7 +140,11 @@ arraylist mach_build_trace(mach_interp *interp)
 {
     stackframe *frame = interp->stack;
     arraylist out = arr_create(10);
-    for(; frame && frame->indices; frame = frame->prev) arr_append(&out, lobjb_build_int(frame->indices[frame->pc]));
+    for(; frame && frame->indices; frame = frame->prev)
+    {
+        arr_append(&out, lobjb_build_int(frame->indices[frame->pc]));
+        arr_append(&out, frame->impl_name);
+    }
 
     return out;
 }
@@ -173,6 +177,8 @@ lky_object *mach_interrupt_exec(lky_object_function *func)
     frame->prev = interp->stack ? interp->stack : NULL;
     frame->thrown = NULL;
     frame->next = NULL;
+
+    frame->impl_name = code->impl_name;
     
     func->parent_stack = frame->parent_stack;
     
@@ -254,6 +260,8 @@ lky_object *mach_execute(lky_object_function *func)
     
     frame->interp = interp;
     frame->locals_count = code->num_locals;
+
+    frame->impl_name = code->impl_name;
     
     // Setup stackframe with the previous stack
     frame->prev = interp->stack ? interp->stack : NULL;
@@ -348,9 +356,9 @@ _opcode_whiplash_:
             char *errtxt = lobjb_stringify((lky_object *)exc, frame->interp);
             printf("Fatal error on line %ld--\n%s\nTrace:\n===============\n", (long)OBJ_NUM_UNWRAP(arr_get(&exc->trace, 0)), errtxt);
             int i;
-            for(i = 0; i < exc->trace.count; i++)
+            for(i = 0; i < exc->trace.count; i += 2)
             {
-                printf("(Anonymous Function)\t%ld\n", (long)OBJ_NUM_UNWRAP(arr_get(&exc->trace, i)));
+                printf("%ld\t(%s)\n", (long)OBJ_NUM_UNWRAP(arr_get(&exc->trace, i)), (char *)arr_get(&exc->trace, i + 1));
             }
 
             free(errtxt);

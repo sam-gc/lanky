@@ -49,6 +49,8 @@ typedef struct stackframe {
     int catch_pointer;
     lky_object *ret;
     lky_object *thrown;
+
+    char *impl_name;
 } stackframe;
 
 typedef struct interp {

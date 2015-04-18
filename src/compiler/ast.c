@@ -179,6 +179,9 @@ ast_node *create_assignment_node(char *left, ast_node *right)
     node->right = right;
     node->opt = '=';
 
+    if(right->type == AFUNC_DECL)
+        ((ast_func_decl_node *)right)->impl_name = left;
+
     set_line_no(node);
     return (ast_node *)node;
 }
@@ -389,6 +392,7 @@ ast_node *create_func_decl_node(ast_node *params, ast_node *payload, char *refna
     node->payload = payload;
 
     node->refname = refname;
+    node->impl_name = NULL;
 
     set_line_no(node);
     return (ast_node *)node;

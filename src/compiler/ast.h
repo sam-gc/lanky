@@ -254,6 +254,7 @@ typedef struct {
     struct ast_node *payload;
 
     char *refname;
+    char *impl_name;
 } ast_func_decl_node;
 
 /*

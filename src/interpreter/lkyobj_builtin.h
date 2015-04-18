@@ -110,6 +110,7 @@ typedef struct {
     int catch_size;
 
     char *refname;
+    char *impl_name;
 } lky_object_code;
 
 // TODO: Is this necessary?
