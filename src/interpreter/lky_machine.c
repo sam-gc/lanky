@@ -346,7 +346,13 @@ _opcode_whiplash_:
         if(!frame->catch_pointer && !frame->prev)
         {
             char *errtxt = lobjb_stringify((lky_object *)exc, frame->interp);
-            printf("Fatal error on line %ld--\n%s\n\nHalting.\n", (long)OBJ_NUM_UNWRAP(arr_get(&exc->trace, 0)), errtxt);
+            printf("Fatal error on line %ld--\n%s\nTrace:\n===============\n", (long)OBJ_NUM_UNWRAP(arr_get(&exc->trace, 0)), errtxt);
+            int i;
+            for(i = 0; i < exc->trace.count; i++)
+            {
+                printf("(Anonymous Function)\t%ld\n", (long)OBJ_NUM_UNWRAP(arr_get(&exc->trace, i)));
+            }
+
             free(errtxt);
             frame->ret = &lky_nil;
             return;
