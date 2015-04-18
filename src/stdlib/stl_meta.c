@@ -205,10 +205,12 @@ lky_object *stlmeta_exec(lky_func_bundle *bundle)
 
     lky_object_custom *self = (lky_object_custom *)func->owner;
     
-    lky_object_custom *strobj = (lky_object_custom *)args->value;
-    char *str = strobj->data;
+    lky_object *strobj = (lky_object *)args->value;
+    char *str = lobjb_stringify(strobj, BUW_INTERP(bundle));
     
-    return compile_and_exec(str, self->data);
+    lky_object *ret = compile_and_exec(str, self->data);
+    free(str);
+    return ret;
 }
 
 lky_object *stlmeta_audit(lky_func_bundle *bundle)

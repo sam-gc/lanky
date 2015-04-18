@@ -1,6 +1,6 @@
 make_adder = func() {
     count = 0;
-    obj = <"Object">();
+    obj = <"Object">.new();
     obj.add = func() {
         count = count + 1;
     };

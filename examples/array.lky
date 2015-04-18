@@ -1,6 +1,6 @@
 Array = <"Array">;
 
-arr = Array();
+arr = Array.new();
 
 arr.append("Hello");
 arr.append("World");
@@ -8,7 +8,7 @@ arr.append("World");
 _prt arr.get(0);
 _prt arr.get(1);
 
-arr = Array();
+arr = Array.new();
 
 for i = 0; i < 100; i = i + 1 {
     arr.append((i % 5 + 1) * "a");
@@ -18,8 +18,8 @@ arr.forEach(func(val, idx) {
     _prt idx + ": " + val;
 });
 
-lista = Array();
-listb = Array();
+lista = Array.new();
+listb = Array.new();
 
 lista.append("A");
 lista.append("B");
@@ -41,7 +41,7 @@ listb.forEach(printer);
 
 _prt "........................";
 
-Dog = class() {
+Dog = class {
     proto name: nil
     proto weight: -1
 
@@ -61,7 +61,7 @@ Dog = class() {
 
 moki = Dog.new("Moki");
 
-group = Array();
+group = Array.new();
 group.append(moki);
 group.append(Dog.new("Joe"));
 

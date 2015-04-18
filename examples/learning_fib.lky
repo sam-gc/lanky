@@ -1,15 +1,6 @@
 Io = <"Io">;
 Time = <"Time">;
 
-Io.printf = func(fmt) -> self {
-    pts = fmt.split('@');
-    for p, i in pts {
-        self.put(p); 
-        if i == pts.count - 1 {break;}
-        self.put(va_args_[i]);
-    }
-};
-
 fib_brute_force = func(n) {
     if n == 0 | n == 1 {
         ret n;
@@ -41,10 +32,9 @@ fib_smart = func(n) {
 Io.putln('');
 
 now = Time.unix();
-Io.printf("@\nTook @ms\n", fib_brute_force(20), Time.unix() - now);
+Io.putln("" + fib_brute_force(20) + "\nTook " + (Time.unix() - now) + "ms.");
 Io.putln('');
 
 now = Time.unix();
-Io.printf("\n@\nTook @ms\n", fib_smart(20), Time.unix() - now);
-Io.putln('');
+Io.putln("" + fib_smart(20) + "\nTook " + (Time.unix() - now) + "ms.");
 Io.putln(a.size_);
