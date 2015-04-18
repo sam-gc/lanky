@@ -140,7 +140,7 @@ arraylist mach_build_trace(mach_interp *interp)
 {
     stackframe *frame = interp->stack;
     arraylist out = arr_create(10);
-    for(; frame; frame = frame->prev) arr_append(&out, lobjb_build_int(frame->indices[frame->pc]));
+    for(; frame && frame->indices; frame = frame->prev) arr_append(&out, lobjb_build_int(frame->indices[frame->pc]));
 
     return out;
 }
@@ -160,6 +160,7 @@ lky_object *mach_interrupt_exec(lky_object_function *func)
     frame->locals = code->locals;
     frame->pc = -1;
     frame->ops = code->ops;
+    frame->indices = code->indices;
     frame->tape_len = code->op_len;
     frame->stack_pointer = -1;
     frame->stack_size = code->stack_size;
@@ -210,10 +211,10 @@ lky_object *mach_interrupt_exec(lky_object_function *func)
     if(frame->stack_pointer > -1)
         ret = frame->data_stack[frame->stack_pointer];
     
-    lky_object *err = frame->prev->thrown;
+    lky_object_error *err = (lky_object_error *)frame->prev->thrown;
     if(err)
     { 
-        char *txt = lobjb_stringify(err, frame->interp);
+        char *txt = lobjb_stringify((lky_object *)err, frame->interp);
         printf("Interrupt caught exception.\n%s\n", txt);
         free(txt);
         frame->prev->thrown = NULL;

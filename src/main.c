@@ -132,6 +132,8 @@ void exec_in_repl()
     frame.stack_size = 0;
     frame.locals_count = 0;
     frame.thrown = NULL;
+    frame.prev = NULL;
+    frame.indices = NULL;
 
     runtime rt = rt_make();
     
