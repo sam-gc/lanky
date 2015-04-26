@@ -27,6 +27,18 @@
 
 #define SPLIT 256
 #define MATCH 257
+#define NONE -1
+#define CHRCLS -2
+#define ANY -3
+#define FIRST -4
+#define LAST -5
+
+struct char_class_node {
+    int a;
+    int b;
+    struct char_class_node *next;
+    int negate;
+};
 
 typedef enum {
     RAN_OR,
@@ -35,6 +47,7 @@ typedef enum {
     RAN_REPETION,
     RAN_AT_LEAST_ONE,
     RAN_ONE_OR_NONE,
+    RAN_CLASS,
     RAN_BLANK
 } rgx_ast_type;
 
@@ -58,11 +71,18 @@ typedef struct {
 typedef struct {
     rgx_ast_type type;
 
-    char c;
+    int c;
 } rgx_ast_base;
+
+typedef struct {
+    rgx_ast_type type;
+
+    struct char_class_node *node;
+} rgx_ast_class;
 
 struct state {
     int c;
+    struct char_class_node *chrcls;
     struct state *out;
     struct state *out_alt;
     int listit;
@@ -78,9 +98,11 @@ typedef struct {
     char *error;
 
     lky_mempool mempool;
+    rgx_regex *regex;
 } rgx_compiler;
 
 typedef struct state rgx_state;
+typedef struct char_class_node rgx_charclass;
 typedef union dangling_pointers dangling_pointers;
 typedef struct {
     rgx_state *start;
@@ -126,6 +148,7 @@ rgx_compiler rgxc_make_compiler(char *input)
 
     compiler.mempool = pool_create();
     pool_add(&compiler.mempool, compiler.input);
+    compiler.regex = NULL;
 
     return compiler;
 }
@@ -166,13 +189,13 @@ void *rgxc_malloc(rgx_compiler *compiler, size_t size)
 rgx_regex *rgx_compile(char *input)
 {
     rgx_compiler compiler = rgxc_make_compiler(input);
-
-    rgx_ast_node *head = rgxc_regex(&compiler);
-
     rgx_regex *regex = malloc(sizeof(*regex));
     regex->state_count = 0;
     regex->listgen = 0;
     regex->state_mempool = pool_create();
+    compiler.regex = regex;
+
+    rgx_ast_node *head = rgxc_regex(&compiler);
 
     rgx_fragment frag = rgxb_build(head, regex);
     pool_drain(&compiler.mempool);
@@ -257,24 +280,162 @@ rgx_ast_node *rgxc_factor(rgx_compiler *compiler)
     return base;
 }
 
+rgx_charclass *rgxc_class_make(rgx_compiler *compiler, int a, int b)
+{
+    rgx_charclass *cls = malloc(sizeof(*cls));
+    cls->negate = 0;
+    cls->a = a;
+    cls->b = b;
+    cls->next = NULL;
+
+    pool_add(&compiler->regex->state_mempool, cls);
+
+    return cls;
+}
+
+rgx_ast_node *rgxc_predefined_class(rgx_compiler *compiler, int c)
+{
+    if(c != 'd' && c != 'D' && c != 's' && c != 'S' && c != 'w' && c != 'W')
+        return NULL;
+
+    rgx_charclass *head = rgxc_class_make(compiler, -1, -1);
+    switch(c)
+    {
+        case 'D':
+            head->negate = 1;
+        case 'd':
+            head->next = rgxc_class_make(compiler, '0', '9');
+            break;
+
+        case 'S':
+            head->negate = 1;
+        case 's': {
+            rgx_charclass *cur = head;
+            char *bad = " \t\n\x0B\f\r";
+            int i;
+            for(i = 0; i < 6; i++)
+            {
+                cur->next = rgxc_class_make(compiler, bad[i], -1);
+                cur = cur->next;
+            }
+            break;
+        }
+
+        case 'W':
+            head->negate = 1;
+        case 'w':
+            head->next = rgxc_class_make(compiler, 'a', 'z');
+            head->next->next = rgxc_class_make(compiler, 'A', 'Z');
+            head->next->next->next = rgxc_class_make(compiler, '0', '9');
+            head->next->next->next->next = rgxc_class_make(compiler, '_', -1);
+            break;
+
+        default:
+            break;
+    }
+
+    rgx_ast_class *cls = rgxc_malloc(compiler, sizeof(*cls));
+    cls->type = RAN_CLASS;
+    cls->node = head;
+
+    return (rgx_ast_node *)cls;
+}
+
+char rgxc_class_next(rgx_compiler *compiler, int *escape)
+{
+    *escape = 0;
+    char c = rgxc_next(compiler);
+    if(c != '\\')
+        return c;
+
+    *escape = 1;
+    return rgxc_next(compiler);
+}
+
+rgx_ast_node *rgxc_class(rgx_compiler *compiler)
+{
+    int negate = 0;
+    char c = rgxc_next(compiler);
+    if(c == '^')
+    {
+        negate = 1;
+        c = rgxc_next(compiler);
+    }
+
+    rgx_charclass *head = rgxc_class_make(compiler, -1, -1);
+    head->negate = negate;
+
+    rgx_charclass *cur = head;
+
+    char n;
+    while(rgxc_has_more(compiler) && rgxc_peek(compiler) != ']')
+    {
+        int escape;
+        n = rgxc_class_next(compiler, &escape);
+        if(n == '-' && !escape)
+        {
+            n = rgxc_next(compiler);
+            cur->next = rgxc_class_make(compiler, c, n);
+            cur = cur->next;
+            if(rgxc_peek(compiler) == ']')
+            {
+                c = 0;
+                break;
+            }
+            c = rgxc_class_next(compiler, &escape);
+            continue;
+        }
+
+        cur->next = rgxc_class_make(compiler, c, -1);
+        cur = cur->next;
+        c = n;
+    }
+
+    if(c)
+        cur->next = rgxc_class_make(compiler, c, -1);
+
+    rgx_ast_class *cls = rgxc_malloc(compiler, sizeof(*cls));
+    cls->type = RAN_CLASS;
+    cls->node = head;
+
+    return (rgx_ast_node *)cls;
+}
+
 rgx_ast_node *rgxc_base(rgx_compiler *compiler)
 {
-    char c = '\0';
+    int c;
     switch(rgxc_peek(compiler))
     {
-        case '(':
+        case '(': {
             rgxc_eat(compiler, '(');
             rgx_ast_node *r = rgxc_regex(compiler);
             rgxc_eat(compiler, ')');
             return r;
-
-        case '\\':
+        }
+        case '\\': {
             rgxc_eat(compiler, '\\');
             c = rgxc_next(compiler);
+            rgx_ast_node *r = rgxc_predefined_class(compiler, c);
+            if(r)
+                return r;
+
             break;
+        }
+        case '[': {
+            rgxc_eat(compiler, '[');
+            rgx_ast_node *cls = rgxc_class(compiler);
+            rgxc_eat(compiler, ']');
+            return cls;
+        }
 
         default:
             c = rgxc_next(compiler);
+            if(c == '.')
+                c = ANY;
+//            else if(c == '$')
+//                c = LAST;
+//            else if(c == '^')
+//                c = FIRST;
             break;
     }
 
@@ -324,6 +485,7 @@ rgx_state *rgxb_build_state(int c, rgx_state *outa, rgx_state *outb, rgx_regex *
 {
     rgx_state *state = malloc(sizeof(*state));
     state->c = c;
+    state->chrcls = NULL;
     state->out = outa;
     state->out_alt = outb;
     state->listit = -1;
@@ -361,6 +523,14 @@ rgx_fragment rgxb_base(rgx_ast_node *node, rgx_regex *regex)
     return rgxb_build_fragment(s, rgxb_singleton(&s->out));
 }
 
+rgx_fragment rgxb_class(rgx_ast_node *node, rgx_regex *regex)
+{
+    rgx_ast_class *cls = (rgx_ast_class *)node;
+    rgx_state *s = rgxb_build_state(CHRCLS, NULL, NULL, regex);
+    s->chrcls = cls->node;
+    return rgxb_build_fragment(s, rgxb_singleton(&s->out));
+}
+
 rgx_fragment rgxb_repetition(rgx_ast_node *node, rgx_regex *regex)
 {
     rgx_ast_repetition *rep = (rgx_ast_repetition *)node;
@@ -389,7 +559,7 @@ rgx_fragment rgxb_one_or_none(rgx_ast_node *node, rgx_regex *regex)
 
 rgx_fragment rgxb_blank(rgx_ast_node *node, rgx_regex *regex)
 {
-    rgx_state *s = rgxb_build_state(-1, NULL, NULL, regex);
+    rgx_state *s = rgxb_build_state(NONE, NULL, NULL, regex);
     return rgxb_build_fragment(s, rgxb_singleton(&s->out));
 }
 
@@ -403,6 +573,8 @@ rgx_fragment rgxb_build(rgx_ast_node *head, rgx_regex *regex)
             return rgxb_sequence(head, regex);
         case RAN_BASE:
             return rgxb_base(head, regex);
+        case RAN_CLASS:
+            return rgxb_class(head, regex);
         case RAN_REPETION:
             return rgxb_repetition(head, regex);
         case RAN_AT_LEAST_ONE:
@@ -428,7 +600,7 @@ void rgx_add_state(rgx_regex *regex, rgxr_list *list, rgx_state *state)
         rgx_add_state(regex, list, state->out_alt);
         return;
     }
-    else if(state->c == -1)
+    else if(state->c == NONE)
     {
         rgx_add_state(regex, list, state->out);
         return;
@@ -437,6 +609,34 @@ void rgx_add_state(rgx_regex *regex, rgxr_list *list, rgx_state *state)
     list->mem[list->ct++] = state;
     if(state->c == MATCH)
         regex->matched = 1;
+}
+
+int rgx_test_class(rgx_charclass *cls, char c)
+{
+    int ret;
+    int negate = cls->negate;
+    for(cls = cls->next; cls; cls = cls->next)
+    {
+        if(cls->b < 0)
+            ret = c == cls->a;
+        else
+            ret = c >= cls->a && c <= cls->b;
+
+        if(ret && !negate) return 1;
+        if(ret &&  negate) return 0;
+    }
+
+    return negate;
+}
+
+int rgx_test(rgx_state *s, char c)
+{
+    if(s->c == ANY)
+        return 1;
+    if(s->c != CHRCLS)
+        return s->c == c;
+
+    return rgx_test_class(s->chrcls, c);
 }
 
 void rgx_step(rgx_regex *regex, char c)
@@ -451,7 +651,7 @@ void rgx_step(rgx_regex *regex, char c)
     for(i = 0; i < cur->ct; i++)
     {
         rgx_state *s = cur->mem[i];
-        if(s->c == c)
+        if(rgx_test(s, c))
             rgx_add_state(regex, nex, s->out);
     }
 }
@@ -524,6 +724,7 @@ int rgx_matches(rgx_regex *regex, char *input)
     regex->next_list = &listb;
 
     rgx_add_state(regex, regex->curr_list, regex->start);
+    regex->matched = 0;
 
     for(; *input; input++)
     {
