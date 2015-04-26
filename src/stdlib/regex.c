@@ -127,6 +127,7 @@ struct regex {
 
     int state_count;
     lky_mempool state_mempool;
+    lky_mempool class_mempool;
 };
 
 static rgx_ast_node rgx_ast_blank = {RAN_BLANK};
@@ -193,6 +194,7 @@ rgx_regex *rgx_compile(char *input)
     regex->state_count = 0;
     regex->listgen = 0;
     regex->state_mempool = pool_create();
+    regex->class_mempool = pool_create();
     compiler.regex = regex;
 
     rgx_ast_node *head = rgxc_regex(&compiler);
@@ -288,7 +290,7 @@ rgx_charclass *rgxc_class_make(rgx_compiler *compiler, int a, int b)
     cls->b = b;
     cls->next = NULL;
 
-    pool_add(&compiler->regex->state_mempool, cls);
+    pool_add(&compiler->regex->class_mempool, cls);
 
     return cls;
 }
@@ -656,6 +658,13 @@ void rgx_step(rgx_regex *regex, char c)
     }
 }
 
+void rgx_reset_all(lky_mempool *state_pool)
+{
+    struct poolnode *node = state_pool->head;
+    for(; node; node = node->next)
+        ((rgx_state *)node->data)->listit = 0;
+}
+
 int rgx_search(rgx_regex *regex, char *input)
 {
     rgx_state *l1[regex->state_count];
@@ -690,11 +699,16 @@ int rgx_search(rgx_regex *regex, char *input)
             rgxr_list *temp = regex->curr_list; regex->curr_list = regex->next_list; regex->next_list = temp;
 
             if(regex->matched)
+            {
+                rgx_reset_all(&regex->state_mempool);
                 return idx;
+            }
             if(regex->curr_list->ct == 0)
                 break;
         }
     }
+
+    rgx_reset_all(&regex->state_mempool);
 
 //    int res = rgx_list_contains_final(regex->curr_list);
 //    regex->curr_list = regex->next_list = NULL;
@@ -737,11 +751,14 @@ int rgx_matches(rgx_regex *regex, char *input)
     regex->curr_list = regex->next_list = NULL;
     regex->l1 = regex->l2 = NULL;
 
+    rgx_reset_all(&regex->state_mempool);
+
     return res;
 }
 
 void rgx_free(rgx_regex *regex)
 {
     pool_drain(&regex->state_mempool);
+    pool_drain(&regex->class_mempool);
     free(regex);
 }
