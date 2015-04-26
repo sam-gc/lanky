@@ -52,7 +52,8 @@ typedef enum {
     AOBJDECL,
     ATRIPLESET,
     ATRYCATCH,
-    ACLASSMEMBER
+    ACLASSMEMBER,
+    AREGEX
 } ast_type;
 
 // The different value types...
@@ -147,6 +148,14 @@ typedef struct ast_value_node {
     ast_value_type value_type;
     ast_value_union value;
 } ast_value_node;
+
+typedef struct {
+    ast_type type;
+    struct ast_node *next;
+    int lineno;
+
+    char *pattern;
+} ast_regex_node;
 
 // A special variation of the value
 // node that wraps units
@@ -386,6 +395,7 @@ ast_node *create_binary_node(ast_node *left, ast_node *right, char opt);
 ast_node *create_unary_node(ast_node *target, char opt);
 ast_node *create_assignment_node(char *left, ast_node *right);
 ast_node *create_load_node(void *data);
+ast_node *create_regex_node(void *data);
 ast_node *create_block_node(ast_node *payload);
 ast_node *create_if_node(ast_node *condition, ast_node *payload);
 ast_node *create_cond_node(ast_node *left, ast_node *right, char type);

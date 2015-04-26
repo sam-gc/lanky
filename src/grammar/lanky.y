@@ -39,7 +39,7 @@
    match our tokens.l lex file. We also define the node type
    they represent.
  */
-%token <string> TIDENTIFIER TINTEGER TFLOAT TSTRING
+%token <string> TIDENTIFIER TINTEGER TFLOAT TSTRING TREGEX
 %token <token> TCEQ TCNE TCLT TCLE TCGT TCGE TEQUAL TAND TOR TNOT TBAND TBOR TBXOR TBLSHIFT TBRSHIFT 
 %token <token> TLPAREN TRPAREN TLBRACE TRBRACE TLBRACKET TRBRACKET TCOMMA TDOT
 %token <token> TPLUS TMINUS TMUL TDIV TMOD TPOW TCON TIN TRARROW
@@ -234,6 +234,7 @@ expression :
     | TFLOAT TSTRING { $$ = create_unit_value_node($1, $2); }
     | TSTRING { $$ = create_value_node(VSTRING, (void *)$1); }
     | TIDENTIFIER { $$ = create_value_node(VVAR, (void *)$1); }
+    | TREGEX { $$ = create_regex_node((void *)$1); }
     | TBREAK { $$ = create_one_off_node('b'); }
     | TCONTINUE { $$ = create_one_off_node('c'); }
     | opapply

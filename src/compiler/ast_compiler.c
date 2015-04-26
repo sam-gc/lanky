@@ -43,6 +43,7 @@
 #include "bytecode_analyzer.h"
 #include "stl_string.h"
 #include "stl_units.h"
+#include "stl_regex.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -1267,6 +1268,25 @@ void compile_value(compiler_wrapper *cw, ast_node *root)
     append_op(cw, buf[3], node->lineno);
 }
 
+// Used to compile regexes
+void compile_regex(compiler_wrapper *cw, ast_node *root)
+{
+    ast_regex_node *node = (ast_regex_node *)root;
+    lky_object *rgx = stlrgx_cinit(node->pattern);
+    append_op(cw, LI_LOAD_CONST, node->lineno);
+
+    int idx = cw->rcon.count;
+    arr_append(&cw->rcon, rgx);
+
+    unsigned char buf[4];
+    int_to_byte_array(buf, idx);
+
+    append_op(cw, buf[0], node->lineno);
+    append_op(cw, buf[1], node->lineno);
+    append_op(cw, buf[2], node->lineno);
+    append_op(cw, buf[3], node->lineno);
+}
+
 // Compile special unit syntax
 void compile_unit_value(compiler_wrapper *cw, ast_node *root)
 {
@@ -1483,6 +1503,9 @@ void compile(compiler_wrapper *cw, ast_node *root)
         break;
         case ALOAD:
             compile_load(cw, root);
+        break;
+        case AREGEX:
+            compile_regex(cw, root);
         break;
         default:
         break;

@@ -49,6 +49,7 @@ real {integer}("."{digit}*){exponent}?
 nvar {alpha}({alpha}|{digit})*
 strlit (\"(\\.|[^"])*\"|'(\\.|[^'])*')
 comment (\#|(\-\-)).*(\n)
+regexlit (\/(\\.|[^/])*\/\/)
 
 %%
 
@@ -82,6 +83,7 @@ comment (\#|(\-\-)).*(\n)
 {real}      {SAVE_TOKEN; return TFLOAT;}
 {integer}   {SAVE_TOKEN; return TINTEGER;}
 {strlit}	{SAVE_TOKEN; return TSTRING;}
+{regexlit}  {SAVE_TOKEN; return TREGEX;}
 "="                     return TOKEN(TEQUAL);
 "=="                    return TOKEN(TCEQ);
 "!="                    return TOKEN(TCNE);

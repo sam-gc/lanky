@@ -3,6 +3,7 @@
 
 #include "lky_object.h"
 
+lky_object *stlrgx_cinit(char *pattern);
 lky_object *stlrgx_get_class();
 
 #endif

@@ -167,6 +167,25 @@ ast_node *create_load_node(void *data)
     return (ast_node *)node;
 }
 
+ast_node *create_regex_node(void *data)
+{
+    ast_regex_node *node = MALLOC(sizeof(ast_regex_node));
+    node->type = AREGEX;
+    pool_add(&ast_memory_pool, node);
+
+    char *raw = (char *)data;
+    char *str = MALLOC(strlen(raw) - 2);
+    pool_add(&ast_memory_pool, str);
+    memset(str, 0, strlen(raw) - 2);
+    memcpy(str, raw + 1, strlen(raw) - 3);
+
+    node->pattern = str;
+    node->next = NULL;
+
+    set_line_no(node);
+    return (ast_node *)node;
+}
+
 ast_node *create_assignment_node(char *left, ast_node *right)
 {
     ast_binary_node *node = MALLOC(sizeof(ast_binary_node));

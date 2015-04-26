@@ -17,6 +17,16 @@ void stlrgx_common_init(lky_object *obj, char *pattern)
     lobj_set_member(obj, "pattern", stlstr_cinit(pattern));
 }
 
+void stlrgx_manual_init(lky_object *nobj, lky_object *cls, void *data)
+{
+    stlrgx_common_init(nobj, (char *)data);
+}
+
+lky_object *stlrgx_cinit(char *pattern)
+{
+    return clb_instantiate(stlrgx_get_class(), stlrgx_manual_init, pattern);
+}
+
 CLASS_MAKE_INIT(stlrgx_init,
     char *fmt = $1 ? lobjb_stringify($1, interp_) : NULL;
     if(!fmt) return &lky_nil;

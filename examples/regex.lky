@@ -1,0 +1,3 @@
+re = /abba[0-9]+\D//;
+
+_prt re.matches('abba3634523');
