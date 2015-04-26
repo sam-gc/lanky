@@ -45,9 +45,9 @@ CLASS_MAKE_METHOD_EX(stlrgx_matches, self, rgx_regex *, rb_,
     char *sstr = lobjb_stringify($1, interp_);
     int ret;
     if(fuzzy)
-        ret = rgx_search(rb_, sstr) >= 0;
-    else
         ret = rgx_matches(rb_, sstr);
+    else
+        ret = rgx_search(rb_, sstr) >= 0;
     free(sstr);
 
     return LKY_TESTC_FAST(ret);
