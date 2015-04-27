@@ -49,7 +49,7 @@ real {integer}("."{digit}*){exponent}?
 nvar {alpha}({alpha}|{digit})*
 strlit (\"(\\.|[^"])*\"|'(\\.|[^'])*')
 comment (\#|(\-\-)).*(\n)
-regexlit (\/(\\.|[^/])*\/\/)
+regexlit (\/(\\.|[^/])*\/[ig]*\/)
 
 %%
 

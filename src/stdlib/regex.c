@@ -128,6 +128,8 @@ struct regex {
     int state_count;
     lky_mempool state_mempool;
     lky_mempool class_mempool;
+
+    unsigned flags;
 };
 
 static rgx_ast_node rgx_ast_blank = {RAN_BLANK};
@@ -139,6 +141,16 @@ rgx_ast_node *rgxc_regex(rgx_compiler *compiler);
 rgx_fragment rgxb_build(rgx_ast_node *head, rgx_regex *regex);
 rgx_state *rgxb_build_state(int c, rgx_state *outa, rgx_state *outb, rgx_regex *regex);
 void rgxb_patch(dangling_pointers *p, rgx_state *s);
+
+void rgx_set_flags(rgx_regex *regex, unsigned flags)
+{
+    regex->flags = flags;
+}
+
+unsigned rgx_get_flags(rgx_regex *regex)
+{
+    return regex->flags;
+}
 
 rgx_compiler rgxc_make_compiler(char *input)
 {
@@ -193,6 +205,7 @@ rgx_regex *rgx_compile(char *input)
     rgx_regex *regex = malloc(sizeof(*regex));
     regex->state_count = 0;
     regex->listgen = 0;
+    regex->flags = 0;
     regex->state_mempool = pool_create();
     regex->class_mempool = pool_create();
     compiler.regex = regex;
@@ -631,12 +644,24 @@ int rgx_test_class(rgx_charclass *cls, char c)
     return negate;
 }
 
-int rgx_test(rgx_state *s, char c)
+char rgx_lower(char c)
+{
+    if(c >= 'a' && c <= 'z')
+        return c;
+    return c - 'A' + 'a';
+}
+
+int rgx_test(rgx_state *s, char c, unsigned flags)
 {
     if(s->c == ANY)
         return 1;
     if(s->c != CHRCLS)
+    {
+        if((flags & RGX_IGNORE_CASE) && ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')))
+            return rgx_lower(s->c) == rgx_lower(c);
+
         return s->c == c;
+    }
 
     return rgx_test_class(s->chrcls, c);
 }
@@ -653,7 +678,7 @@ void rgx_step(rgx_regex *regex, char c)
     for(i = 0; i < cur->ct; i++)
     {
         rgx_state *s = cur->mem[i];
-        if(rgx_test(s, c))
+        if(rgx_test(s, c, regex->flags))
             rgx_add_state(regex, nex, s->out);
     }
 }
@@ -756,6 +781,10 @@ int *rgx_collect_matches(rgx_regex *regex, char *input)
                 rgx_wrapper_append(&res, len);
                 idx += len;
                 lasti = -1;
+
+                if(!(regex->flags & RGX_GLOBAL))
+                    return rgx_wrapper_finalize(&res);
+
                 break;
             }
         }
@@ -768,10 +797,6 @@ int *rgx_collect_matches(rgx_regex *regex, char *input)
             idx += len;
         }
     }
-
-//    int res = rgx_list_contains_final(regex->curr_list);
-//    regex->curr_list = regex->next_list = NULL;
-//    regex->l1 = regex->l2 = NULL;
 
     return rgx_wrapper_finalize(&res);
 }

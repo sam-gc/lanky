@@ -19,10 +19,15 @@
 #ifndef REGEX_H
 #define REGEX_H
 
+#define RGX_GLOBAL 1
+#define RGX_IGNORE_CASE 2
+
 struct regex;
 typedef struct regex rgx_regex;
 
 rgx_regex *rgx_compile(char *input);
+void rgx_set_flags(rgx_regex *regex, unsigned flags);
+unsigned rgx_get_flags(rgx_regex *regex);
 int *rgx_collect_matches(rgx_regex *regex, char *input);
 int rgx_matches(rgx_regex *regex, char *input);
 int rgx_search(rgx_regex *regex, char *input);

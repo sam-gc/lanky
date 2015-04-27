@@ -155,6 +155,7 @@ typedef struct {
     int lineno;
 
     char *pattern;
+    char *flags;
 } ast_regex_node;
 
 // A special variation of the value

@@ -175,11 +175,22 @@ ast_node *create_regex_node(void *data)
 
     char *raw = (char *)data;
     char *str = MALLOC(strlen(raw) - 2);
+    char *flg = MALLOC(3);
+
     pool_add(&ast_memory_pool, str);
+    pool_add(&ast_memory_pool, flg);
+
     memset(str, 0, strlen(raw) - 2);
-    memcpy(str, raw + 1, strlen(raw) - 3);
+    memset(flg, 0, 3);
+
+    int i;
+    for(raw = raw + 1, i = 0; *raw != '/'; raw++, i++)
+        str[i] = *raw;
+    for(raw = raw + 1, i = 0; *raw != '/'; raw++, i++)
+        flg[i] = *raw;
 
     node->pattern = str;
+    node->flags = flg;
     node->next = NULL;
 
     set_line_no(node);

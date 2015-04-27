@@ -1272,7 +1272,7 @@ void compile_value(compiler_wrapper *cw, ast_node *root)
 void compile_regex(compiler_wrapper *cw, ast_node *root)
 {
     ast_regex_node *node = (ast_regex_node *)root;
-    lky_object *rgx = stlrgx_cinit(node->pattern);
+    lky_object *rgx = stlrgx_cinit(node->pattern, node->flags);
     append_op(cw, LI_LOAD_CONST, node->lineno);
 
     int idx = cw->rcon.count;
