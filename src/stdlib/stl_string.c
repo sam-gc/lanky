@@ -269,8 +269,14 @@ char stlstr_escape_for(char i)
             return '\n';
         case 't':
             return '\t';
-        default:
+        case '\'':
+            return '\'';
+        case '"':
+            return '"';
+        case '\\':
             return '\\';
+        default:
+            return -1;
     }
 }
 
@@ -288,8 +294,14 @@ char *stlstr_copy_and_escape(char *str)
             continue;
         }
 
-        i++;
-        cop[o] = stlstr_escape_for(str[i]);
+        char e = stlstr_escape_for(str[i + 1]);
+        if(e > 1)
+        {
+            i++;
+            cop[o] = e;
+        }
+        else
+            cop[o] = str[i];
     }
 
     return cop;
