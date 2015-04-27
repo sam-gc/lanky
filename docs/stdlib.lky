@@ -190,9 +190,12 @@ Documentation.new().
         ProtoField('sb_', 'The binary blob containing the pointer to the C string').
         StaticMethod('new', 0, 'Basic initializer; returns an empty string. Same as the string literal `""`', [], '').
         ProtoMethod('reverse', 0, 'Reverses the string', [], 'A new string is created whose contents are the reverse of the original string. This is then returned.').
-        ProtoMethod('split', 1, 'Splits the string based on some delimeter',
-                ['delim', 'The delimeter to use to split'],
-                'This method will split the string into an `Array` by scanning for the delimeters. Regexes are not accepted or recognized by the method. The strings in the returned array do not have the delimeter attached. If the delimeter is not contained in the string, an array of count 1 is returned.').
+        ProtoMethod('split', 1, 'Splits the string based on a string or regex delimeter',
+                ['delim', 'The delimeter to use to split (another string or a regex)'],
+                'This method will split the string into an `Array` by scanning for the delimeters. If a regex is provided and the global flag (`g`) is not set, then the string will only be split at the first occurrence. The strings in the returned array do not have the delimeter attached. If the delimeter is not contained in the string, an array of count 1 is returned.').
+        ProtoMethod('replacing', 2, 'Returns a new string with occurrences of some search pattern replaced',
+                ['search', 'The pattern to search for', 'repl', 'The string that will be used as replacement'],
+                'Regexes are not currently (but soon will be) supported for the `search` parameter. The original string is left untouched. A new string is allocated and constructed where all occurences of `search` are replaced by `repl`.').
         ProtoMethod('lower', 0, 'Returns the string with all characters in miniscule form', [], '').
         ProtoMethod('upper', 0, 'Returns the string with all characters in majuscule form', [], '').
         ProtoMethod('copy', 0, 'Returns a newly-allocated replica string', [], '').

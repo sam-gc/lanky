@@ -163,10 +163,67 @@ CLASS_MAKE_METHOD_EX(stlstr_set_index, self, char *, sb_,
 )
 
 CLASS_MAKE_METHOD_EX(stlstr_copy, self, char *, sb_,
-    char nw[strlen(sb_) + 1];
-    strcpy(nw, sb_);
+    return stlstr_cinit(sb_);
+)
 
-    return stlstr_cinit(nw);
+CLASS_MAKE_METHOD_EX(stlstr_replacing, self, char *, sb_,
+
+    char *search = lobjb_stringify($1, interp_);
+    char *repl = lobjb_stringify($2, interp_);
+    char *loc = sb_;
+
+    size_t repllen = strlen(repl);
+
+    struct {
+        char *ptr;
+        int alloced;
+        int ct;
+    } builder;
+
+    builder.ptr = calloc(strlen(loc) * 2, 1);
+    builder.alloced = strlen(loc) * 2;
+    builder.ct = 0;
+
+    char *prev = loc;
+    while(*loc)
+    {
+        loc = strstr(loc, search);
+
+        if(!loc) break;
+        if(repllen + loc - prev > builder.alloced - builder.ct)
+        {
+            builder.alloced += repllen + prev - loc + strlen(loc);
+            builder.ptr = realloc(builder.ptr, builder.alloced);
+        }
+
+        memcpy(builder.ptr + builder.ct, prev, loc - prev);
+        builder.ct += loc - prev;
+        loc += strlen(search);
+        prev = loc;
+
+        memcpy(builder.ptr + builder.ct, repl, repllen);
+        builder.ct += repllen;
+    }
+
+    size_t plen = strlen(prev);
+    if(plen > builder.alloced - builder.ct)
+    {
+        builder.alloced += plen + 2;
+        builder.ptr = realloc(builder.ptr, builder.alloced);
+    }
+
+    if(!!strcmp(prev, search))
+    {
+        memcpy(builder.ptr + builder.ct, prev, plen);
+        builder.ct += plen;
+    }
+    builder.ptr[builder.ct] = '\0';
+    lky_object *o = stlstr_cinit(builder.ptr);
+    free(builder.ptr);
+    free(search);
+    free(repl);
+
+    return o;
 )
 
 lky_object *stlstr_split_regex(char *me, lky_object *regex)
@@ -455,6 +512,7 @@ lky_object *stlstr_get_class()
         CLASS_PROTO_METHOD("find", stlstr_find, 1);
         CLASS_PROTO_METHOD("stringify_", stlstr_stringify, 0);
         CLASS_PROTO_METHOD("split", stlstr_split, 1);
+        CLASS_PROTO_METHOD("replacing", stlstr_replacing, 2);
         CLASS_PROTO_METHOD("lower", stlstr_to_lower, 0);
         CLASS_PROTO_METHOD("upper", stlstr_to_upper, 0);
         CLASS_PROTO_METHOD("copy", stlstr_copy, 0);
