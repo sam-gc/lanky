@@ -23,6 +23,7 @@ struct regex;
 typedef struct regex rgx_regex;
 
 rgx_regex *rgx_compile(char *input);
+int *rgx_collect_matches(rgx_regex *regex, char *input);
 int rgx_matches(rgx_regex *regex, char *input);
 int rgx_search(rgx_regex *regex, char *input);
 void rgx_free(rgx_regex *regex);

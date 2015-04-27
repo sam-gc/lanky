@@ -1,7 +1,6 @@
 #include <string.h>
 #include "stl_regex.h"
 #include "stl_string.h"
-#include "regex.h"
 #include "class_builder.h"
 
 CLASS_MAKE_BLOB_FUNCTION(stlrgx_blob_func, rgx_regex *, regex, how,
@@ -25,6 +24,11 @@ void stlrgx_manual_init(lky_object *nobj, lky_object *cls, void *data)
 lky_object *stlrgx_cinit(char *pattern)
 {
     return clb_instantiate(stlrgx_get_class(), stlrgx_manual_init, pattern);
+}
+
+rgx_regex *stlrgx_unwrap(lky_object *obj)
+{
+    return CLASS_GET_BLOB(obj, "rb_", rgx_regex *);
 }
 
 CLASS_MAKE_INIT(stlrgx_init,

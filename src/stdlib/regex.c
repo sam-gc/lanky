@@ -665,6 +665,96 @@ void rgx_reset_all(lky_mempool *state_pool)
         ((rgx_state *)node->data)->listit = 0;
 }
 
+typedef struct {
+    int *indices;
+    int ct;
+    int alloced;
+} rgx_result_wrapper;
+
+rgx_result_wrapper rgx_wrapper_make()
+{
+    rgx_result_wrapper wrapper;
+    wrapper.indices = malloc(sizeof(int) * 10);
+    wrapper.ct = 0;
+    wrapper.alloced = 10;
+
+    return wrapper;
+}
+
+void rgx_wrapper_append(rgx_result_wrapper *w, int c)
+{
+    if(w->ct == w->alloced)
+    { 
+        w->alloced += 10;
+        w->indices = realloc(w->indices, sizeof(int) * w->alloced);
+    }
+
+    w->indices[w->ct++] = c;
+}
+
+int *rgx_wrapper_finalize(rgx_result_wrapper *w)
+{
+    rgx_wrapper_append(w, -1);
+    return w->indices;
+}
+
+int *rgx_collect_matches(rgx_regex *regex, char *input)
+{
+    rgx_state *l1[regex->state_count];
+    rgx_state *l2[regex->state_count];
+
+    rgxr_list lista;
+    rgxr_list listb;
+
+    lista.ct = 0;
+    lista.mem = l1;
+
+    listb.ct = 0;
+    listb.mem = l2;
+
+    regex->l1 = l1;
+    regex->l2 = l2;
+
+    regex->curr_list = &lista;
+    regex->next_list = &listb;
+
+    rgx_add_state(regex, regex->curr_list, regex->start);
+
+    rgx_result_wrapper res = rgx_wrapper_make();
+
+    int idx;
+    for(idx = 0; *input; input++, idx++)
+    {
+        char *start = input;
+        rgx_reset_all(&regex->state_mempool);
+        rgx_add_state(regex, regex->curr_list, regex->start);
+        int len;
+        for(len = 1; *start; start++, len++)
+        {
+            char c = start[0];
+            rgx_step(regex, c);
+            rgxr_list *temp = regex->curr_list; regex->curr_list = regex->next_list; regex->next_list = temp;
+
+            if(regex->matched)
+            {
+                input += len;
+                rgx_wrapper_append(&res, idx);
+                rgx_wrapper_append(&res, len);
+                idx += len;
+                break;
+            }
+            if(regex->curr_list->ct == 0)
+                break;
+        }
+    }
+
+//    int res = rgx_list_contains_final(regex->curr_list);
+//    regex->curr_list = regex->next_list = NULL;
+//    regex->l1 = regex->l2 = NULL;
+
+    return rgx_wrapper_finalize(&res);
+}
+
 int rgx_search(rgx_regex *regex, char *input)
 {
     rgx_state *l1[regex->state_count];

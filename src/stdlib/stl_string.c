@@ -20,6 +20,7 @@
 #include <string.h>
 #include "stl_string.h"
 #include "stl_array.h"
+#include "stl_regex.h"
 #include "hashtable.h"
 #include "class_builder.h"
 
@@ -345,6 +346,33 @@ CLASS_MAKE_METHOD_EX(stlstr_to_upper, self, char *, sb_,
     return stlstr_cinit(n);
 )
 
+CLASS_MAKE_METHOD_EX(stlstr_find, self, char *, sb_,
+    char *me = sb_;
+    if(!$1) return &lky_nil;
+    CLASS_ERROR_ASSERT(lobj_is_of_class($1, stlrgx_get_class()), "MismatchedType", "Parameter 1 to find not regular expression");
+
+    rgx_regex *regex = stlrgx_unwrap($1);
+    int *pts = rgx_collect_matches(regex, me);
+    int *head = pts;
+
+    arraylist list = arr_create(10);
+
+    while(*pts > -1)
+    {
+        int idx = *pts;
+        int len = *(++pts);
+        char temp[len + 1];
+        memcpy(temp, me + idx, len);
+        temp[len] = '\0';
+        arr_append(&list, stlstr_cinit(temp));
+        
+        pts++;
+    }
+
+    free(head);
+    return stlarr_cinit(list);
+)
+
 void stlstr_manual_init(lky_object *nobj, lky_object *cls, void *data)
 {
     char *copied = stlstr_copy_and_escape((char *)data);
@@ -375,6 +403,7 @@ lky_object *stlstr_get_class()
         CLASS_PROTO("length", lobjb_build_int(-1));
         CLASS_PROTO("sb_", proto_blob);
         CLASS_PROTO_METHOD("reverse", stlstr_reverse, 0);
+        CLASS_PROTO_METHOD("find", stlstr_find, 1);
         CLASS_PROTO_METHOD("stringify_", stlstr_stringify, 0);
         CLASS_PROTO_METHOD("split", stlstr_split, 1);
         CLASS_PROTO_METHOD("lower", stlstr_to_lower, 0);
