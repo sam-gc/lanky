@@ -169,7 +169,56 @@ CLASS_MAKE_METHOD_EX(stlstr_copy, self, char *, sb_,
     return stlstr_cinit(nw);
 )
 
+lky_object *stlstr_split_regex(char *me, lky_object *regex)
+{ 
+    arraylist list = arr_create(10);
+    rgx_regex *r = stlrgx_unwrap(regex);
+    int *idcs = rgx_collect_matches(r, me);
+    int *head = idcs;
+    int idx = 0;
+    for(; *idcs > -1; idcs += 2)
+    {
+        int top = idcs[0];
+        int len = idcs[1];
+        int tot = top - idx;
+
+        char cur[tot + 1];
+        int i;
+        for(i = 0; i < tot; i++)
+            cur[i] = me[i + idx];
+        cur[tot] = '\0';
+
+        idx += tot + len;
+        arr_append(&list, stlstr_cinit(cur));
+    }
+
+    if(head != idcs)
+    {
+        idcs -= 2;
+        int srest = idcs[0] + idcs[1];
+        me += srest;
+        arr_append(&list, stlstr_cinit(me));
+    }
+    else
+    {
+        arr_append(&list, stlstr_cinit(me));
+    }
+
+    free(head);
+    return stlarr_cinit(list);
+}
+
 CLASS_MAKE_METHOD_EX(stlstr_split, self, char *, sb_,
+    if(!$1)
+    {
+        arraylist list = arr_create(10);
+        arr_append(&list, self);
+        return stlarr_cinit(list);
+    }
+
+    if(lobj_is_of_class($1, stlrgx_get_class()))
+        return stlstr_split_regex(sb_, $1);
+        
     lky_object_function *strf = (lky_object_function *)lobj_get_member($1, "stringify_");
     if(!strf)
     {
