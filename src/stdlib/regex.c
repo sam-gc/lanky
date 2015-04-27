@@ -729,7 +729,9 @@ int *rgx_collect_matches(rgx_regex *regex, char *input)
         rgx_reset_all(&regex->state_mempool);
         rgx_add_state(regex, regex->curr_list, regex->start);
         int len;
-        for(len = 1; *start; start++, len++)
+        int lasti, lastlen;
+        lasti = lastlen = -1;
+        for(len = 0; *start; start++, len++)
         {
             char c = start[0];
             rgx_step(regex, c);
@@ -737,14 +739,33 @@ int *rgx_collect_matches(rgx_regex *regex, char *input)
 
             if(regex->matched)
             {
+                lasti = idx;
+                lastlen = len;
+                /*input += len;
+                rgx_wrapper_append(&res, idx);
+                rgx_wrapper_append(&res, len);
+                idx += len;
+                break;*/
+            }
+            if(regex->curr_list->ct == 0)
+            {
+                if(lasti < 0)
+                    break;
                 input += len;
                 rgx_wrapper_append(&res, idx);
                 rgx_wrapper_append(&res, len);
                 idx += len;
+                lasti = -1;
                 break;
             }
-            if(regex->curr_list->ct == 0)
-                break;
+        }
+
+        if(lasti >= 0)
+        {
+            input += len - 1;
+            rgx_wrapper_append(&res, idx);
+            rgx_wrapper_append(&res, len);
+            idx += len;
         }
     }
 
