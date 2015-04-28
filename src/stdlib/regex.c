@@ -690,12 +690,6 @@ void rgx_reset_all(lky_mempool *state_pool)
         ((rgx_state *)node->data)->listit = 0;
 }
 
-typedef struct {
-    int *indices;
-    int ct;
-    int alloced;
-} rgx_result_wrapper;
-
 rgx_result_wrapper rgx_wrapper_make()
 {
     rgx_result_wrapper wrapper;
@@ -776,10 +770,10 @@ int *rgx_collect_matches(rgx_regex *regex, char *input)
             {
                 if(lasti < 0)
                     break;
-                input += len;
+                input += len - 1;
                 rgx_wrapper_append(&res, idx);
                 rgx_wrapper_append(&res, len);
-                idx += len;
+                idx += len - 1;
                 lasti = -1;
 
                 if(!(regex->flags & RGX_GLOBAL))

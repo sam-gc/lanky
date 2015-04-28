@@ -166,8 +166,120 @@ CLASS_MAKE_METHOD_EX(stlstr_copy, self, char *, sb_,
     return stlstr_cinit(sb_);
 )
 
+lky_object *stlstr_replacing_generic(char *me, lky_object *replo, int *indcs, struct interp *interp)
+{
+    char *repl = NULL;
+    size_t repllen = -1;
+    if(OBJ_IS_NUMBER(replo) || replo->type != LBI_FUNCTION)
+    {
+        repl = lobjb_stringify(replo, interp);
+        repllen = strlen(repl);
+    }
+
+    size_t melen = strlen(me);
+
+    struct {
+        char *ptr;
+        int alloced;
+        int ct;
+    } builder;
+
+    builder.ptr = calloc(melen * 2 + 1, 1);
+    builder.alloced = melen * 2;
+    builder.ct = 0;
+
+    int cur = 0;
+
+    while(*indcs > -1)
+    {
+        int start = *indcs;
+        int len = *(++indcs);
+        indcs++;
+
+        int clen = start - cur;
+
+        char *out = repl;
+        size_t outlen = repllen;
+        if(!out)
+        {
+            char temp[len + 1];
+            memcpy(temp, me + start, len);
+            temp[len] = '\0';
+            lky_object *ff = lobjb_call(replo, LKY_ARGS(stlstr_cinit(temp)), interp);
+            out = lobjb_stringify(ff, interp);
+            outlen = strlen(out);
+        }
+
+        if(outlen + clen > builder.alloced - builder.ct)
+        {
+            builder.alloced += outlen + clen + melen;
+            builder.ptr = realloc(builder.ptr, builder.alloced);
+        }
+
+        memcpy(builder.ptr + builder.ct, me + cur, clen);
+        builder.ct += clen;
+
+        memcpy(builder.ptr + builder.ct, out, outlen);
+        builder.ct += outlen;
+
+        cur = start + len;
+
+        if(!repl)
+            free(out);
+    }
+
+    if(melen - cur > builder.alloced - builder.ct)
+    {
+        builder.alloced += melen - cur + 5;
+        builder.ptr = realloc(builder.ptr, builder.alloced);
+    }
+
+    memcpy(builder.ptr + builder.ct, me + cur, melen - cur);
+    builder.ct += melen - cur;
+    builder.ptr[builder.ct] = '\0';
+    if(repl) free(repl);
+    lky_object *o = stlstr_cinit(builder.ptr);
+    free(builder.ptr);
+
+    return o;
+}
+
 CLASS_MAKE_METHOD_EX(stlstr_replacing, self, char *, sb_,
 
+    if(lobj_is_of_class($1, stlrgx_get_class()))
+    {
+        rgx_regex *regex = stlrgx_unwrap($1);
+        int *i = rgx_collect_matches(regex, sb_);
+        lky_object *o = stlstr_replacing_generic(sb_, $2, i, interp_);
+        free(i);
+        return o;
+    }
+
+    char *search = lobjb_stringify($1, interp_);
+    char *loc, *prev;
+    loc = prev = sb_;
+
+    size_t slen = strlen(search);
+    rgx_result_wrapper wrapper = rgx_wrapper_make();
+
+    while(*loc)
+    {
+        loc = strstr(loc, search);
+        if(!loc)
+            break;    
+
+        rgx_wrapper_append(&wrapper, loc - sb_);
+        rgx_wrapper_append(&wrapper, slen);
+        loc = loc + slen;
+    }
+    
+    int *i = rgx_wrapper_finalize(&wrapper);
+    lky_object *o = stlstr_replacing_generic(sb_, $2, i, interp_);
+    free(i);
+    free(search);
+    return o;
+
+    /*
     char *search = lobjb_stringify($1, interp_);
     char *repl = lobjb_stringify($2, interp_);
     char *loc = sb_;
@@ -224,6 +336,7 @@ CLASS_MAKE_METHOD_EX(stlstr_replacing, self, char *, sb_,
     free(repl);
 
     return o;
+    */
 )
 
 lky_object *stlstr_split_regex(char *me, lky_object *regex)

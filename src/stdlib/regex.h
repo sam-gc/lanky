@@ -25,6 +25,16 @@
 struct regex;
 typedef struct regex rgx_regex;
 
+typedef struct {
+    int *indices;
+    int ct;
+    int alloced;
+} rgx_result_wrapper;
+
+rgx_result_wrapper rgx_wrapper_make();
+void rgx_wrapper_append(rgx_result_wrapper *w, int c);
+int *rgx_wrapper_finalize(rgx_result_wrapper *w);
+
 rgx_regex *rgx_compile(char *input);
 void rgx_set_flags(rgx_regex *regex, unsigned flags);
 unsigned rgx_get_flags(rgx_regex *regex);

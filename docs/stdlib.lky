@@ -194,8 +194,8 @@ Documentation.new().
                 ['delim', 'The delimeter to use to split (another string or a regex)'],
                 'This method will split the string into an `Array` by scanning for the delimeters. If a regex is provided and the global flag (`g`) is not set, then the string will only be split at the first occurrence. The strings in the returned array do not have the delimeter attached. If the delimeter is not contained in the string, an array of count 1 is returned.').
         ProtoMethod('replacing', 2, 'Returns a new string with occurrences of some search pattern replaced',
-                ['search', 'The pattern to search for', 'repl', 'The string that will be used as replacement'],
-                'Regexes are not currently (but soon will be) supported for the `search` parameter. The original string is left untouched. A new string is allocated and constructed where all occurences of `search` are replaced by `repl`.').
+                ['search', 'The pattern to search for (string or regex)', 'repl', 'A replacement string or a function'],
+                'The `search` parameter may be a regex or a string. The original string is left untouched. A new string is allocated and constructed where all occurences of `search` are replaced by `repl` if `repl` is a string, or by the return value of `repl` if `repl` is a function callback. If `repl` is a function, it will be passed as its only parameter the string matched by `search`.').
         ProtoMethod('lower', 0, 'Returns the string with all characters in miniscule form', [], '').
         ProtoMethod('upper', 0, 'Returns the string with all characters in majuscule form', [], '').
         ProtoMethod('copy', 0, 'Returns a newly-allocated replica string', [], '').

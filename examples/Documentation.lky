@@ -2,19 +2,11 @@ Io = load 'Io';
 String = load 'String';
 
 String.model_.process = func() -> self {
-    pts = self.split('`');
-    if pts.count == 1 | !(pts.count % 2) {
-        ret self;
-    }
-
-    nstr = pts[0] + '<span class="mono">';
-    for i = 1; i < pts.count - 1; i += 1 {
-        nstr += pts[i] + (i % 2 == 0 ? '<span class="mono">' : '</span>');
-    }
-
-    ret nstr + pts[i];
+    -- Yay for regular expressions!!
+    ret self.replacing(/`[^`]*`/g/, func(mono) {
+        ret '<span class="mono">' + mono.find(/[^`]*/g/)[0] + '</span>';
+    });
 };
-
 
 HTML_FIRST = '<!DOCTYPE html><html><head><link rel="stylesheet" href="main.css"></head><body>';
 HTML_LAST  = '</body></html>';
