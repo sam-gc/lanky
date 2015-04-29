@@ -28,7 +28,7 @@ void stlrgx_common_init(lky_object *obj, char *pattern, char *flags)
 
     CLASS_SET_BLOB(obj, "rb_", regex, stlrgx_blob_func);
     lobj_set_member(obj, "pattern", stlstr_cinit(pattern));
-    lobj_set_member(obj, "flags", stlstr_cinit(flags));
+    lobj_set_member(obj, "flags", stlstr_cinit(flags ? flags : ""));
 }
 
 void stlrgx_manual_init(lky_object *nobj, lky_object *cls, void *data)
