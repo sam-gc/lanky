@@ -255,9 +255,9 @@ Documentation.new().
                 'This method, if provided with no arguments, will return an empty table. If two arguments are provided, they are interpreted to be an array of keys and an array of values respectively. In that case, a new table will be created by matching/building key-value pairs; `keys.count == values.count` must be true.').
     EndClass().
     Class('Regex', 'The interface to the built-in regex implementation. Simulates an NFA to test for matches.').
-        StaticMethod('new', 1, 'Creates a new regex',
-                ['pattern', 'The pattern to compile'],
-                'The regex is compiled when this method is called. The alternate `/pattern//` syntax may be used; in that case the regex is compiled during compilation of the rest of the program.').
+        StaticMethod('new', 2, 'Creates a new regex',
+                ['pattern', 'The pattern to compile', ['flags'], 'Regex flags'],
+                'The regex is compiled when this method is called. The alternate `/pattern/flags/` syntax may be used; in that case the regex is compiled during compilation of the rest of the program. The `flags` parameter is optional; if no flags are provided (i.e. "gi", then the regex returned will be plain.').
         ProtoField('pattern', 'The pattern string').
         ProtoField('rb_', 'The binary blob holding a reference to the C regex').
         ProtoMethod('matches', 2, 'Checks for matches in a given string',
