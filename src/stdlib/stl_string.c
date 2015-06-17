@@ -574,22 +574,42 @@ CLASS_MAKE_METHOD_EX(stlstr_find, self, char *, sb_,
     int *pts = rgx_collect_matches(regex, me);
     int *head = pts;
 
-    arraylist list = arr_create(10);
+    if(rgx_get_flags(regex) & RGX_GLOBAL)
+    {
+        arraylist list = arr_create(10);
 
-    while(*pts > -1)
+        while(*pts > -1)
+        {
+            int idx = *pts;
+            int len = *(++pts);
+            char temp[len + 1];
+            memcpy(temp, me + idx, len);
+            temp[len] = '\0';
+            arr_append(&list, stlstr_cinit(temp));
+            
+            pts++;
+        }
+
+        free(head);
+        return stlarr_cinit(list);
+    }
+    else
     {
         int idx = *pts;
-        int len = *(++pts);
+        if(idx == -1)
+        {
+            free(head);
+            return &lky_nil;
+        }
+
+        int len = pts[1];
         char temp[len + 1];
         memcpy(temp, me + idx, len);
         temp[len] = '\0';
-        arr_append(&list, stlstr_cinit(temp));
-        
-        pts++;
-    }
 
-    free(head);
-    return stlarr_cinit(list);
+        free(head);
+        return stlstr_cinit(temp);
+    }
 )
 
 void stlstr_manual_init(lky_object *nobj, lky_object *cls, void *data)

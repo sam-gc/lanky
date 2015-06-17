@@ -4,7 +4,7 @@ String = load 'String';
 String.model_.process = func() -> self {
     -- Yay for regular expressions!!
     ret self.replacing(/`[^`]*`/g/, func(mono) {
-        ret '<span class="mono">' + mono.find(/[^`]*/g/)[0] + '</span>';
+        ret '<span class="mono">' + mono.find(/[^`]*//) + '</span>';
     });
 };
 
