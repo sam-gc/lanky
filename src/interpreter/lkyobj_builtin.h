@@ -63,7 +63,8 @@ typedef union {
 
 typedef struct {
     unsigned type : 4;
-    unsigned mem_count : 1;
+    unsigned mem_count : 2;
+    struct lky_object *gc_next;
     
     lky_builtin_value value;
     lobjb_void_ptr_function on_gc;
@@ -71,7 +72,8 @@ typedef struct {
 
 typedef struct {
     unsigned type : 4;
-    unsigned mem_count : 1;
+    unsigned mem_count : 2;
+    struct lky_object *gc_next;
 
     int index;
     arraylist *store;
@@ -80,7 +82,8 @@ typedef struct {
 
 typedef struct {
     unsigned type : 4;
-    unsigned mem_count : 1;
+    unsigned mem_count : 2;
+    struct lky_object *gc_next;
 
     hashtable members;
     lky_object *cls;
@@ -94,7 +97,8 @@ typedef struct {
 
 typedef struct {
     unsigned type : 4;
-    unsigned mem_count : 1;
+    unsigned mem_count : 2;
+    struct lky_object *gc_next;
 
     long num_constants;
     long num_locals;
@@ -121,7 +125,8 @@ typedef struct {
 
 struct lky_object_function {
     unsigned type : 4;
-    unsigned mem_count : 1;
+    unsigned mem_count : 2;
+    struct lky_object *gc_next;
 
     hashtable members;
 
@@ -140,7 +145,8 @@ struct lky_object_function {
 
 typedef struct {
     unsigned type : 4;
-    unsigned mem_count : 1;
+    unsigned mem_count : 2;
+    struct lky_object *gc_next;
 
     hashtable members;
 
@@ -154,7 +160,8 @@ typedef struct {
 
 typedef struct {
     unsigned type : 4;
-    unsigned mem_count : 1;
+    unsigned mem_count : 2;
+    struct lky_object *gc_next;
 
     hashtable members;
     lky_object *cls;

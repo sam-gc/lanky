@@ -19,7 +19,9 @@
 #ifndef LKY_GC_MK2_H
 #define LKY_GC_MK2_H
 
-void gc2_add_object(void *obj);
+#include "lky_object.h"
+
+void gc2_add_object(lky_object *obj);
 void gc2_gc();
 
 #endif

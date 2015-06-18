@@ -53,7 +53,8 @@ typedef struct {
 
 typedef struct lky_object_seq {
     unsigned type : 4;
-    unsigned mem_count : 1;
+    unsigned mem_count : 2;
+    struct lky_object *gc_next;
 
     struct lky_object *value;
     struct lky_object_seq *next;
@@ -61,7 +62,8 @@ typedef struct lky_object_seq {
 
 typedef struct {
     unsigned type : 4;
-    unsigned mem_count : 1;
+    unsigned mem_count : 2;
+    struct lky_object *gc_next;
 
     hashtable members;
 

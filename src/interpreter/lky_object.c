@@ -27,9 +27,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-lky_object lky_nil = {LBI_NIL, 0, {0, 0, 0, NULL}, NULL, {0, NULL}};
-lky_object lky_yes = {LBI_BOOL, 1, {0, 0, 0, NULL}, NULL, {0, NULL}};
-lky_object lky_no = {LBI_BOOL, 1, {0, 0, 0, NULL}, NULL, {0, NULL}};
+lky_object lky_nil = {LBI_NIL, 0, NULL, {0, 0, 0, NULL}, NULL, {0, NULL}};
+lky_object lky_yes = {LBI_BOOL, 1, NULL, {0, 0, 0, NULL}, NULL, {0, NULL}};
+lky_object lky_no = {LBI_BOOL, 1, NULL, {0, 0, 0, NULL}, NULL, {0, NULL}};
 
 int alloced = 0;
 lky_object *lobj_alloc()
